@@ -1,0 +1,14 @@
+#User Specific
+*.userprefs
+*.usertasks
+
+#Mono Project Files
+*.pidb
+*.resources
+test-results/
+bin/
+obj/
+packages/
+
+#Visual Studio Project Files
+.vs/

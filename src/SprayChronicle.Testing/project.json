@@ -1,0 +1,26 @@
+{
+  "version": "0.0.5-*",
+  "buildOptions": {
+    "debugType": "portable"
+  },
+  "dependencies": {
+      "FluentAssertions": "4.9.1",
+      "Newtonsoft.Json": "9.0.1",
+      "xunit": "2.1.0",
+      "Autofac": "4.2.0",
+      "SprayChronicle.CommandHandling": {
+          "target": "project"
+      },
+      "SprayChronicle.EventSourcing": {
+          "target": "project"
+      }
+  },
+  "frameworks": {
+    "netstandard1.6": {
+      "dependencies": {
+        "NETStandard.Library": "1.6.0"
+      },
+      "imports": ["dotnet", "net35"]
+    }
+  }
+}
