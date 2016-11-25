@@ -123,31 +123,33 @@ namespace SprayChronicle.EventHandling.Projecting
         {
             StopFlushTimer();
 
+            if (_flushing) {
+                return;
+            }
+
             if (_saves.Count + _removes.Count >= _limit) {
-                DoFlush();
+                DoFlushAsync();
             } else {
                 StartFlushTimer();
             }
         }
 
-        async void DoFlush()
+        void DoFlush()
         {
-            if (_flushing) {
-                Console.WriteLine("[{0}] Already flushing...", typeof(T).Name);
-                return;
-            }
+            _flushing = true;
+            
+            DoFlushSaves();
+            DoFlushRemoves();
 
-            await Task.Run(() => {
-                _flushing = true;
-                
-                DoFlushSaves();
-                DoFlushRemoves();
+            _saves.Clear();
+            _removes.Clear();
 
-                _saves.Clear();
-                _removes.Clear();
+            _flushing = false;
+        }
 
-                _flushing = false;
-            });
+        async void DoFlushAsync()
+        {
+            await Task.Run(() => DoFlush());
         }
 
         void DoFlushSaves()
@@ -156,8 +158,6 @@ namespace SprayChronicle.EventHandling.Projecting
                 return;
             }
 
-            var count = _saves.Count();
-            
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
         
@@ -168,7 +168,7 @@ namespace SprayChronicle.EventHandling.Projecting
                 "[{0}::SAVE] {1}ms ({2}/second)",
                 typeof(T).Name,
                 stopwatch.ElapsedMilliseconds,
-                PerSecond(stopwatch.ElapsedMilliseconds, count)
+                PerSecond(stopwatch.ElapsedMilliseconds, _saves.Count())
             );
         }
 
@@ -178,8 +178,6 @@ namespace SprayChronicle.EventHandling.Projecting
                 return;
             }
             
-            var count = _removes.Count();
-
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
         
@@ -190,7 +188,7 @@ namespace SprayChronicle.EventHandling.Projecting
                 "[{0}::REMOVE] {1}ms ({2}/second)",
                 typeof(T).Name,
                 stopwatch.ElapsedMilliseconds,
-                PerSecond(stopwatch.ElapsedMilliseconds, count)
+                PerSecond(stopwatch.ElapsedMilliseconds, _removes.Count())
             );
         }
 
