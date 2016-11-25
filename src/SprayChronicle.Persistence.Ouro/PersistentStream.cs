@@ -53,7 +53,9 @@ namespace SprayChronicle.Persistence.Ouro
                     );
                 },
                 (subscription, reason, error) => {
-                    throw new OuroException(string.Format("Subscription on {0} failure", _streamName), error);
+                    #if DEBUG
+                    Console.WriteLine("Persistent subscription {0}_{1} failure: {2}", _streamName, _groupName, error.Message);
+                    #endif
                 }
             );
         }
