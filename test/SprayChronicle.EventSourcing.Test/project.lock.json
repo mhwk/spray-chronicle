@@ -2874,7 +2874,7 @@
           "SprayChronicle.EventSourcing": "(, )"
         }
       },
-      "SprayChronicle.EventSourcing/0.0.4": {
+      "SprayChronicle.EventSourcing/0.0.6": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
@@ -8391,7 +8391,7 @@
       "type": "project",
       "path": "../../src/SprayChronicle.CommandHandling/project.json"
     },
-    "SprayChronicle.EventSourcing/0.0.4": {
+    "SprayChronicle.EventSourcing/0.0.6": {
       "type": "project",
       "path": "../../src/SprayChronicle.EventSourcing/project.json"
     },

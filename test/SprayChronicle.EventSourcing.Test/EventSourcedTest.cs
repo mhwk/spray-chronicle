@@ -63,5 +63,50 @@ namespace SprayChronicle.Test.EvenSourcing
                 .Select(domainMessage => domainMessage.Sequence)
                 .ShouldBeEquivalentTo(new int[] {1, 2});
         }
+
+        [Fact]
+        public void ItDoesNotPatchGracefully()
+        {
+            var aggregate = (PickedUpBasket) Basket.Patch(new DomainMessage[] {
+                new DomainMessage(
+                    0,
+                    new DateTime(),
+                    new BasketPickedUp("foo")
+                ),
+                new DomainMessage(
+                    1,
+                    new DateTime(),
+                    new UnknownBasketEvent()
+                ),
+            });
+        }
+
+        [Fact]
+        public void ItCalculatesSequenceAfterUnknownPatch()
+        {
+            var aggregate = (PickedUpBasket) Basket.Patch(new DomainMessage[] {
+                new DomainMessage(
+                    0,
+                    new DateTime(),
+                    new BasketPickedUp("foo")
+                ),
+                new DomainMessage(
+                    1,
+                    new DateTime(),
+                    new UnknownBasketEvent()
+                ),
+            });
+            aggregate
+                .AddProduct(new ProductId("bar"))
+                .AddProduct(new ProductId("bar"))
+                .Diff()
+                .Select(domainMessage => domainMessage.Sequence)
+                .ShouldBeEquivalentTo(new int[] {2, 3});
+        }
+
+        public sealed class UnknownBasketEvent
+        {
+
+        }
     }
 }

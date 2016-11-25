@@ -18,11 +18,7 @@ namespace SprayChronicle.EventSourcing
                     .FirstOrDefault();
                 
                 if (null == method) {
-                    throw new UnknownDomainMessageException(string.Format(
-                        "Domain message {0} is unknown for {1}",
-                        domainMessage.Payload.GetType(),
-                        typeInfo
-                    ));
+                    return sourcable;
                 }
 
                 if (null == sourcable && ! method.IsStatic) {
