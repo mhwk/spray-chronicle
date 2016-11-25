@@ -1,4 +1,4 @@
-namespace SprayChronicle.EventHandling
+namespace SprayChronicle.EventHandling.Projecting
 {
     public interface IBuildProjectionRepositories
     {

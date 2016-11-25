@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace SprayChronicle.EventHandling
+namespace SprayChronicle.EventHandling.Projecting
 {
     public interface IProjectionRepository<T>
     {

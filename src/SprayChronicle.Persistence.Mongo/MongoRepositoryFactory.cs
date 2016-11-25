@@ -1,6 +1,7 @@
 using MongoDB.Driver;
+using SprayChronicle.EventHandling.Projecting;
 
-namespace SprayChronicle.EventHandling.MongoDB
+namespace SprayChronicle.Persistence.Mongo
 {
     public sealed class MongoRepositoryFactory
     {

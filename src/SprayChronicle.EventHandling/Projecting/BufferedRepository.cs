@@ -3,9 +3,10 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Diagnostics;
 
-namespace SprayChronicle.EventHandling
+namespace SprayChronicle.EventHandling.Projecting
 {
     public class BufferedRepository<T> : IProjectionRepository<T>
     {
@@ -129,18 +130,24 @@ namespace SprayChronicle.EventHandling
             }
         }
 
-        void DoFlush()
+        async void DoFlush()
         {
             if (_flushing) {
                 Console.WriteLine("[{0}] Already flushing...", typeof(T).Name);
                 return;
             }
 
-            _flushing = true;
-            StopFlushTimer();
-            DoFlushSaves();
-            DoFlushRemoves();
-            _flushing = false;
+            await Task.Run(() => {
+                _flushing = true;
+                
+                DoFlushSaves();
+                DoFlushRemoves();
+
+                _saves.Clear();
+                _removes.Clear();
+
+                _flushing = false;
+            });
         }
 
         void DoFlushSaves()
@@ -155,7 +162,6 @@ namespace SprayChronicle.EventHandling
             stopwatch.Start();
         
             _repository.Save(_saves.Values.ToArray());
-            _saves.Clear();
 
             stopwatch.Stop();
             Console.WriteLine(
@@ -178,7 +184,6 @@ namespace SprayChronicle.EventHandling
             stopwatch.Start();
         
             _repository.Remove(_removes.Keys.ToArray());
-            _removes.Clear();
 
             stopwatch.Stop();
             Console.WriteLine(

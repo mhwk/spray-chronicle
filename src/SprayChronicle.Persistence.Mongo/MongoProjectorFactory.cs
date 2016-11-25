@@ -1,6 +1,8 @@
 using System;
+using SprayChronicle.EventHandling;
+using SprayChronicle.EventHandling.Projecting;
 
-namespace SprayChronicle.EventHandling.MongoDB
+namespace SprayChronicle.Persistence.Mongo
 {
     public sealed class MongoProjectorFactory : IBuildProjectors
     {

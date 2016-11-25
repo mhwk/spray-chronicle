@@ -3,8 +3,9 @@ using System.Linq;
 using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using SprayChronicle.EventHandling.Projecting;
 
-namespace SprayChronicle.EventHandling.MongoDB
+namespace SprayChronicle.Persistence.Mongo
 {
     public class MongoRepository<T> : IProjectionRepository<T>
     {
