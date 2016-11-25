@@ -128,7 +128,7 @@ namespace SprayChronicle.EventHandling.Projecting
             }
 
             if (_saves.Count + _removes.Count >= _limit) {
-                DoFlushAsync();
+                DoFlushAsync().Wait();
             } else {
                 StartFlushTimer();
             }
@@ -147,7 +147,7 @@ namespace SprayChronicle.EventHandling.Projecting
             _flushing = false;
         }
 
-        async void DoFlushAsync()
+        async Task DoFlushAsync()
         {
             await Task.Run(() => DoFlush());
         }
