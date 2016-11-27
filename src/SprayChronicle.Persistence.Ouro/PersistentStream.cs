@@ -46,16 +46,20 @@ namespace SprayChronicle.Persistence.Ouro
                 _streamName,
                 _groupName,
                 (subscription, resolvedEvent) => {
-                    callback(
-                        resolvedEvent.Event.EventType,
-                        Encoding.UTF8.GetString(resolvedEvent.Event.Data),
-                        resolvedEvent.Event.Created
-                    );
+                    try {
+                        callback(
+                            resolvedEvent.Event.EventType,
+                            Encoding.UTF8.GetString(resolvedEvent.Event.Data),
+                            resolvedEvent.Event.Created
+                        );
+                        subscription.Acknowledge(resolvedEvent);
+                    } catch (Exception error) {
+                        Console.WriteLine("Persistent subscription {0}_{1} failure: {2}", _streamName, _groupName, error);
+                        subscription.Fail(resolvedEvent, PersistentSubscriptionNakEventAction.Park, error.ToString());
+                    }
                 },
                 (subscription, reason, error) => {
-                    #if DEBUG
-                    Console.WriteLine("Persistent subscription {0}_{1} failure: {2}", _streamName, _groupName, error.Message);
-                    #endif
+                    Console.WriteLine("Persistent subscription {0}_{1} error: {2}, {3}", _streamName, _groupName, reason.ToString(), error.ToString());
                 }
             );
         }
