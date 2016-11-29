@@ -34,7 +34,7 @@ namespace SprayChronicle.Testing
             var container = new ContainerBuilder();
             Configure(container);
             
-            new EventSourcedFixture<THandler,TSource>(container.Build())
+            new EventSourcedFixture<THandler,TSource>(Configure)
                 .Given(Given())
                 .When(When())
                 .ExpectException(ExpectException())

@@ -10,47 +10,63 @@ namespace SprayChronicle.Testing
 {
     public class EventSourcedFixture<THandler,TSource> : IPopulate, IExecute where THandler : IHandleCommand where TSource: EventSourced<TSource>
     {
-        readonly IContainer _container;
+        readonly Action<ContainerBuilder> _configure;
 
-        TestRepository<TSource> _repository;
+        IContainer _container;
 
         int _sequence = -1;
 
-        public EventSourcedFixture(): this(new ContainerBuilder().Build())
+        public EventSourcedFixture(): this(builder => {})
         {}
 
-        public EventSourcedFixture(IContainer container)
+        public EventSourcedFixture(Action<ContainerBuilder> configure)
         {
-            _container = container;
+            _configure = configure;
+        } 
+
+        public IContainer Container()
+        {
+            if (null == _container) {
+                var builder = new ContainerBuilder();
+
+                builder
+                    .Register<TestStore>(c => new TestStore())
+                    .AsSelf()
+                    .As<IEventStore>()
+                    .SingleInstance();
+
+                builder
+                    .Register<IObjectRepository<TSource>>(c => new EventSourcedRepository<TSource>(c.Resolve<IEventStore>()))
+                    .SingleInstance();
+                
+                _configure(builder);
+                
+                _container = builder.Build();
+            }
+            return _container;
         }
 
 		public IExecute Given(params object[] messages)
         {
-            Repository().History(messages.Select(payload => new DomainMessage(
+            Container().Resolve<TestStore>().Append<TSource>("", messages.Select(payload => new DomainMessage(
                 ++_sequence,
                 new DateTime(),
                 payload
-            )).ToList());
+            )).ToArray());
+
             return this;
         }
 
 		public IValidate When(object message)
         {
+            Container().Resolve<TestStore>().Record();
             Exception e = null;
             try {
                 BuildHandler().Handle(message);
             } catch (Exception error) {
                 e = error;
             }
-            return new TestValidator(Repository().Future(), e);
-        }
-
-        protected virtual TestRepository<TSource> Repository()
-        {
-            if (null == _repository) {
-                _repository = new TestRepository<TSource>();
-            }
-            return _repository;
+            return new TestValidator(Container().Resolve<TestStore>().Recorded(""), e);
         }
         
         protected virtual IHandleCommand BuildHandler()
@@ -60,11 +76,10 @@ namespace SprayChronicle.Testing
 
         object[] BuildArguments()
         {
-            List<object> args = new List<object>();
-            args.Add(Repository());
+            var args = new List<object>();
 
             var constructor = typeof(THandler).GetTypeInfo().GetConstructors()
-                .Where(c => c.GetParameters().Length > 1)
+                .OrderByDescending(c => c.GetParameters().Length)
                 .FirstOrDefault();
             
             if (null == constructor) {
@@ -75,8 +90,8 @@ namespace SprayChronicle.Testing
                 .Select(p => p.ParameterType)
                 .ToArray();
             
-            for (var i = 1; i < types.Length; i++) {
-                args.Add(_container.Resolve(types[i]));
+            for (var i = 0; i < types.Length; i++) {
+                args.Add(Container().Resolve(types[i]));
             }
 
             return args.ToArray();
