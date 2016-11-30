@@ -1,9 +1,11 @@
 {
-  "version": "0.0.5-*",
+  "version": "0.0.6-*",
   "buildOptions": {
     "debugType": "portable"
   },
   "dependencies": {
+      "Autofac": "4.2.1",
+      "Microsoft.Extensions.Logging": "1.0.0",
       "SprayChronicle.EventSourcing": {
           "target": "project"
       }
