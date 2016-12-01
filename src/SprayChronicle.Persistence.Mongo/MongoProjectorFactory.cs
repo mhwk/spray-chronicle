@@ -21,6 +21,7 @@ namespace SprayChronicle.Persistence.Mongo
         {
             return (TProjector) Activator.CreateInstance(
                 typeof(TProjector),
+                _logger,
                 stream,
                 new BufferedRepository<TProjection>(
                     _logger,
@@ -33,6 +34,7 @@ namespace SprayChronicle.Persistence.Mongo
         {
             return (TProjector) Activator.CreateInstance(
                 typeof(TProjector),
+                _logger,
                 stream,
                 new BufferedRepository<TProjection>(
                     _logger,
@@ -45,8 +47,12 @@ namespace SprayChronicle.Persistence.Mongo
         {
             return (TProjector) Activator.CreateInstance(
                 typeof(TProjector),
+                _logger,
                 stream,
-                new BufferedRepository<TProjection>(_logger, repository)
+                new BufferedRepository<TProjection>(
+                    _logger,
+                    repository
+                )
             );
         }
     }
