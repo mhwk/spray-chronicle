@@ -3,7 +3,7 @@ using Xunit;
 using Moq;
 using FluentAssertions;
 using SprayChronicle.CommandHandling;
-using SprayChronicle.Example.Contract.Command;
+using SprayChronicle.Example.Contracts.Commands;
 
 namespace SprayChronicle.Test.CommandHandling
 {
@@ -15,7 +15,7 @@ namespace SprayChronicle.Test.CommandHandling
         public void ItFailsIfNoSubscriptions()
         {
             var commandBus = new SubscriptionCommandBus();
-            Action a = () => commandBus.Dispatch(new DoNotAcceptExample());
+            Action a = () => commandBus.Dispatch(new Command());
             a.ShouldThrow<UnhandledCommandException>();
         }
 
@@ -27,7 +27,7 @@ namespace SprayChronicle.Test.CommandHandling
             var commandBus = new SubscriptionCommandBus();
             commandBus.Subscribe(CommandHandler.Object);
 
-            Action a = () => commandBus.Dispatch(new DoNotAcceptExample());
+            Action a = () => commandBus.Dispatch(new Command());
             a.ShouldThrow<UnhandledCommandException>();
         }
 
@@ -39,7 +39,10 @@ namespace SprayChronicle.Test.CommandHandling
             var commandBus = new SubscriptionCommandBus();
             commandBus.Subscribe(CommandHandler.Object);
 
-            commandBus.Dispatch(new DoAcceptExample("foo"));
+            commandBus.Dispatch(new Command());
         }
+
+        public class Command
+        {}
     }
 }

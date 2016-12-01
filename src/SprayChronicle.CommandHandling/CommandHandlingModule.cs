@@ -1,3 +1,4 @@
+using System.Linq;
 using Autofac;
 using Microsoft.Extensions.Logging;
 
@@ -9,6 +10,7 @@ namespace SprayChronicle.CommandHandling
         {
             builder
                 .Register<SubscriptionCommandBus>(c => new SubscriptionCommandBus())
+                .OnActivating(e => RegisterCommandHandlers(e.Context, e.Instance as SubscriptionCommandBus))
                 .SingleInstance();
             
             builder
@@ -23,6 +25,15 @@ namespace SprayChronicle.CommandHandling
                     c.Resolve<LoggingCommandBus>()
                 ))
                 .SingleInstance();
+        }
+
+        void RegisterCommandHandlers(IComponentContext context, SubscriptionCommandBus dispatcher)
+        {
+            context.ComponentRegistry.Registrations
+                .Where(r => r.Activator.LimitType.IsAssignableTo<IHandleCommand>())
+                .Select(r => context.Resolve(r.Activator.LimitType) as IHandleCommand)
+                .ToList()
+                .ForEach(h => dispatcher.Subscribe(h));
         }
     }
 }
