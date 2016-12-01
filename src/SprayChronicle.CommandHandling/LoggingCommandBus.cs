@@ -5,11 +5,11 @@ namespace SprayChronicle.CommandHandling
 {
     public class LoggingCommandBus : IDispatchCommands
     {
-        readonly ILogger _logger;
+        readonly ILogger<LoggingCommandBus> _logger;
 
         readonly IDispatchCommands _internalDispatcher;
 
-        public LoggingCommandBus(ILogger logger, IDispatchCommands internalDispatcher)
+        public LoggingCommandBus(ILogger<LoggingCommandBus> logger, IDispatchCommands internalDispatcher)
         {
             _logger = logger;
             _internalDispatcher = internalDispatcher;
@@ -18,9 +18,10 @@ namespace SprayChronicle.CommandHandling
         public void Dispatch(object command)
         {
             try {
+                _logger.LogInformation("Dispatching: ", command.GetType());
                 _internalDispatcher.Dispatch(command);
             } catch (Exception error) {
-                _logger.LogWarning("Dispatch of command failed", error);
+                _logger.LogWarning("Dispatch of command failed: ", error);
             }
         }
     }
