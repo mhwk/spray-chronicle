@@ -3,7 +3,8 @@
   "buildOptions": {
     "debugType": "portable"
   },
-  "dependencies": {},
+  "dependencies": {
+  },
   "frameworks": {
     "netstandard1.6": {
       "dependencies": {

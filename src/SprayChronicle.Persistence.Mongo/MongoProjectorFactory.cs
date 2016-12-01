@@ -1,4 +1,5 @@
 using System;
+using Microsoft.Extensions.Logging;
 using SprayChronicle.EventHandling;
 using SprayChronicle.EventHandling.Projecting;
 
@@ -6,10 +7,13 @@ namespace SprayChronicle.Persistence.Mongo
 {
     public sealed class MongoProjectorFactory : IBuildProjectors
     {
+        readonly ILogger<StreamEventHandler> _logger;
+
         readonly MongoRepositoryFactory _repositoryFactory;
 
-        public MongoProjectorFactory(MongoRepositoryFactory repositoryFactory)
+        public MongoProjectorFactory(ILogger<StreamEventHandler> logger, MongoRepositoryFactory repositoryFactory)
         {
+            _logger = logger;
             _repositoryFactory = repositoryFactory;
         }
 
@@ -19,6 +23,7 @@ namespace SprayChronicle.Persistence.Mongo
                 typeof(TProjector),
                 stream,
                 new BufferedRepository<TProjection>(
+                    _logger,
                     _repositoryFactory.Build<TProjection>()
                 )
             );
@@ -30,6 +35,7 @@ namespace SprayChronicle.Persistence.Mongo
                 typeof(TProjector),
                 stream,
                 new BufferedRepository<TProjection>(
+                    _logger,
                     _repositoryFactory.Build<TProjection>(projectionReference)
                 )
             );
@@ -40,7 +46,7 @@ namespace SprayChronicle.Persistence.Mongo
             return (TProjector) Activator.CreateInstance(
                 typeof(TProjector),
                 stream,
-                new BufferedRepository<TProjection>(repository)
+                new BufferedRepository<TProjection>(_logger, repository)
             );
         }
     }

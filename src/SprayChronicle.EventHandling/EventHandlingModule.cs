@@ -1,4 +1,5 @@
 using System.Linq;
+using Microsoft.Extensions.Logging;
 using Autofac;
 
 namespace SprayChronicle.EventHandling
@@ -11,6 +12,14 @@ namespace SprayChronicle.EventHandling
                 .Register<IManageStreamHandlers>(c => new StreamHandlerManager())
                 .OnActivating(e => RegisterStreamHandlers(e.Context, e.Instance as IManageStreamHandlers))
                 .SingleInstance();
+
+            builder
+                .Register<ILogger<StreamEventHandler>>(
+                    c => new LoggerFactory()
+                        .AddDebug()
+                        .AddConsole()
+                        .CreateLogger<StreamEventHandler>()
+                );
         }
 
         void RegisterStreamHandlers(IComponentContext context, IManageStreamHandlers manager)

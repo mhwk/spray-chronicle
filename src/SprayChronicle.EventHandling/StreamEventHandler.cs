@@ -4,20 +4,24 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace SprayChronicle.EventHandling
 {
     public abstract class StreamEventHandler : IHandleStream
     {
+        readonly ILogger<StreamEventHandler> _logger;
+
         readonly IStream _stream;
 
         readonly Dictionary<string,MethodInfo> _methods = new Dictionary<string,MethodInfo>();
 
         readonly Dictionary<string,Type> _types = new Dictionary<string,Type>();
 
-        public StreamEventHandler(IStream stream)
+        public StreamEventHandler(ILogger<StreamEventHandler> logger, IStream stream)
         {
+            _logger = logger;
             _stream = stream;
             foreach (var method in GetType().GetTypeInfo().GetMethods().Where(m => m.GetParameters().Length > 0)) {
                 _methods.Add(method.GetParameters()[0].ParameterType.Name, method);
@@ -43,7 +47,7 @@ namespace SprayChronicle.EventHandling
                 Invoke(_methods[name], JsonConvert.DeserializeObject(payload, _types[name]), occurrence);
 
                 stopwatch.Stop();
-                Console.WriteLine(
+                _logger.LogInformation(
                     "[{0}::{1}] {2}ms",
                     GetType().Name,
                     name,

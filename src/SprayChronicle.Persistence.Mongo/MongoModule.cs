@@ -1,6 +1,8 @@
 using System;
 using Autofac;
 using MongoDB.Driver;
+using Microsoft.Extensions.Logging;
+using SprayChronicle.EventHandling;
 
 namespace SprayChronicle.Persistence.Mongo
 {
@@ -19,6 +21,7 @@ namespace SprayChronicle.Persistence.Mongo
             builder
                 .Register<MongoProjectorFactory>(
                     c => new MongoProjectorFactory(
+                        c.Resolve<ILogger<StreamEventHandler>>(),
                         c.Resolve<MongoRepositoryFactory>()
                     )
                 )

@@ -5,11 +5,14 @@ using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
 
 namespace SprayChronicle.EventHandling.Projecting
 {
     public class BufferedRepository<T> : IProjectionRepository<T>
     {
+        readonly ILogger<StreamEventHandler> _logger;
+
         readonly IProjectionRepository<T> _repository;
 
         readonly int _limit;
@@ -22,12 +25,13 @@ namespace SprayChronicle.EventHandling.Projecting
 
         bool _flushing = false;
 
-        public BufferedRepository(IProjectionRepository<T> repository) : this(repository, 10000)
+        public BufferedRepository(ILogger<StreamEventHandler> logger, IProjectionRepository<T> repository) : this(logger, repository, 10000)
         {
         }
 
-        public BufferedRepository(IProjectionRepository<T> repository, int limit)
+        public BufferedRepository(ILogger<StreamEventHandler> logger, IProjectionRepository<T> repository, int limit)
         {
+            _logger = logger;
             _repository = repository;
             _limit = limit;
             _saves = new ConcurrentDictionary<string,T>();
@@ -164,7 +168,7 @@ namespace SprayChronicle.EventHandling.Projecting
             _repository.Save(_saves.Values.ToArray());
 
             stopwatch.Stop();
-            Console.WriteLine(
+            _logger.LogInformation(
                 "[{0}::SAVE] {1}ms ({2}/second)",
                 typeof(T).Name,
                 stopwatch.ElapsedMilliseconds,
@@ -184,7 +188,7 @@ namespace SprayChronicle.EventHandling.Projecting
             _repository.Remove(_removes.Keys.ToArray());
 
             stopwatch.Stop();
-            Console.WriteLine(
+            _logger.LogInformation(
                 "[{0}::REMOVE] {1}ms ({2}/second)",
                 typeof(T).Name,
                 stopwatch.ElapsedMilliseconds,
@@ -202,7 +206,7 @@ namespace SprayChronicle.EventHandling.Projecting
             _removes.Clear();
 
             stopwatch.Stop();
-            Console.WriteLine("[{0}::CLEAR] {1}ms", typeof(T).Name, stopwatch.ElapsedMilliseconds);
+            _logger.LogInformation("[{0}::CLEAR] {1}ms", typeof(T).Name, stopwatch.ElapsedMilliseconds);
         }
 
         void StartFlushTimer()

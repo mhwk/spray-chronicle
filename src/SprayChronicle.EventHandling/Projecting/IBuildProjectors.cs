@@ -5,5 +5,7 @@ namespace SprayChronicle.EventHandling.Projecting
         TProjector Build<TProjection,TProjector>(IStream stream) where TProjector : Projector<TProjection>;
 
         TProjector Build<TProjection,TProjector>(IStream stream, string projectionReference) where TProjector : Projector<TProjection>;
+
+        TProjector Build<TProjection,TProjector>(IStream stream, IProjectionRepository<TProjection> repository) where TProjector : Projector<TProjection>;
     }
 }
