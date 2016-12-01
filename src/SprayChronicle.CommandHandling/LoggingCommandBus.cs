@@ -18,10 +18,10 @@ namespace SprayChronicle.CommandHandling
         public void Dispatch(object command)
         {
             try {
-                _logger.LogInformation("Dispatching: ", command.GetType());
+                _logger.LogInformation("Dispatching: " + command.GetType().ToString());
                 _internalDispatcher.Dispatch(command);
             } catch (Exception error) {
-                _logger.LogWarning("Dispatch of command failed: ", error);
+                _logger.LogWarning("Dispatch of command failed: " + error.ToString());
             }
         }
     }
