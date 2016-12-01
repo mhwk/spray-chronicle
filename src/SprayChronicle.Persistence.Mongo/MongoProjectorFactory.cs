@@ -34,5 +34,14 @@ namespace SprayChronicle.Persistence.Mongo
                 )
             );
         }
+
+        public TProjector Build<TProjection,TProjector>(IStream stream, IProjectionRepository<TProjection> repository) where TProjector : Projector<TProjection>
+        {
+            return (TProjector) Activator.CreateInstance(
+                typeof(TProjector),
+                stream,
+                new BufferedRepository<TProjection>(repository)
+            );
+        }
     }
 }
