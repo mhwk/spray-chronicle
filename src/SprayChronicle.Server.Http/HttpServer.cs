@@ -12,25 +12,24 @@ namespace SprayChronicle.Server.Http
 {
     public class HttpServer
     {
-        IWebHostBuilder builder;
+        IWebHost server;
 
         public void Initialize()
         {
-            builder = new WebHostBuilder()
+            server = new WebHostBuilder()
                 .UseKestrel()
                 .UseContentRoot(Directory.GetCurrentDirectory())
-                .UseStartup<Startup>();
+                .UseStartup<Startup>()
+                .Build();
         }
 
         public void Run()
         {
-            if (null == builder) {
+            if (null == server) {
                 throw new NullReferenceException("Server not yet configured");
             }
 
-            builder
-                .Build()
-                .Run();
+            server.Run();
         }
 
         public class Startup
@@ -50,6 +49,7 @@ namespace SprayChronicle.Server.Http
                 });
 
                 SprayChronicleServer.ContainerBuilder().Populate(services);
+                SprayChronicleServer.ContainerBuilder().RegisterModule(new SprayChronicleHttpModule());
                 return SprayChronicleServer.Container().Resolve<IServiceProvider>();
             }
 

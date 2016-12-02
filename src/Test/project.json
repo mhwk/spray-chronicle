@@ -5,6 +5,9 @@
     "emitEntryPoint": true
   },
   "dependencies": {
+      "SprayChronicle": {
+          "target": "project"
+      },
       "SprayChronicle.CommandHandling": {
           "target": "project"
       },
@@ -18,6 +21,9 @@
           "target": "project"
       },
       "SprayChronicle.Server.Http": {
+          "target": "project"
+      },
+      "SprayChronicle.Persistence.Ouro": {
           "target": "project"
       }
     },

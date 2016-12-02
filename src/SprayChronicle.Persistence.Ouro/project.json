@@ -4,9 +4,12 @@
     "debugType": "portable"
   },
   "dependencies": {
-    "Autofac": "4.2.0",
+    "Autofac": "4.2.1",
     "EventStore.ClientAPI.NetCore": "0.0.1-alpha",
     "Newtonsoft.Json": "9.0.1",
+    "SprayChronicle.Server": {
+        "target": "project"
+    },
     "SprayChronicle.EventSourcing": {
         "target": "project"
     },

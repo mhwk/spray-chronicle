@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Autofac;
 using SprayChronicle.Server;
 using SprayChronicle.Server.Http;
+using SprayChronicle.CommandHandling;
 using SprayChronicle.EventHandling;
+using SprayChronicle.Persistence.Ouro;
 
 namespace ConsoleApplication
 {
@@ -10,8 +12,9 @@ namespace ConsoleApplication
         public static void Main(string[] args)
         {
             new SprayChronicleServer()
-                .WithContainerConfiguration(builder => {})
+                .WithCommandHandling()
                 .WithEventHandling()
+                .WithOuroPersistence()
                 .WithHttp()
                 .RunAsync()
                 .Wait();
