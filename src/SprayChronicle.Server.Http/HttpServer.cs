@@ -6,41 +6,35 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
-using SprayChronicle.EventHandling;
+using SprayChronicle.Server;
 
-namespace SprayChronicle.HttpServer
+namespace SprayChronicle.Server.Http
 {
     public class HttpServer
     {
-        Action<ContainerBuilder> _configureContainer;
+        IWebHostBuilder builder;
 
-        public IContainer Container {get; private set;}
-
-        public HttpServer(Action<ContainerBuilder> configureContainer)
+        public void Initialize()
         {
-            _configureContainer = configureContainer;
+            builder = new WebHostBuilder()
+                .UseKestrel()
+                .UseContentRoot(Directory.GetCurrentDirectory())
+                .UseStartup<Startup>();
         }
 
         public void Run()
         {
-            _configureContainer(Startup.ContainerBuilder);
+            if (null == builder) {
+                throw new NullReferenceException("Server not yet configured");
+            }
 
-            var server = new WebHostBuilder()
-                .UseKestrel()
-                .UseContentRoot(Directory.GetCurrentDirectory())
-                .UseStartup<Startup>()
-                .Build();
-            
-
-            ((IManageStreamHandlers)server.Services.GetService(typeof(IManageStreamHandlers))).Manage();
-
-            server.Run();
+            builder
+                .Build()
+                .Run();
         }
 
         public class Startup
         {
-            public static ContainerBuilder ContainerBuilder = new ContainerBuilder();
-
             public IServiceProvider ConfigureServices(IServiceCollection services)
             {
                 services.AddLogging();
@@ -55,8 +49,8 @@ namespace SprayChronicle.HttpServer
                     );
                 });
 
-                ContainerBuilder.Populate(services);
-                return new AutofacServiceProvider(ContainerBuilder.Build());
+                SprayChronicleServer.ContainerBuilder().Populate(services);
+                return SprayChronicleServer.Container().Resolve<IServiceProvider>();
             }
 
             public void Configure(IApplicationBuilder app)

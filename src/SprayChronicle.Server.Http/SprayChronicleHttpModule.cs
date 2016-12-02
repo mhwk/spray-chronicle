@@ -2,7 +2,7 @@ using Autofac;
 using Microsoft.Extensions.Logging;
 using SprayChronicle.CommandHandling;
 
-namespace SprayChronicle.HttpServer
+namespace SprayChronicle.Server.Http
 {
     public class SprayChronicleHttpModule : Module
     {

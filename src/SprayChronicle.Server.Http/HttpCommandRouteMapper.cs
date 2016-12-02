@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using SprayChronicle.CommandHandling;
 
-namespace SprayChronicle.HttpServer
+namespace SprayChronicle.Server.Http
 {
     public class HttpCommandRouteMapper
     {

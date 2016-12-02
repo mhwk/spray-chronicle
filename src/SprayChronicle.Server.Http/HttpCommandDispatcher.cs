@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 using SprayChronicle.CommandHandling;
 using SprayChronicle.EventSourcing;
 
-namespace SprayChronicle.HttpServer
+namespace SprayChronicle.Server.Http
 {
     public class HttpCommandDispatcher
     {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.DependencyModel;
 
-namespace SprayChronicle.HttpServer
+namespace SprayChronicle.Server.Http
 {
     public class Locator
     {

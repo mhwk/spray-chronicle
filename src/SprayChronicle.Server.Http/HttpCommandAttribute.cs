@@ -1,6 +1,6 @@
 using System;
 
-namespace SprayChronicle.HttpServer
+namespace SprayChronicle.Server.Http
 {
     [AttributeUsageAttribute(AttributeTargets.Class)]
     public class HttpCommandAttribute : Attribute

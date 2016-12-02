@@ -2431,6 +2431,13 @@
         "dependencies": {
           "NETStandard.Library": "1.6.0"
         }
+      },
+      "SprayChronicle.Server/0.0.1": {
+        "type": "project",
+        "framework": ".NETStandard,Version=v1.6",
+        "dependencies": {
+          "NETStandard.Library": "1.6.1"
+        }
       }
     }
   },
@@ -7192,6 +7199,10 @@
     "SprayChronicle.EventSourcing/0.0.7": {
       "type": "project",
       "path": "../SprayChronicle.EventSourcing/project.json"
+    },
+    "SprayChronicle.Server/0.0.1": {
+      "type": "project",
+      "path": "../SprayChronicle.Server/project.json"
     }
   },
   "projectFileDependencyGroups": {
@@ -7209,6 +7220,7 @@
       "Newtonsoft.Json >= 9.0.1",
       "SprayChronicle.CommandHandling",
       "SprayChronicle.EventHandling",
+      "SprayChronicle.Server",
       "System.ComponentModel.Annotations >= 4.3.0"
     ],
     ".NETStandard,Version=v1.6": [
