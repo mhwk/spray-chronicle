@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using SprayChronicle.EventHandling;
 
 namespace SprayChronicle.HttpServer
 {
@@ -31,8 +32,7 @@ namespace SprayChronicle.HttpServer
                 .Build();
             
 
-            // ((IManageStreamHandlers)server.Services.GetService(typeof(IManageStreamHandlers))).Manage();
-            // ((Simulator)server.Services.GetService(typeof(Simulator))).RunAsync();
+            ((IManageStreamHandlers)server.Services.GetService(typeof(IManageStreamHandlers))).Manage();
 
             server.Run();
         }
