@@ -1,5 +1,5 @@
 {
-  "version": "0.0.2-*",
+  "version": "0.0.1-*",
   "buildOptions": {
     "debugType": "portable"
   },
@@ -20,9 +20,6 @@
         "target": "project"
     },
     "SprayChronicle.CommandHandling": {
-        "target": "project"
-    },
-    "SprayChronicle.EventHandling": {
         "target": "project"
     }
   },

@@ -973,10 +973,63 @@
           "ref/netstandard1.3/_._": {}
         },
         "runtimeTargets": {
-          "runtimes/win/lib/netstandard1.3/_._": {
+          "runtimes/unix/lib/netstandard1.3/Microsoft.Win32.Registry.dll": {
+            "assetType": "runtime",
+            "rid": "unix"
+          },
+          "runtimes/win/lib/netstandard1.3/Microsoft.Win32.Registry.dll": {
             "assetType": "runtime",
             "rid": "win"
           }
+        }
+      },
+      "MongoDB.Bson/2.3.0": {
+        "type": "package",
+        "dependencies": {
+          "NETStandard.Library": "1.6.0",
+          "System.Collections.NonGeneric": "4.0.1",
+          "System.Diagnostics.Process": "4.1.0",
+          "System.Dynamic.Runtime": "4.0.11",
+          "System.Reflection.Emit.Lightweight": "4.0.1"
+        },
+        "compile": {
+          "lib/netstandard1.5/MongoDB.Bson.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard1.5/MongoDB.Bson.dll": {}
+        }
+      },
+      "MongoDB.Driver/2.3.0": {
+        "type": "package",
+        "dependencies": {
+          "MongoDB.Bson": "2.3.0",
+          "MongoDB.Driver.Core": "2.3.0",
+          "NETStandard.Library": "1.6.0",
+          "System.Linq.Queryable": "4.0.1"
+        },
+        "compile": {
+          "lib/netstandard1.5/MongoDB.Driver.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard1.5/MongoDB.Driver.dll": {}
+        }
+      },
+      "MongoDB.Driver.Core/2.3.0": {
+        "type": "package",
+        "dependencies": {
+          "MongoDB.Bson": "2.3.0",
+          "NETStandard.Library": "1.6.0",
+          "System.Collections.Specialized": "4.0.1",
+          "System.Diagnostics.TraceSource": "4.0.0",
+          "System.Net.NameResolution": "4.0.0",
+          "System.Net.Security": "4.0.0",
+          "System.Security.SecureString": "4.0.0"
+        },
+        "compile": {
+          "lib/netstandard1.5/MongoDB.Driver.Core.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard1.5/MongoDB.Driver.Core.dll": {}
         }
       },
       "NETStandard.Library/1.6.1": {
@@ -1372,7 +1425,7 @@
           "System.Threading": "4.3.0"
         },
         "compile": {
-          "ref/netstandard1.3/_._": {}
+          "ref/netstandard1.3/System.Collections.Specialized.dll": {}
         },
         "runtime": {
           "lib/netstandard1.3/System.Collections.Specialized.dll": {}
@@ -1575,9 +1628,17 @@
           "ref/netstandard1.4/System.Diagnostics.Process.dll": {}
         },
         "runtimeTargets": {
-          "runtimes/osx/lib/netstandard1.4/_._": {
+          "runtimes/linux/lib/netstandard1.4/System.Diagnostics.Process.dll": {
+            "assetType": "runtime",
+            "rid": "linux"
+          },
+          "runtimes/osx/lib/netstandard1.4/System.Diagnostics.Process.dll": {
             "assetType": "runtime",
             "rid": "osx"
+          },
+          "runtimes/win/lib/netstandard1.4/System.Diagnostics.Process.dll": {
+            "assetType": "runtime",
+            "rid": "win"
           }
         }
       },
@@ -1605,6 +1666,33 @@
         },
         "compile": {
           "ref/netstandard1.0/System.Diagnostics.Tools.dll": {}
+        }
+      },
+      "System.Diagnostics.TraceSource/4.0.0": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.NETCore.Platforms": "1.0.1",
+          "System.Collections": "4.0.11",
+          "System.Diagnostics.Debug": "4.0.11",
+          "System.Globalization": "4.0.11",
+          "System.Resources.ResourceManager": "4.0.1",
+          "System.Runtime": "4.1.0",
+          "System.Runtime.Extensions": "4.1.0",
+          "System.Threading": "4.0.11",
+          "runtime.native.System": "4.0.0"
+        },
+        "compile": {
+          "ref/netstandard1.3/System.Diagnostics.TraceSource.dll": {}
+        },
+        "runtimeTargets": {
+          "runtimes/unix/lib/netstandard1.3/System.Diagnostics.TraceSource.dll": {
+            "assetType": "runtime",
+            "rid": "unix"
+          },
+          "runtimes/win/lib/netstandard1.3/System.Diagnostics.TraceSource.dll": {
+            "assetType": "runtime",
+            "rid": "win"
+          }
         }
       },
       "System.Diagnostics.Tracing/4.3.0": {
@@ -2767,6 +2855,32 @@
           }
         }
       },
+      "System.Security.SecureString/4.0.0": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.NETCore.Platforms": "1.0.1",
+          "System.Resources.ResourceManager": "4.0.1",
+          "System.Runtime": "4.1.0",
+          "System.Runtime.Handles": "4.0.1",
+          "System.Runtime.InteropServices": "4.1.0",
+          "System.Security.Cryptography.Primitives": "4.0.0",
+          "System.Text.Encoding": "4.0.11",
+          "System.Threading": "4.0.11"
+        },
+        "compile": {
+          "ref/netstandard1.3/System.Security.SecureString.dll": {}
+        },
+        "runtimeTargets": {
+          "runtimes/unix/lib/netstandard1.3/System.Security.SecureString.dll": {
+            "assetType": "runtime",
+            "rid": "unix"
+          },
+          "runtimes/win/lib/netstandard1.3/System.Security.SecureString.dll": {
+            "assetType": "runtime",
+            "rid": "win"
+          }
+        }
+      },
       "System.Text.Encoding/4.3.0": {
         "type": "package",
         "dependencies": {
@@ -3121,16 +3235,6 @@
           "lib/netstandard1.3/_._": {}
         }
       },
-      "SprayChronicle/0.0.38": {
-        "type": "project",
-        "framework": ".NETStandard,Version=v1.6",
-        "dependencies": {
-          "NETStandard.Library": "1.6.1",
-          "SprayChronicle.CommandHandling": "(, )",
-          "SprayChronicle.EventHandling": "(, )",
-          "SprayChronicle.EventSourcing": "(, )"
-        }
-      },
       "SprayChronicle.CommandHandling/0.0.9": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
@@ -3163,6 +3267,28 @@
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
           "NETStandard.Library": "1.6.1"
+        }
+      },
+      "SprayChronicle.Example/1.0.0": {
+        "type": "project",
+        "framework": ".NETStandard,Version=v1.6",
+        "dependencies": {
+          "NETStandard.Library": "1.6.1",
+          "SprayChronicle.CommandHandling": "(, )",
+          "SprayChronicle.EventSourcing": "(, )",
+          "SprayChronicle.Server.Http": "(, )"
+        }
+      },
+      "SprayChronicle.Persistence.Mongo/0.0.5": {
+        "type": "project",
+        "framework": ".NETStandard,Version=v1.6",
+        "dependencies": {
+          "Microsoft.Extensions.Logging": "1.0.0",
+          "MongoDB.Bson": "2.3.0",
+          "MongoDB.Driver": "2.3.0",
+          "NETStandard.Library": "1.6.1",
+          "SprayChronicle.EventHandling": "(, )",
+          "SprayChronicle.Server": "(, )"
         }
       },
       "SprayChronicle.Persistence.Ouro/0.0.15": {
@@ -3203,7 +3329,6 @@
           "NETStandard.Library": "1.6.1",
           "Newtonsoft.Json": "9.0.1",
           "SprayChronicle.CommandHandling": "(, )",
-          "SprayChronicle.EventHandling": "(, )",
           "SprayChronicle.Server": "(, )",
           "System.ComponentModel.Annotations": "4.3.0"
         }
@@ -3481,7 +3606,7 @@
       ]
     },
     "Microsoft.CodeAnalysis.Analyzers/1.1.0": {
-      "sha512": "18M9Defe4CUhF5Q+IF6Evi5idk+b/qqqaxth7MnW9NmFVb8FDxQtI5z5EEWnmvQFsj4JA7Gm3UO6cJq/KVVWNA==",
+      "sha512": "BCc4OG21L2pHToi8C/io4rl3NcM2geczxAPVsllIKimVDUrW3VCB1KUaMwIrUB1rP/E6LFXnxQbYbPmabuO2bw==",
       "type": "package",
       "path": "Microsoft.CodeAnalysis.Analyzers/1.1.0",
       "files": [
@@ -3497,7 +3622,7 @@
       ]
     },
     "Microsoft.CodeAnalysis.Common/1.3.0": {
-      "sha512": "JjvwPpA/69v7BCss6U2RviX1uVPgPC9+SmYx/608/9nrG01lKM8DPfsTJKRR3sOLYlH/dW3c7CTYEsN2HPq7xw==",
+      "sha512": "Q7K2VCRlSbS+3pwla+oKOhZbWk+UxhiawYBMPdvu2/Y5qPqjmbT4YwABvEKphtl0xC4aFIA93z5bGA3PGGYiEQ==",
       "type": "package",
       "path": "Microsoft.CodeAnalysis.Common/1.3.0",
       "files": [
@@ -3513,7 +3638,7 @@
       ]
     },
     "Microsoft.CodeAnalysis.CSharp/1.3.0": {
-      "sha512": "+cfCgZoxPnH0EXC6vwfHV+eHSJlBgJEzF2+R9Z3Cmnj4KpluZg0xiTLHI+Mu35kA4mZcZQ56Z9R+4561odj0Nw==",
+      "sha512": "C5YyNQruW/YTfVkYiiSelqRlsW4cbAgANb+T9MLDuA+FsBzcEqsP6eeMZq9dYduvI5qkwvAn7IVQxJxbNC0TGw==",
       "type": "package",
       "path": "Microsoft.CodeAnalysis.CSharp/1.3.0",
       "files": [
@@ -3529,7 +3654,7 @@
       ]
     },
     "Microsoft.CodeAnalysis.VisualBasic/1.3.0": {
-      "sha512": "2ZJwYwX9Qb/WqMtKVmsUKUBjQHrIS9GHpgbGq49JJkGLffXWgKx8lpDdjqE5Xk2QYLu40LClSqCRCJAqi/R6DA==",
+      "sha512": "QJpr8yAgjRjWi2AsRI3NtM0CjFC+V95qhdWXVGcmQgeCTqSpdQU8mRiu7nM8pe1scQqwf7HJB3Zqdg772oOMqg==",
       "type": "package",
       "path": "Microsoft.CodeAnalysis.VisualBasic/1.3.0",
       "files": [
@@ -3545,7 +3670,7 @@
       ]
     },
     "Microsoft.CSharp/4.3.0": {
-      "sha512": "G8Bw9QHjthptl5FaKqKrTbylOH+qFc6kRqnzRIPHDenbnSYH33WLp6R5VtAQIjrRV+klG04/dUnLmq19slL+Hg==",
+      "sha512": "LoJZwb1M3IgPAnZ+W13JZ+VOduPzWDN8eeYBHS0vhht998NFvMqWK6hZdPZTkmywsb235XPPvXsGmenJSAm2BQ==",
       "type": "package",
       "path": "Microsoft.CSharp/4.3.0",
       "files": [
@@ -3602,7 +3727,7 @@
       ]
     },
     "Microsoft.DiaSymReader.Native/1.4.0": {
-      "sha512": "6HpEBMxIi9KJHKnF2ISRy3HsxhRYL1/CdnXGBqSWOUE8uaY5gthzStdQdbPVFxsKCNwsYcfRc11RXjLVvGF5bQ==",
+      "sha512": "R2IgL/gg4ZKbegwGVNG248Ssn/MQT4vrfUQ//EZzrfKbT3lzZXHx5q/nYchiwn+eAc2QWisY502+6wv1981Lxw==",
       "type": "package",
       "path": "Microsoft.DiaSymReader.Native/1.4.0",
       "files": [
@@ -3902,7 +4027,7 @@
       ]
     },
     "Microsoft.NETCore.DotNetHost/1.1.0": {
-      "sha512": "aBUVTdT1pVYul+OaUKIU8ltPPXTT2/HJmqrjhFzdZ/CDUJwouCjd0REZ8ZVetz3H3MaEgEKBMp5pxaBsLjNF2A==",
+      "sha512": "9LFWvKrjz59+yEDnQ2py1g1bOkl92ZldGrgBK94EuSgmJNLtYLTLVcSknsimLKn80uPnq9oiDPEFJNLgwJJsTQ==",
       "type": "package",
       "path": "Microsoft.NETCore.DotNetHost/1.1.0",
       "files": [
@@ -3914,7 +4039,7 @@
       ]
     },
     "Microsoft.NETCore.DotNetHostPolicy/1.1.0": {
-      "sha512": "sb7L6IkI7DQ+41zrnFkyfxkrWbjSPyDnb4cT4iQ81xJfepwr5Eb6CfY6JL0BuHvEKyvSOFg8DGJd+h6z94n1sA==",
+      "sha512": "7euCNJ0U4ksyOuWk9t8ttfGBzib7ZKsucOPu6IR53uFjeTh0g5C9HAae1ube04FjRyKrIuUF/TG90ZBQ/4AvUg==",
       "type": "package",
       "path": "Microsoft.NETCore.DotNetHostPolicy/1.1.0",
       "files": [
@@ -3926,7 +4051,7 @@
       ]
     },
     "Microsoft.NETCore.DotNetHostResolver/1.1.0": {
-      "sha512": "/TAmXAkX36aOuOlsVKy7052tajlYqUxRCKr3xdV4v5oh6kdU+MEz6mIxErvxY+w8LWiQSX2NNccnVqW5Pwqg7w==",
+      "sha512": "8c1PW/TT7dDWs+NpWu5VIug+RnKuo2F7OIw7XhX9YzvYEB2vTtsgR9+0cjt4ZjQgsAPZUorysljY4Bf25ZIltQ==",
       "type": "package",
       "path": "Microsoft.NETCore.DotNetHostResolver/1.1.0",
       "files": [
@@ -3938,7 +4063,7 @@
       ]
     },
     "Microsoft.NETCore.Jit/1.1.0": {
-      "sha512": "EtDHJLAyZF5gnH3HanUUSNqUCgUQS14+snY//GWQsXDNhA6pig9Ilyb5gkUlbDtOPLksy/n+xWssMRkDLBwHZA==",
+      "sha512": "U+ZedPCZ6um8+Q3doLRAxLZPqY1bKMl4q2Fc0MlyJj6mQqi5FeAhZRZci9IaTxJ1rOuDKeBHCvx6gONNF1wy6Q==",
       "type": "package",
       "path": "Microsoft.NETCore.Jit/1.1.0",
       "files": [
@@ -3963,7 +4088,7 @@
       ]
     },
     "Microsoft.NETCore.Runtime.CoreCLR/1.1.0": {
-      "sha512": "XDXXDT1sVo8iRKaljRpvLofjAL/P/uXR6puU6R9pCNW1gkUtYJ4q0Gr4hO9DMz94857FDGWFTvdDi+xxZSLYtQ==",
+      "sha512": "YHcsRTtIpoEH/N38kaBrGpYVvz+316HZTasFviDC2Hu/cyOE2okRgFsASRjFfp6ab60KR9NdhELzkP0G99llDw==",
       "type": "package",
       "path": "Microsoft.NETCore.Runtime.CoreCLR/1.1.0",
       "files": [
@@ -3988,7 +4113,7 @@
       ]
     },
     "Microsoft.NETCore.Windows.ApiSets/1.0.1": {
-      "sha512": "vrPMAGj+ZxoU/DwV+MulCVpHCcQyjNjLzFLdhmWBgkWRIVHNhgAAtAcPlGotMhxZspK+qfW1j9loCfWgUUCuMg==",
+      "sha512": "W+umaAmPKGbhNhCEbMZL+fgLHJfFs/vOQXl4M3HDdvUXMLwmJuy5SAqU/shlp3kbmG8Pt5y37XV3zBQk42KBZA==",
       "type": "package",
       "path": "Microsoft.NETCore.Windows.ApiSets/1.0.1",
       "files": [
@@ -4000,7 +4125,7 @@
       ]
     },
     "Microsoft.VisualBasic/10.1.0": {
-      "sha512": "Tel2V8SurHnU2+eE55aX4ohJhjBRy0SoYM8P8vDYVGnMZ2VHTNbqr7nV8QR46Zx4WMBIH9JCoJulruoybFcLJQ==",
+      "sha512": "KgPI7xQImf/3nOVERqgsPrAW5Eug09JNxt6jTFCKUpuYUCC/vpIa0rYriRcV9Fe/JEOb1KcHTUkbhFPhpzUJEA==",
       "type": "package",
       "path": "Microsoft.VisualBasic/10.1.0",
       "files": [
@@ -4084,7 +4209,7 @@
       ]
     },
     "Microsoft.Win32.Registry/4.3.0": {
-      "sha512": "/Ir3v7F1K2/s0wZCFHaWa1JkYrdM18guA8I56r/hS7qVlJm1kkA+3YrVTlsI1aKtprKU51Ogy4WQQazJkBn0sg==",
+      "sha512": "bgdRXarzZ8zk9IMoOmwI05Pw5ZfpSGRQMe4tVIT2ZcOQjA/ocR6yHrTaFEivMoMIKym5uwN0hOZPyCTDgH8+lw==",
       "type": "package",
       "path": "Microsoft.Win32.Registry/4.3.0",
       "files": [
@@ -4109,6 +4234,48 @@
         "runtimes/win/lib/net46/Microsoft.Win32.Registry.dll",
         "runtimes/win/lib/netcore50/_._",
         "runtimes/win/lib/netstandard1.3/Microsoft.Win32.Registry.dll"
+      ]
+    },
+    "MongoDB.Bson/2.3.0": {
+      "sha512": "ImZ8Dstc+ZUxEqgIXJtFuL2+sesc+e0SwF68Wh8P3gSYLyWRL3hacNNgmE9iUgxUyYzVg4Sr55aRsHkHw9IaDw==",
+      "type": "package",
+      "path": "MongoDB.Bson/2.3.0",
+      "files": [
+        "License.rtf",
+        "MongoDB.Bson.2.3.0.nupkg.sha512",
+        "MongoDB.Bson.nuspec",
+        "lib/net45/MongoDB.Bson.XML",
+        "lib/net45/MongoDB.Bson.dll",
+        "lib/netstandard1.5/MongoDB.Bson.dll",
+        "lib/netstandard1.5/MongoDB.Bson.xml"
+      ]
+    },
+    "MongoDB.Driver/2.3.0": {
+      "sha512": "wq4rHgUorkGMn66TNQ4kDlh/u1DihK4bB+LdLgklP6Z7tpq3Y5It25daKrq6zcoLheCoBqhjBsKHUzrfG0KUfQ==",
+      "type": "package",
+      "path": "MongoDB.Driver/2.3.0",
+      "files": [
+        "License.rtf",
+        "MongoDB.Driver.2.3.0.nupkg.sha512",
+        "MongoDB.Driver.nuspec",
+        "lib/net45/MongoDB.Driver.XML",
+        "lib/net45/MongoDB.Driver.dll",
+        "lib/netstandard1.5/MongoDB.Driver.dll",
+        "lib/netstandard1.5/MongoDB.Driver.xml"
+      ]
+    },
+    "MongoDB.Driver.Core/2.3.0": {
+      "sha512": "CaMUxfkDkTnRR5iQ/tlVRYtJyoUAl0ToSj9/fWfQb/GYt8veQzSqu6jOLE1+KT+2HMvL6kIhX08tam+xU+iycQ==",
+      "type": "package",
+      "path": "MongoDB.Driver.Core/2.3.0",
+      "files": [
+        "License.rtf",
+        "MongoDB.Driver.Core.2.3.0.nupkg.sha512",
+        "MongoDB.Driver.Core.nuspec",
+        "lib/net45/MongoDB.Driver.Core.XML",
+        "lib/net45/MongoDB.Driver.Core.dll",
+        "lib/netstandard1.5/MongoDB.Driver.Core.dll",
+        "lib/netstandard1.5/MongoDB.Driver.Core.xml"
       ]
     },
     "NETStandard.Library/1.6.1": {
@@ -4233,7 +4400,7 @@
       ]
     },
     "runtime.native.System.Net.Security/4.3.0": {
-      "sha512": "pXuX8ffehZYsweybeALs49Dse5byZcWNvLWh+DzY02Gck15IxadEWo3P/ujhuj4PEX6LEkiLyXeFKMlrgh+KAA==",
+      "sha512": "be018uULX3Ua3fcu4et8GyxPOKD4EVDZOCLX/hgLg3UgxICtJyE8fqkGYjsYeo49ICVv8VsxuejGQqrcBWIQ0Q==",
       "type": "package",
       "path": "runtime.native.System.Net.Security/4.3.0",
       "files": [
@@ -4563,7 +4730,7 @@
       ]
     },
     "System.Collections.Immutable/1.3.0": {
-      "sha512": "IajmZ9JdaDcx7JMaMZZVKaCcpgjZ94g/nW8ESSkRYkJl8qtfnxxbPdhwNVdvkr4MQkXu5ov9pObnE0s/2Mf7zg==",
+      "sha512": "7kJMWKNTHLJDbMSTrwKT3GPf8sY4rhMaLTFPg+I4GsqYdZsU5TtT1xcnAMLJr7ZdkwRFaCk4U7o6N6m0VkbYsQ==",
       "type": "package",
       "path": "System.Collections.Immutable/1.3.0",
       "files": [
@@ -4652,7 +4819,7 @@
       ]
     },
     "System.ComponentModel/4.3.0": {
-      "sha512": "0bAo412VAYu8npxim+FQUkcAhdPkCY3JgnNcjO2ym5fp/yUBG6cKuFHObH4GQDeoN4JNP+3a5hdElDxDsSJI8A==",
+      "sha512": "jZLNIbFE8sCFln3Ii98/zyFLoTu2FMZlpXxud7LUomIvxvq4gl6Jwc0TWBPbxjw/Vzci5I+u/ajHp95qoya3ow==",
       "type": "package",
       "path": "System.ComponentModel/4.3.0",
       "files": [
@@ -4709,7 +4876,7 @@
       ]
     },
     "System.ComponentModel.Annotations/4.3.0": {
-      "sha512": "+BWuildVPOjd0aGjq1zTtbZgB6rTBfaZjXJyXeBaAOuix3EY4dwWb+JzILmhnNJxKEnSzvLls8LKSLYMj3g/eA==",
+      "sha512": "/bRTJesrnHeIzr2eOI92bFBkKdDU94Dv1RM3mTMm2q4Om8Ud0/fl4YIaX4BO460HAd1VGDFYBaQ8+Fy+r3693A==",
       "type": "package",
       "path": "System.ComponentModel.Annotations/4.3.0",
       "files": [
@@ -5102,7 +5269,7 @@
       ]
     },
     "System.Diagnostics.FileVersionInfo/4.0.0": {
-      "sha512": "PQ6QCQIumQRRISr+CmRjAr4C0Xx3DGk55lnz7CzO4ySVEB9sDoIip6f5hRn6oGvwJBlpQXns3+QyGWN5IaZ4QA==",
+      "sha512": "D4HKzYwAgiC9eRlDsOfDicAPGDty87N+k1/Wa6ELZlJYfiGf7dwrLoVVfXa6k2Ox97YZaTWFh0YUxAGF4MLrjA==",
       "type": "package",
       "path": "System.Diagnostics.FileVersionInfo/4.0.0",
       "files": [
@@ -5142,7 +5309,7 @@
       ]
     },
     "System.Diagnostics.Process/4.3.0": {
-      "sha512": "lbkuieIb/BhY1/I71BA7L1sepOKWsK3MZSYI5UvjNnNNy74PZEOZAMCHm070F1re5RKYbibqc4wZ9ZYbkJZ61Q==",
+      "sha512": "vMJbkQB169luMRRUX1VWCvW+XKqUOFvQtL4IpfMkJSLvZaW8efVDGxuLthxnzRYQ7gcMa2ggX+9Y2kZbP2AGyw==",
       "type": "package",
       "path": "System.Diagnostics.Process/4.3.0",
       "files": [
@@ -5289,6 +5456,45 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
+    "System.Diagnostics.TraceSource/4.0.0": {
+      "sha512": "6WVCczFZKXwpWpzd/iJkYnsmWTSFFiU24Xx/YdHXBcu+nFI/ehTgeqdJQFbtRPzbrO3KtRNjvkhtj4t5/WwWsA==",
+      "type": "package",
+      "path": "System.Diagnostics.TraceSource/4.0.0",
+      "files": [
+        "System.Diagnostics.TraceSource.4.0.0.nupkg.sha512",
+        "System.Diagnostics.TraceSource.nuspec",
+        "ThirdPartyNotices.txt",
+        "dotnet_library_license.txt",
+        "lib/MonoAndroid10/_._",
+        "lib/MonoTouch10/_._",
+        "lib/net46/System.Diagnostics.TraceSource.dll",
+        "lib/xamarinios10/_._",
+        "lib/xamarinmac20/_._",
+        "lib/xamarintvos10/_._",
+        "lib/xamarinwatchos10/_._",
+        "ref/MonoAndroid10/_._",
+        "ref/MonoTouch10/_._",
+        "ref/net46/System.Diagnostics.TraceSource.dll",
+        "ref/netstandard1.3/System.Diagnostics.TraceSource.dll",
+        "ref/netstandard1.3/System.Diagnostics.TraceSource.xml",
+        "ref/netstandard1.3/de/System.Diagnostics.TraceSource.xml",
+        "ref/netstandard1.3/es/System.Diagnostics.TraceSource.xml",
+        "ref/netstandard1.3/fr/System.Diagnostics.TraceSource.xml",
+        "ref/netstandard1.3/it/System.Diagnostics.TraceSource.xml",
+        "ref/netstandard1.3/ja/System.Diagnostics.TraceSource.xml",
+        "ref/netstandard1.3/ko/System.Diagnostics.TraceSource.xml",
+        "ref/netstandard1.3/ru/System.Diagnostics.TraceSource.xml",
+        "ref/netstandard1.3/zh-hans/System.Diagnostics.TraceSource.xml",
+        "ref/netstandard1.3/zh-hant/System.Diagnostics.TraceSource.xml",
+        "ref/xamarinios10/_._",
+        "ref/xamarinmac20/_._",
+        "ref/xamarintvos10/_._",
+        "ref/xamarinwatchos10/_._",
+        "runtimes/unix/lib/netstandard1.3/System.Diagnostics.TraceSource.dll",
+        "runtimes/win/lib/net46/System.Diagnostics.TraceSource.dll",
+        "runtimes/win/lib/netstandard1.3/System.Diagnostics.TraceSource.dll"
+      ]
+    },
     "System.Diagnostics.Tracing/4.3.0": {
       "sha512": "rswfv0f/Cqkh78rA5S8eN8Neocz234+emGCtTF3lxPY96F+mmmUen6tbn0glN6PMvlKQb9bPAY5e9u7fgPTkKw==",
       "type": "package",
@@ -5378,7 +5584,7 @@
       ]
     },
     "System.Dynamic.Runtime/4.3.0": {
-      "sha512": "sOP0leG1YRFVTq71yF2XKW4b99sAY2yE9/5MV2uocqcViixFOsq9dwN5RQyowGRgStuvza+gdLPUudOIS8GNag==",
+      "sha512": "FRjJUotoprHAT90nf0LKdxVnmGX56t3rpQQQ7oBYCiBGAmvN6GTkZt+swD7zRBmEeLZLQvqhdQ2e/1sjr+/16w==",
       "type": "package",
       "path": "System.Dynamic.Runtime/4.3.0",
       "files": [
@@ -5846,7 +6052,7 @@
       ]
     },
     "System.IO.FileSystem.Watcher/4.3.0": {
-      "sha512": "stySBSZUEcagx+yQtGZBRyXZsLE0dnTV/IVQJuOvi+PcREdxUQPms4nkq4AiMP0020IEjpL990WlP2954JOGYg==",
+      "sha512": "akQjaq7ZpYksDeHSGFIIRwIhG8V3eUf4IQwD+qs8AtgX1estiklNWH2/YH1yyp77P1o4Bojd+3akYn73ksBt4g==",
       "type": "package",
       "path": "System.IO.FileSystem.Watcher/4.3.0",
       "files": [
@@ -5887,7 +6093,7 @@
       ]
     },
     "System.IO.MemoryMappedFiles/4.3.0": {
-      "sha512": "98ivOiJL6SXqsKBZU/yFe6tKds/rR2Porq9D0YKCibEJMwSIarcB9Lsk+7G437YleZ9T/1N/f111jhQe5M/2Pg==",
+      "sha512": "zW+OCyqpVcNpEQhXguBtAHvDfGGLrUOEpsWS1xU/SUVpnVE4efcDNyMcLua7xvFhk+p4GpbyGcHaxkcPkEwdNA==",
       "type": "package",
       "path": "System.IO.MemoryMappedFiles/4.3.0",
       "files": [
@@ -5927,7 +6133,7 @@
       ]
     },
     "System.IO.UnmanagedMemoryStream/4.3.0": {
-      "sha512": "ialfJ84Qkhw6OzAOI+ywu607tDXpoL1H2ZY4zFIO2l6ejNqCThecTr7XHve4nwhgoRfy911HOoQ9i+nkwz7wAw==",
+      "sha512": "dCEgLEHcWbLW4qr4DbYrPO9jwjXLECxdZ9VhHnZ6EGzAuVFRiTp87V1bhpkKvKp0pr037WwdWT9ZLRQya+NszA==",
       "type": "package",
       "path": "System.IO.UnmanagedMemoryStream/4.3.0",
       "files": [
@@ -6116,7 +6322,7 @@
       ]
     },
     "System.Linq.Parallel/4.3.0": {
-      "sha512": "8G6O1WkXnCT5OQvxFe5uOjwlT3DdHl1VyPFbvy0XbqDKkmC4nAH4kVJNMzN2CZ2IKwRlxy4Lyth/VZQmZbQnzw==",
+      "sha512": "NAA+Mulu85SW2scK9SYgAezqTTNnOHy4isAO8Q9scgFOZD2ugzW2CkGfOUu3QRuvB4A8ew1shdl/L7UTN5jWMg==",
       "type": "package",
       "path": "System.Linq.Parallel/4.3.0",
       "files": [
@@ -6171,7 +6377,7 @@
       ]
     },
     "System.Linq.Queryable/4.3.0": {
-      "sha512": "mdR3JC4HQSEjBG6NWkF71fN88YqSgg8eqLLMJfecLdrH/Ob0FXt6z6C02Bd+T4h12/uyP3xAGNv/teBNil9eJw==",
+      "sha512": "In1Bmmvl/j52yPu3xgakQSI0YIckPUr870w4K5+Lak3JCCa8hl+my65lABOuKfYs4ugmZy25ScFerC4nz8+b6g==",
       "type": "package",
       "path": "System.Linq.Queryable/4.3.0",
       "files": [
@@ -6308,7 +6514,7 @@
       ]
     },
     "System.Net.NameResolution/4.3.0": {
-      "sha512": "rPgIAemyfsd4jbkjxHax3Qf/1BMy0qTEqx3Z7tRt+ruMjvDx3RiiDGUx5DZanwB4MoL1R5Rn4oMKy/NshnFoMg==",
+      "sha512": "03soTDXQGjk7EtL/iyOQ6T5+nclyMq1zTiqKxfjEUKR0RpcWITGf7brdX6gNmmXG4g5XVtpZhQSuqYcl4d23Jw==",
       "type": "package",
       "path": "System.Net.NameResolution/4.3.0",
       "files": [
@@ -6425,7 +6631,7 @@
       ]
     },
     "System.Net.Requests/4.3.0": {
-      "sha512": "zCJn65yIKpmgeKBjLjZNQ84pGCDKdOF4F0vlraYCVeppRt+afXCK8s8JnKoY95TMGxnCcNsyl5QlLx3dAV8pZA==",
+      "sha512": "s8IlMINc/QGQL9l8d6CYOr1zBWRwmPvwuGf6R27fxSk1CCTZTWXntXOWHwAV8N/JiRTLAotGH28/ehBmqT4uvw==",
       "type": "package",
       "path": "System.Net.Requests/4.3.0",
       "files": [
@@ -6506,7 +6712,7 @@
       ]
     },
     "System.Net.Security/4.3.0": {
-      "sha512": "LFHdUxySLDMyuu6GwguR6py7+V/bZDTx37s4JP8HD7aWprvzUpcvHKFKXixkB16oTtAHiN7WoVjH5qy81Yq4Rg==",
+      "sha512": "t7dAZ5JvKjojoQbZHr2XMByH3rPpVogA4ijtoe6fEtSRnFDTsqxiXzbTCZr4/rrBB3tCj0LGXAf6AyHqosbl/w==",
       "type": "package",
       "path": "System.Net.Security/4.3.0",
       "files": [
@@ -6582,7 +6788,7 @@
       ]
     },
     "System.Net.WebHeaderCollection/4.3.0": {
-      "sha512": "1TSqQ73PJ6dhNm6c/YPy4XRfAUvCFXZnV7/hq4ZQ+BUl9KdSdCwnaAF6S/mj4eCz9Bolw7rBvElFizQj1PbPyA==",
+      "sha512": "K32hv+6svu0BP2Dw4Z4PDOqBgfT6HX5/LEk5BcHQbjcH1pYqMzg+bLuS5a+fE/7drxcsethMrCtdGgIcXVjEkg==",
       "type": "package",
       "path": "System.Net.WebHeaderCollection/4.3.0",
       "files": [
@@ -6656,7 +6862,7 @@
       ]
     },
     "System.Numerics.Vectors/4.3.0": {
-      "sha512": "yScnBAqPF6McBPgGl+4v1orlSDTXWelie0Itpdzv+SMdbm8Nz5GrkBSTyX3RBhkq2FRKwiCb3BXRT4zV8WKnMw==",
+      "sha512": "9X2I81DNAExhvVa8QtRK/raj9R2dS8kesS9x+xCkLIxg9dD0xe3zVAy8s5ky/BvOKMyxwgkMvserhWohewr5VQ==",
       "type": "package",
       "path": "System.Numerics.Vectors/4.3.0",
       "files": [
@@ -6836,7 +7042,7 @@
       ]
     },
     "System.Reflection.DispatchProxy/4.3.0": {
-      "sha512": "sbE4JjywGkoygCCAv0FShtvaIVOo5v+Hwl5hDUfAFXDzAWj9qHdLLRpMmxFfghc/bKxHuz2GoZC//Alv8Lm7fQ==",
+      "sha512": "ZhyFPqy+XsXEDuS6CFqnIedYgopSLOYoy0W6mqxJAtjyg/2m35lg+9MrH16vPip2sLYV4OL037EWO1W+I0wxCg==",
       "type": "package",
       "path": "System.Reflection.DispatchProxy/4.3.0",
       "files": [
@@ -7047,7 +7253,7 @@
       ]
     },
     "System.Reflection.Metadata/1.4.1": {
-      "sha512": "UuZ82yUsd5nOPro7Ft5IlUT3KKX70pQ8h84d3sfOk0uXU094uiNYq6B80EQUZtdSxitCxyi8Qcuk6jEJuzJCsA==",
+      "sha512": "6czRVWywrqdtiYbX/pjvB/sf2aQ1FP3jqAoqzrtOnZ7oIKgtwaaail3bjZnqECtQjkiVmg4vq8h2T9Lnonfuhw==",
       "type": "package",
       "path": "System.Reflection.Metadata/1.4.1",
       "files": [
@@ -7169,7 +7375,7 @@
       ]
     },
     "System.Resources.Reader/4.3.0": {
-      "sha512": "p/4EOXfgFu/Lf/4qSxMi+zYLeb9/iDC+mO3aaiVgiL1xQ6vncBbr5wkPDc2IqYTEIsI0BdbS7ivTyZoQKZr4Fg==",
+      "sha512": "DXJ4B+QQY2ODFwUyyM35b4XlY1VVkGIZKRLAVm5+ZEwUgNAiS8RxedZbFr8kblw036IoLdZJlpSCKFi3GNcD8Q==",
       "type": "package",
       "path": "System.Resources.Reader/4.3.0",
       "files": [
@@ -7578,7 +7784,7 @@
       ]
     },
     "System.Runtime.Loader/4.3.0": {
-      "sha512": "wE/ikwWCMN+uj0L3ZyNcDNKDsHK2KrqV4EF4XSXyF92UtTN/RwTT8YNeY6sxqN++MwcmCYmqHJQop4odYGT1gA==",
+      "sha512": "0U3CM2eAX/Xr2sLorPCbhgw1IVSQYJasVTTsPdnPhgvHjrtWnGGHYEs4ziS1ddRBmPAvm6fSO/hLn82d59r1JQ==",
       "type": "package",
       "path": "System.Runtime.Loader/4.3.0",
       "files": [
@@ -7734,7 +7940,7 @@
       ]
     },
     "System.Security.Claims/4.3.0": {
-      "sha512": "fR2jIiXSCkfqOonD3SBg5oE+0ILPmiJlIWmJYRIsJVvdzHPBspxg7F9tpcQEt7oEoS6tCs2H3capGvKgqyVG/w==",
+      "sha512": "DuU9PGMN+BfGwTOjcBsN/xwcO9iZX2P9/Rjm2oU3R3ZvoUCZfFuVUO6ol9eK79Hmr81eX/P430ey7fY/U8uXVw==",
       "type": "package",
       "path": "System.Security.Claims/4.3.0",
       "files": [
@@ -8000,7 +8206,7 @@
       ]
     },
     "System.Security.Principal/4.3.0": {
-      "sha512": "pF4p3nrrzsDIuCPXtlPYbgAxYZFpn2kX5d+AQbqkhkfb0rt54n0LIdGXwNvgGE2pZ5XncKwx4TsihS4IjpT61Q==",
+      "sha512": "CsjZ+9o9fkzrGGLjbEuRFg7nYiqu+/j30nqoXUZATyubyfL1TRcSFktE9Hs4ZfyRq9sXDmonskfQYGtVEYynpg==",
       "type": "package",
       "path": "System.Security.Principal/4.3.0",
       "files": [
@@ -8057,7 +8263,7 @@
       ]
     },
     "System.Security.Principal.Windows/4.3.0": {
-      "sha512": "Z6/D4atWXXp4MV1K8V4+P6LPlTV9p5JulaB/H63WDJrl+VnpJ1H2fyPdbyJmb48QOEBj8iMi7Y3BtUyRZCAR+A==",
+      "sha512": "oB8qXo38udlILt3GJga9ZGwNOHqMWGIANVEllnWJwh2d0dk4eWTvuAuEUqIOkFjQ1H51vHe9yDZKlw+Tt9FTOg==",
       "type": "package",
       "path": "System.Security.Principal.Windows/4.3.0",
       "files": [
@@ -8081,6 +8287,45 @@
         "runtimes/unix/lib/netstandard1.3/System.Security.Principal.Windows.dll",
         "runtimes/win/lib/net46/System.Security.Principal.Windows.dll",
         "runtimes/win/lib/netstandard1.3/System.Security.Principal.Windows.dll"
+      ]
+    },
+    "System.Security.SecureString/4.0.0": {
+      "sha512": "sqzq9GD6/b0yqPuMpgIKBuoLf4VKAj8oAfh4kXSzPaN6eoKY3hRi9C5L27uip25qlU+BGPfb0xh2Rmbwc4jFVA==",
+      "type": "package",
+      "path": "System.Security.SecureString/4.0.0",
+      "files": [
+        "System.Security.SecureString.4.0.0.nupkg.sha512",
+        "System.Security.SecureString.nuspec",
+        "ThirdPartyNotices.txt",
+        "dotnet_library_license.txt",
+        "lib/MonoAndroid10/_._",
+        "lib/MonoTouch10/_._",
+        "lib/net46/System.Security.SecureString.dll",
+        "lib/xamarinios10/_._",
+        "lib/xamarinmac20/_._",
+        "lib/xamarintvos10/_._",
+        "lib/xamarinwatchos10/_._",
+        "ref/MonoAndroid10/_._",
+        "ref/MonoTouch10/_._",
+        "ref/net46/System.Security.SecureString.dll",
+        "ref/netstandard1.3/System.Security.SecureString.dll",
+        "ref/netstandard1.3/System.Security.SecureString.xml",
+        "ref/netstandard1.3/de/System.Security.SecureString.xml",
+        "ref/netstandard1.3/es/System.Security.SecureString.xml",
+        "ref/netstandard1.3/fr/System.Security.SecureString.xml",
+        "ref/netstandard1.3/it/System.Security.SecureString.xml",
+        "ref/netstandard1.3/ja/System.Security.SecureString.xml",
+        "ref/netstandard1.3/ko/System.Security.SecureString.xml",
+        "ref/netstandard1.3/ru/System.Security.SecureString.xml",
+        "ref/netstandard1.3/zh-hans/System.Security.SecureString.xml",
+        "ref/netstandard1.3/zh-hant/System.Security.SecureString.xml",
+        "ref/xamarinios10/_._",
+        "ref/xamarinmac20/_._",
+        "ref/xamarintvos10/_._",
+        "ref/xamarinwatchos10/_._",
+        "runtimes/unix/lib/netstandard1.3/System.Security.SecureString.dll",
+        "runtimes/win/lib/net46/System.Security.SecureString.dll",
+        "runtimes/win/lib/netstandard1.3/System.Security.SecureString.dll"
       ]
     },
     "System.Text.Encoding/4.3.0": {
@@ -8150,7 +8395,7 @@
       ]
     },
     "System.Text.Encoding.CodePages/4.0.1": {
-      "sha512": "Jy+gspfpVJsD3I9W3g+xdFkcngnqwLZxOWAd2jfvxoQ3EHoq9wYuA4d+nEX8bKSzTSCM4Fr8uNmjDg/++ovq6A==",
+      "sha512": "euTu1JQ5ykDZLji/mxg3z+lP/qNJzHQkLRgTu9HSjZSHy1bMihqv6c0bX+34uJU7Bbp0U7eyTqAJTOOXO9TdHQ==",
       "type": "package",
       "path": "System.Text.Encoding.CodePages/4.0.1",
       "files": [
@@ -8417,7 +8662,7 @@
       ]
     },
     "System.Threading.Overlapped/4.3.0": {
-      "sha512": "wGepv91eZzbRqDluwW2QlPzsyOeUZK/FpF0eKDveQinNx4yyIg692kMVJ5+laxmRzrf18RsgLy79vIXMeyGYfQ==",
+      "sha512": "JnZuwThuuFynkBF5ZAks3usPxRGszq3h4t+FpXsb5WXkGaDqyRkGriBtJaPlsVJZauJ93mWRB3di50SqoTJkuQ==",
       "type": "package",
       "path": "System.Threading.Overlapped/4.3.0",
       "files": [
@@ -8511,7 +8756,7 @@
       ]
     },
     "System.Threading.Tasks.Dataflow/4.7.0": {
-      "sha512": "8c+61ViYIeIxp8P0Q4vRO5e8RXFAZKbEsQGonDj1DIp7WW6PYhWP5RuSI/52bY/a9IfK2RL2sX4azD+AUNUQKA==",
+      "sha512": "/ogSx2PdgfBm2lVwFZJsXFKs12RNb6DkcJyH8uDknzYH80eC+9D7rPYfd7SCtMuKaQySyJizXiUUcYzlk/9iUA==",
       "type": "package",
       "path": "System.Threading.Tasks.Dataflow/4.7.0",
       "files": [
@@ -8543,7 +8788,7 @@
       ]
     },
     "System.Threading.Tasks.Parallel/4.3.0": {
-      "sha512": "R1URtszn0cjuL2Sfvu6QPNWc1YzBtMrhYE++EMKbe0gV+JuDFFivC6zrNmQPRw3Z3dZJScrOmwTWbVwJ2/maRQ==",
+      "sha512": "ODN9HMvGetWRzZbOD1m8jDRp3Nhpge/JGtTj5B1bmpyNhe+GE/NX4Dl78tW2bdpSCxkyjuZTaT2BMAP1dZhgeA==",
       "type": "package",
       "path": "System.Threading.Tasks.Parallel/4.3.0",
       "files": [
@@ -8598,7 +8843,7 @@
       ]
     },
     "System.Threading.Thread/4.3.0": {
-      "sha512": "vk/6xwne1by72lzZB/9h3SXd9hdClncIRQqMhNRrBSvC2qqlWzuxsvqs4iiwTvSDwcxn9IMiPAW+aoUTevsgsA==",
+      "sha512": "IP/K6phFVTFC+cHtZ9iuZiWB7BQdeNK1E0KQcwhkUOR9Ky4CxNZeX6uMMObVWFJmzlLpgU4WTJxB11U8ZEvTYw==",
       "type": "package",
       "path": "System.Threading.Thread/4.3.0",
       "files": [
@@ -8636,7 +8881,7 @@
       ]
     },
     "System.Threading.ThreadPool/4.3.0": {
-      "sha512": "4Z/rAD7vvTi7xt4SzV0sxjG9tKscrjk7tucG7ovikNu8x5JBJVCshT5/oEoQ+94Z1qJC8ebMLbvs1SavU+X/kg==",
+      "sha512": "WZ14UsdPJDbV9GJvFfKfIGBy7jKXW7h4xtCGyNKTcAS02f/3tBDW8JshbyqM1wU/4rva0JTjQwPRM7QGcs8IuQ==",
       "type": "package",
       "path": "System.Threading.ThreadPool/4.3.0",
       "files": [
@@ -8865,7 +9110,7 @@
       ]
     },
     "System.Xml.XmlDocument/4.0.1": {
-      "sha512": "2HlrJiXVx5hUPng8gxo9S0Q0ALbtGSMgngJUw4cAzY0MaOiXzcfsD3hI/fGcKEzaT400+hx8y1pduQ7H1RTwaQ==",
+      "sha512": "h7qksCaE7peVz50Pl/C9V346XgD/9E08NHkre0HqTHZ0tRtzyla7JEg6So4Q63mNq9vhzlL/RUNtNmtmLqMnNQ==",
       "type": "package",
       "path": "System.Xml.XmlDocument/4.0.1",
       "files": [
@@ -8971,7 +9216,7 @@
       ]
     },
     "System.Xml.XPath/4.0.1": {
-      "sha512": "ElnyAB3w59Kj3VRZhF/KCCwOanyFONRBPi4F4D+eM0fed/7BXOnthW2UffU8kt2PJJL2hTUkLltWAmteadkwmg==",
+      "sha512": "s9RLZtXJkOq5RZ7iBMmg8H5tt6PR04oN5QpA9w87AUYSB4a2SwbF0yj73yjvNJQmGd1fX2pOA2ocrpSqOPlYJw==",
       "type": "package",
       "path": "System.Xml.XPath/4.0.1",
       "files": [
@@ -9008,7 +9253,7 @@
       ]
     },
     "System.Xml.XPath.XDocument/4.0.1": {
-      "sha512": "t9J9SvafuJNFVDWoTDj/Unmut6n15jnGWp/9oK8OgCVp78/rbgIJxpfBxQYmSOkH2kAJSpL87/TM62eVGHgJmg==",
+      "sha512": "bwKTV5iIZaoNMs9W2LEo/l9UqMHqLFqu+kb+AlahJhw/xkkK4oPEx1aQuOdHRRUj9kClZG6yNGor6NCf6qDSuA==",
       "type": "package",
       "path": "System.Xml.XPath.XDocument/4.0.1",
       "files": [
@@ -9044,10 +9289,6 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "SprayChronicle/0.0.38": {
-      "type": "project",
-      "path": "../SprayChronicle/project.json"
-    },
     "SprayChronicle.CommandHandling/0.0.9": {
       "type": "project",
       "path": "../SprayChronicle.CommandHandling/project.json"
@@ -9059,6 +9300,14 @@
     "SprayChronicle.EventSourcing/0.0.7": {
       "type": "project",
       "path": "../SprayChronicle.EventSourcing/project.json"
+    },
+    "SprayChronicle.Example/1.0.0": {
+      "type": "project",
+      "path": "../SprayChronicle.Example/project.json"
+    },
+    "SprayChronicle.Persistence.Mongo/0.0.5": {
+      "type": "project",
+      "path": "../SprayChronicle.Persistence.Mongo/project.json"
     },
     "SprayChronicle.Persistence.Ouro/0.0.15": {
       "type": "project",
@@ -9075,12 +9324,9 @@
   },
   "projectFileDependencyGroups": {
     "": [
-      "SprayChronicle",
-      "SprayChronicle.CommandHandling",
-      "SprayChronicle.EventHandling",
-      "SprayChronicle.EventSourcing",
+      "SprayChronicle.Example",
+      "SprayChronicle.Persistence.Mongo",
       "SprayChronicle.Persistence.Ouro",
-      "SprayChronicle.Server",
       "SprayChronicle.Server.Http"
     ],
     ".NETCoreApp,Version=v1.1": [

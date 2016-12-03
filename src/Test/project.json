@@ -5,22 +5,13 @@
     "emitEntryPoint": true
   },
   "dependencies": {
-      "SprayChronicle": {
-          "target": "project"
-      },
-      "SprayChronicle.CommandHandling": {
-          "target": "project"
-      },
-      "SprayChronicle.EventSourcing": {
-          "target": "project"
-      },
-      "SprayChronicle.EventHandling": {
-          "target": "project"
-      },
-      "SprayChronicle.Server": {
+      "SprayChronicle.Example": {
           "target": "project"
       },
       "SprayChronicle.Server.Http": {
+          "target": "project"
+      },
+      "SprayChronicle.Persistence.Mongo": {
           "target": "project"
       },
       "SprayChronicle.Persistence.Ouro": {

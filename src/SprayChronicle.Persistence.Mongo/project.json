@@ -1,5 +1,5 @@
 {
-  "version": "0.0.5-*",
+  "version": "0.0.6-*",
   "buildOptions": {
     "debugType": "portable"
   },
@@ -8,6 +8,9 @@
     "MongoDB.Bson": "2.3.0",
     "Microsoft.Extensions.Logging": "1.0.0",
     "SprayChronicle.EventHandling": {
+        "target": "project"
+    },
+    "SprayChronicle.Server": {
         "target": "project"
     }
   },

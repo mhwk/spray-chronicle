@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
-using SprayChronicle.Server;
+using SprayChronicle.CommandHandling;
 
 namespace SprayChronicle.Server.Http
 {
@@ -49,7 +49,8 @@ namespace SprayChronicle.Server.Http
                 });
 
                 SprayChronicleServer.ContainerBuilder().Populate(services);
-                SprayChronicleServer.ContainerBuilder().RegisterModule(new SprayChronicleHttpModule());
+                SprayChronicleServer.ContainerBuilder().RegisterModule<CommandHandlingModule>();
+                SprayChronicleServer.ContainerBuilder().RegisterModule<SprayChronicleHttpModule>();
                 return SprayChronicleServer.Container().Resolve<IServiceProvider>();
             }
 

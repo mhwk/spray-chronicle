@@ -1,5 +1,8 @@
+using SprayChronicle.Server.Http;
+
 namespace SprayChronicle.Example.Contracts.Commands
 {
+    [HttpCommandAttribute("basket/check-out")]
     public sealed class CheckOutBasket
     {
         public readonly string BasketId;

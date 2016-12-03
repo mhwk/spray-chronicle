@@ -9,6 +9,9 @@
     },
     "SprayChronicle.EventSourcing": {
         "target": "project"
+    },
+    "SprayChronicle.Server.Http": {
+        "target": "project"
     }
   },
   "frameworks": {

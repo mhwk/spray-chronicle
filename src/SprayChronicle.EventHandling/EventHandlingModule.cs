@@ -19,7 +19,8 @@ namespace SprayChronicle.EventHandling
                         .AddDebug()
                         .AddConsole()
                         .CreateLogger<StreamEventHandler>()
-                );
+                )
+                .SingleInstance();
         }
 
         void RegisterStreamHandlers(IComponentContext context, IManageStreamHandlers manager)
