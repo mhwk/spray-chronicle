@@ -6,7 +6,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceRoot}/src/Test/bin/Debug/netcoreapp1.1/Test.dll",
+            "program": "${workspaceRoot}/src/SprayChronicle.Example.Server/bin/Debug/netcoreapp1.1/SprayChronicle.Example.Server.dll",
             "args": [],
             "cwd": "${workspaceRoot}",
             "externalConsole": false,

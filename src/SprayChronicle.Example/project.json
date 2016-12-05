@@ -4,10 +4,19 @@
     "debugType": "portable"
   },
   "dependencies": {
+    "Autofac": "4.2.1",
+    "MongoDB.Driver": "2.4.0",
+    "MongoDB.Bson": "2.4.0",
     "SprayChronicle.CommandHandling": {
         "target": "project"
     },
+    "SprayChronicle.EventHandling": {
+        "target": "project"
+    },
     "SprayChronicle.EventSourcing": {
+        "target": "project"
+    },
+    "SprayChronicle.Persistence.Memory": {
         "target": "project"
     },
     "SprayChronicle.Server.Http": {

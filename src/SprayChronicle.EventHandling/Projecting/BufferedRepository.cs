@@ -11,7 +11,7 @@ namespace SprayChronicle.EventHandling.Projecting
 {
     public class BufferedRepository<T> : IProjectionRepository<T>
     {
-        readonly ILogger<StreamEventHandler> _logger;
+        readonly ILogger<IStream> _logger;
 
         readonly IProjectionRepository<T> _repository;
 
@@ -25,11 +25,11 @@ namespace SprayChronicle.EventHandling.Projecting
 
         bool _flushing = false;
 
-        public BufferedRepository(ILogger<StreamEventHandler> logger, IProjectionRepository<T> repository) : this(logger, repository, 10000)
+        public BufferedRepository(ILogger<IStream> logger, IProjectionRepository<T> repository) : this(logger, repository, 10000)
         {
         }
 
-        public BufferedRepository(ILogger<StreamEventHandler> logger, IProjectionRepository<T> repository, int limit)
+        public BufferedRepository(ILogger<IStream> logger, IProjectionRepository<T> repository, int limit)
         {
             _logger = logger;
             _repository = repository;

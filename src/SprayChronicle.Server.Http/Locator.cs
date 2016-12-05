@@ -57,9 +57,6 @@ namespace SprayChronicle.Server.Http
             var assemblies = new List<Assembly>();
 
             foreach (var library in DependencyContext.Default.RuntimeLibraries) {
-                if (library.Name == "SprayChronicle.Example") {
-                    var foo = true;
-                }
                 if (IsCandidateLibrary(library, assemblyName)) {
                     assemblies.Add(Assembly.Load(new AssemblyName(library.Name)));
                 }

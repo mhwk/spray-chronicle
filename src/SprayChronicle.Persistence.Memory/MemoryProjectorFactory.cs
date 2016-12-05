@@ -3,15 +3,17 @@ using Microsoft.Extensions.Logging;
 using SprayChronicle.EventHandling;
 using SprayChronicle.EventHandling.Projecting;
 
-namespace SprayChronicle.Persistence.Mongo
+namespace SprayChronicle.Persistence.Memory
 {
-    public sealed class MongoProjectorFactory : IBuildProjectors
+    public class MemoryProjectorFactory : IBuildProjectors
     {
         readonly ILogger<IStream> _logger;
 
-        readonly MongoRepositoryFactory _repositoryFactory;
+        readonly IBuildProjectionRepositories _repositoryFactory;
 
-        public MongoProjectorFactory(ILogger<IStream> logger, MongoRepositoryFactory repositoryFactory)
+        public MemoryProjectorFactory(
+            ILogger<IStream> logger,
+            IBuildProjectionRepositories repositoryFactory)
         {
             _logger = logger;
             _repositoryFactory = repositoryFactory;

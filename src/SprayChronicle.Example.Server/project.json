@@ -11,6 +11,9 @@
       "SprayChronicle.Server.Http": {
           "target": "project"
       },
+      "SprayChronicle.Persistence.Memory": {
+          "target": "project"
+      },
       "SprayChronicle.Persistence.Mongo": {
           "target": "project"
       },

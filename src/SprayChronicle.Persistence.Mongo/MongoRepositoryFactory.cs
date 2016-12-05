@@ -3,7 +3,7 @@ using SprayChronicle.EventHandling.Projecting;
 
 namespace SprayChronicle.Persistence.Mongo
 {
-    public sealed class MongoRepositoryFactory
+    public sealed class MongoRepositoryFactory : IBuildProjectionRepositories
     {
         readonly IMongoDatabase _database;
 

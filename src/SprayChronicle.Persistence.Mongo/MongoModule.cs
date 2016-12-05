@@ -3,6 +3,7 @@ using Autofac;
 using MongoDB.Driver;
 using Microsoft.Extensions.Logging;
 using SprayChronicle.EventHandling;
+using SprayChronicle.EventHandling.Projecting;
 
 namespace SprayChronicle.Persistence.Mongo
 {
@@ -16,15 +17,19 @@ namespace SprayChronicle.Persistence.Mongo
                         c.Resolve<IMongoDatabase>()
                     )
                 )
+                .AsSelf()
+                .As<IBuildProjectionRepositories>()
                 .SingleInstance();
             
             builder
                 .Register<MongoProjectorFactory>(
                     c => new MongoProjectorFactory(
-                        c.Resolve<ILogger<StreamEventHandler>>(),
+                        c.Resolve<ILogger<IStream>>(),
                         c.Resolve<MongoRepositoryFactory>()
                     )
                 )
+                .AsSelf()
+                .As<IBuildProjectors>()
                 .SingleInstance();
 
             builder

@@ -84,7 +84,7 @@ namespace SprayChronicle.Persistence.Ouro
             );
         }
 
-        class Metadata
+        public class Metadata
         {
             public readonly string OriginalFqn;
 

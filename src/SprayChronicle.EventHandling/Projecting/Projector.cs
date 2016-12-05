@@ -1,13 +1,10 @@
-using Microsoft.Extensions.Logging;
-
 namespace SprayChronicle.EventHandling.Projecting
 {
-    public abstract class Projector<T> : StreamEventHandler
+    public abstract class Projector<T> : IHandleEvent
     {
         readonly IProjectionRepository<T> _repository;
 
-        public Projector(ILogger<StreamEventHandler> logger, IStream stream, IProjectionRepository<T> repository)
-            : base(logger, stream)
+        public Projector(IProjectionRepository<T> repository)
         {
             _repository = repository;
         }

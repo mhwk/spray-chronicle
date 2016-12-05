@@ -1,8 +1,10 @@
 ﻿using SprayChronicle.Server;
 using SprayChronicle.Server.Http;
 using SprayChronicle.EventHandling;
+using SprayChronicle.Persistence.Memory;
 using SprayChronicle.Persistence.Mongo;
 using SprayChronicle.Persistence.Ouro;
+using SprayChronicle.Example;
 
 namespace ConsoleApplication
 {
@@ -12,8 +14,10 @@ namespace ConsoleApplication
         {
             new SprayChronicleServer()
                 .WithEventHandling()
-                .WithOuroPersistence()
-                .WithMongoPersistence()
+                .WithMemoryPersistence()
+                // .WithMongoPersistence()
+                // .WithOuroPersistence()
+                .WithExample()
                 .WithHttp()
                 .RunAsync()
                 .Wait();

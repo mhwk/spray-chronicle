@@ -6,7 +6,7 @@
   "dependencies": {
       "FluentAssertions": "4.9.1",
       "Newtonsoft.Json": "9.0.1",
-      "xunit": "2.1.0",
+      "xunit": "2.2.0-beta4-build3444",
       "Autofac": "4.2.0",
       "SprayChronicle.CommandHandling": {
           "target": "project"

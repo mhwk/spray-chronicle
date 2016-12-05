@@ -5,27 +5,30 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace SprayChronicle.EventHandling
 {
-    public abstract class StreamEventHandler : IHandleStream
+    public sealed class StreamEventHandler<T> : IHandleStream where T: IHandleEvent
     {
-        readonly ILogger<StreamEventHandler> _logger;
+        readonly ILogger<IStream> _logger;
 
         readonly IStream _stream;
 
-        readonly Dictionary<string,MethodInfo> _methods = new Dictionary<string,MethodInfo>();
+        readonly IHandleEvent _eventHandler;
 
-        readonly Dictionary<string,Type> _types = new Dictionary<string,Type>();
+        readonly Dictionary<Type,MethodInfo> _handlers = new Dictionary<Type,MethodInfo>();
 
-        public StreamEventHandler(ILogger<StreamEventHandler> logger, IStream stream)
+        public StreamEventHandler(
+            ILogger<IStream> logger,
+            IStream stream,
+            IHandleEvent eventHandler)
         {
             _logger = logger;
             _stream = stream;
-            foreach (var method in GetType().GetTypeInfo().GetMethods().Where(m => m.GetParameters().Length > 0)) {
-                _methods.Add(method.GetParameters()[0].ParameterType.Name, method);
-                _types.Add(method.GetParameters()[0].ParameterType.Name, method.GetParameters()[0].ParameterType);
+            _eventHandler = eventHandler;
+
+            foreach (var method in eventHandler.GetType().GetTypeInfo().GetMethods().Where(m => m.GetParameters().Length > 0)) {
+                _handlers.Add(method.GetParameters()[0].ParameterType, method);
             }
         }
 
@@ -36,21 +39,21 @@ namespace SprayChronicle.EventHandling
 
         void Listen()
         {
-            _stream.Read((name, payload, occurrence) => {
-                Stopwatch stopwatch = new Stopwatch();
-                stopwatch.Start();
-
-                if ( ! _methods.ContainsKey(name)) {
+            _stream.OnEvent((@event, occurrence) => {
+                if ( ! _handlers.ContainsKey(@event.GetType())) {
                     return;
                 }
 
-                Invoke(_methods[name], JsonConvert.DeserializeObject(payload, _types[name]), occurrence);
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Start();
+
+                Invoke(_handlers[@event.GetType()], @event, occurrence);
 
                 stopwatch.Stop();
                 _logger.LogInformation(
                     "[{0}::{1}] {2}ms",
-                    GetType().Name,
-                    name,
+                    _eventHandler.GetType().Name,
+                    @event.GetType().Name,
                     stopwatch.ElapsedMilliseconds
                 );
             });
@@ -65,7 +68,7 @@ namespace SprayChronicle.EventHandling
                 args.Add(occurrence);
             }
 
-            method.Invoke(this, args.ToArray());
+            method.Invoke(_eventHandler, args.ToArray());
         }
     }
 }

@@ -3,7 +3,7 @@
   "version": 2,
   "targets": {
     ".NETStandard,Version=v1.6": {
-      "Autofac/4.2.0": {
+      "Autofac/4.2.1": {
         "type": "package",
         "dependencies": {
           "NETStandard.Library": "1.6.0",
@@ -14,36 +14,6 @@
         },
         "runtime": {
           "lib/netstandard1.1/Autofac.dll": {}
-        }
-      },
-      "FluentAssertions/4.9.1": {
-        "type": "package",
-        "dependencies": {
-          "System.Collections": "4.0.10",
-          "System.Diagnostics.Debug": "4.0.10",
-          "System.Globalization": "4.0.10",
-          "System.Linq": "4.0.0",
-          "System.Linq.Expressions": "4.0.10",
-          "System.ObjectModel": "4.0.10",
-          "System.Reflection": "4.0.10",
-          "System.Reflection.Extensions": "4.0.0",
-          "System.Reflection.Primitives": "4.0.0",
-          "System.Reflection.TypeExtensions": "4.0.0",
-          "System.Runtime": "4.0.20",
-          "System.Runtime.Extensions": "4.0.10",
-          "System.Text.RegularExpressions": "4.0.10",
-          "System.Threading": "4.0.10",
-          "System.Threading.Tasks": "4.0.10",
-          "System.Xml.ReaderWriter": "4.0.10",
-          "System.Xml.XDocument": "4.0.10"
-        },
-        "compile": {
-          "lib/dotnet/FluentAssertions.Core.dll": {},
-          "lib/dotnet/FluentAssertions.dll": {}
-        },
-        "runtime": {
-          "lib/dotnet/FluentAssertions.Core.dll": {},
-          "lib/dotnet/FluentAssertions.dll": {}
         }
       },
       "Microsoft.CSharp/4.0.1": {
@@ -807,6 +777,25 @@
           "lib/netstandard1.6/System.Linq.Expressions.dll": {}
         }
       },
+      "System.Linq.Queryable/4.3.0": {
+        "type": "package",
+        "dependencies": {
+          "System.Collections": "4.3.0",
+          "System.Diagnostics.Debug": "4.3.0",
+          "System.Linq": "4.3.0",
+          "System.Linq.Expressions": "4.3.0",
+          "System.Reflection": "4.3.0",
+          "System.Reflection.Extensions": "4.3.0",
+          "System.Resources.ResourceManager": "4.3.0",
+          "System.Runtime": "4.3.0"
+        },
+        "compile": {
+          "ref/netstandard1.0/System.Linq.Queryable.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard1.3/System.Linq.Queryable.dll": {}
+        }
+      },
       "System.Net.Http/4.3.0": {
         "type": "package",
         "dependencies": {
@@ -981,7 +970,7 @@
           "System.Runtime": "4.3.0"
         },
         "compile": {
-          "ref/netstandard1.5/System.Reflection.TypeExtensions.dll": {}
+          "ref/netstandard1.5/_._": {}
         },
         "runtime": {
           "lib/netstandard1.5/System.Reflection.TypeExtensions.dll": {}
@@ -1457,71 +1446,7 @@
           "lib/netstandard1.3/System.Xml.XDocument.dll": {}
         }
       },
-      "xunit/2.2.0-beta4-build3444": {
-        "type": "package",
-        "dependencies": {
-          "xunit.assert": "[2.2.0-beta4-build3444]",
-          "xunit.core": "[2.2.0-beta4-build3444]"
-        }
-      },
-      "xunit.abstractions/2.0.1": {
-        "type": "package",
-        "dependencies": {
-          "NETStandard.Library": "1.6.0"
-        },
-        "compile": {
-          "lib/netstandard1.0/xunit.abstractions.dll": {}
-        },
-        "runtime": {
-          "lib/netstandard1.0/xunit.abstractions.dll": {}
-        }
-      },
-      "xunit.assert/2.2.0-beta4-build3444": {
-        "type": "package",
-        "dependencies": {
-          "NETStandard.Library": "1.6.0"
-        },
-        "compile": {
-          "lib/netstandard1.0/xunit.assert.dll": {}
-        },
-        "runtime": {
-          "lib/netstandard1.0/xunit.assert.dll": {}
-        }
-      },
-      "xunit.core/2.2.0-beta4-build3444": {
-        "type": "package",
-        "dependencies": {
-          "xunit.extensibility.core": "[2.2.0-beta4-build3444]",
-          "xunit.extensibility.execution": "[2.2.0-beta4-build3444]"
-        }
-      },
-      "xunit.extensibility.core/2.2.0-beta4-build3444": {
-        "type": "package",
-        "dependencies": {
-          "NETStandard.Library": "1.6.0",
-          "xunit.abstractions": "2.0.1"
-        },
-        "compile": {
-          "lib/netstandard1.0/xunit.core.dll": {}
-        },
-        "runtime": {
-          "lib/netstandard1.0/xunit.core.dll": {}
-        }
-      },
-      "xunit.extensibility.execution/2.2.0-beta4-build3444": {
-        "type": "package",
-        "dependencies": {
-          "NETStandard.Library": "1.6.0",
-          "xunit.extensibility.core": "[2.2.0-beta4-build3444]"
-        },
-        "compile": {
-          "lib/netstandard1.0/xunit.execution.dotnet.dll": {}
-        },
-        "runtime": {
-          "lib/netstandard1.0/xunit.execution.dotnet.dll": {}
-        }
-      },
-      "SprayChronicle.CommandHandling/0.0.10": {
+      "SprayChronicle.EventHandling/0.0.16": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
@@ -1530,8 +1455,9 @@
           "Microsoft.Extensions.Logging.Console": "1.0.0",
           "Microsoft.Extensions.Logging.Debug": "1.0.0",
           "NETStandard.Library": "1.6.1",
-          "SprayChronicle.EventSourcing": "(, )",
-          "SprayChronicle.Server": "(, )"
+          "Newtonsoft.Json": "9.0.1",
+          "SprayChronicle.Server": "(, )",
+          "System.Linq.Queryable": "4.3.0"
         }
       },
       "SprayChronicle.EventSourcing/0.0.7": {
@@ -1552,118 +1478,17 @@
     }
   },
   "libraries": {
-    "Autofac/4.2.0": {
-      "sha512": "WHiPMqI8FYa4Mf4yTb0P/aBibHn7Z0B9r02CEXy9oAAkQMJpHxLOE45iIMMW+xthXu26V9nRIz7o5lA7V3ztgw==",
+    "Autofac/4.2.1": {
+      "sha512": "mLXJziTZPIt7R6m8SmPIOjMTd4k8Ok9L21j4yFniyA8AogHxEL2XburSwElJLmGU5KsgeMkpuTI22S3GSOeLqQ==",
       "type": "package",
-      "path": "Autofac/4.2.0",
+      "path": "Autofac/4.2.1",
       "files": [
-        "Autofac.4.2.0.nupkg.sha512",
+        "Autofac.4.2.1.nupkg.sha512",
         "Autofac.nuspec",
         "lib/net45/Autofac.dll",
         "lib/net45/Autofac.xml",
         "lib/netstandard1.1/Autofac.dll",
         "lib/netstandard1.1/Autofac.xml"
-      ]
-    },
-    "FluentAssertions/4.9.1": {
-      "sha512": "uSFjhP7Q5aIIWl0lCa0UokN4Uwe00DDfQ2Nngkp7Wb+9drw07yldT8Jnhep9VOhzxw2XiTE2LiiFi3GpXJfxgw==",
-      "type": "package",
-      "path": "FluentAssertions/4.9.1",
-      "files": [
-        "FluentAssertions.4.9.1.nupkg.sha512",
-        "FluentAssertions.nuspec",
-        "lib/dotnet/FluentAssertions.Core.dll",
-        "lib/dotnet/FluentAssertions.Core.pdb",
-        "lib/dotnet/FluentAssertions.dll",
-        "lib/dotnet/FluentAssertions.pdb",
-        "lib/dotnet/FluentAssertions.xml",
-        "lib/monoandroid/FluentAssertions.Core.dll",
-        "lib/monoandroid/FluentAssertions.Core.pdb",
-        "lib/monoandroid/FluentAssertions.Core.xml",
-        "lib/monotouch/FluentAssertions.Core.dll",
-        "lib/monotouch/FluentAssertions.Core.pdb",
-        "lib/monotouch/FluentAssertions.Core.xml",
-        "lib/net40/FluentAssertions.Core.dll",
-        "lib/net40/FluentAssertions.Core.pdb",
-        "lib/net40/FluentAssertions.Core.xml",
-        "lib/net40/FluentAssertions.dll",
-        "lib/net40/FluentAssertions.pdb",
-        "lib/net40/FluentAssertions.xml",
-        "lib/net45/FluentAssertions.Core.dll",
-        "lib/net45/FluentAssertions.Core.pdb",
-        "lib/net45/FluentAssertions.Core.xml",
-        "lib/net45/FluentAssertions.dll",
-        "lib/net45/FluentAssertions.pdb",
-        "lib/net45/FluentAssertions.xml",
-        "lib/portable-monotouch+monoandroid+xamarin.ios/FluentAssertions.Core.dll",
-        "lib/portable-monotouch+monoandroid+xamarin.ios/FluentAssertions.Core.pdb",
-        "lib/portable-monotouch+monoandroid+xamarin.ios/FluentAssertions.Core.xml",
-        "lib/portable-net40+sl5+win8+wp8+wpa81/FluentAssertions.Core.dll",
-        "lib/portable-net40+sl5+win8+wp8+wpa81/FluentAssertions.Core.pdb",
-        "lib/portable-net40+sl5+win8+wp8+wpa81/FluentAssertions.Core.xml",
-        "lib/portable-net40+sl5+win8+wp8+wpa81/FluentAssertions.XML",
-        "lib/portable-net40+sl5+win8+wp8+wpa81/FluentAssertions.dll",
-        "lib/portable-net40+sl5+win8+wp8+wpa81/FluentAssertions.pdb",
-        "lib/portable-win81+wpa81/FluentAssertions.Core.dll",
-        "lib/portable-win81+wpa81/FluentAssertions.Core.pdb",
-        "lib/portable-win81+wpa81/FluentAssertions.Core.xml",
-        "lib/portable-win81+wpa81/FluentAssertions.dll",
-        "lib/portable-win81+wpa81/FluentAssertions.pdb",
-        "lib/portable-win81+wpa81/FluentAssertions.pri",
-        "lib/portable-win81+wpa81/FluentAssertions.xml",
-        "lib/sl5/FluentAssertions.Core.dll",
-        "lib/sl5/FluentAssertions.Core.pdb",
-        "lib/sl5/FluentAssertions.Core.xml",
-        "lib/sl5/FluentAssertions.dll",
-        "lib/sl5/FluentAssertions.pdb",
-        "lib/sl5/FluentAssertions.xml",
-        "lib/sl5/Microsoft.CSharp.dll",
-        "lib/sl5/Microsoft.CSharp.xml",
-        "lib/sl5/Microsoft.VisualStudio.QualityTools.UnitTesting.Silverlight.dll",
-        "lib/sl5/Microsoft.VisualStudio.QualityTools.UnitTesting.Silverlight.xml",
-        "lib/sl5/System.Xml.Linq.dll",
-        "lib/sl5/System.Xml.Linq.xml",
-        "lib/sl5/de/Microsoft.CSharp.resources.dll",
-        "lib/sl5/de/System.Xml.Linq.resources.dll",
-        "lib/sl5/es/Microsoft.CSharp.resources.dll",
-        "lib/sl5/es/System.Xml.Linq.resources.dll",
-        "lib/sl5/fr/Microsoft.CSharp.resources.dll",
-        "lib/sl5/fr/System.Xml.Linq.resources.dll",
-        "lib/sl5/it/Microsoft.CSharp.resources.dll",
-        "lib/sl5/it/System.Xml.Linq.resources.dll",
-        "lib/sl5/ja/Microsoft.CSharp.resources.dll",
-        "lib/sl5/ja/System.Xml.Linq.resources.dll",
-        "lib/sl5/ko/Microsoft.CSharp.resources.dll",
-        "lib/sl5/ko/System.Xml.Linq.resources.dll",
-        "lib/sl5/ru/Microsoft.CSharp.resources.dll",
-        "lib/sl5/ru/System.Xml.Linq.resources.dll",
-        "lib/sl5/zh-Hans/Microsoft.CSharp.resources.dll",
-        "lib/sl5/zh-Hans/System.Xml.Linq.resources.dll",
-        "lib/sl5/zh-Hant/Microsoft.CSharp.resources.dll",
-        "lib/sl5/zh-Hant/System.Xml.Linq.resources.dll",
-        "lib/win81/FluentAssertions.Core.dll",
-        "lib/win81/FluentAssertions.Core.pdb",
-        "lib/win81/FluentAssertions.Core.xml",
-        "lib/win81/FluentAssertions.dll",
-        "lib/win81/FluentAssertions.pdb",
-        "lib/win81/FluentAssertions.pri",
-        "lib/win81/FluentAssertions.xml",
-        "lib/wp8/FluentAssertions.Core.dll",
-        "lib/wp8/FluentAssertions.Core.pdb",
-        "lib/wp8/FluentAssertions.Core.xml",
-        "lib/wp8/FluentAssertions.dll",
-        "lib/wp8/FluentAssertions.pdb",
-        "lib/wp8/FluentAssertions.xml",
-        "lib/wpa81/FluentAssertions.Core.dll",
-        "lib/wpa81/FluentAssertions.Core.pdb",
-        "lib/wpa81/FluentAssertions.Core.xml",
-        "lib/wpa81/FluentAssertions.dll",
-        "lib/wpa81/FluentAssertions.pdb",
-        "lib/wpa81/FluentAssertions.pri",
-        "lib/wpa81/FluentAssertions.xml",
-        "lib/xamarin.ios/FluentAssertions.Core.dll",
-        "lib/xamarin.ios/FluentAssertions.Core.pdb",
-        "lib/xamarin.ios/FluentAssertions.Core.xml"
       ]
     },
     "Microsoft.CSharp/4.0.1": {
@@ -3230,6 +3055,63 @@
         "ref/xamarintvos10/_._",
         "ref/xamarinwatchos10/_._",
         "runtimes/aot/lib/netcore50/System.Linq.Expressions.dll"
+      ]
+    },
+    "System.Linq.Queryable/4.3.0": {
+      "sha512": "dfqaVnRetMC9naqd9/PiG2AmmzsP/J0fBLlvZTK13JeFjYUA/O6HaVLNrGhqiZRSpcFEkNt+CNG9rEBn/K+isQ==",
+      "type": "package",
+      "path": "System.Linq.Queryable/4.3.0",
+      "files": [
+        "System.Linq.Queryable.4.3.0.nupkg.sha512",
+        "System.Linq.Queryable.nuspec",
+        "ThirdPartyNotices.txt",
+        "dotnet_library_license.txt",
+        "lib/monoandroid10/_._",
+        "lib/monotouch10/_._",
+        "lib/net45/_._",
+        "lib/netcore50/System.Linq.Queryable.dll",
+        "lib/netstandard1.3/System.Linq.Queryable.dll",
+        "lib/portable-net45+win8+wp8+wpa81/_._",
+        "lib/win8/_._",
+        "lib/wp80/_._",
+        "lib/wpa81/_._",
+        "lib/xamarinios10/_._",
+        "lib/xamarinmac20/_._",
+        "lib/xamarintvos10/_._",
+        "lib/xamarinwatchos10/_._",
+        "ref/monoandroid10/_._",
+        "ref/monotouch10/_._",
+        "ref/net45/_._",
+        "ref/netcore50/System.Linq.Queryable.dll",
+        "ref/netcore50/System.Linq.Queryable.xml",
+        "ref/netcore50/de/System.Linq.Queryable.xml",
+        "ref/netcore50/es/System.Linq.Queryable.xml",
+        "ref/netcore50/fr/System.Linq.Queryable.xml",
+        "ref/netcore50/it/System.Linq.Queryable.xml",
+        "ref/netcore50/ja/System.Linq.Queryable.xml",
+        "ref/netcore50/ko/System.Linq.Queryable.xml",
+        "ref/netcore50/ru/System.Linq.Queryable.xml",
+        "ref/netcore50/zh-hans/System.Linq.Queryable.xml",
+        "ref/netcore50/zh-hant/System.Linq.Queryable.xml",
+        "ref/netstandard1.0/System.Linq.Queryable.dll",
+        "ref/netstandard1.0/System.Linq.Queryable.xml",
+        "ref/netstandard1.0/de/System.Linq.Queryable.xml",
+        "ref/netstandard1.0/es/System.Linq.Queryable.xml",
+        "ref/netstandard1.0/fr/System.Linq.Queryable.xml",
+        "ref/netstandard1.0/it/System.Linq.Queryable.xml",
+        "ref/netstandard1.0/ja/System.Linq.Queryable.xml",
+        "ref/netstandard1.0/ko/System.Linq.Queryable.xml",
+        "ref/netstandard1.0/ru/System.Linq.Queryable.xml",
+        "ref/netstandard1.0/zh-hans/System.Linq.Queryable.xml",
+        "ref/netstandard1.0/zh-hant/System.Linq.Queryable.xml",
+        "ref/portable-net45+win8+wp8+wpa81/_._",
+        "ref/win8/_._",
+        "ref/wp80/_._",
+        "ref/wpa81/_._",
+        "ref/xamarinios10/_._",
+        "ref/xamarinmac20/_._",
+        "ref/xamarintvos10/_._",
+        "ref/xamarinwatchos10/_._"
       ]
     },
     "System.Net.Http/4.3.0": {
@@ -5148,93 +5030,9 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "xunit/2.2.0-beta4-build3444": {
-      "sha512": "Gd981l3FGdxwnnOrrj495BMy/zb07ZITSTnLvryaxnqTsqNXRH12fqJ4aliqc2nCFBZBstMYzLznbBy/53QEZA==",
-      "type": "package",
-      "path": "xunit/2.2.0-beta4-build3444",
-      "files": [
-        "xunit.2.2.0-beta4-build3444.nupkg.sha512",
-        "xunit.nuspec"
-      ]
-    },
-    "xunit.abstractions/2.0.1": {
-      "sha512": "bDm/zdG5rnRDsobKuKwrvL4HccBdC0uvT12be6fG12P3d1U7u9Wkvfoq/PM2GeyIeb0Dtcmm/7k2oaawiqQ2Dg==",
-      "type": "package",
-      "path": "xunit.abstractions/2.0.1",
-      "files": [
-        "lib/net35/xunit.abstractions.dll",
-        "lib/net35/xunit.abstractions.xml",
-        "lib/netstandard1.0/xunit.abstractions.dll",
-        "lib/netstandard1.0/xunit.abstractions.xml",
-        "xunit.abstractions.2.0.1.nupkg.sha512",
-        "xunit.abstractions.nuspec"
-      ]
-    },
-    "xunit.assert/2.2.0-beta4-build3444": {
-      "sha512": "ofTB1EEXB4A5hFbmvJHnjNGeazsyOsd8C2zfh/XJrCPKjdXXq/9TSD8xJn5JFUpO6PdArlS4bNAalhhijepjsw==",
-      "type": "package",
-      "path": "xunit.assert/2.2.0-beta4-build3444",
-      "files": [
-        "lib/netstandard1.0/xunit.assert.dll",
-        "lib/netstandard1.0/xunit.assert.pdb",
-        "lib/netstandard1.0/xunit.assert.xml",
-        "xunit.assert.2.2.0-beta4-build3444.nupkg.sha512",
-        "xunit.assert.nuspec"
-      ]
-    },
-    "xunit.core/2.2.0-beta4-build3444": {
-      "sha512": "yGoZJbcxG2997f6Fy+2RNTRnW0Gz0lmFUUNLoa9RaXyQz/K/OsHXbSrOGMs7cxnXDfXMwjjrvDS1U4P34sOX1w==",
-      "type": "package",
-      "path": "xunit.core/2.2.0-beta4-build3444",
-      "files": [
-        "build/_desktop/xunit.execution.desktop.dll",
-        "build/netstandard1.0/_._",
-        "build/uap10.0/xunit.core.props",
-        "build/win81/xunit.core.props",
-        "build/wpa81/xunit.core.props",
-        "xunit.core.2.2.0-beta4-build3444.nupkg.sha512",
-        "xunit.core.nuspec"
-      ]
-    },
-    "xunit.extensibility.core/2.2.0-beta4-build3444": {
-      "sha512": "ISdMbAOe4SnsHMLejyZFWvTA/ZvrOxO/fo6GxCGRT6NufIUwa5K8Yinsav8pT2+c+6iWN9uNgsqnW3iR4takYg==",
-      "type": "package",
-      "path": "xunit.extensibility.core/2.2.0-beta4-build3444",
-      "files": [
-        "lib/net45/xunit.core.dll",
-        "lib/net45/xunit.core.dll.tdnet",
-        "lib/net45/xunit.core.pdb",
-        "lib/net45/xunit.core.xml",
-        "lib/net45/xunit.runner.tdnet.dll",
-        "lib/net45/xunit.runner.utility.desktop.dll",
-        "lib/netstandard1.0/xunit.core.dll",
-        "lib/netstandard1.0/xunit.core.dll.tdnet",
-        "lib/netstandard1.0/xunit.core.pdb",
-        "lib/netstandard1.0/xunit.core.xml",
-        "lib/netstandard1.0/xunit.runner.tdnet.dll",
-        "lib/netstandard1.0/xunit.runner.utility.desktop.dll",
-        "xunit.extensibility.core.2.2.0-beta4-build3444.nupkg.sha512",
-        "xunit.extensibility.core.nuspec"
-      ]
-    },
-    "xunit.extensibility.execution/2.2.0-beta4-build3444": {
-      "sha512": "H4elREzKuTxHF1Nha4TXdI3DI/l2IMiIeRa9BTjwpEXkJ6G1kO1QHBQ6PQvotjk727d7zctODU1BgBNlfpMi4g==",
-      "type": "package",
-      "path": "xunit.extensibility.execution/2.2.0-beta4-build3444",
-      "files": [
-        "lib/net45/xunit.execution.desktop.dll",
-        "lib/net45/xunit.execution.desktop.pdb",
-        "lib/net45/xunit.execution.desktop.xml",
-        "lib/netstandard1.0/xunit.execution.dotnet.dll",
-        "lib/netstandard1.0/xunit.execution.dotnet.pdb",
-        "lib/netstandard1.0/xunit.execution.dotnet.xml",
-        "xunit.extensibility.execution.2.2.0-beta4-build3444.nupkg.sha512",
-        "xunit.extensibility.execution.nuspec"
-      ]
-    },
-    "SprayChronicle.CommandHandling/0.0.10": {
+    "SprayChronicle.EventHandling/0.0.16": {
       "type": "project",
-      "path": "../SprayChronicle.CommandHandling/project.json"
+      "path": "../SprayChronicle.EventHandling/project.json"
     },
     "SprayChronicle.EventSourcing/0.0.7": {
       "type": "project",
@@ -5247,12 +5045,10 @@
   },
   "projectFileDependencyGroups": {
     "": [
-      "Autofac >= 4.2.0",
-      "FluentAssertions >= 4.9.1",
-      "Newtonsoft.Json >= 9.0.1",
-      "SprayChronicle.CommandHandling",
+      "Microsoft.Extensions.Logging >= 1.0.0",
+      "SprayChronicle.EventHandling",
       "SprayChronicle.EventSourcing",
-      "xunit >= 2.2.0-beta4-build3444"
+      "SprayChronicle.Server"
     ],
     ".NETStandard,Version=v1.6": [
       "NETStandard.Library >= 1.6.1"

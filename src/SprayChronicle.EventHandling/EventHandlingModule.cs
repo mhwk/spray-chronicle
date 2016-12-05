@@ -1,6 +1,7 @@
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using Autofac;
+using SprayChronicle.EventHandling.Projecting;
 
 namespace SprayChronicle.EventHandling
 {
@@ -14,12 +15,23 @@ namespace SprayChronicle.EventHandling
                 .SingleInstance();
 
             builder
-                .Register<ILogger<StreamEventHandler>>(
+                .Register<ILogger<IStream>>(
                     c => new LoggerFactory()
                         .AddDebug()
                         .AddConsole()
-                        .CreateLogger<StreamEventHandler>()
+                        .CreateLogger<IStream>()
                 )
+                .SingleInstance();
+            
+            builder
+                .Register<ProjectorHandlerFactory>(
+                    c => new ProjectorHandlerFactory(
+                        c.Resolve<ILogger<IStream>>(),
+                        c.Resolve<IBuildProjectors>()
+                    )
+                )
+                .AsSelf()
+                .As<IBuildProjectorHandlers>()
                 .SingleInstance();
         }
 

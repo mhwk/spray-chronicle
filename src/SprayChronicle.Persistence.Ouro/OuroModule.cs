@@ -24,13 +24,17 @@ namespace SprayChronicle.Persistence.Ouro
             
             builder
                 .Register<IEventStore>(c => new OuroEventStore(c.Resolve<IEventStoreConnection>()))
+                .AsSelf()
+                .As<IEventStore>()
                 .SingleInstance();
             
             builder
-                .Register<StreamFactory>(c => new StreamFactory(
+                .Register<OuroStreamFactory>(c => new OuroStreamFactory(
                     c.Resolve<IEventStoreConnection>(),
                     c.Resolve<UserCredentials>()
                 ))
+                .AsSelf()
+                .As<IBuildStreams>()
                 .SingleInstance();
         }
 

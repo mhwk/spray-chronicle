@@ -1,8 +1,9 @@
 using SprayChronicle.CommandHandling;
 using SprayChronicle.EventSourcing;
+using SprayChronicle.Example.Domain;
 using SprayChronicle.Example.Contracts.Commands;
 
-namespace SprayChronicle.Example.Domain
+namespace SprayChronicle.Example.Coordination
 {
     public sealed class BasketHandler : OverloadCommandHandler<Basket>
     {
