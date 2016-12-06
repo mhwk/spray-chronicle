@@ -18,7 +18,7 @@ namespace SprayChronicle.Example
             builder
                 .Register<StreamEventHandler<TProjector>>(
                     c => c.Resolve<IBuildProjectorHandlers>().Build<TProjection,TProjector>(
-                        c.Resolve<IBuildStreams>().CatchUp("$ce-SprayChronicle", "SprayChronicle.Example.Contracts.Events")
+                        c.Resolve<IBuildStreams>().CatchUp("$ce-SprayChronicle", new NamespaceTypeLocator("SprayChronicle.Example.Contracts.Events"))
                     )
                 )
                 .AsSelf()

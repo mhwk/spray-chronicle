@@ -11,12 +11,12 @@ namespace SprayChronicle.Persistence.Memory
             _eventStore = eventStore;
         }
 
-        public IStream CatchUp(string reference, string @namespace)
+        public IStream CatchUp(string reference, ILocateTypes typeLocator)
         {
             return new MemoryStream(_eventStore);
         }
 
-        public IStream Persistent(string reference, string category, string @namespace)
+        public IStream Persistent(string reference, string category, ILocateTypes typeLocator)
         {
             return new MemoryStream(_eventStore);
         }

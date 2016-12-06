@@ -24,23 +24,23 @@ namespace SprayChronicle.Persistence.Ouro
             _credentials = credentials;
         }
 
-        public IStream CatchUp(string streamName, string @namespace)
+        public IStream CatchUp(string streamName, ILocateTypes typeLocator)
         {
             return new CatchUpStream(
                 _logger,
                 _eventStore,
-                new NamespaceTypeLocator(@namespace),
+                typeLocator,
                 streamName
             );
         }
 
-        public IStream Persistent(string streamName, string groupName, string @namespace)
+        public IStream Persistent(string streamName, string groupName, ILocateTypes typeLocator)
         {
             return new PersistentStream(
                 _logger,
                 _eventStore,
                 _credentials,
-                new NamespaceTypeLocator(@namespace),
+                typeLocator,
                 streamName,
                 groupName
             );
