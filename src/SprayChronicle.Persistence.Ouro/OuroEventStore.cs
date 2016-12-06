@@ -3,8 +3,9 @@ using System.Text;
 using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
+using System.Diagnostics;
+using Microsoft.Extensions.Logging;
 using EventStore.ClientAPI;
-using EventStore.ClientAPI.Exceptions;
 using Newtonsoft.Json;
 using SprayChronicle.EventSourcing;
 
@@ -12,21 +13,32 @@ namespace SprayChronicle.Persistence.Ouro
 {
     public sealed class OuroEventStore : IEventStore
     {
+        readonly ILogger<IEventStore> _logger;
+
         readonly IEventStoreConnection _eventStore;
 
-        public OuroEventStore(IEventStoreConnection eventStore)
+        public OuroEventStore(
+            ILogger<IEventStore> logger,
+            IEventStoreConnection eventStore)
         {
+            _logger = logger;
             _eventStore = eventStore;
         }
 
         public void Append<T>(string identity, IEnumerable<DomainMessage> domainMessages)
         {
             try {
+                var stopwatch = new Stopwatch();
+                stopwatch.Start();
+
                 _eventStore.AppendToStreamAsync(
                     Stream<T>(identity),
                     domainMessages.First().Sequence - 1,
                     domainMessages.Select(dm => BuildEventData(dm))
                 ).Wait();
+
+                stopwatch.Stop();
+                _logger.LogDebug("[{0}::append] {1}ms", Stream<T>(identity), stopwatch.ElapsedMilliseconds);
             } catch (AggregateException error) {
                 throw new ConcurrencyException(string.Format(
                     "Concurrency detected: {0}",
@@ -37,6 +49,9 @@ namespace SprayChronicle.Persistence.Ouro
 
         public IEnumerable<DomainMessage> Load<T>(string identity)
         {
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+
             bool eos = false;
             int current = 0;
 
@@ -48,6 +63,9 @@ namespace SprayChronicle.Persistence.Ouro
                 }
                 eos = slice.IsEndOfStream;
             } while (!eos);
+
+            stopwatch.Stop();
+            _logger.LogDebug("[{0}::load] {1}ms", Stream<T>(identity), stopwatch.ElapsedMilliseconds);
         }
 
         string Stream<T>(string identity)

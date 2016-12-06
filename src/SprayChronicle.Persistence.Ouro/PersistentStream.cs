@@ -1,14 +1,18 @@
 using System;
 using System.Text;
+using Microsoft.Extensions.Logging;
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.SystemData;
 using Newtonsoft.Json;
 using SprayChronicle.EventHandling;
+using SprayChronicle.EventSourcing;
 
 namespace SprayChronicle.Persistence.Ouro
 {
     public sealed class PersistentStream : IStream
     {
+        readonly ILogger<IEventStore> _logger;
+
         readonly IEventStoreConnection _eventStore;
 
         readonly UserCredentials _credentials;
@@ -20,12 +24,14 @@ namespace SprayChronicle.Persistence.Ouro
         readonly string _groupName;
 
         public PersistentStream(
+            ILogger<IEventStore> logger,
             IEventStoreConnection eventStore,
             UserCredentials credentials,
             ILocateTypes typeLocator,
             string streamName,
             string groupName)
         {
+            _logger = logger;
             _eventStore = eventStore;
             _credentials = credentials;
             _typeLocator = typeLocator;
@@ -46,9 +52,7 @@ namespace SprayChronicle.Persistence.Ouro
                     _credentials
                 ).Wait();
             } catch (AggregateException) {
-                #if DEBUG
-                Console.WriteLine("Persistent subscription {0}_{1} already exists!", _streamName, _groupName);
-                #endif
+                _logger.LogDebug("Persistent subscription {0}_{1} already exists!", _streamName, _groupName);
             }
 
             _eventStore.ConnectToPersistentSubscription(

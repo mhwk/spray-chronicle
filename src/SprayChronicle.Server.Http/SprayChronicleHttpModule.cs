@@ -16,8 +16,7 @@ namespace SprayChronicle.Server.Http
             builder
                 .Register<ILogger<HttpCommandDispatcher>>(
                     c => new LoggerFactory()
-                        .AddDebug()
-                        .AddConsole()
+                        .AddConsole(LogLevel.Debug)
                         .CreateLogger<HttpCommandDispatcher>()
                 );
         }

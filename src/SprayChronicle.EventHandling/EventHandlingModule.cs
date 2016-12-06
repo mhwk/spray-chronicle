@@ -17,8 +17,7 @@ namespace SprayChronicle.EventHandling
             builder
                 .Register<ILogger<IStream>>(
                     c => new LoggerFactory()
-                        .AddDebug()
-                        .AddConsole()
+                        .AddConsole(LogLevel.Debug)
                         .CreateLogger<IStream>()
                 )
                 .SingleInstance();

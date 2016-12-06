@@ -1,4 +1,4 @@
-using System;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 
 namespace SprayChronicle.EventHandling
@@ -6,6 +6,8 @@ namespace SprayChronicle.EventHandling
     public sealed class StreamHandlerManager : IManageStreamHandlers
     {
         readonly List<IHandleStream> _handlers = new List<IHandleStream>();
+        
+        readonly List<Task> _tasks = new List<Task>();
 
         public void Add(IEnumerable<IHandleStream> handlers)
         {
@@ -22,7 +24,7 @@ namespace SprayChronicle.EventHandling
         public void Manage()
         {
             foreach (var handler in _handlers) {
-                handler.ListenAsync();
+                _tasks.Add(handler.ListenAsync());
             }
         }
     }

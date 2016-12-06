@@ -32,7 +32,7 @@ namespace SprayChronicle.EventHandling
             }
         }
 
-        public async void ListenAsync()
+        public async Task ListenAsync()
         {
             await Task.Run(() => Listen());
         }
@@ -40,6 +40,11 @@ namespace SprayChronicle.EventHandling
         void Listen()
         {
             _stream.OnEvent((@event, occurrence) => {
+                _logger.LogInformation(
+                    "[{0}::{1}] skipping",
+                    _eventHandler.GetType().Name,
+                    @event.GetType().Name
+                );
                 if ( ! _handlers.ContainsKey(@event.GetType())) {
                     return;
                 }

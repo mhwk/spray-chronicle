@@ -1,13 +1,17 @@
 using System;
 using System.Text;
+using Microsoft.Extensions.Logging;
 using EventStore.ClientAPI;
 using Newtonsoft.Json;
 using SprayChronicle.EventHandling;
+using SprayChronicle.EventSourcing;
 
 namespace SprayChronicle.Persistence.Ouro
 {
     public sealed class CatchUpStream : IStream
     {
+        readonly ILogger<IEventStore> _logger;
+
         readonly IEventStoreConnection _eventStore;
 
         readonly ILocateTypes _typeLocator;
@@ -15,10 +19,12 @@ namespace SprayChronicle.Persistence.Ouro
         readonly string _streamName;
 
         public CatchUpStream(
+            ILogger<IEventStore> logger,
             IEventStoreConnection eventStore,
             ILocateTypes typeLocator,
             string streamName)
         {
+            _logger = logger;
             _eventStore = eventStore;
             _typeLocator = typeLocator;
             _streamName = streamName;
@@ -32,6 +38,7 @@ namespace SprayChronicle.Persistence.Ouro
                 new CatchUpSubscriptionSettings(200, 100, false, true),
                 (subscription, resolvedEvent) => {
                     var type = _typeLocator.Locate(resolvedEvent.Event.EventType);
+
                     if (null == type) {
                         return;
                     }
@@ -50,7 +57,7 @@ namespace SprayChronicle.Persistence.Ouro
                     #endif
                 },
                 (subscription, reason, error) => {
-                    throw new OuroException(string.Format("Catch up on {0} failure", _streamName), error);
+                    Console.WriteLine("Catch up on {0} failure: {1}", _streamName, error.ToString());
                 }
             );
         }

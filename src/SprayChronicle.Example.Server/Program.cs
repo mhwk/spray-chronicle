@@ -15,7 +15,7 @@ namespace ConsoleApplication
             new SprayChronicleServer()
                 .WithMemoryPersistence()
                 // .WithMongoPersistence()
-                // .WithOuroPersistence()
+                .WithOuroPersistence()
                 .WithExample()
                 .WithHttp()
                 .WithEventHandling()

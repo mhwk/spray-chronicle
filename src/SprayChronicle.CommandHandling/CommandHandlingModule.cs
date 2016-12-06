@@ -29,8 +29,7 @@ namespace SprayChronicle.CommandHandling
             builder
                 .Register<ILogger<LoggingCommandBus>>(
                     c => new LoggerFactory()
-                        .AddDebug()
-                        .AddConsole()
+                        .AddConsole(LogLevel.Debug)
                         .CreateLogger<LoggingCommandBus>()
                 );
         }

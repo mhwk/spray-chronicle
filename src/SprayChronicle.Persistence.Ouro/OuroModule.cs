@@ -1,5 +1,6 @@
 using System;
 using Autofac;
+using Microsoft.Extensions.Logging;
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.SystemData;
 using SprayChronicle.EventHandling;
@@ -23,18 +24,30 @@ namespace SprayChronicle.Persistence.Ouro
                 .SingleInstance();
             
             builder
-                .Register<IEventStore>(c => new OuroEventStore(c.Resolve<IEventStoreConnection>()))
+                .Register<IEventStore>(c => new OuroEventStore(
+                    c.Resolve<ILogger<IEventStore>>(),
+                    c.Resolve<IEventStoreConnection>()
+                ))
                 .AsSelf()
                 .As<IEventStore>()
                 .SingleInstance();
             
             builder
                 .Register<OuroStreamFactory>(c => new OuroStreamFactory(
+                    c.Resolve<ILogger<IEventStore>>(),
                     c.Resolve<IEventStoreConnection>(),
                     c.Resolve<UserCredentials>()
                 ))
                 .AsSelf()
                 .As<IBuildStreams>()
+                .SingleInstance();
+            
+            builder
+                .Register<ILogger<IEventStore>>(
+                    c => new LoggerFactory()
+                        .AddConsole(LogLevel.Debug)
+                        .CreateLogger<IEventStore>()
+                )
                 .SingleInstance();
         }
 

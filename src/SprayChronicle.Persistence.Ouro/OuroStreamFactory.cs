@@ -1,16 +1,23 @@
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.SystemData;
+using Microsoft.Extensions.Logging;
 using SprayChronicle.EventHandling;
+using SprayChronicle.EventSourcing;
 
 namespace SprayChronicle.Persistence.Ouro
 {
     public sealed class OuroStreamFactory : IBuildStreams
     {
-        IEventStoreConnection _eventStore;
+        readonly ILogger<IEventStore> _logger;
 
-        UserCredentials _credentials;
+        readonly IEventStoreConnection _eventStore;
 
-        public OuroStreamFactory(IEventStoreConnection eventStore, UserCredentials credentials)
+        readonly UserCredentials _credentials;
+
+        public OuroStreamFactory(
+            ILogger<IEventStore> logger,
+            IEventStoreConnection eventStore,
+            UserCredentials credentials)
         {
             _eventStore = eventStore;
             _credentials = credentials;
@@ -18,12 +25,24 @@ namespace SprayChronicle.Persistence.Ouro
 
         public IStream CatchUp(string streamName, string @namespace)
         {
-            return new CatchUpStream(_eventStore, new NamespaceTypeLocator(@namespace), streamName);
+            return new CatchUpStream(
+                _logger,
+                _eventStore,
+                new NamespaceTypeLocator(@namespace),
+                streamName
+            );
         }
 
         public IStream Persistent(string streamName, string groupName, string @namespace)
         {
-            return new PersistentStream(_eventStore, _credentials, new NamespaceTypeLocator(@namespace), streamName, groupName);
+            return new PersistentStream(
+                _logger,
+                _eventStore,
+                _credentials,
+                new NamespaceTypeLocator(@namespace),
+                streamName,
+                groupName
+            );
         }
     }
 }
