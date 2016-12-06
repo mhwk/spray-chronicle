@@ -36,30 +36,38 @@ namespace SprayChronicle.Persistence.Ouro
                 _streamName,
                 null,
                 new CatchUpSubscriptionSettings(200, 100, false, true),
-                (subscription, resolvedEvent) => {
-                    var type = _typeLocator.Locate(resolvedEvent.Event.EventType);
-
-                    if (null == type) {
-                        return;
-                    }
-
-                    callback(
-                        JsonConvert.DeserializeObject(
-                            Encoding.UTF8.GetString(resolvedEvent.Event.Data),
-                            type
-                        ),
-                        resolvedEvent.Event.Created
-                    );
-                },
-                (subscription) => {
-                    #if DEBUG
-                    Console.WriteLine("Stream {0} in sync", _streamName);
-                    #endif
-                },
-                (subscription, reason, error) => {
-                    Console.WriteLine("Catch up on {0} failure: {1}", _streamName, error.ToString());
-                }
+                (subscription, resolvedEvent) => OnEventAppeared(subscription, resolvedEvent, callback),
+                OnLiveProcessingStarted,
+                OnSubscriptionDropped
             );
+        }
+
+        public void OnEventAppeared(EventStoreCatchUpSubscription subscription, ResolvedEvent resolvedEvent, Action<object,DateTime> callback)
+        {
+            var type = _typeLocator.Locate(resolvedEvent.Event.EventType);
+
+            if (null == type) {
+                _logger.LogDebug("[{0}] unknown type", _streamName);
+                return;
+            }
+
+            callback(
+                JsonConvert.DeserializeObject(
+                    Encoding.UTF8.GetString(resolvedEvent.Event.Data),
+                    type
+                ),
+                resolvedEvent.Event.Created
+            );
+        }
+
+        public void OnLiveProcessingStarted(EventStoreCatchUpSubscription subscription)
+        {
+            _logger.LogDebug("[{0}] in sync", _streamName);
+        }
+
+        public void OnSubscriptionDropped(EventStoreCatchUpSubscription subscription, SubscriptionDropReason reason, Exception error)
+        {
+            _logger.LogCritical("Catch up on {0} failure: {1}", _streamName, error.ToString());
         }
     }
 }

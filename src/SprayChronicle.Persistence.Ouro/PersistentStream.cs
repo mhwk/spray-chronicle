@@ -61,7 +61,9 @@ namespace SprayChronicle.Persistence.Ouro
                 (subscription, resolvedEvent) => {
                     try {
                         var type = _typeLocator.Locate(resolvedEvent.Event.EventType);
+
                         if (null == type) {
+                            _logger.LogDebug("[{0}] unknown type", _streamName);
                             subscription.Acknowledge(resolvedEvent);
                             return;
                         }
@@ -76,13 +78,13 @@ namespace SprayChronicle.Persistence.Ouro
                     
                         subscription.Acknowledge(resolvedEvent);
                     } catch (Exception error) {
-                        Console.WriteLine("Persistent subscription {0}_{1} failure: {2}", _streamName, _groupName, error);
+                        _logger.LogWarning("Persistent subscription {0}_{1} failure: {2}", _streamName, _groupName, error);
                         subscription.Fail(resolvedEvent, PersistentSubscriptionNakEventAction.Park, error.ToString());
                         return;
                     }
                 },
                 (subscription, reason, error) => {
-                    Console.WriteLine("Persistent subscription {0}_{1} error: {2}, {3}", _streamName, _groupName, reason.ToString(), error.ToString());
+                    _logger.LogCritical("Persistent subscription {0}_{1} error: {2}, {3}", _streamName, _groupName, reason.ToString(), error.ToString());
                 }
             );
         }

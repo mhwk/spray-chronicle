@@ -40,11 +40,12 @@ namespace SprayChronicle.EventHandling
         void Listen()
         {
             _stream.OnEvent((@event, occurrence) => {
-                _logger.LogInformation(
+                _logger.LogDebug(
                     "[{0}::{1}] skipping",
                     _eventHandler.GetType().Name,
                     @event.GetType().Name
                 );
+                
                 if ( ! _handlers.ContainsKey(@event.GetType())) {
                     return;
                 }

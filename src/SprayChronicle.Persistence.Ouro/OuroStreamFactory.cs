@@ -19,6 +19,7 @@ namespace SprayChronicle.Persistence.Ouro
             IEventStoreConnection eventStore,
             UserCredentials credentials)
         {
+            _logger = logger;
             _eventStore = eventStore;
             _credentials = credentials;
         }

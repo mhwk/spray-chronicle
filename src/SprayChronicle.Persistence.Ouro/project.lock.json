@@ -1776,7 +1776,7 @@
           "lib/netstandard1.3/System.Xml.XmlSerializer.dll": {}
         }
       },
-      "SprayChronicle.EventHandling/0.0.17": {
+      "SprayChronicle.EventHandling/0.0.18": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
@@ -1790,14 +1790,14 @@
           "System.Linq.Queryable": "4.3.0"
         }
       },
-      "SprayChronicle.EventSourcing/0.0.7": {
+      "SprayChronicle.EventSourcing/0.0.8": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
           "NETStandard.Library": "1.6.1"
         }
       },
-      "SprayChronicle.Server/0.0.1": {
+      "SprayChronicle.Server/0.0.2": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
@@ -5872,15 +5872,15 @@
         "runtimes/aot/lib/netcore50/System.Xml.XmlSerializer.dll"
       ]
     },
-    "SprayChronicle.EventHandling/0.0.17": {
+    "SprayChronicle.EventHandling/0.0.18": {
       "type": "project",
       "path": "../SprayChronicle.EventHandling/project.json"
     },
-    "SprayChronicle.EventSourcing/0.0.7": {
+    "SprayChronicle.EventSourcing/0.0.8": {
       "type": "project",
       "path": "../SprayChronicle.EventSourcing/project.json"
     },
-    "SprayChronicle.Server/0.0.1": {
+    "SprayChronicle.Server/0.0.2": {
       "type": "project",
       "path": "../SprayChronicle.Server/project.json"
     }

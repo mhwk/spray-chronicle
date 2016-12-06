@@ -16,11 +16,11 @@
           "lib/netstandard1.1/Autofac.dll": {}
         }
       },
-      "Microsoft.Extensions.Configuration.Abstractions/1.0.0": {
+      "Microsoft.Extensions.Configuration.Abstractions/1.1.0": {
         "type": "package",
         "dependencies": {
-          "Microsoft.Extensions.Primitives": "1.0.0",
-          "System.Linq": "4.1.0"
+          "Microsoft.Extensions.Primitives": "1.1.0",
+          "NETStandard.Library": "1.6.1"
         },
         "compile": {
           "lib/netstandard1.0/Microsoft.Extensions.Configuration.Abstractions.dll": {}
@@ -29,16 +29,11 @@
           "lib/netstandard1.0/Microsoft.Extensions.Configuration.Abstractions.dll": {}
         }
       },
-      "Microsoft.Extensions.DependencyInjection.Abstractions/1.0.0": {
+      "Microsoft.Extensions.DependencyInjection.Abstractions/1.1.0": {
         "type": "package",
         "dependencies": {
-          "System.ComponentModel": "4.0.1",
-          "System.Diagnostics.Debug": "4.0.11",
-          "System.Globalization": "4.0.11",
-          "System.Linq": "4.1.0",
-          "System.Linq.Expressions": "4.1.0",
-          "System.Reflection": "4.1.0",
-          "System.Resources.ResourceManager": "4.0.1"
+          "NETStandard.Library": "1.6.1",
+          "System.ComponentModel": "4.3.0"
         },
         "compile": {
           "lib/netstandard1.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll": {}
@@ -47,12 +42,12 @@
           "lib/netstandard1.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll": {}
         }
       },
-      "Microsoft.Extensions.Logging/1.0.0": {
+      "Microsoft.Extensions.Logging/1.1.0": {
         "type": "package",
         "dependencies": {
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "1.0.0",
-          "Microsoft.Extensions.Logging.Abstractions": "1.0.0",
-          "System.Threading": "4.0.11"
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "1.1.0",
+          "Microsoft.Extensions.Logging.Abstractions": "1.1.0",
+          "NETStandard.Library": "1.6.1"
         },
         "compile": {
           "lib/netstandard1.1/Microsoft.Extensions.Logging.dll": {}
@@ -61,18 +56,10 @@
           "lib/netstandard1.1/Microsoft.Extensions.Logging.dll": {}
         }
       },
-      "Microsoft.Extensions.Logging.Abstractions/1.0.0": {
+      "Microsoft.Extensions.Logging.Abstractions/1.1.0": {
         "type": "package",
         "dependencies": {
-          "System.Collections": "4.0.11",
-          "System.Collections.Concurrent": "4.0.12",
-          "System.Diagnostics.Debug": "4.0.11",
-          "System.Globalization": "4.0.11",
-          "System.Linq": "4.1.0",
-          "System.Reflection": "4.1.0",
-          "System.Resources.ResourceManager": "4.0.1",
-          "System.Runtime.Extensions": "4.1.0",
-          "System.Runtime.InteropServices": "4.1.0"
+          "NETStandard.Library": "1.6.1"
         },
         "compile": {
           "lib/netstandard1.1/Microsoft.Extensions.Logging.Abstractions.dll": {}
@@ -81,14 +68,12 @@
           "lib/netstandard1.1/Microsoft.Extensions.Logging.Abstractions.dll": {}
         }
       },
-      "Microsoft.Extensions.Logging.Console/1.0.0": {
+      "Microsoft.Extensions.Logging.Console/1.1.0": {
         "type": "package",
         "dependencies": {
-          "Microsoft.Extensions.Configuration.Abstractions": "1.0.0",
-          "Microsoft.Extensions.Logging.Abstractions": "1.0.0",
-          "System.Console": "4.0.0",
-          "System.Runtime.InteropServices.RuntimeInformation": "4.0.0",
-          "System.Threading": "4.0.11"
+          "Microsoft.Extensions.Configuration.Abstractions": "1.1.0",
+          "Microsoft.Extensions.Logging.Abstractions": "1.1.0",
+          "NETStandard.Library": "1.6.1"
         },
         "compile": {
           "lib/netstandard1.3/Microsoft.Extensions.Logging.Console.dll": {}
@@ -97,11 +82,11 @@
           "lib/netstandard1.3/Microsoft.Extensions.Logging.Console.dll": {}
         }
       },
-      "Microsoft.Extensions.Primitives/1.0.0": {
+      "Microsoft.Extensions.Primitives/1.1.0": {
         "type": "package",
         "dependencies": {
-          "System.Resources.ResourceManager": "4.0.1",
-          "System.Runtime": "4.1.0"
+          "NETStandard.Library": "1.6.1",
+          "System.Runtime.CompilerServices.Unsafe": "4.3.0"
         },
         "compile": {
           "lib/netstandard1.0/Microsoft.Extensions.Primitives.dll": {}
@@ -419,10 +404,10 @@
           "lib/netstandard1.3/System.Collections.Concurrent.dll": {}
         }
       },
-      "System.ComponentModel/4.0.1": {
+      "System.ComponentModel/4.3.0": {
         "type": "package",
         "dependencies": {
-          "System.Runtime": "4.1.0"
+          "System.Runtime": "4.3.0"
         },
         "compile": {
           "ref/netstandard1.0/System.ComponentModel.dll": {}
@@ -881,6 +866,18 @@
           "ref/netstandard1.5/System.Runtime.dll": {}
         }
       },
+      "System.Runtime.CompilerServices.Unsafe/4.3.0": {
+        "type": "package",
+        "dependencies": {
+          "System.Runtime": "4.3.0"
+        },
+        "compile": {
+          "lib/netstandard1.0/System.Runtime.CompilerServices.Unsafe.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard1.0/System.Runtime.CompilerServices.Unsafe.dll": {}
+        }
+      },
       "System.Runtime.Extensions/4.3.0": {
         "type": "package",
         "dependencies": {
@@ -1315,14 +1312,14 @@
           "lib/netstandard1.3/System.Xml.XDocument.dll": {}
         }
       },
-      "SprayChronicle.EventSourcing/0.0.7": {
+      "SprayChronicle.EventSourcing/0.0.8": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
           "NETStandard.Library": "1.6.1"
         }
       },
-      "SprayChronicle.Server/0.0.1": {
+      "SprayChronicle.Server/0.0.2": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
@@ -1346,56 +1343,56 @@
         "lib/netstandard1.1/Autofac.xml"
       ]
     },
-    "Microsoft.Extensions.Configuration.Abstractions/1.0.0": {
-      "sha512": "nJ+Et/rnDMDmGhxvFAKdN3va7y+YDPICv1nUEP8I4IKgOkWwr/dCZHMqxVhJFrkbW9ux8Kd7erC4mvxfZh0WnA==",
+    "Microsoft.Extensions.Configuration.Abstractions/1.1.0": {
+      "sha512": "ggfk85eY5+Nr90O9wN0ei8YyouHTeLOSj4R7PJAEkAAR1TNCoeErydX2OuFjT/lF6o7Zupwd+DIRifC17XL2VA==",
       "type": "package",
-      "path": "Microsoft.Extensions.Configuration.Abstractions/1.0.0",
+      "path": "Microsoft.Extensions.Configuration.Abstractions/1.1.0",
       "files": [
-        "Microsoft.Extensions.Configuration.Abstractions.1.0.0.nupkg.sha512",
+        "Microsoft.Extensions.Configuration.Abstractions.1.1.0.nupkg.sha512",
         "Microsoft.Extensions.Configuration.Abstractions.nuspec",
         "lib/netstandard1.0/Microsoft.Extensions.Configuration.Abstractions.dll",
         "lib/netstandard1.0/Microsoft.Extensions.Configuration.Abstractions.xml"
       ]
     },
-    "Microsoft.Extensions.DependencyInjection.Abstractions/1.0.0": {
-      "sha512": "+XwaNo3o9RhLQhUnnOBCaukeRi1X9yYc0Fzye9RlErSflKZdw0VgHtn6rvKo0FTionsW0x8QVULhKH+nkqVjQA==",
+    "Microsoft.Extensions.DependencyInjection.Abstractions/1.1.0": {
+      "sha512": "2luhjVaWZd8Wmr2KUJcLNAN+iZgezTyfamLG6Lo5FVYY1LYaS7UFOmNtApHGVIytWWtuXSk4ea0t2Vx0HgF5fg==",
       "type": "package",
-      "path": "Microsoft.Extensions.DependencyInjection.Abstractions/1.0.0",
+      "path": "Microsoft.Extensions.DependencyInjection.Abstractions/1.1.0",
       "files": [
-        "Microsoft.Extensions.DependencyInjection.Abstractions.1.0.0.nupkg.sha512",
+        "Microsoft.Extensions.DependencyInjection.Abstractions.1.1.0.nupkg.sha512",
         "Microsoft.Extensions.DependencyInjection.Abstractions.nuspec",
         "lib/netstandard1.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll",
         "lib/netstandard1.0/Microsoft.Extensions.DependencyInjection.Abstractions.xml"
       ]
     },
-    "Microsoft.Extensions.Logging/1.0.0": {
-      "sha512": "0mDuASVrd/nMeBYIJSK+9lT3TSmWxUXP/ipVB1pF1ApMN5fqGCckPTNwmOfT4Z9wPkXGnhbwFTGrxZvbzTWxOg==",
+    "Microsoft.Extensions.Logging/1.1.0": {
+      "sha512": "IbNogJJE3NRtc5/DAtKEkhXaUQK9N7I6A5G2+ZfyBzWMvAgLKSimESpNMp+gnzUYsW3YbHkeT8jLk9m/3vGY5A==",
       "type": "package",
-      "path": "Microsoft.Extensions.Logging/1.0.0",
+      "path": "Microsoft.Extensions.Logging/1.1.0",
       "files": [
-        "Microsoft.Extensions.Logging.1.0.0.nupkg.sha512",
+        "Microsoft.Extensions.Logging.1.1.0.nupkg.sha512",
         "Microsoft.Extensions.Logging.nuspec",
         "lib/netstandard1.1/Microsoft.Extensions.Logging.dll",
         "lib/netstandard1.1/Microsoft.Extensions.Logging.xml"
       ]
     },
-    "Microsoft.Extensions.Logging.Abstractions/1.0.0": {
-      "sha512": "wHT6oY50q36mAXBRKtFaB7u07WxKC5u2M8fi3PqHOOnHyUo9gD0u1TlCNR8UObHQxKMYwqlgI8TLcErpt29n8A==",
+    "Microsoft.Extensions.Logging.Abstractions/1.1.0": {
+      "sha512": "5zDtM0Dal+pwDIj49PPq9Y8SYu6z70v55VDx70rOuquLTlaCIdv9uItkcp9c1FH/ASNdfANVnh1cTwd85dyE+Q==",
       "type": "package",
-      "path": "Microsoft.Extensions.Logging.Abstractions/1.0.0",
+      "path": "Microsoft.Extensions.Logging.Abstractions/1.1.0",
       "files": [
-        "Microsoft.Extensions.Logging.Abstractions.1.0.0.nupkg.sha512",
+        "Microsoft.Extensions.Logging.Abstractions.1.1.0.nupkg.sha512",
         "Microsoft.Extensions.Logging.Abstractions.nuspec",
         "lib/netstandard1.1/Microsoft.Extensions.Logging.Abstractions.dll",
         "lib/netstandard1.1/Microsoft.Extensions.Logging.Abstractions.xml"
       ]
     },
-    "Microsoft.Extensions.Logging.Console/1.0.0": {
-      "sha512": "GN4gFFONP12KbFEG9rNFpXuz6D2Tybcm8+c1wilaQ1eSl9zVX0gVRrKw/YRwxdwbM3eK7nWfRRqJaQPzOjtLnA==",
+    "Microsoft.Extensions.Logging.Console/1.1.0": {
+      "sha512": "MkFjLvtMdYN1g3NesmkeuQ56f/LuQS46PvjhbF1rUoH9L1ZM3/uteuTknVDUryeWlh18oh6ew7Xo9H50KWPAog==",
       "type": "package",
-      "path": "Microsoft.Extensions.Logging.Console/1.0.0",
+      "path": "Microsoft.Extensions.Logging.Console/1.1.0",
       "files": [
-        "Microsoft.Extensions.Logging.Console.1.0.0.nupkg.sha512",
+        "Microsoft.Extensions.Logging.Console.1.1.0.nupkg.sha512",
         "Microsoft.Extensions.Logging.Console.nuspec",
         "lib/net451/Microsoft.Extensions.Logging.Console.dll",
         "lib/net451/Microsoft.Extensions.Logging.Console.xml",
@@ -1403,12 +1400,12 @@
         "lib/netstandard1.3/Microsoft.Extensions.Logging.Console.xml"
       ]
     },
-    "Microsoft.Extensions.Primitives/1.0.0": {
-      "sha512": "3q2vzfKEDjL6JFkRpk5SFA3zarYsO6+ZYgoucNImrUMzDn0mFbEOL5p9oPoWiypwypbJVVjWTf557bXZ0YFLig==",
+    "Microsoft.Extensions.Primitives/1.1.0": {
+      "sha512": "GhQG5CBUR9/czBLTblt1giKBkfvHVDeppWd6KIgPyexrspECqzzSW5IXe0STTTs2NlUp9vIFwjSWG8O9c74R9g==",
       "type": "package",
-      "path": "Microsoft.Extensions.Primitives/1.0.0",
+      "path": "Microsoft.Extensions.Primitives/1.1.0",
       "files": [
-        "Microsoft.Extensions.Primitives.1.0.0.nupkg.sha512",
+        "Microsoft.Extensions.Primitives.1.1.0.nupkg.sha512",
         "Microsoft.Extensions.Primitives.nuspec",
         "lib/netstandard1.0/Microsoft.Extensions.Primitives.dll",
         "lib/netstandard1.0/Microsoft.Extensions.Primitives.xml"
@@ -1877,12 +1874,12 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "System.ComponentModel/4.0.1": {
-      "sha512": "fu1xcFS6hCZ23SQNvflD9LT12tobX5K6V6jck9SjTFC+kwB++XsDJXIV68cCXBTpnkvryi1sbj8ApLKQnH4hKQ==",
+    "System.ComponentModel/4.3.0": {
+      "sha512": "8ipU3iwhbsHoe6AvHI+YAWAhKYBrv8eHRQeo0Cn9QDBGM/pt52vgMhx6UwQXjMI2rOlHXz2zWPASy6PGGBpUMA==",
       "type": "package",
-      "path": "System.ComponentModel/4.0.1",
+      "path": "System.ComponentModel/4.3.0",
       "files": [
-        "System.ComponentModel.4.0.1.nupkg.sha512",
+        "System.ComponentModel.4.3.0.nupkg.sha512",
         "System.ComponentModel.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -3516,6 +3513,19 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
+    "System.Runtime.CompilerServices.Unsafe/4.3.0": {
+      "sha512": "rcnXA1U9W3QUtMSGoyoNHH6w4V5Rxa/EKXmzpORUYlDAlDB34hIQoU57ATXl8xHa83VvzRm6PcElEizgUd7U5w==",
+      "type": "package",
+      "path": "System.Runtime.CompilerServices.Unsafe/4.3.0",
+      "files": [
+        "System.Runtime.CompilerServices.Unsafe.4.3.0.nupkg.sha512",
+        "System.Runtime.CompilerServices.Unsafe.nuspec",
+        "ThirdPartyNotices.txt",
+        "dotnet_library_license.txt",
+        "lib/netstandard1.0/System.Runtime.CompilerServices.Unsafe.dll",
+        "lib/netstandard1.0/System.Runtime.CompilerServices.Unsafe.xml"
+      ]
+    },
     "System.Runtime.Extensions/4.3.0": {
       "sha512": "guW0uK0fn5fcJJ1tJVXYd7/1h5F+pea1r7FLSOz/f8vPEqbR2ZAknuRDvTQ8PzAilDveOxNjSfr0CHfIQfFk8g==",
       "type": "package",
@@ -4594,11 +4604,11 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "SprayChronicle.EventSourcing/0.0.7": {
+    "SprayChronicle.EventSourcing/0.0.8": {
       "type": "project",
       "path": "../SprayChronicle.EventSourcing/project.json"
     },
-    "SprayChronicle.Server/0.0.1": {
+    "SprayChronicle.Server/0.0.2": {
       "type": "project",
       "path": "../SprayChronicle.Server/project.json"
     }
@@ -4606,8 +4616,8 @@
   "projectFileDependencyGroups": {
     "": [
       "Autofac >= 4.2.1",
-      "Microsoft.Extensions.Logging >= 1.0.0",
-      "Microsoft.Extensions.Logging.Console >= 1.0.0",
+      "Microsoft.Extensions.Logging >= 1.1.0",
+      "Microsoft.Extensions.Logging.Console >= 1.1.0",
       "SprayChronicle.EventSourcing",
       "SprayChronicle.Server"
     ],
