@@ -29,7 +29,7 @@ namespace SprayChronicle.Server.Http
                 throw new NullReferenceException("Server not yet configured");
             }
 
-            server.Run();
+            server.Start();
         }
 
         public class Startup

@@ -13,14 +13,13 @@ namespace ConsoleApplication
         public static void Main(string[] args)
         {
             new SprayChronicleServer()
-                .WithEventHandling()
                 .WithMemoryPersistence()
                 // .WithMongoPersistence()
                 // .WithOuroPersistence()
                 .WithExample()
                 .WithHttp()
-                .RunAsync()
-                .Wait();
+                .WithEventHandling()
+                .Run();
         }
     }
 }

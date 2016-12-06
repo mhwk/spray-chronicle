@@ -1,5 +1,6 @@
 using Autofac;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SprayChronicle.Server
@@ -44,7 +45,7 @@ namespace SprayChronicle.Server
             return _container;
         }
 
-        public async Task RunAsync()
+        public void Run()
         {
             if (null != OnConfigure) {
                 OnConfigure(ContainerBuilder());
@@ -54,11 +55,11 @@ namespace SprayChronicle.Server
                 OnInitialize();
             }
 
-            await Task.Run(() => {
-                if (null != OnExecute) {
-                    OnExecute(Container());
-                }
-            });
+            if (null != OnExecute) {
+                OnExecute(Container());
+            }
+
+            new AutoResetEvent(false).WaitOne();
         }
     }
 }
