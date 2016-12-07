@@ -1,4 +1,7 @@
-namespace SprayChronicle.EventHandling.Projecting
+using SprayChronicle.EventHandling;
+using SprayChronicle.QueryHandling;
+
+namespace SprayChronicle.Projecting
 {
     public interface IBuildProjectorHandlers
     {
@@ -6,6 +9,6 @@ namespace SprayChronicle.EventHandling.Projecting
 
         StreamEventHandler<TProjector> Build<TProjection,TProjector>(IStream stream, string projectionReference) where TProjector : Projector<TProjection>;
 
-        StreamEventHandler<TProjector> Build<TProjection,TProjector>(IStream stream, IProjectionRepository<TProjection> repository) where TProjector : Projector<TProjection>;
+        StreamEventHandler<TProjector> Build<TProjection,TProjector>(IStream stream, IStatefulRepository<TProjection> repository) where TProjector : Projector<TProjection>;
     }
 }

@@ -7,9 +7,9 @@ namespace SprayChronicle.CommandHandling
 {
     public abstract class OverloadCommandHandler<T> : IHandleCommand where T : IEventSourcable<T>
     {
-        protected readonly IObjectRepository<T> _repository;
+        protected readonly IEventSourcingRepository<T> _repository;
 
-        public OverloadCommandHandler(IObjectRepository<T> repository)
+        public OverloadCommandHandler(IEventSourcingRepository<T> repository)
         {
             _repository = repository;
         }

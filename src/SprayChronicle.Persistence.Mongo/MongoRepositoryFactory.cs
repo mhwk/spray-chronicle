@@ -1,5 +1,5 @@
 using MongoDB.Driver;
-using SprayChronicle.EventHandling.Projecting;
+using SprayChronicle.Projecting;
 
 namespace SprayChronicle.Persistence.Mongo
 {
@@ -12,12 +12,12 @@ namespace SprayChronicle.Persistence.Mongo
             _database = database;
         }
 
-        public IProjectionRepository<T> Build<T>()
+        public IStatefulRepository<T> Build<T>()
         {
             return Build<T>(typeof(T).Name);
         }
 
-        public IProjectionRepository<T> Build<T>(string reference)
+        public IStatefulRepository<T> Build<T>(string reference)
         {
             return new MongoRepository<T>(_database.GetCollection<T>(reference));
         }

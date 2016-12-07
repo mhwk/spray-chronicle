@@ -19,6 +19,9 @@
     "SprayChronicle.Persistence.Memory": {
         "target": "project"
     },
+    "SprayChronicle.Projecting": {
+        "target": "project"
+    },
     "SprayChronicle.Server.Http": {
         "target": "project"
     }

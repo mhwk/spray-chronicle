@@ -36,7 +36,7 @@ namespace SprayChronicle.Testing
                     .SingleInstance();
 
                 builder
-                    .Register<IObjectRepository<TSource>>(c => new EventSourcedRepository<TSource>(c.Resolve<IEventStore>()))
+                    .Register<IEventSourcingRepository<TSource>>(c => new EventSourcedRepository<TSource>(c.Resolve<IEventStore>()))
                     .SingleInstance();
                 
                 _configure(builder);

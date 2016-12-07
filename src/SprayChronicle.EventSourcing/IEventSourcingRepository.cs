@@ -1,6 +1,6 @@
 namespace SprayChronicle.EventSourcing
 {
-    public interface IObjectRepository<T> where T : IEventSourcable<T>
+    public interface IEventSourcingRepository<T> where T : IEventSourcable<T>
     {
         void Save(T subject);
 

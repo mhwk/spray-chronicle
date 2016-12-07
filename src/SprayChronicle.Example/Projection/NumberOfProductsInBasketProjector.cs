@@ -1,6 +1,6 @@
 using System;
 using SprayChronicle.EventHandling;
-using SprayChronicle.EventHandling.Projecting;
+using SprayChronicle.Projecting;
 using SprayChronicle.Example.Contracts.Events;
 
 namespace SprayChronicle.Example.Projection
@@ -11,7 +11,7 @@ namespace SprayChronicle.Example.Projection
           IHandleEvent<ProductAddedToBasket>,
           IHandleEvent<ProductRemovedFromBasket>
     {
-        public NumberOfProductsInBasketProjector(IProjectionRepository<NumberOfProductsInBasket> repository)
+        public NumberOfProductsInBasketProjector(IStatefulRepository<NumberOfProductsInBasket> repository)
             : base(repository)
         {}
 

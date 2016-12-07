@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 
-namespace SprayChronicle.EventHandling.Projecting
+namespace SprayChronicle.QueryHandling
 {
-    public class BufferedRepository<T> : IProjectionRepository<T>
+    public class BufferedStateRepository<T> : IStatefulRepository<T>
     {
-        readonly ILogger<IStream> _logger;
+        readonly ILogger<T> _logger;
 
-        readonly IProjectionRepository<T> _repository;
+        readonly IStatefulRepository<T> _repository;
 
         readonly int _limit;
 
@@ -25,11 +25,11 @@ namespace SprayChronicle.EventHandling.Projecting
 
         bool _flushing = false;
 
-        public BufferedRepository(ILogger<IStream> logger, IProjectionRepository<T> repository) : this(logger, repository, 10000)
+        public BufferedStateRepository(ILogger<T> logger, IStatefulRepository<T> repository) : this(logger, repository, 10000)
         {
         }
 
-        public BufferedRepository(ILogger<IStream> logger, IProjectionRepository<T> repository, int limit)
+        public BufferedStateRepository(ILogger<T> logger, IStatefulRepository<T> repository, int limit)
         {
             _logger = logger;
             _repository = repository;

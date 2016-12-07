@@ -7,7 +7,7 @@ namespace SprayChronicle.Example.Coordination
 {
     public sealed class BasketHandler : OverloadCommandHandler<Basket>
     {
-        public BasketHandler(IObjectRepository<Basket> repository): base(repository)
+        public BasketHandler(IEventSourcingRepository<Basket> repository): base(repository)
         {}
         
         public void Handle(PickUpBasket command)

@@ -3,11 +3,11 @@ using System.Linq;
 using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using SprayChronicle.EventHandling.Projecting;
+using SprayChronicle.Projecting;
 
 namespace SprayChronicle.Persistence.Mongo
 {
-    public class MongoRepository<T> : IProjectionRepository<T>
+    public class MongoRepository<T> : IStatefulRepository<T>
     {
         IMongoCollection<T> _collection;
 

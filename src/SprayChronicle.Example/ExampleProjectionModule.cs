@@ -1,6 +1,6 @@
 using Autofac;
 using SprayChronicle.EventHandling;
-using SprayChronicle.EventHandling.Projecting;
+using SprayChronicle.Projecting;
 using SprayChronicle.Persistence.Memory;
 using SprayChronicle.Example.Projection;
 

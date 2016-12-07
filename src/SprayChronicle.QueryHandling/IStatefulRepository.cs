@@ -2,9 +2,9 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace SprayChronicle.EventHandling.Projecting
+namespace SprayChronicle.QueryHandling
 {
-    public interface IProjectionRepository<T>
+    public interface IStatefulRepository<T>
     {
         string Identity(T obj);
 

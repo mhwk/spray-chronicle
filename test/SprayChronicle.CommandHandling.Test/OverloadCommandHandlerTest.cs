@@ -12,7 +12,7 @@ namespace SprayChronicle.Test.CommandHandling
 {
     public class OverloadCommandHandlerTest
     {
-        public Mock<IObjectRepository<Basket>> Repository = new Mock<IObjectRepository<Basket>>();
+        public Mock<IEventSourcingRepository<Basket>> Repository = new Mock<IEventSourcingRepository<Basket>>();
 
         [Fact]
         public void ItWontAcceptCommand()

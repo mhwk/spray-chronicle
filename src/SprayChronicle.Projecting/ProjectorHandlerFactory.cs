@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
+using SprayChronicle.EventHandling;
 
-namespace SprayChronicle.EventHandling.Projecting
+namespace SprayChronicle.Projecting
 {
     public class ProjectorHandlerFactory : IBuildProjectorHandlers
     {
@@ -34,7 +35,7 @@ namespace SprayChronicle.EventHandling.Projecting
             );
         }
 
-        public StreamEventHandler<TProjector> Build<TProjection,TProjector>(IStream stream, IProjectionRepository<TProjection> repository) where TProjector : Projector<TProjection>
+        public StreamEventHandler<TProjector> Build<TProjection,TProjector>(IStream stream, IStatefulRepository<TProjection> repository) where TProjector : Projector<TProjection>
         {
             return new StreamEventHandler<TProjector>(
                 _logger,

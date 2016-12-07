@@ -1,7 +1,7 @@
 using System;
 using Microsoft.Extensions.Logging;
 using SprayChronicle.EventHandling;
-using SprayChronicle.EventHandling.Projecting;
+using SprayChronicle.Projecting;
 
 namespace SprayChronicle.Persistence.Mongo
 {
@@ -21,7 +21,7 @@ namespace SprayChronicle.Persistence.Mongo
         {
             return (TProjector) Activator.CreateInstance(
                 typeof(TProjector),
-                new BufferedRepository<TProjection>(
+                new BufferedStateRepository<TProjection>(
                     _logger,
                     _repositoryFactory.Build<TProjection>()
                 )
@@ -32,18 +32,18 @@ namespace SprayChronicle.Persistence.Mongo
         {
             return (TProjector) Activator.CreateInstance(
                 typeof(TProjector),
-                new BufferedRepository<TProjection>(
+                new BufferedStateRepository<TProjection>(
                     _logger,
                     _repositoryFactory.Build<TProjection>(projectionReference)
                 )
             );
         }
 
-        public TProjector Build<TProjection,TProjector>(IProjectionRepository<TProjection> repository) where TProjector : Projector<TProjection>
+        public TProjector Build<TProjection,TProjector>(IStatefulRepository<TProjection> repository) where TProjector : Projector<TProjection>
         {
             return (TProjector) Activator.CreateInstance(
                 typeof(TProjector),
-                new BufferedRepository<TProjection>(
+                new BufferedStateRepository<TProjection>(
                     _logger,
                     repository
                 )

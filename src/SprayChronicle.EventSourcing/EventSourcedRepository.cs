@@ -1,6 +1,6 @@
 namespace SprayChronicle.EventSourcing
 {
-    public class EventSourcedRepository<T> : IObjectRepository<T> where T : EventSourced<T>
+    public class EventSourcedRepository<T> : IEventSourcingRepository<T> where T : EventSourced<T>
     {
         IEventStore _persistence;
 
