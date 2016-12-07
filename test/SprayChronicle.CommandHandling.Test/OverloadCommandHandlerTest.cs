@@ -6,6 +6,7 @@ using SprayChronicle.CommandHandling;
 using SprayChronicle.EventSourcing;
 using SprayChronicle.Example.Domain;
 using SprayChronicle.Example.Contracts.Commands;
+using SprayChronicle.Example.Coordination;
 
 namespace SprayChronicle.Test.CommandHandling
 {

@@ -1,11 +1,12 @@
 using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Xunit;
 using Moq;
 using FluentAssertions;
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.SystemData;
-using SprayChronicle.Example.Contract.Event;
+using SprayChronicle.Example.Contracts.Events;
 using SprayChronicle.Example.Domain;
 using SprayChronicle.EventSourcing;
 using SprayChronicle.Persistence.Ouro;
@@ -15,15 +16,17 @@ namespace SprayChronicle.Test.EventPersisting
     public class OuroEventStoreTest
     {
         /**
-         * Sadly, due to lack of dotnet core support for EventStore, a lot is untestable.
+         * Sadly, due to lack embedded client for dotnet core, a lot is untestable.
          */
+
+         public Mock<ILogger<IEventStore>> Logger = new Mock<ILogger<IEventStore>>();
 
          public Mock<IEventStoreConnection> EventStore = new Mock<IEventStoreConnection>();
 
          [Fact]
          public void ItCanInstantiateOuroPersister()
          {
-             var persister = new OuroEventStore(EventStore.Object);
+             var persister = new OuroEventStore(Logger.Object, EventStore.Object);
              persister.Should().NotBeNull();
          }
 
