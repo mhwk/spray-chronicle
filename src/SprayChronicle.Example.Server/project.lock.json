@@ -3244,10 +3244,11 @@
           "Microsoft.Extensions.Logging.Console": "1.1.0",
           "NETStandard.Library": "1.6.1",
           "SprayChronicle.EventSourcing": "(, )",
+          "SprayChronicle.MessageHandling": "(, )",
           "SprayChronicle.Server": "(, )"
         }
       },
-      "SprayChronicle.EventHandling/0.0.20": {
+      "SprayChronicle.EventHandling/0.0.21": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
@@ -3256,16 +3257,17 @@
           "Microsoft.Extensions.Logging.Console": "1.0.0",
           "NETStandard.Library": "1.6.1",
           "Newtonsoft.Json": "9.0.1",
+          "SprayChronicle.MessageHandling": "(, )",
           "SprayChronicle.Server": "(, )",
-          "SprayLocator": "1.1.0",
-          "System.Linq.Queryable": "4.3.0"
+          "SprayLocator": "1.1.0"
         }
       },
       "SprayChronicle.EventSourcing/0.0.8": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
-          "NETStandard.Library": "1.6.1"
+          "NETStandard.Library": "1.6.1",
+          "SprayChronicle.MessageHandling": "(, )"
         }
       },
       "SprayChronicle.Example/1.0.0": {
@@ -3280,17 +3282,29 @@
           "SprayChronicle.EventHandling": "(, )",
           "SprayChronicle.EventSourcing": "(, )",
           "SprayChronicle.Persistence.Memory": "(, )",
+          "SprayChronicle.Projecting": "(, )",
+          "SprayChronicle.QueryHandling": "(, )",
           "SprayChronicle.Server.Http": "(, )"
+        }
+      },
+      "SprayChronicle.MessageHandling/1.0.0": {
+        "type": "project",
+        "framework": ".NETStandard,Version=v1.6",
+        "dependencies": {
+          "NETStandard.Library": "1.6.1",
+          "SprayLocator": "1.1.0"
         }
       },
       "SprayChronicle.Persistence.Memory/0.0.2": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
-          "Microsoft.Extensions.Logging": "1.0.0",
+          "Microsoft.Extensions.Logging": "1.1.0",
           "NETStandard.Library": "1.6.1",
           "SprayChronicle.EventHandling": "(, )",
           "SprayChronicle.EventSourcing": "(, )",
+          "SprayChronicle.Projecting": "(, )",
+          "SprayChronicle.QueryHandling": "(, )",
           "SprayChronicle.Server": "(, )"
         }
       },
@@ -3299,11 +3313,11 @@
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
           "Autofac": "4.2.1",
-          "Microsoft.Extensions.Logging": "1.0.0",
+          "Microsoft.Extensions.Logging": "1.1.0",
           "MongoDB.Bson": "2.3.0",
           "MongoDB.Driver": "2.3.0",
           "NETStandard.Library": "1.6.1",
-          "SprayChronicle.EventHandling": "(, )",
+          "SprayChronicle.Projecting": "(, )",
           "SprayChronicle.Server": "(, )"
         }
       },
@@ -3320,6 +3334,29 @@
           "SprayChronicle.EventHandling": "(, )",
           "SprayChronicle.EventSourcing": "(, )",
           "SprayChronicle.Server": "(, )"
+        }
+      },
+      "SprayChronicle.Projecting/0.0.1": {
+        "type": "project",
+        "framework": ".NETStandard,Version=v1.6",
+        "dependencies": {
+          "Autofac": "4.2.1",
+          "Microsoft.Extensions.Logging": "1.1.0",
+          "NETStandard.Library": "1.6.1",
+          "SprayChronicle.EventHandling": "(, )",
+          "SprayChronicle.QueryHandling": "(, )"
+        }
+      },
+      "SprayChronicle.QueryHandling/0.0.1": {
+        "type": "project",
+        "framework": ".NETStandard,Version=v1.6",
+        "dependencies": {
+          "Autofac": "4.2.1",
+          "Microsoft.Extensions.Logging": "1.1.0",
+          "Microsoft.Extensions.Logging.Console": "1.1.0",
+          "NETStandard.Library": "1.6.1",
+          "SprayChronicle.MessageHandling": "(, )",
+          "System.Linq.Queryable": "4.3.0"
         }
       },
       "SprayChronicle.Server/0.0.2": {
@@ -3346,6 +3383,7 @@
           "NETStandard.Library": "1.6.1",
           "Newtonsoft.Json": "9.0.1",
           "SprayChronicle.CommandHandling": "(, )",
+          "SprayChronicle.QueryHandling": "(, )",
           "SprayChronicle.Server": "(, )",
           "System.ComponentModel.Annotations": "4.3.0"
         }
@@ -9307,7 +9345,7 @@
       "type": "project",
       "path": "../SprayChronicle.CommandHandling/project.json"
     },
-    "SprayChronicle.EventHandling/0.0.20": {
+    "SprayChronicle.EventHandling/0.0.21": {
       "type": "project",
       "path": "../SprayChronicle.EventHandling/project.json"
     },
@@ -9318,6 +9356,10 @@
     "SprayChronicle.Example/1.0.0": {
       "type": "project",
       "path": "../SprayChronicle.Example/project.json"
+    },
+    "SprayChronicle.MessageHandling/1.0.0": {
+      "type": "project",
+      "path": "../SprayChronicle.MessageHandling/project.json"
     },
     "SprayChronicle.Persistence.Memory/0.0.2": {
       "type": "project",
@@ -9330,6 +9372,14 @@
     "SprayChronicle.Persistence.Ouro/0.0.20": {
       "type": "project",
       "path": "../SprayChronicle.Persistence.Ouro/project.json"
+    },
+    "SprayChronicle.Projecting/0.0.1": {
+      "type": "project",
+      "path": "../SprayChronicle.Projecting/project.json"
+    },
+    "SprayChronicle.QueryHandling/0.0.1": {
+      "type": "project",
+      "path": "../SprayChronicle.QueryHandling/project.json"
     },
     "SprayChronicle.Server/0.0.2": {
       "type": "project",

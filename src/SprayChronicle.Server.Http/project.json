@@ -20,6 +20,12 @@
     },
     "SprayChronicle.CommandHandling": {
         "target": "project"
+    },
+    "SprayChronicle.Projecting": {
+        "target": "project"
+    },
+    "SprayChronicle.QueryHandling": {
+        "target": "project"
     }
   },
   "frameworks": {

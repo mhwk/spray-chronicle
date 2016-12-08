@@ -7,7 +7,7 @@
     "Autofac": "4.2.1",
     "MongoDB.Driver": "2.3.0",
     "MongoDB.Bson": "2.3.0",
-    "Microsoft.Extensions.Logging": "1.0.0",
+    "Microsoft.Extensions.Logging": "1.1.0",
     "SprayChronicle.Projecting": {
         "target": "project"
     },

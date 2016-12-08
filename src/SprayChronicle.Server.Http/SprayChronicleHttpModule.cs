@@ -1,6 +1,7 @@
 using Autofac;
 using Microsoft.Extensions.Logging;
 using SprayChronicle.CommandHandling;
+using SprayChronicle.QueryHandling;
 
 namespace SprayChronicle.Server.Http
 {
@@ -13,11 +14,23 @@ namespace SprayChronicle.Server.Http
                 c.Resolve<SubscriptionCommandBus>()
             ));
 
+            builder.Register<HttpQueryRouteMapper>(c => new HttpQueryRouteMapper(
+                c.Resolve<ILogger<HttpQueryProcessor>>(),
+                c.Resolve<SubscriptionQueryProcessor>()
+            ));
+
             builder
                 .Register<ILogger<HttpCommandDispatcher>>(
                     c => new LoggerFactory()
                         .AddConsole(LogLevel.Debug)
                         .CreateLogger<HttpCommandDispatcher>()
+                );
+
+            builder
+                .Register<ILogger<HttpQueryProcessor>>(
+                    c => new LoggerFactory()
+                        .AddConsole(LogLevel.Debug)
+                        .CreateLogger<HttpQueryProcessor>()
                 );
         }
     }

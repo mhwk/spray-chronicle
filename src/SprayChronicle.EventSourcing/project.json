@@ -4,6 +4,9 @@
     "debugType": "portable"
   },
   "dependencies": {
+    "SprayChronicle.MessageHandling": {
+      "target": "project"
+    }
   },
   "frameworks": {
     "netstandard1.6": {

@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using SprayChronicle.EventHandling;
+using SprayChronicle.QueryHandling;
 
 namespace SprayChronicle.Projecting
 {

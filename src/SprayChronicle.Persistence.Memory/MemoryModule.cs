@@ -1,8 +1,9 @@
 using Autofac;
 using Microsoft.Extensions.Logging;
 using SprayChronicle.EventHandling;
-using SprayChronicle.EventHandling.Projecting;
+using SprayChronicle.Projecting;
 using SprayChronicle.EventSourcing;
+using SprayChronicle.QueryHandling;
 
 namespace SprayChronicle.Persistence.Memory
 {
@@ -15,13 +16,13 @@ namespace SprayChronicle.Persistence.Memory
                     c => new MemoryRepositoryFactory()
                 )
                 .AsSelf()
-                .As<IBuildProjectionRepositories>()
+                .As<IBuildStatefulRepositories>()
                 .SingleInstance();
             
             builder
                 .Register<MemoryProjectorFactory>(
                     c => new MemoryProjectorFactory(
-                        c.Resolve<ILogger<IStream>>(),
+                        c.Resolve<ILoggerFactory>(),
                         c.Resolve<MemoryRepositoryFactory>()
                     )
                 )
@@ -41,6 +42,10 @@ namespace SprayChronicle.Persistence.Memory
                 ))
                 .AsSelf()
                 .As<IBuildStreams>()
+                .SingleInstance();
+            
+            builder
+                .Register<ILoggerFactory>(c => new LoggerFactory())
                 .SingleInstance();
         }
     }

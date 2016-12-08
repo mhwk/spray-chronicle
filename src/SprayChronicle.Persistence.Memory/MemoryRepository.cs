@@ -2,11 +2,11 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
-using SprayChronicle.EventHandling.Projecting;
+using SprayChronicle.QueryHandling;
 
 namespace SprayChronicle.Persistence.Memory
 {
-    public class MemoryRepository<T> : IProjectionRepository<T>
+    public class MemoryRepository<T> : IStatefulRepository<T>
     {
         readonly FieldInfo _identifier;
 

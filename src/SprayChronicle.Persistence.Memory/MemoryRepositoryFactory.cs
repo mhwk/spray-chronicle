@@ -1,15 +1,15 @@
-using SprayChronicle.EventHandling.Projecting;
+using SprayChronicle.QueryHandling;
 
 namespace SprayChronicle.Persistence.Memory
 {
-    public class MemoryRepositoryFactory : IBuildProjectionRepositories
+    public class MemoryRepositoryFactory : IBuildStatefulRepositories
     {
-        public IProjectionRepository<T> Build<T>()
+        public IStatefulRepository<T> Build<T>()
         {
             return new MemoryRepository<T>();
         }
         
-        public IProjectionRepository<T> Build<T>(string reference)
+        public IStatefulRepository<T> Build<T>(string reference)
         {
             return new MemoryRepository<T>();
         }

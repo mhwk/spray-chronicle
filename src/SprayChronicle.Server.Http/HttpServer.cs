@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using SprayChronicle.CommandHandling;
+using SprayChronicle.QueryHandling;
 
 namespace SprayChronicle.Server.Http
 {
@@ -49,8 +50,6 @@ namespace SprayChronicle.Server.Http
                 });
 
                 SprayChronicleServer.ContainerBuilder().Populate(services);
-                SprayChronicleServer.ContainerBuilder().RegisterModule<CommandHandlingModule>();
-                SprayChronicleServer.ContainerBuilder().RegisterModule<SprayChronicleHttpModule>();
                 return SprayChronicleServer.Container().Resolve<IServiceProvider>();
             }
 
@@ -59,6 +58,7 @@ namespace SprayChronicle.Server.Http
                 var builder = new RouteBuilder(app);
 
                 ((HttpCommandRouteMapper)app.ApplicationServices.GetService(typeof(HttpCommandRouteMapper))).Map(builder);
+                ((HttpQueryRouteMapper)app.ApplicationServices.GetService(typeof(HttpQueryRouteMapper))).Map(builder);
 
                 app.UseRouter(builder.Build());
             }

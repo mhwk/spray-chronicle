@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using SprayChronicle.EventSourcing;
+using SprayChronicle.MessageHandling;
 
 namespace SprayChronicle.CommandHandling
 {
@@ -9,38 +10,31 @@ namespace SprayChronicle.CommandHandling
     {
         protected readonly IEventSourcingRepository<T> _repository;
 
+        static IMessageHandlingStrategy _handlers = new OverloadHandlingStrategy<OverloadCommandHandler<T>>(); 
+
         public OverloadCommandHandler(IEventSourcingRepository<T> repository)
         {
             _repository = repository;
         }
 
-        MethodInfo LocateMethodFor(object command)
-        {
-            return GetType().GetTypeInfo().GetMethods()
-                .Where(m => m.GetParameters().Length > 0)
-                .Where(m => m.GetParameters()[0].ParameterType.Equals(command.GetType()))
-                .FirstOrDefault();
-        }
-
         public bool Handles(object command)
         {
-            return null != LocateMethodFor(command);
+            return _handlers.AcceptsMessage(this, command);
         }
 
         public void Handle(object command)
         {
-            MethodInfo method = LocateMethodFor(command);
-            if (null == method) {
-                throw new UnhandledCommandException(string.Format(
-                    "Command {0} not handled by {1}",
-                    command.GetType(),
-                    GetType()
-                ));
-            }
             try {
-                method.Invoke(this, new object[] { command });
-            } catch (TargetInvocationException error) {
-                throw error.InnerException;
+                _handlers.ProcessMessage(this, command);
+            } catch (Exception error) {
+                throw new UnhandledCommandException(
+                    string.Format(
+                        "Command {0} not handled by {1}",
+                        command.GetType(),
+                        GetType()
+                    ),
+                    error
+                );
             }
         }
 

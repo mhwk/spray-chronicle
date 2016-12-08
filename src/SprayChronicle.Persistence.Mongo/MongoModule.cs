@@ -25,7 +25,7 @@ namespace SprayChronicle.Persistence.Mongo
             builder
                 .Register<MongoProjectorFactory>(
                     c => new MongoProjectorFactory(
-                        c.Resolve<ILogger<IStream>>(),
+                        new LoggerFactory(),
                         c.Resolve<MongoRepositoryFactory>()
                     )
                 )

@@ -2697,8 +2697,7 @@
           "NETStandard.Library": "1.6.1",
           "Newtonsoft.Json": "9.0.1",
           "SprayChronicle.Server": "(, )",
-          "SprayLocator": "1.1.0",
-          "System.Linq.Queryable": "4.3.0"
+          "SprayLocator": "1.1.0"
         }
       },
       "SprayChronicle.EventSourcing/0.0.8": {
@@ -2712,20 +2711,34 @@
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
-          "Microsoft.Extensions.Logging": "1.0.0",
+          "Microsoft.Extensions.Logging": "1.1.0",
           "NETStandard.Library": "1.6.1",
           "SprayChronicle.EventHandling": "(, )",
           "SprayChronicle.EventSourcing": "(, )",
+          "SprayChronicle.Projecting": "(, )",
+          "SprayChronicle.QueryHandling": "(, )",
           "SprayChronicle.Server": "(, )"
         }
       },
-      "SprayChronicle.Projecting/1.0.0": {
+      "SprayChronicle.Projecting/0.0.1": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
           "Autofac": "4.2.1",
+          "Microsoft.Extensions.Logging": "1.1.0",
           "NETStandard.Library": "1.6.1",
-          "SprayChronicle.EventHandling": "(, )"
+          "SprayChronicle.EventHandling": "(, )",
+          "SprayChronicle.QueryHandling": "(, )"
+        }
+      },
+      "SprayChronicle.QueryHandling/0.0.1": {
+        "type": "project",
+        "framework": ".NETStandard,Version=v1.6",
+        "dependencies": {
+          "Autofac": "4.2.1",
+          "Microsoft.Extensions.Logging": "1.1.0",
+          "NETStandard.Library": "1.6.1",
+          "System.Linq.Queryable": "4.3.0"
         }
       },
       "SprayChronicle.Server/0.0.2": {
@@ -7825,9 +7838,13 @@
       "type": "project",
       "path": "../SprayChronicle.Persistence.Memory/project.json"
     },
-    "SprayChronicle.Projecting/1.0.0": {
+    "SprayChronicle.Projecting/0.0.1": {
       "type": "project",
       "path": "../SprayChronicle.Projecting/project.json"
+    },
+    "SprayChronicle.QueryHandling/0.0.1": {
+      "type": "project",
+      "path": "../SprayChronicle.QueryHandling/project.json"
     },
     "SprayChronicle.Server/0.0.2": {
       "type": "project",
@@ -7848,6 +7865,7 @@
       "SprayChronicle.EventSourcing",
       "SprayChronicle.Persistence.Memory",
       "SprayChronicle.Projecting",
+      "SprayChronicle.QueryHandling",
       "SprayChronicle.Server.Http"
     ],
     ".NETStandard,Version=v1.6": [

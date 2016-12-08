@@ -2,18 +2,19 @@ using System;
 using Microsoft.Extensions.Logging;
 using SprayChronicle.EventHandling;
 using SprayChronicle.Projecting;
+using SprayChronicle.QueryHandling;
 
 namespace SprayChronicle.Persistence.Mongo
 {
     public sealed class MongoProjectorFactory : IBuildProjectors
     {
-        readonly ILogger<IStream> _logger;
+        readonly ILoggerFactory _loggerFactory;
 
         readonly MongoRepositoryFactory _repositoryFactory;
 
-        public MongoProjectorFactory(ILogger<IStream> logger, MongoRepositoryFactory repositoryFactory)
+        public MongoProjectorFactory(ILoggerFactory loggerFactory, MongoRepositoryFactory repositoryFactory)
         {
-            _logger = logger;
+            _loggerFactory = loggerFactory;
             _repositoryFactory = repositoryFactory;
         }
 
@@ -22,7 +23,7 @@ namespace SprayChronicle.Persistence.Mongo
             return (TProjector) Activator.CreateInstance(
                 typeof(TProjector),
                 new BufferedStateRepository<TProjection>(
-                    _logger,
+                    _loggerFactory.AddConsole(LogLevel.Debug).CreateLogger<TProjection>(),
                     _repositoryFactory.Build<TProjection>()
                 )
             );
@@ -33,7 +34,7 @@ namespace SprayChronicle.Persistence.Mongo
             return (TProjector) Activator.CreateInstance(
                 typeof(TProjector),
                 new BufferedStateRepository<TProjection>(
-                    _logger,
+                    _loggerFactory.AddConsole(LogLevel.Debug).CreateLogger<TProjection>(),
                     _repositoryFactory.Build<TProjection>(projectionReference)
                 )
             );
@@ -44,7 +45,7 @@ namespace SprayChronicle.Persistence.Mongo
             return (TProjector) Activator.CreateInstance(
                 typeof(TProjector),
                 new BufferedStateRepository<TProjection>(
-                    _logger,
+                    _loggerFactory.AddConsole(LogLevel.Debug).CreateLogger<TProjection>(),
                     repository
                 )
             );

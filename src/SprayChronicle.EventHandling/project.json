@@ -9,6 +9,9 @@
     "Microsoft.Extensions.Logging": "1.0.0",
     "Microsoft.Extensions.Logging.Console": "1.0.0",
     "SprayLocator": "1.1.0",
+    "SprayChronicle.MessageHandling": {
+        "target": "project"
+    },
     "SprayChronicle.Server": {
         "target": "project"
     }

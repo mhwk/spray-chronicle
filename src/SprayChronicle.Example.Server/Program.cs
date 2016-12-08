@@ -6,7 +6,7 @@ using SprayChronicle.Persistence.Mongo;
 using SprayChronicle.Persistence.Ouro;
 using SprayChronicle.Example;
 
-namespace ConsoleApplication
+namespace SprayChronicle.Example.Server
 {
     public class Program
     {

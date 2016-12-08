@@ -1,6 +1,7 @@
 using System;
 using SprayChronicle.EventHandling;
 using SprayChronicle.Projecting;
+using SprayChronicle.QueryHandling;
 using SprayChronicle.Example.Contracts.Events;
 
 namespace SprayChronicle.Example.Projection

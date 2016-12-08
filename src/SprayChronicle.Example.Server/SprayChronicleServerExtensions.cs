@@ -1,7 +1,7 @@
 using Autofac;
 using SprayChronicle.Server;
 
-namespace SprayChronicle.Example
+namespace SprayChronicle.Example.Server
 {
     public static class SprayChronicleServerExtensions
     {

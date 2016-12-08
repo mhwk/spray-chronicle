@@ -12,6 +12,9 @@
       },
       "SprayChronicle.EventSourcing": {
           "target": "project"
+      },
+      "SprayChronicle.MessageHandling": {
+          "target": "project"
       }
   },
   "frameworks": {

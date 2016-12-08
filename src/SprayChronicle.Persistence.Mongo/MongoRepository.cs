@@ -3,7 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using SprayChronicle.Projecting;
+using SprayChronicle.QueryHandling;
 
 namespace SprayChronicle.Persistence.Mongo
 {

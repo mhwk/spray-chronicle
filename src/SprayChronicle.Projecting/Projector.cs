@@ -1,4 +1,6 @@
+using System;
 using SprayChronicle.EventHandling;
+using SprayChronicle.QueryHandling;
 
 namespace SprayChronicle.Projecting
 {
@@ -14,6 +16,14 @@ namespace SprayChronicle.Projecting
         protected IStatefulRepository<T> Repository()
         {
             return _repository;
+        }
+
+        protected void With(string id, Action callback)
+        {
+            var projection = _repository.Load(id);
+            if (null == projection) {
+                
+            }
         }
     }
 }

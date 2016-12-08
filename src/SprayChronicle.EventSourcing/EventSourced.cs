@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using SprayChronicle.MessageHandling;
 
 namespace SprayChronicle.EventSourcing
 {
@@ -9,7 +10,7 @@ namespace SprayChronicle.EventSourcing
 
         List<DomainMessage> _queue = new List<DomainMessage>();
 
-        static IEventRouter<T> _router = new OverloadRouter<T>();
+        protected static IMessageHandlingStrategy _router = new OverloadHandlingStrategy<T>();
 
         public abstract string Identity();
 
@@ -24,7 +25,9 @@ namespace SprayChronicle.EventSourcing
         {
             IEventSourcable<T> sourcable = default(IEventSourcable<T>);
             foreach (var message in messages) {
-                sourcable = (EventSourced<T>) _router.Route(sourcable, message);
+                if (_router.AcceptsMessage(sourcable, message.Payload)) {
+                    sourcable = (EventSourced<T>) _router.ProcessMessage(sourcable, message.Payload);
+                }
                 ((EventSourced<T>)sourcable)._sequence = message.Sequence;
             }
             return (T) sourcable;
@@ -38,7 +41,10 @@ namespace SprayChronicle.EventSourcing
                 payload
             );
 
-            var updated = _router.Route(sourcable, domainMessage);
+            var updated = sourcable;
+            if (_router.AcceptsMessage(sourcable, payload)) {
+                updated = (IEventSourcable<T>) _router.ProcessMessage(sourcable, payload);
+            }
             
             if (updated != sourcable && null != sourcable) {
                 ((EventSourced<T>)updated)._queue.AddRange(((EventSourced<T>)sourcable)._queue);

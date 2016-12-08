@@ -1,9 +1,9 @@
 using MongoDB.Driver;
-using SprayChronicle.Projecting;
+using SprayChronicle.QueryHandling;
 
 namespace SprayChronicle.Persistence.Mongo
 {
-    public sealed class MongoRepositoryFactory : IBuildProjectionRepositories
+    public sealed class MongoRepositoryFactory : IBuildStatefulRepositories
     {
         readonly IMongoDatabase _database;
 

@@ -22,6 +22,9 @@
     "SprayChronicle.Projecting": {
         "target": "project"
     },
+    "SprayChronicle.QueryHandling": {
+        "target": "project"
+    },
     "SprayChronicle.Server.Http": {
         "target": "project"
     }
