@@ -2,6 +2,7 @@ using Xunit;
 using SprayChronicle.Example.Domain;
 using SprayChronicle.Example.Contracts.Commands;
 using SprayChronicle.Example.Contracts.Events;
+using SprayChronicle.Example.Coordination;
 
 namespace SprayChronicle.Testing.Test
 {
