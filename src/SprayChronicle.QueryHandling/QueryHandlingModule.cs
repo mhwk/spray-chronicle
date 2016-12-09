@@ -9,6 +9,10 @@ namespace SprayChronicle.QueryHandling
         protected override void Load(ContainerBuilder builder)
         {
             builder
+                .Register<IBuildQueryExecutors>(c => new OverloadQueryExecutorFactory())
+                .SingleInstance();
+            
+            builder
                 .Register<SubscriptionQueryProcessor>(c => new SubscriptionQueryProcessor())
                 .OnActivating(e => RegisterQueryExecutors(e.Context, e.Instance as SubscriptionQueryProcessor))
                 .SingleInstance();
