@@ -6,7 +6,7 @@ namespace SprayChronicle.QueryHandling
     {
         protected readonly IStatefulRepository<T> _repository;
 
-        readonly static IMessageHandlingStrategy _handlers = new OverloadHandlingStrategy<T>();
+        readonly static IMessageHandlingStrategy _handlers = new OverloadHandlingStrategy<OverloadQueryExecutor<T>>();
 
         public OverloadQueryExecutor(IStatefulRepository<T> repository)
         {

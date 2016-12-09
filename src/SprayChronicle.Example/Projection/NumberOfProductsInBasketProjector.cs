@@ -18,21 +18,17 @@ namespace SprayChronicle.Example.Projection
 
         public void On(BasketPickedUp @event, DateTime epoch)
         {
-            Repository().Save(new NumberOfProductsInBasket(@event.BasketId));
+            Start(() => new NumberOfProductsInBasket(@event.BasketId));
         }
 
         public void On(ProductAddedToBasket @event, DateTime epoch)
         {
-            Repository().Save(
-                Repository().Load(@event.BasketId).Increase()
-            );
+            With(@event.BasketId, basket => basket.Increase());
         }
 
         public void On(ProductRemovedFromBasket @event, DateTime epoch)
         {
-            Repository().Save(
-                Repository().Load(@event.BasketId).Decrease()
-            );
+            With(@event.BasketId, basket => basket.Decrease());
         }
     }
 }

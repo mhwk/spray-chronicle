@@ -12,8 +12,8 @@ namespace SprayChronicle.Example.Projection
         public object On(NumberOfProductsForBasketId query)
         {
             return _repository.FindBy(q => q
-                .Where(item => item.BasketId == query.BasketId)
-            );
+                .Where(item => item.BasketId.Equals(query.BasketId))
+            ).FirstOrDefault();
         }
     }
 }

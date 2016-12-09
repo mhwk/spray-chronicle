@@ -31,7 +31,9 @@ namespace SprayChronicle.Server.Http
             try {
                 var payload = JsonConvert.SerializeObject(BuildObject(context.Request.Query));
                 _logger.LogInformation("Processing {0} {1}", _type, payload);
-                _dispatcher.Process(JsonConvert.DeserializeObject(payload, _type));
+                var result = _dispatcher.Process(JsonConvert.DeserializeObject(payload, _type));
+                context.Response.StatusCode = 200;
+                await context.Response.WriteAsync(JsonConvert.SerializeObject(result));
             } catch (UnhandledQueryException error) {
                 _logger.LogError(error.ToString());
                 context.Response.StatusCode = 500;
@@ -55,7 +57,7 @@ namespace SprayChronicle.Server.Http
                 query.TryGetValue(key, out @value);
                 dict.Add(key, @value.ToString());
             }
-            return dict.GetEnumerator();
+            return dict;
         }
     }
 }

@@ -14,8 +14,8 @@ namespace SprayChronicle.Example.Server
         {
             new SprayChronicleServer()
                 .WithMemoryPersistence()
-                // .WithMongoPersistence()
-                // .WithOuroPersistence()
+                .WithMongoPersistence()
+                .WithOuroPersistence()
                 .WithExample()
                 .WithHttp()
                 .WithEventHandling()

@@ -18,12 +18,27 @@ namespace SprayChronicle.Projecting
             return _repository;
         }
 
-        protected void With(string id, Action callback)
+        protected void Start(Func<T> callback)
+        {
+            _repository.Save(callback());
+        }
+
+        protected void With(string id, Func<T,T> callback)
         {
             var projection = _repository.Load(id);
             if (null == projection) {
-                
+                throw new ProjectionException(string.Format(
+                    "Projection {0} with id {1} does not exist", typeof(T), id
+                ));
             }
+            callback(projection);
+            _repository.Save(projection);
         }
+
+        protected void End(string id)
+        {
+            _repository.Remove(id);
+        }
+
     }
 }
