@@ -31,8 +31,7 @@ namespace SprayChronicle.Projecting
                     "Projection {0} with id {1} does not exist", typeof(T), id
                 ));
             }
-            callback(projection);
-            _repository.Save(projection);
+            _repository.Save(callback(projection));
         }
 
         protected void End(string id)

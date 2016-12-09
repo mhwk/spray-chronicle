@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using SprayChronicle.QueryHandling;
 using SprayChronicle.Example.Contracts.Queries;
@@ -12,7 +13,7 @@ namespace SprayChronicle.Example.Projection
         public object On(NumberOfProductsForBasketId query)
         {
             return _repository.FindBy(q => q
-                .Where(item => item.BasketId.Equals(query.BasketId))
+                .Where(item => item.BasketId == query.BasketId)
             ).FirstOrDefault();
         }
     }

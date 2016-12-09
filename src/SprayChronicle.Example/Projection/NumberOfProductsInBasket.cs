@@ -14,6 +14,7 @@ namespace SprayChronicle.Example.Projection
         public NumberOfProductsInBasket(string basketId): this(basketId, 0)
         {}
 
+        [BsonConstructorAttribute]
         public NumberOfProductsInBasket(string basketId, int productCount)
         {
             BasketId = basketId;
