@@ -53,7 +53,7 @@ namespace SprayChronicle.Testing
             if (null == type) {
                 ExpectNoException();
             } else {
-                _error.Should().BeOfType(type);
+                _error.Should().BeOfType(type, _error.ToString());
             }
             return this;
         }

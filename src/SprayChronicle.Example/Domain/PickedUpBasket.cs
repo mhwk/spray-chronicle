@@ -1,10 +1,12 @@
+using System.Collections.Immutable;
 using SprayChronicle.Example.Contracts.Events;
 
 namespace SprayChronicle.Example.Domain
 {
     public sealed class PickedUpBasket : Basket
     {
-        public PickedUpBasket(BasketId basketId): base(basketId)
+        public PickedUpBasket(BasketId basketId, ImmutableList<ProductId> productsInBasket)
+            : base(basketId, productsInBasket)
         {}
 
         public PickedUpBasket AddProduct(ProductId productId)
@@ -17,6 +19,8 @@ namespace SprayChronicle.Example.Domain
 
         public PickedUpBasket RemoveProduct(ProductId productId)
         {
+            AssertContainsProduct(productId);
+            
             return (PickedUpBasket) Apply(this, new ProductRemovedFromBasket(
                 BasketId.ToString(),
                 productId.ToString()
@@ -29,6 +33,16 @@ namespace SprayChronicle.Example.Domain
                 BasketId.ToString(),
                 orderId.ToString()
             ));
+        }
+
+        void AssertContainsProduct(ProductId productId)
+        {
+            if ( ! ProductsInBasket.Contains(productId)) {
+                throw new ProductNotInBasketException(string.Format(
+                    "Product with id {0} is not in the basket",
+                    productId
+                ));
+            }
         }
     }
 }

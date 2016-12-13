@@ -63,6 +63,8 @@ namespace SprayChronicle.Testing
             Exception e = null;
             try {
                 BuildHandler().Handle(message);
+            } catch (UnhandledCommandException error) {
+                e = error.InnerException;
             } catch (Exception error) {
                 e = error;
             }

@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SprayChronicle.EventSourcing;
 using SprayChronicle.Example.Contracts.Events;
 
@@ -7,41 +8,53 @@ namespace SprayChronicle.Example.Domain
     {
         protected readonly BasketId BasketId;
 
-        public Basket(BasketId basketId)
+        protected readonly ImmutableList<ProductId> ProductsInBasket; 
+
+        public Basket(BasketId basketId, ImmutableList<ProductId> productsInBasket)
         {
             BasketId = basketId;
+            ProductsInBasket = productsInBasket;
         }
 
         public override string Identity()
         {
-            return BasketId.ToString();
+            return BasketId;
         }
 
         public static PickedUpBasket PickUp(BasketId basketId)
         {
             return (PickedUpBasket) Apply(null, new BasketPickedUp(
-                basketId.ToString()
+                basketId
             ));
         }
 
         static PickedUpBasket On(BasketPickedUp @event)
         {
-            return new PickedUpBasket(new BasketId(@event.BasketId));
+            return new PickedUpBasket(
+                new BasketId(@event.BasketId),
+                ImmutableList.Create<ProductId>()
+            );
         }
 
         protected PickedUpBasket On(ProductAddedToBasket @event)
         {
-            return new PickedUpBasket(BasketId);
+            return new PickedUpBasket(
+                BasketId,
+                ProductsInBasket.Add(new ProductId(@event.ProductId))
+            );
         }
 
         protected PickedUpBasket On(ProductRemovedFromBasket @event)
         {
-            return new PickedUpBasket(BasketId);
+            return new PickedUpBasket(
+                BasketId,
+                ProductsInBasket.Remove(new ProductId(@event.ProductId))
+            );
         }
 
         protected CheckedOutBasket On(BasketCheckedOut @event)
         {
-            return new CheckedOutBasket(BasketId);
+            return new CheckedOutBasket(BasketId, ProductsInBasket);
         }
     }
 }
