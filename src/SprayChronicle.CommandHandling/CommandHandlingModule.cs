@@ -1,10 +1,14 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Autofac;
 using Microsoft.Extensions.Logging;
+using SprayChronicle.EventSourcing;
 
 namespace SprayChronicle.CommandHandling
 {
-    public class CommandHandlingModule : Module
+    public class CommandHandlingModule : Autofac.Module
     {
         protected override void Load(ContainerBuilder builder)
         {
@@ -41,6 +45,50 @@ namespace SprayChronicle.CommandHandling
                 .Select(r => context.Resolve(r.Activator.LimitType) as IHandleCommand)
                 .ToList()
                 .ForEach(h => dispatcher.Subscribe(h));
+        }
+
+        public class OverloadHandler<THandler,TSourced> : Autofac.Module where THandler : OverloadCommandHandler<TSourced> where TSourced : EventSourced<TSourced>
+        {
+            protected override void Load(ContainerBuilder builder)
+            {
+                builder
+                    .Register<IEventSourcingRepository<TSourced>>(c => new EventSourcedRepository<TSourced>(
+                            c.Resolve<IEventStore>()
+                    ))
+                    .SingleInstance();
+                
+                builder
+                    .Register<THandler>(c => Activator.CreateInstance(
+                        typeof(THandler),
+                        BuildArguments(c)
+                    ) as THandler)
+                    .As<IHandleCommand>()
+                    .AsSelf()
+                    .InstancePerDependency();
+            }
+
+            object[] BuildArguments(IComponentContext context)
+            {
+                var args = new List<object>();
+
+                var constructor = typeof(THandler).GetTypeInfo().GetConstructors()
+                    .OrderByDescending(c => c.GetParameters().Length)
+                    .FirstOrDefault();
+                
+                if (null == constructor) {
+                    return args.ToArray();
+                }
+
+                var types = constructor.GetParameters()
+                    .Select(p => p.ParameterType)
+                    .ToArray();
+                
+                for (var i = 0; i < types.Length; i++) {
+                    args.Add(context.Resolve(types[i]));
+                }
+
+                return args.ToArray();
+            }
         }
     }
 }

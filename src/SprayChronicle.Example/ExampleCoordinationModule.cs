@@ -10,15 +10,7 @@ namespace SprayChronicle.Example
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder
-                .Register<BasketHandler>(c => new BasketHandler(
-                    new EventSourcedRepository<Basket>(
-                        c.Resolve<IEventStore>()
-                    )
-                ))
-                .As<IHandleCommand>()
-                .AsSelf()
-                .InstancePerDependency();
+            builder.RegisterModule<CommandHandlingModule.OverloadHandler<BasketHandler,Basket>>();
         }
     }
 }
