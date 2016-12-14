@@ -27,6 +27,10 @@ namespace SprayChronicle.Persistence.Ouro
 
         public void Append<T>(string identity, IEnumerable<DomainMessage> domainMessages)
         {
+            if (0 == domainMessages.Count()) {
+                return;
+            }
+            
             try {
                 var stopwatch = new Stopwatch();
                 stopwatch.Start();
