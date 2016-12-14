@@ -38,16 +38,8 @@ namespace SprayChronicle.Server.Http
             public IServiceProvider ConfigureServices(IServiceCollection services)
             {
                 services.AddLogging();
+                services.AddCors();
                 services.AddRouting();
-                services.AddCors(options => {
-                    options.AddPolicy("CorsPolicy", policy =>
-                        policy.AllowAnyOrigin()
-                            .AllowAnyMethod()
-                            .AllowAnyHeader()
-                            .AllowCredentials()
-                            .AllowAnyOrigin()
-                    );
-                });
 
                 SprayChronicleServer.ContainerBuilder().Populate(services);
                 return SprayChronicleServer.Container().Resolve<IServiceProvider>();
@@ -55,13 +47,17 @@ namespace SprayChronicle.Server.Http
 
             public void Configure(IApplicationBuilder app)
             {
-                var builder = new RouteBuilder(app);
+                app.UseCors(policy => policy
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowAnyOrigin()
+                    .AllowCredentials()
+                );
 
+                var builder = new RouteBuilder(app);
                 ((HttpCommandRouteMapper)app.ApplicationServices.GetService(typeof(HttpCommandRouteMapper))).Map(builder);
                 ((HttpQueryRouteMapper)app.ApplicationServices.GetService(typeof(HttpQueryRouteMapper))).Map(builder);
-
                 app.UseRouter(builder.Build());
-                app.UseCors("CorsPolicy");
             }
         }
     }
