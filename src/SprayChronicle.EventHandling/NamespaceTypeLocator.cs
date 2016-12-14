@@ -11,7 +11,7 @@ namespace SprayChronicle.EventHandling
 
         public NamespaceTypeLocator(string @namespace)
         {
-            foreach (var type in TypeLocator.LocateInRuntimeLibraries()
+            foreach (var type in TypeLocator.LocateRuntimeTypes()
                 .Where(t => t.Namespace == @namespace)) {
                 _map.Add(type.Name, type);
             }

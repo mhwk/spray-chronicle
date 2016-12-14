@@ -1,10 +1,10 @@
 {
-  "version": "0.0.1-*",
+  "version": "0.0.2-*",
   "buildOptions": {
     "debugType": "portable"
   },
   "dependencies": {
-    "SprayLocator": "1.1.0"
+    "SprayLocator": "1.1.1"
   },
   "frameworks": {
     "netstandard1.6": {

@@ -347,7 +347,7 @@
           }
         }
       },
-      "SprayLocator/1.1.0": {
+      "SprayLocator/1.1.1": {
         "type": "package",
         "dependencies": {
           "Microsoft.Extensions.DependencyModel": "1.1.0",
@@ -1715,12 +1715,12 @@
         "runtimes/ubuntu.16.10-x64/native/System.Security.Cryptography.Native.OpenSsl.so"
       ]
     },
-    "SprayLocator/1.1.0": {
-      "sha512": "56llQHmhrYLem/D7mkHUrfr2n6wQb3jyxJ2wy8lI49tvWRKHLvISc07T/mFLPToJeOLMCA4KQsFoQ3ylWEjLxQ==",
+    "SprayLocator/1.1.1": {
+      "sha512": "BEtw3V2MNjdlcaB406VVXWPhFz+mzEmOBCCS4wCojx1ofnvK7+HFec0BQGA52id12Xj5uBoCb0pDOrGfOpNIIQ==",
       "type": "package",
-      "path": "SprayLocator/1.1.0",
+      "path": "SprayLocator/1.1.1",
       "files": [
-        "SprayLocator.1.1.0.nupkg.sha512",
+        "SprayLocator.1.1.1.nupkg.sha512",
         "SprayLocator.nuspec",
         "lib/netstandard1.6/SprayLocator.dll"
       ]
@@ -4726,7 +4726,7 @@
   },
   "projectFileDependencyGroups": {
     "": [
-      "SprayLocator >= 1.1.0"
+      "SprayLocator >= 1.1.1"
     ],
     ".NETStandard,Version=v1.6": [
       "NETStandard.Library >= 1.6.1"

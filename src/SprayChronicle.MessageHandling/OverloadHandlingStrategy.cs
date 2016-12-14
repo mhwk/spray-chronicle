@@ -17,7 +17,7 @@ namespace SprayChronicle.MessageHandling
 
         public OverloadHandlingStrategy()
         {
-            TypeLocator.LocateInRuntimeLibraries()
+            TypeLocator.LocateRuntimeTypes()
                 .Where(type => type.Equals(typeof(T)) || type.GetTypeInfo().IsSubclassOf(typeof(T)))
                 .SelectMany(type => type.GetMethods(_bindingFlags))
                 .Where(method => method.GetParameters().Length > 0)
