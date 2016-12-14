@@ -6,8 +6,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
-using SprayChronicle.CommandHandling;
-using SprayChronicle.QueryHandling;
 
 namespace SprayChronicle.Server.Http
 {
@@ -20,6 +18,7 @@ namespace SprayChronicle.Server.Http
             server = new WebHostBuilder()
                 .UseKestrel()
                 .UseContentRoot(Directory.GetCurrentDirectory())
+                .UseUrls("http://0.0.0.0:5000/")
                 .UseStartup<Startup>()
                 .Build();
         }
