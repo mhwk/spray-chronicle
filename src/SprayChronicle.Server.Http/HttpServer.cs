@@ -61,6 +61,7 @@ namespace SprayChronicle.Server.Http
                 ((HttpQueryRouteMapper)app.ApplicationServices.GetService(typeof(HttpQueryRouteMapper))).Map(builder);
 
                 app.UseRouter(builder.Build());
+                app.UseCors("CorsPolicy");
             }
         }
     }
