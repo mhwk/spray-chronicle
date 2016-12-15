@@ -29,8 +29,8 @@ namespace SprayChronicle.Server.Http
             context.Response.ContentType = "application/json";
 
             try {
-                var payload = converter.Convert(context.Request, _type);
-                _logger.LogInformation("Processing {0} {1}", _type, JsonConvert.SerializeObject(payload));
+                var payload = await converter.Convert(context.Request, _type);
+                _logger.LogDebug("Processing {0} {1}", _type, JsonConvert.SerializeObject(payload));
                 var result = _dispatcher.Process(payload);
                 context.Response.StatusCode = 200;
                 await context.Response.WriteAsync(JsonConvert.SerializeObject(result));
