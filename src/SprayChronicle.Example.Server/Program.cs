@@ -1,4 +1,5 @@
-﻿using SprayChronicle.Server;
+﻿using Microsoft.Extensions.Logging;
+using SprayChronicle.Server;
 using SprayChronicle.Server.Http;
 using SprayChronicle.EventHandling;
 using SprayChronicle.Persistence.Memory;
@@ -13,9 +14,13 @@ namespace SprayChronicle.Example.Server
         public static void Main(string[] args)
         {
             new SprayChronicleServer()
+                #if DEBUG
+                .WithLogLevel(LogLevel.Debug)
                 .WithMemoryPersistence()
+                #else
                 .WithMongoPersistence()
                 .WithOuroPersistence()
+                #endif
                 .WithExample()
                 .WithHttp()
                 .WithEventHandling()

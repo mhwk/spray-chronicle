@@ -20,6 +20,7 @@ namespace SprayChronicle.Server.Http
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseUrls("http://0.0.0.0:5000/")
                 .UseStartup<Startup>()
+                .UseLoggerFactory(SprayChronicleServer.LoggerFactory())
                 .Build();
         }
 
@@ -36,7 +37,6 @@ namespace SprayChronicle.Server.Http
         {
             public IServiceProvider ConfigureServices(IServiceCollection services)
             {
-                services.AddLogging();
                 services.AddCors();
                 services.AddRouting();
 

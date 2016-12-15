@@ -13,7 +13,7 @@ namespace SprayChronicle.Persistence.Ouro
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .Register<IEventStoreConnection>(c => InitEventStore())
+                .Register<IEventStoreConnection>(c => InitEventStore(c))
                 .SingleInstance();
             
             builder
@@ -43,7 +43,7 @@ namespace SprayChronicle.Persistence.Ouro
                 .SingleInstance();
         }
 
-        IEventStoreConnection InitEventStore()
+        IEventStoreConnection InitEventStore(IComponentContext container)
 		{
             var uri = string.Format(
                 "tcp://{0}:{1}@{2}:{3}",
@@ -52,7 +52,8 @@ namespace SprayChronicle.Persistence.Ouro
                 Environment.GetEnvironmentVariable("EVENTSTORE_HOST") ?? "127.0.0.1",
                 Environment.GetEnvironmentVariable("EVENTSTORE_PORT") ?? "1113"
             );
-            Console.WriteLine("Connecting to eventstore on {0}", uri);
+
+            container.Resolve<ILoggerFactory>().CreateLogger<IEventStoreConnection>().LogInformation("Connecting to eventstore on {0}", uri);
             
 			IEventStoreConnection connection = EventStoreConnection.Create (
 				ConnectionSettings.Create ()

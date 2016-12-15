@@ -40,7 +40,7 @@ namespace SprayChronicle.Persistence.Mongo
                             "mongodb://{0}",
                             Environment.GetEnvironmentVariable("MONGODB_HOST") ?? "127.0.0.1"
                         ));
-                        Console.WriteLine("Connected to MongoDB!");
+                        c.Resolve<ILoggerFactory>().CreateLogger<IMongoDatabase>().LogInformation("Connected to MongoDB!");
                         return client.GetDatabase(Environment.GetEnvironmentVariable("MONGODB_DB") ?? "projections");
                     }
                 )
