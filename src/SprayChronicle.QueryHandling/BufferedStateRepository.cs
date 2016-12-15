@@ -169,8 +169,8 @@ namespace SprayChronicle.QueryHandling
 
             stopwatch.Stop();
             _logger.LogInformation(
-                "[{0}::SAVE] {1}ms ({2}/second)",
-                typeof(T).Name,
+                "Saved {0} messages in {1}ms ({2}/second)",
+                _saves.Count(),
                 stopwatch.ElapsedMilliseconds,
                 PerSecond(stopwatch.ElapsedMilliseconds, _saves.Count())
             );
@@ -189,8 +189,8 @@ namespace SprayChronicle.QueryHandling
 
             stopwatch.Stop();
             _logger.LogInformation(
-                "[{0}::REMOVE] {1}ms ({2}/second)",
-                typeof(T).Name,
+                "Removed {0} {1}ms ({2}/second)",
+                _removes.Count(),
                 stopwatch.ElapsedMilliseconds,
                 PerSecond(stopwatch.ElapsedMilliseconds, _removes.Count())
             );

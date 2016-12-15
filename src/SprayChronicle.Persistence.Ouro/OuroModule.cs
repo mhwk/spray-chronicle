@@ -25,7 +25,7 @@ namespace SprayChronicle.Persistence.Ouro
             
             builder
                 .Register<IEventStore>(c => new OuroEventStore(
-                    c.Resolve<ILogger<IEventStore>>(),
+                    c.Resolve<ILoggerFactory>().CreateLogger<IEventStore>(),
                     c.Resolve<IEventStoreConnection>()
                 ))
                 .AsSelf()
@@ -34,20 +34,12 @@ namespace SprayChronicle.Persistence.Ouro
             
             builder
                 .Register<OuroStreamFactory>(c => new OuroStreamFactory(
-                    c.Resolve<ILogger<IEventStore>>(),
+                    c.Resolve<ILoggerFactory>().CreateLogger<IEventStore>(),
                     c.Resolve<IEventStoreConnection>(),
                     c.Resolve<UserCredentials>()
                 ))
                 .AsSelf()
                 .As<IBuildStreams>()
-                .SingleInstance();
-            
-            builder
-                .Register<ILogger<IEventStore>>(
-                    c => new LoggerFactory()
-                        .AddConsole(LogLevel.Debug)
-                        .CreateLogger<IEventStore>()
-                )
                 .SingleInstance();
         }
 

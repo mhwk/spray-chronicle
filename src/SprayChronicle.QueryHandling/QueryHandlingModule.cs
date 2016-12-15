@@ -19,17 +19,10 @@ namespace SprayChronicle.QueryHandling
             
             builder
                 .Register<LoggingQueryProcessor>(c => new LoggingQueryProcessor(
-                    c.Resolve<ILogger<IProcessQueries>>(),
+                    c.Resolve<ILoggerFactory>().CreateLogger<IProcessQueries>(),
                     c.Resolve<SubscriptionQueryProcessor>()
                 ))
                 .SingleInstance();
-
-            builder
-                .Register<ILogger<IProcessQueries>>(
-                    c => new LoggerFactory()
-                        .AddConsole(LogLevel.Debug)
-                        .CreateLogger<IProcessQueries>()
-                );
         }
 
         void RegisterQueryExecutors(IComponentContext context, SubscriptionQueryProcessor processor)

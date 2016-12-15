@@ -10,28 +10,14 @@ namespace SprayChronicle.Server.Http
         protected override void Load(ContainerBuilder builder)
         {
             builder.Register<HttpCommandRouteMapper>(c => new HttpCommandRouteMapper(
-                c.Resolve<ILogger<HttpCommandDispatcher>>(),
+                c.Resolve<ILoggerFactory>().CreateLogger<HttpCommandDispatcher>(),
                 c.Resolve<SubscriptionCommandBus>()
             ));
 
             builder.Register<HttpQueryRouteMapper>(c => new HttpQueryRouteMapper(
-                c.Resolve<ILogger<HttpQueryProcessor>>(),
+                c.Resolve<ILoggerFactory>().CreateLogger<HttpQueryProcessor>(),
                 c.Resolve<SubscriptionQueryProcessor>()
             ));
-
-            builder
-                .Register<ILogger<HttpCommandDispatcher>>(
-                    c => new LoggerFactory()
-                        .AddConsole(LogLevel.Debug)
-                        .CreateLogger<HttpCommandDispatcher>()
-                );
-
-            builder
-                .Register<ILogger<HttpQueryProcessor>>(
-                    c => new LoggerFactory()
-                        .AddConsole(LogLevel.Debug)
-                        .CreateLogger<HttpQueryProcessor>()
-                );
         }
     }
 }

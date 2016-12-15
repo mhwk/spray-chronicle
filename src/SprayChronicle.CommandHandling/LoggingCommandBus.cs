@@ -18,7 +18,7 @@ namespace SprayChronicle.CommandHandling
         public void Dispatch(object command)
         {
             try {
-                _logger.LogInformation("Dispatching: " + command.GetType().ToString());
+                _logger.LogDebug("Dispatching: " + command.GetType().ToString());
                 _internalDispatcher.Dispatch(command);
             } catch (Exception error) {
                 _logger.LogWarning("Dispatch of command failed: " + error.ToString());

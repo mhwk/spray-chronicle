@@ -43,10 +43,6 @@ namespace SprayChronicle.Persistence.Memory
                 .AsSelf()
                 .As<IBuildStreams>()
                 .SingleInstance();
-            
-            builder
-                .Register<ILoggerFactory>(c => new LoggerFactory())
-                .SingleInstance();
         }
     }
 }

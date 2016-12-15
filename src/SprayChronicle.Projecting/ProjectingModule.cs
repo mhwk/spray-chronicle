@@ -16,7 +16,7 @@ namespace SprayChronicle.Projecting
             builder
                 .Register<ProjectorHandlerFactory>(
                     c => new ProjectorHandlerFactory(
-                        c.Resolve<ILogger<IStream>>(),
+                        c.Resolve<ILoggerFactory>(),
                         c.Resolve<IBuildProjectors>()
                     )
                 )
@@ -78,6 +78,7 @@ namespace SprayChronicle.Projecting
                     .AsSelf()
                     .InstancePerDependency();
             }
+
             object[] BuildArguments<T>(IComponentContext context)
             {
                 var args = new List<object>();

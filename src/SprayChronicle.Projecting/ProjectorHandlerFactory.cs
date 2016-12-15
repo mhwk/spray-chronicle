@@ -6,22 +6,22 @@ namespace SprayChronicle.Projecting
 {
     public class ProjectorHandlerFactory : IBuildProjectorHandlers
     {
-        readonly ILogger<IStream> _logger;
+        readonly ILoggerFactory _loggerFactory;
 
         readonly IBuildProjectors _projectorFactory;
 
         public ProjectorHandlerFactory(
-            ILogger<IStream> logger,
+            ILoggerFactory loggerFactory,
             IBuildProjectors projectorFactory)
         {
-            _logger = logger;
+            _loggerFactory = loggerFactory;
             _projectorFactory = projectorFactory;
         }
 
         public StreamEventHandler<TProjector> Build<TProjection,TProjector>(IStream stream) where TProjector : Projector<TProjection>
         {
             return new StreamEventHandler<TProjector>(
-                _logger,
+                _loggerFactory.CreateLogger<TProjector>(),
                 stream,
                 _projectorFactory.Build<TProjection,TProjector>()
             );
@@ -30,7 +30,7 @@ namespace SprayChronicle.Projecting
         public StreamEventHandler<TProjector> Build<TProjection,TProjector>(IStream stream, string projectionReference) where TProjector : Projector<TProjection>
         {
             return new StreamEventHandler<TProjector>(
-                _logger,
+                _loggerFactory.CreateLogger<TProjector>(),
                 stream,
                 _projectorFactory.Build<TProjection,TProjector>(projectionReference)
             );
@@ -39,7 +39,7 @@ namespace SprayChronicle.Projecting
         public StreamEventHandler<TProjector> Build<TProjection,TProjector>(IStream stream, IStatefulRepository<TProjection> repository) where TProjector : Projector<TProjection>
         {
             return new StreamEventHandler<TProjector>(
-                _logger,
+                _loggerFactory.CreateLogger<TProjector>(),
                 stream,
                 _projectorFactory.Build<TProjection,TProjector>(repository)
             );

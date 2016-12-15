@@ -1,6 +1,5 @@
 using Autofac;
 using SprayChronicle.CommandHandling;
-using SprayChronicle.EventSourcing;
 using SprayChronicle.Example.Coordination;
 using SprayChronicle.Example.Domain;
 

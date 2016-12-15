@@ -3235,7 +3235,7 @@
           "lib/netstandard1.3/_._": {}
         }
       },
-      "SprayChronicle.CommandHandling/0.0.13": {
+      "SprayChronicle.CommandHandling/0.0.14": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
@@ -3308,7 +3308,7 @@
           "SprayChronicle.Server": "(, )"
         }
       },
-      "SprayChronicle.Persistence.Mongo/0.0.8": {
+      "SprayChronicle.Persistence.Mongo/0.0.9": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
@@ -3321,7 +3321,7 @@
           "SprayChronicle.Server": "(, )"
         }
       },
-      "SprayChronicle.Persistence.Ouro/0.0.21": {
+      "SprayChronicle.Persistence.Ouro/0.0.22": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
@@ -3336,7 +3336,7 @@
           "SprayChronicle.Server": "(, )"
         }
       },
-      "SprayChronicle.Projecting/0.0.2": {
+      "SprayChronicle.Projecting/0.0.4": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
@@ -3347,7 +3347,7 @@
           "SprayChronicle.QueryHandling": "(, )"
         }
       },
-      "SprayChronicle.QueryHandling/0.0.3": {
+      "SprayChronicle.QueryHandling/0.0.4": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
@@ -3364,10 +3364,12 @@
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
           "Autofac": "4.2.1",
+          "Microsoft.Extensions.Logging": "1.1.0",
+          "Microsoft.Extensions.Logging.Console": "1.1.0",
           "NETStandard.Library": "1.6.1"
         }
       },
-      "SprayChronicle.Server.Http/0.0.7": {
+      "SprayChronicle.Server.Http/0.0.9": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
@@ -9342,7 +9344,7 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "SprayChronicle.CommandHandling/0.0.13": {
+    "SprayChronicle.CommandHandling/0.0.14": {
       "type": "project",
       "path": "../SprayChronicle.CommandHandling/project.json"
     },
@@ -9366,19 +9368,19 @@
       "type": "project",
       "path": "../SprayChronicle.Persistence.Memory/project.json"
     },
-    "SprayChronicle.Persistence.Mongo/0.0.8": {
+    "SprayChronicle.Persistence.Mongo/0.0.9": {
       "type": "project",
       "path": "../SprayChronicle.Persistence.Mongo/project.json"
     },
-    "SprayChronicle.Persistence.Ouro/0.0.21": {
+    "SprayChronicle.Persistence.Ouro/0.0.22": {
       "type": "project",
       "path": "../SprayChronicle.Persistence.Ouro/project.json"
     },
-    "SprayChronicle.Projecting/0.0.2": {
+    "SprayChronicle.Projecting/0.0.4": {
       "type": "project",
       "path": "../SprayChronicle.Projecting/project.json"
     },
-    "SprayChronicle.QueryHandling/0.0.3": {
+    "SprayChronicle.QueryHandling/0.0.4": {
       "type": "project",
       "path": "../SprayChronicle.QueryHandling/project.json"
     },
@@ -9386,7 +9388,7 @@
       "type": "project",
       "path": "../SprayChronicle.Server/project.json"
     },
-    "SprayChronicle.Server.Http/0.0.7": {
+    "SprayChronicle.Server.Http/0.0.9": {
       "type": "project",
       "path": "../SprayChronicle.Server.Http/project.json"
     }

@@ -7,7 +7,7 @@ namespace SprayChronicle.EventHandling
 {
     public sealed class StreamEventHandler<T> : IHandleStream where T: IHandleEvent
     {
-        readonly ILogger<IStream> _logger;
+        readonly ILogger<T> _logger;
 
         readonly IStream _stream;
 
@@ -16,7 +16,7 @@ namespace SprayChronicle.EventHandling
         static readonly IMessageHandlingStrategy _handlers = new OverloadHandlingStrategy<T>();
 
         public StreamEventHandler(
-            ILogger<IStream> logger,
+            ILogger<T> logger,
             IStream stream,
             IHandleEvent eventHandler)
         {
@@ -35,8 +35,7 @@ namespace SprayChronicle.EventHandling
             _stream.OnEvent((@event, occurrence) => {
                 if ( ! _handlers.AcceptsMessage(_eventHandler, @event, occurrence)) {
                     _logger.LogDebug(
-                        "[{0}::{1}] skipping",
-                        _eventHandler.GetType().Name,
+                        "{0}: skipping",
                         @event.GetType().Name
                     );
                     return;
@@ -49,8 +48,7 @@ namespace SprayChronicle.EventHandling
 
                 stopwatch.Stop();
                 _logger.LogInformation(
-                    "[{0}::{1}] {2}ms",
-                    _eventHandler.GetType().Name,
+                    "{0}: {1}ms",
                     @event.GetType().Name,
                     stopwatch.ElapsedMilliseconds
                 );

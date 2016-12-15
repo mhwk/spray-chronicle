@@ -1,6 +1,9 @@
 using Autofac;
+using Autofac.Core;
 using System;
 using System.Threading;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
 
 namespace SprayChronicle.Server
 {
@@ -22,9 +25,15 @@ namespace SprayChronicle.Server
 
         public event ExecutionHandler OnExecute;
 
-        public SprayChronicleServer WithContainerConfiguration(Action<ContainerBuilder> configure)
+        public SprayChronicleServer WithAutofacModule(Module module)
         {
-            OnConfigure += builder => configure(builder);
+            OnConfigure += builder => builder.RegisterModule(module);
+            return this;
+        }
+
+        public SprayChronicleServer WithAutofacModule<T>() where T : IModule, new()
+        {
+            OnConfigure += builder => builder.RegisterModule<T>();
             return this;
         }
 
@@ -46,6 +55,16 @@ namespace SprayChronicle.Server
 
         public void Run()
         {
+            ContainerBuilder().Register<ILoggerFactory>(c => {
+                var factory = new LoggerFactory();
+                #if DEBUG
+                factory.AddConsole(LogLevel.Debug);
+                #else
+                factory.AdConsole();
+                #endif
+                return factory;
+            });
+
             if (null != OnConfigure) {
                 OnConfigure(ContainerBuilder());
             }

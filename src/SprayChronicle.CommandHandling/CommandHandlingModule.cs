@@ -19,7 +19,7 @@ namespace SprayChronicle.CommandHandling
             
             builder
                 .Register<LoggingCommandBus>(c => new LoggingCommandBus(
-                    c.Resolve<ILogger<LoggingCommandBus>>(),
+                    c.Resolve<ILoggerFactory>().CreateLogger<LoggingCommandBus>(),
                     c.Resolve<SubscriptionCommandBus>()
                 ))
                 .SingleInstance();
@@ -29,13 +29,6 @@ namespace SprayChronicle.CommandHandling
                     c.Resolve<LoggingCommandBus>()
                 ))
                 .SingleInstance();
-
-            builder
-                .Register<ILogger<LoggingCommandBus>>(
-                    c => new LoggerFactory()
-                        .AddConsole(LogLevel.Debug)
-                        .CreateLogger<LoggingCommandBus>()
-                );
         }
 
         void RegisterCommandHandlers(IComponentContext context, SubscriptionCommandBus dispatcher)
