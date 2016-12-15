@@ -11,11 +11,13 @@ namespace SprayChronicle.Server.Http
 {
     public class HttpCommandDispatcher
     {
-        ILogger<HttpCommandDispatcher> _logger;
+        readonly ILogger<HttpCommandDispatcher> _logger;
 
-        IDispatchCommands _dispatcher;
+        readonly IDispatchCommands _dispatcher;
 
-        Type _type;
+        readonly Type _type;
+
+        static readonly RequestToMessageConverter converter = new RequestToMessageConverter();
 
         public HttpCommandDispatcher(ILogger<HttpCommandDispatcher> logger, IDispatchCommands dispatcher, Type type)
         {
@@ -30,9 +32,9 @@ namespace SprayChronicle.Server.Http
                 context.Response.ContentType = "application/json";
 
                 try {
-                    var payload = await reader.ReadToEndAsync();
-                    _logger.LogInformation("Dispatching {0} {1}", _type, payload);
-                    _dispatcher.Dispatch(JsonConvert.DeserializeObject(payload, _type));
+                    var payload = await converter.Convert(context.Request, _type);
+                    _logger.LogDebug("Dispatching {0} {1}", _type, JsonConvert.SerializeObject(payload));
+                    _dispatcher.Dispatch(payload);
                 } catch (UnhandledCommandException error) {
                     if (error.InnerException is ConcurrencyException) {
                         _logger.LogWarning(error.ToString());

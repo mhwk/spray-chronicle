@@ -24,10 +24,20 @@ namespace SprayChronicle.Server.Http
         {
             foreach (var query in Locator.LocateWithAttribute<HttpQueryAttribute>()) {
                 _logger.LogDebug("Mapping {0} to query {1}", query.GetTypeInfo().GetCustomAttribute<HttpQueryAttribute>().Template, query);
-                builder.MapRoute(
-                    query.GetTypeInfo().GetCustomAttribute<HttpQueryAttribute>().Template,
-                    new HttpQueryProcessor(_logger, _processor, query).Process
-                );
+                switch (query.GetTypeInfo().GetCustomAttribute<HttpQueryAttribute>().Method) {
+                    case "POST":
+                        builder.MapPost(
+                            query.GetTypeInfo().GetCustomAttribute<HttpQueryAttribute>().Template,
+                            new HttpQueryProcessor(_logger, _processor, query).Process
+                        );
+                    break;
+                    case "GET":
+                        builder.MapGet(
+                            query.GetTypeInfo().GetCustomAttribute<HttpQueryAttribute>().Template,
+                            new HttpQueryProcessor(_logger, _processor, query).Process
+                        );
+                    break;
+                }
             }
         }
     }
