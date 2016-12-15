@@ -60,7 +60,7 @@ namespace SprayChronicle.Server
                 #if DEBUG
                 factory.AddConsole(LogLevel.Debug);
                 #else
-                factory.AdConsole();
+                factory.AddConsole();
                 #endif
                 return factory;
             });
