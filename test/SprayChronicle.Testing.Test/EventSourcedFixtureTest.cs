@@ -2,15 +2,15 @@ using Xunit;
 using SprayChronicle.Example.Domain;
 using SprayChronicle.Example.Contracts.Commands;
 using SprayChronicle.Example.Contracts.Events;
-using SprayChronicle.Example.Coordination;
+using SprayChronicle.Example;
 
 namespace SprayChronicle.Testing.Test
 {
     public class EventSourcedFixtureTest
     {
-        public EventSourcedFixture<BasketHandler,Basket> Fixture()
+        public EventSourcedFixture<ExampleCoordinationModule> Fixture()
         {
-            return new EventSourcedFixture<BasketHandler,Basket>();
+            return new EventSourcedFixture<ExampleCoordinationModule>();
         }
 
         [Fact]

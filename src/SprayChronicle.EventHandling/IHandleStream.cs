@@ -5,5 +5,7 @@ namespace SprayChronicle.EventHandling
     public interface IHandleStream
     {
         Task ListenAsync();
+
+        void Listen();
     }
 }

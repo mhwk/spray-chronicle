@@ -7,7 +7,7 @@ namespace SprayChronicle.EventHandling
     {
         public static SprayChronicleServer WithEventHandling(this SprayChronicleServer server)
         {
-            server.OnConfigure += builder => builder.RegisterModule<EventHandlingModule>();
+            server.OnConfigure += builder => builder.RegisterModule<AsyncEventHandlingModule>();
             server.OnExecute += container => container.Resolve<IManageStreamHandlers>().Manage();
             return server;
         }

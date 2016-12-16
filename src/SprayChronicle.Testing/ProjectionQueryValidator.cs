@@ -2,43 +2,48 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using SprayChronicle.EventSourcing;
 
 namespace SprayChronicle.Testing
 {
-    public sealed class TestValidator : IValidate
+    public class ProjectionQueryValidator : IValidate
     {
-        readonly IEnumerable<DomainMessage> _domainMessages;
-
         readonly Exception _error;
-        
-        public TestValidator(IEnumerable<DomainMessage> domainMessages, Exception error)
+
+        readonly IEnumerable<object> _projections;
+
+        public ProjectionQueryValidator(Exception error, IEnumerable<object> projections)
         {
-            _domainMessages = domainMessages;
             _error = error;
+            _projections = projections;
+        }
+
+        public ProjectionQueryValidator(Exception error, params object[] projections)
+        {
+            _error = error;
+            _projections = projections.ToList();
         }
 
 		public IValidate Expect()
         {
-            _domainMessages.Should().BeEmpty();
+            _projections.Should().BeEmpty();
             return this;
         }
 
 		public IValidate Expect(int count)
         {
-            _domainMessages.Should().HaveCount(count);
+            _projections.Should().HaveCount(count);
             return this;
         }
 
 		public IValidate Expect(params object[] results)
         {
-            _domainMessages.Select(dm => dm.Payload).ShouldAllBeEquivalentTo(results, options => options.WithStrictOrdering().RespectingRuntimeTypes());
+            _projections.ToArray().ShouldAllBeEquivalentTo(results);
             return this;
         }
 
 		public IValidate Expect(params Type[] types)
         {
-            _domainMessages.Select(dm => dm.Payload.GetType()).ShouldAllBeEquivalentTo(types);
+            _projections.Select(p => p.GetType()).ShouldAllBeEquivalentTo(types);
             return this;
         }
 

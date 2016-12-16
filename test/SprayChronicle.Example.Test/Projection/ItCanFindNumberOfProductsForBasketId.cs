@@ -1,10 +1,12 @@
-using SprayChronicle.Testing;
-using SprayChronicle.Example.Contracts.Commands;
+using Xunit;
 using SprayChronicle.Example.Contracts.Events;
+using SprayChronicle.Example.Contracts.Queries;
+using SprayChronicle.Example.Projection;
+using SprayChronicle.Testing;
 
-namespace SprayChronicle.Example.Test.Domain
+namespace SprayChronicle.Example.Test.Projection
 {
-    public sealed class ItCanRemoveProductFromBasket : EventSourcedTestCase<ExampleCoordinationModule>
+    public class ItCanFindNumberOfProductsForBasketId : ProjectionQueryTestCase<ExampleProjectionModule>
     {
         protected override object[] Given()
         {
@@ -16,13 +18,13 @@ namespace SprayChronicle.Example.Test.Domain
 
         protected override object When()
         {
-            return new RemoveProductFromBasket("basketId", "productId");
+            return new NumberOfProductsForBasketId("basketId");
         }
 
         protected override object[] Expect()
         {
             return new object[] {
-                new ProductRemovedFromBasket("basketId", "productId")
+                new NumberOfProductsInBasket("basketId", 1)
             };
         }
     }

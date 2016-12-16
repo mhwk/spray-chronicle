@@ -30,7 +30,7 @@ namespace SprayChronicle.EventHandling
             await Task.Run(() => Listen());
         }
 
-        void Listen()
+        public void Listen()
         {
             _stream.OnEvent((@event, occurrence) => {
                 if ( ! _handlers.AcceptsMessage(_eventHandler, @event, occurrence)) {

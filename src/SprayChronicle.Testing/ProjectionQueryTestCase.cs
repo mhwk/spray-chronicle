@@ -1,11 +1,11 @@
 using System;
-using Xunit;
 using Autofac;
 using Autofac.Core;
+using Xunit;
 
 namespace SprayChronicle.Testing
 {
-    public abstract class EventSourcedTestCase<TModule> where TModule : IModule, new()
+    public abstract class ProjectionQueryTestCase<TModule> where TModule : IModule, new()
     {
         protected virtual void Configure(ContainerBuilder builder)
         {}
@@ -30,10 +30,7 @@ namespace SprayChronicle.Testing
         [Fact]
         public virtual void ItAcceptsScenario()
         {
-            var container = new ContainerBuilder();
-            Configure(container);
-            
-            new EventSourcedFixture<TModule>(Configure)
+            new ProjectionQueryFixture<TModule>(Configure)
                 .Given(Given())
                 .When(When())
                 .ExpectException(ExpectException())

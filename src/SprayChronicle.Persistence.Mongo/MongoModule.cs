@@ -15,7 +15,8 @@ namespace SprayChronicle.Persistence.Mongo
             builder
                 .Register<MongoRepositoryFactory>(
                     c => new MongoRepositoryFactory(
-                        c.Resolve<IMongoDatabase>()
+                        c.Resolve<IMongoDatabase>(),
+                        c.Resolve<ILoggerFactory>()
                     )
                 )
                 .AsSelf()

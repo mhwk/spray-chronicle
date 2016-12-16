@@ -7,15 +7,17 @@ using Autofac;
 
 namespace SprayChronicle.EventHandling
 {
-    public sealed class EventHandlingModule : Autofac.Module
+    public abstract class EventHandlingModule : Autofac.Module
     {
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .Register<IManageStreamHandlers>(c => new StreamHandlerManager())
+                .Register<IManageStreamHandlers>(c => CreateManager())
                 .OnActivating(e => RegisterStreamHandlers(e.Context, e.Instance as IManageStreamHandlers))
                 .SingleInstance();
         }
+
+        protected abstract IManageStreamHandlers CreateManager();
 
         void RegisterStreamHandlers(IComponentContext context, IManageStreamHandlers manager)
         {

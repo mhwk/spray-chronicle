@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SprayChronicle.EventHandling
 {
-    public sealed class StreamHandlerManager : IManageStreamHandlers
+    public sealed class AsyncStreamHandlerManager : IManageStreamHandlers
     {
         readonly List<IHandleStream> _handlers = new List<IHandleStream>();
         

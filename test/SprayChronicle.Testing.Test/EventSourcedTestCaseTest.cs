@@ -1,12 +1,10 @@
-using Xunit;
-using SprayChronicle.Example.Domain;
 using SprayChronicle.Example.Contracts.Commands;
 using SprayChronicle.Example.Contracts.Events;
-using SprayChronicle.Example.Coordination;
+using SprayChronicle.Example;
 
 namespace SprayChronicle.Testing.Test
 {
-    public class EventSourcedTestCaseTest : EventSourcedTestCase<BasketHandler,Basket>
+    public class EventSourcedTestCaseTest : EventSourcedTestCase<ExampleCoordinationModule>
     {
         protected override object[] Given()
         {

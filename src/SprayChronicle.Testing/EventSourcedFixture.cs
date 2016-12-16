@@ -1,17 +1,15 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Autofac;
+using Autofac.Core;
+using Microsoft.Extensions.Logging;
 using SprayChronicle.CommandHandling;
 using SprayChronicle.EventSourcing;
 
 namespace SprayChronicle.Testing
 {
-    public class EventSourcedFixture<THandler,TSource> : IPopulate, IExecute where THandler : IHandleCommand where TSource: EventSourced<TSource>
+    public class EventSourcedFixture<TModule> : IPopulate, IExecute where TModule : IModule, new()
     {
-        readonly Action<ContainerBuilder> _configure;
-
         IContainer _container;
 
         int _sequence = -1;
@@ -21,34 +19,24 @@ namespace SprayChronicle.Testing
 
         public EventSourcedFixture(Action<ContainerBuilder> configure)
         {
-            _configure = configure;
-        } 
+            var builder = new ContainerBuilder();
+            builder.RegisterModule<SprayChronicle.CommandHandling.CommandHandlingModule>();
+            builder.RegisterModule<TModule>();
 
-        public IContainer Container()
-        {
-            if (null == _container) {
-                var builder = new ContainerBuilder();
+            builder.Register<ILoggerFactory>(c => new LoggerFactory().AddConsole(LogLevel.Debug).AddDebug(LogLevel.Debug));
+            builder
+                .Register<EventSourcedTestStore>(c => new EventSourcedTestStore())
+                .AsSelf()
+                .As<IEventStore>()
+                .SingleInstance();
 
-                builder
-                    .Register<TestStore>(c => new TestStore())
-                    .AsSelf()
-                    .As<IEventStore>()
-                    .SingleInstance();
-
-                builder
-                    .Register<IEventSourcingRepository<TSource>>(c => new EventSourcedRepository<TSource>(c.Resolve<IEventStore>()))
-                    .SingleInstance();
-                
-                _configure(builder);
-                
-                _container = builder.Build();
-            }
-            return _container;
+            configure(builder);
+            _container = builder.Build();
         }
 
 		public IExecute Given(params object[] messages)
         {
-            Container().Resolve<TestStore>().Append<TSource>("", messages.Select(payload => new DomainMessage(
+            _container.Resolve<EventSourcedTestStore>().History(messages.Select(payload => new DomainMessage(
                 ++_sequence,
                 new DateTime(),
                 payload
@@ -59,44 +47,15 @@ namespace SprayChronicle.Testing
 
 		public IValidate When(object message)
         {
-            Container().Resolve<TestStore>().Record();
             Exception e = null;
             try {
-                BuildHandler().Handle(message);
+                _container.Resolve<LoggingCommandBus>().Dispatch(message);
             } catch (UnhandledCommandException error) {
                 e = error.InnerException;
             } catch (Exception error) {
                 e = error;
             }
-            return new TestValidator(Container().Resolve<TestStore>().Recorded(""), e);
-        }
-        
-        protected virtual IHandleCommand BuildHandler()
-        {
-            return (THandler) Activator.CreateInstance(typeof(THandler), BuildArguments());
-        }
-
-        object[] BuildArguments()
-        {
-            var args = new List<object>();
-
-            var constructor = typeof(THandler).GetTypeInfo().GetConstructors()
-                .OrderByDescending(c => c.GetParameters().Length)
-                .FirstOrDefault();
-            
-            if (null == constructor) {
-                return args.ToArray();
-            }
-
-            var types = constructor.GetParameters()
-                .Select(p => p.ParameterType)
-                .ToArray();
-            
-            for (var i = 0; i < types.Length; i++) {
-                args.Add(Container().Resolve(types[i]));
-            }
-
-            return args.ToArray();
+            return new EventSourcedValidator(e, _container.Resolve<EventSourcedTestStore>().Future());
         }
     }
 }

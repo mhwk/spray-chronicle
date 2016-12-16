@@ -25,8 +25,14 @@ namespace SprayChronicle.CommandHandling
                 .SingleInstance();
             
             builder
-                .Register<ThreadedCommandBus>(c => new ThreadedCommandBus(
+                .Register<ErrorSuppressingCommandBus>(c => new ErrorSuppressingCommandBus(
                     c.Resolve<LoggingCommandBus>()
+                ))
+                .SingleInstance();
+            
+            builder
+                .Register<ThreadedCommandBus>(c => new ThreadedCommandBus(
+                    c.Resolve<ErrorSuppressingCommandBus>()
                 ))
                 .SingleInstance();
         }

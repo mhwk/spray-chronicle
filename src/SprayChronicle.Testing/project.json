@@ -1,5 +1,5 @@
 {
-  "version": "0.0.8-*",
+  "version": "0.0.9-*",
   "buildOptions": {
     "debugType": "portable"
   },
@@ -9,10 +9,20 @@
       "xunit": "2.2.0-beta4-build3444",
       "Autofac": "4.2.1",
       "Microsoft.DotNet.InternalAbstractions": "1.0.0",
+      "Microsoft.Extensions.Logging.Debug": "1.1.0",
       "SprayChronicle.CommandHandling": {
           "target": "project"
       },
       "SprayChronicle.EventSourcing": {
+          "target": "project"
+      },
+      "SprayChronicle.Persistence.Memory": {
+          "target": "project"
+      },
+      "SprayChronicle.Projecting": {
+          "target": "project"
+      },
+      "SprayChronicle.QueryHandling": {
           "target": "project"
       }
   },

@@ -24,10 +24,7 @@ namespace SprayChronicle.Persistence.Memory
         {
             return (TProjector) Activator.CreateInstance(
                 typeof(TProjector),
-                new BufferedStateRepository<TProjection>(
-                    _loggerFactory.CreateLogger<TProjection>(),
-                    _repositoryFactory.Build<TProjection>()
-                )
+                _repositoryFactory.Build<TProjection>()
             );
         }
 
@@ -35,10 +32,7 @@ namespace SprayChronicle.Persistence.Memory
         {
             return (TProjector) Activator.CreateInstance(
                 typeof(TProjector),
-                new BufferedStateRepository<TProjection>(
-                    _loggerFactory.CreateLogger<TProjection>(),
-                    _repositoryFactory.Build<TProjection>(projectionReference)
-                )
+                _repositoryFactory.Build<TProjection>(projectionReference)
             );
         }
 
@@ -46,10 +40,7 @@ namespace SprayChronicle.Persistence.Memory
         {
             return (TProjector) Activator.CreateInstance(
                 typeof(TProjector),
-                new BufferedStateRepository<TProjection>(
-                    _loggerFactory.CreateLogger<TProjection>(),
-                    repository
-                )
+                repository
             );
         }
     }
