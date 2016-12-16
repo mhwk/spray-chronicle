@@ -1,6 +1,5 @@
 using System.Reflection;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using SprayChronicle.QueryHandling;
 
@@ -10,13 +9,17 @@ namespace SprayChronicle.Server.Http
     {
         readonly ILogger<HttpQueryProcessor> _logger;
 
+        readonly IAuthorizer _authorizer;
+
         readonly IProcessQueries _processor;
 
         public HttpQueryRouteMapper(
             ILogger<HttpQueryProcessor> logger,
+            IAuthorizer authorizer,
             IProcessQueries processor)
         {
             _logger = logger;
+            _authorizer = authorizer;
             _processor = processor;
         }
 
@@ -28,13 +31,13 @@ namespace SprayChronicle.Server.Http
                     case "POST":
                         builder.MapPost(
                             query.GetTypeInfo().GetCustomAttribute<HttpQueryAttribute>().Template,
-                            new HttpQueryProcessor(_logger, _processor, query).Process
+                            new HttpQueryProcessor(_logger, _authorizer, _processor, query).Process
                         );
                     break;
                     case "GET":
                         builder.MapGet(
                             query.GetTypeInfo().GetCustomAttribute<HttpQueryAttribute>().Template,
-                            new HttpQueryProcessor(_logger, _processor, query).Process
+                            new HttpQueryProcessor(_logger, _authorizer, _processor, query).Process
                         );
                     break;
                 }

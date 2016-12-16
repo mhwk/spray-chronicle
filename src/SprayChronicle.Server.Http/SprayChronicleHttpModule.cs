@@ -11,13 +11,17 @@ namespace SprayChronicle.Server.Http
         {
             builder.Register<HttpCommandRouteMapper>(c => new HttpCommandRouteMapper(
                 c.Resolve<ILoggerFactory>().CreateLogger<HttpCommandDispatcher>(),
+                c.Resolve<IAuthorizer>(),
                 c.Resolve<SubscriptionCommandBus>()
             ));
 
             builder.Register<HttpQueryRouteMapper>(c => new HttpQueryRouteMapper(
                 c.Resolve<ILoggerFactory>().CreateLogger<HttpQueryProcessor>(),
+                c.Resolve<IAuthorizer>(),
                 c.Resolve<SubscriptionQueryProcessor>()
             ));
+
+            builder.Register<IAuthorizer>(c => new VoidAuthorizer());
         }
     }
 }

@@ -9,13 +9,17 @@ namespace SprayChronicle.Server.Http
     {
         readonly ILogger<HttpCommandDispatcher> _logger;
 
+        readonly IAuthorizer _authorizer;
+
         readonly IDispatchCommands _dispatcher;
 
         public HttpCommandRouteMapper(
             ILogger<HttpCommandDispatcher> logger,
+            IAuthorizer authorizer,
             IDispatchCommands dispatcher)
         {
             _logger = logger;
+            _authorizer = authorizer;
             _dispatcher = dispatcher;
         }
 
@@ -27,13 +31,13 @@ namespace SprayChronicle.Server.Http
                     case "POST":
                         builder.MapPost(
                             command.GetTypeInfo().GetCustomAttribute<HttpCommandAttribute>().Template,
-                            new HttpCommandDispatcher(_logger, _dispatcher, command).Dispatch
+                            new HttpCommandDispatcher(_logger, _authorizer, _dispatcher, command).Dispatch
                         );
                     break;
                     case "GET":
                         builder.MapGet(
                             command.GetTypeInfo().GetCustomAttribute<HttpCommandAttribute>().Template,
-                            new HttpCommandDispatcher(_logger, _dispatcher, command).Dispatch
+                            new HttpCommandDispatcher(_logger, _authorizer, _dispatcher, command).Dispatch
                         );
                     break;
                 }

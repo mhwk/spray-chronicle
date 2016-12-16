@@ -13,15 +13,22 @@ namespace SprayChronicle.Server.Http
     {
         readonly ILogger<HttpCommandDispatcher> _logger;
 
+        readonly IAuthorizer _authorizer;
+
         readonly IDispatchCommands _dispatcher;
 
         readonly Type _type;
 
         static readonly RequestToMessageConverter converter = new RequestToMessageConverter();
 
-        public HttpCommandDispatcher(ILogger<HttpCommandDispatcher> logger, IDispatchCommands dispatcher, Type type)
+        public HttpCommandDispatcher(
+            ILogger<HttpCommandDispatcher> logger,
+            IAuthorizer authorizer,
+            IDispatchCommands dispatcher,
+            Type type)
         {
             _logger = logger;
+            _authorizer = authorizer;
             _dispatcher = dispatcher;
             _type = type;
         }
@@ -32,6 +39,8 @@ namespace SprayChronicle.Server.Http
                 context.Response.ContentType = "application/json";
 
                 try {
+                    _authorizer.Authorize(_type, context);
+
                     var payload = await converter.Convert(context.Request, _type);
                     _logger.LogDebug("Dispatching {0} {1}", _type, JsonConvert.SerializeObject(payload));
                     _dispatcher.Dispatch(payload);
@@ -48,6 +57,12 @@ namespace SprayChronicle.Server.Http
                     }
                     await context.Response.WriteAsync(JsonConvert.SerializeObject(new {
                         Error = error.InnerException.Message
+                    }));
+                } catch (UnauthorizedException error) {
+                    _logger.LogWarning(error.ToString());
+                    context.Response.StatusCode = 401;
+                    await context.Response.WriteAsync(JsonConvert.SerializeObject(new {
+                        Error = error.Message
                     }));
                 } catch (Exception error) {
                     _logger.LogCritical(error.ToString());
