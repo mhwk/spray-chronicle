@@ -68,38 +68,10 @@ namespace SprayChronicle.Projecting
                     .InstancePerDependency();
                 
                 builder
-                    .Register<TExecutor>(
-                        c => Activator.CreateInstance(
-                            typeof(TExecutor),
-                            BuildArguments<TExecutor>(c)
-                        ) as TExecutor
-                    )
+                    .RegisterType<TExecutor>()
                     .As<IExecuteQueries>()
                     .AsSelf()
                     .InstancePerDependency();
-            }
-
-            object[] BuildArguments<T>(IComponentContext context)
-            {
-                var args = new List<object>();
-
-                var constructor = typeof(T).GetTypeInfo().GetConstructors()
-                    .OrderByDescending(c => c.GetParameters().Length)
-                    .FirstOrDefault();
-                
-                if (null == constructor) {
-                    return args.ToArray();
-                }
-
-                var types = constructor.GetParameters()
-                    .Select(p => p.ParameterType)
-                    .ToArray();
-                
-                for (var i = 0; i < types.Length; i++) {
-                    args.Add(context.Resolve(types[i]));
-                }
-
-                return args.ToArray();
             }
         }
     }

@@ -28,29 +28,6 @@ namespace SprayChronicle.EventHandling
                 .ForEach(h => manager.Add(h));
         }
 
-        static object[] BuildArguments<T>(IComponentContext context)
-        {
-            var args = new List<object>();
-
-            var constructor = typeof(T).GetTypeInfo().GetConstructors()
-                .OrderByDescending(c => c.GetParameters().Length)
-                .FirstOrDefault();
-            
-            if (null == constructor) {
-                return args.ToArray();
-            }
-
-            var types = constructor.GetParameters()
-                .Select(p => p.ParameterType)
-                .ToArray();
-            
-            for (var i = 0; i < types.Length; i++) {
-                args.Add(context.Resolve(types[i]));
-            }
-
-            return args.ToArray();
-        }
-
         public sealed class CatchUp<THandler> : Autofac.Module where THandler : IHandleEvent
         {
             readonly string _stream;
@@ -65,6 +42,7 @@ namespace SprayChronicle.EventHandling
 
             protected override void Load(ContainerBuilder builder)
             {
+                builder.RegisterType<THandler>();
                 builder
                     .Register<StreamEventHandler<THandler>>(c => new StreamEventHandler<THandler>(
                         c.Resolve<ILoggerFactory>().CreateLogger<THandler>(),
@@ -72,7 +50,7 @@ namespace SprayChronicle.EventHandling
                             _stream,
                             new NamespaceTypeLocator(_namespace)
                         ),
-                        Activator.CreateInstance(typeof(THandler), BuildArguments<THandler>(c)) as IHandleEvent
+                        c.Resolve<THandler>()
                     ))
                     .As<IHandleStream>()
                     .AsSelf()
@@ -102,6 +80,10 @@ namespace SprayChronicle.EventHandling
             protected override void Load(ContainerBuilder builder)
             {
                 builder
+                    .RegisterType<THandler>()
+                    .SingleInstance();
+                    
+                builder
                     .Register<StreamEventHandler<THandler>>(c => new StreamEventHandler<THandler>(
                         c.Resolve<ILoggerFactory>().CreateLogger<THandler>(),
                         c.Resolve<IBuildStreams>().Persistent(
@@ -109,7 +91,7 @@ namespace SprayChronicle.EventHandling
                             _category,
                             new NamespaceTypeLocator(_namespace)
                         ),
-                        Activator.CreateInstance(typeof(THandler), BuildArguments<THandler>(c)) as IHandleEvent
+                        c.Resolve<THandler>()
                     ))
                     .As<IHandleStream>()
                     .AsSelf()
