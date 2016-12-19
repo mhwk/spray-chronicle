@@ -58,9 +58,10 @@ namespace SprayChronicle.CommandHandling
                 
                 builder
                     .RegisterType<THandler>()
+                    .PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies)
                     .As<IHandleCommand>()
                     .AsSelf()
-                    .InstancePerDependency();
+                    .SingleInstance();
             }
         }
     }
