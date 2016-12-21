@@ -26,6 +26,12 @@ namespace SprayChronicle.MessageHandling.Test
         }
 
         [Fact]
+        public void ItDoesNotAcceptUnknownMessage()
+        {
+            Assert.False(Strategy.AcceptsMessage(null, new UnknownMessage()));
+        }
+
+        [Fact]
         public void ItReturnsAcceptedMethodResult()
         {
             Assert.IsAssignableFrom<PickedUpBasket>(Strategy.ProcessMessage(null, new BasketPickedUp("basketId")));
@@ -51,10 +57,15 @@ namespace SprayChronicle.MessageHandling.Test
         }
 
         [Fact]
-        public void ItAcceptsSecondMessage()
+        public void ItProcessesSecondMessage()
         {
             var basket = Strategy.ProcessMessage(null, new BasketPickedUp("basketId"));
             Assert.IsAssignableFrom<CheckedOutBasket>(Strategy.ProcessMessage(basket, new BasketCheckedOut("basketId", "orderId")));
+        }
+
+        public sealed class UnknownMessage
+        {
+
         }
     }
 }

@@ -10,6 +10,11 @@ namespace SprayChronicle.Testing
         protected virtual void Configure(ContainerBuilder builder)
         {}
 
+        protected virtual DateTime[] Epoch()
+        {
+            return new DateTime[] {};
+        }
+
         protected virtual object[] Given()
         {
             return new object[] {};
@@ -31,6 +36,7 @@ namespace SprayChronicle.Testing
         public virtual void ItAcceptsScenario()
         {
             new ProjectionQueryFixture<TModule>(Configure)
+                .Epoch(Epoch())
                 .Given(Given())
                 .When(When())
                 .ExpectException(ExpectException())

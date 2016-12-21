@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Autofac;
 using Autofac.Core;
 using Microsoft.Extensions.Logging;
@@ -7,9 +8,11 @@ using SprayChronicle.QueryHandling;
 
 namespace SprayChronicle.Testing
 {
-    public class ProjectionQueryFixture<TModule> : IPopulate, IExecute where TModule : IModule, new()
+    public class ProjectionQueryFixture<TModule> : IPopulateEpoch, IPopulate, IExecute where TModule : IModule, new()
     {
         readonly IContainer _container;
+
+        List<DateTime> _epochs = new List<DateTime>();
 
         public ProjectionQueryFixture(Action<ContainerBuilder> configure)
         {
@@ -27,10 +30,20 @@ namespace SprayChronicle.Testing
             _container.Resolve<IManageStreamHandlers>().Manage();
         }
 
+        public IPopulate Epoch(params DateTime[] epochs)
+        {
+            _epochs.AddRange(epochs);
+            return this;
+        }
+
         public IExecute Given(params object[] messages)
         {
-            foreach (var message in messages) {
-                _container.Resolve<TestStream>().Publish(message, new DateTime());
+            for (var i = 0; i < messages.Length; i++) {
+                if (_epochs.Count > i) {
+                    _container.Resolve<TestStream>().Publish(messages[i], _epochs[i]);
+                } else {
+                    _container.Resolve<TestStream>().Publish(messages[i], DateTime.Now);
+                }
             }
             return this;
         }

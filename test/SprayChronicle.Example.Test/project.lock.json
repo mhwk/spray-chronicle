@@ -3641,7 +3641,7 @@
           "SprayLocator": "1.1.1"
         }
       },
-      "SprayChronicle.Persistence.Memory/0.0.6": {
+      "SprayChronicle.Persistence.Memory/0.0.7": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
@@ -3665,7 +3665,7 @@
           "SprayChronicle.QueryHandling": "(, )"
         }
       },
-      "SprayChronicle.QueryHandling/0.0.4": {
+      "SprayChronicle.QueryHandling/0.0.5": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
@@ -3709,7 +3709,7 @@
           "System.ComponentModel.Annotations": "4.3.0"
         }
       },
-      "SprayChronicle.Testing/0.0.10": {
+      "SprayChronicle.Testing/0.0.11": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
@@ -9946,7 +9946,7 @@
       "type": "project",
       "path": "../../src/SprayChronicle.MessageHandling/project.json"
     },
-    "SprayChronicle.Persistence.Memory/0.0.6": {
+    "SprayChronicle.Persistence.Memory/0.0.7": {
       "type": "project",
       "path": "../../src/SprayChronicle.Persistence.Memory/project.json"
     },
@@ -9954,7 +9954,7 @@
       "type": "project",
       "path": "../../src/SprayChronicle.Projecting/project.json"
     },
-    "SprayChronicle.QueryHandling/0.0.4": {
+    "SprayChronicle.QueryHandling/0.0.5": {
       "type": "project",
       "path": "../../src/SprayChronicle.QueryHandling/project.json"
     },
@@ -9966,7 +9966,7 @@
       "type": "project",
       "path": "../../src/SprayChronicle.Server.Http/project.json"
     },
-    "SprayChronicle.Testing/0.0.10": {
+    "SprayChronicle.Testing/0.0.11": {
       "type": "project",
       "path": "../../src/SprayChronicle.Testing/project.json"
     }
