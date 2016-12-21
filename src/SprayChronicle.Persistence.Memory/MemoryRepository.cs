@@ -85,9 +85,9 @@ namespace SprayChronicle.Persistence.Memory
             _data.Clear();
         }
 
-        public IEnumerable<T> FindBy(Func<IQueryable<T>,IEnumerable<T>> callback)
+        public IQueryable<T> Query()
         {
-            return callback(_data.Values.AsQueryable());
+            return _data.Values.AsQueryable();
         }
     }
 }

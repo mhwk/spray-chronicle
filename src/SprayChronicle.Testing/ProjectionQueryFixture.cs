@@ -19,7 +19,7 @@ namespace SprayChronicle.Testing
             builder.RegisterModule<SprayChronicle.Projecting.ProjectingModule>();
             builder.RegisterModule<SprayChronicle.QueryHandling.QueryHandlingModule>();
             builder.RegisterModule<TModule>();
-            builder.Register<ILoggerFactory>(c => new LoggerFactory().AddConsole(LogLevel.Debug).AddDebug(LogLevel.Debug));
+            builder.Register<ILoggerFactory>(c => new LoggerFactory().AddConsole(LogLevel.Debug).AddDebug(LogLevel.Debug)).SingleInstance();
             builder.Register<TestStream>(c => new TestStream()).SingleInstance();
             builder.Register<IBuildStreams>(c => new TestStreamFactory(c.Resolve<TestStream>())).SingleInstance();
             configure(builder);
@@ -38,9 +38,9 @@ namespace SprayChronicle.Testing
         public IValidate When(object query)
         {
             try {
-                return new ProjectionQueryValidator(null, _container.Resolve<LoggingQueryProcessor>().Process(query));
+                return new ProjectionValidator(_container.Resolve<LoggingQueryProcessor>().Process(query));
             } catch (Exception error) {
-                return new ProjectionQueryValidator(error);
+                return new ProjectionValidator(error);
             }
         }
     }

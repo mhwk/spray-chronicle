@@ -78,9 +78,9 @@ namespace SprayChronicle.Persistence.Mongo
             _collection.DeleteMany(new BsonDocument());
         }
 
-        public IEnumerable<T> FindBy(Func<IQueryable<T>,IEnumerable<T>> callback)
+        public IQueryable<T> Query()
         {
-            return callback(_collection.AsQueryable<T>());
+            return _collection.AsQueryable<T>();
         }
     }
 }

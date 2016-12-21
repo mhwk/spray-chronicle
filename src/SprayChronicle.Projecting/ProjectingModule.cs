@@ -65,13 +65,13 @@ namespace SprayChronicle.Projecting
                     )
                     .As<IHandleStream>()
                     .AsSelf()
-                    .InstancePerDependency();
+                    .SingleInstance();
                 
                 builder
                     .RegisterType<TExecutor>()
                     .As<IExecuteQueries>()
                     .AsSelf()
-                    .InstancePerDependency();
+                    .SingleInstance();
             }
         }
     }

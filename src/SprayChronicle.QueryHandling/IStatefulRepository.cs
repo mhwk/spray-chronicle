@@ -22,7 +22,7 @@ namespace SprayChronicle.QueryHandling
 
         void Remove(T[] objs);
 
-        IEnumerable<T> FindBy(Func<IQueryable<T>,IEnumerable<T>> callback);
+        IQueryable<T> Query();
 
         void Clear();
     }

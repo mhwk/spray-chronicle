@@ -5,22 +5,24 @@ using FluentAssertions;
 
 namespace SprayChronicle.Testing
 {
-    public class ProjectionQueryValidator : IValidate
+    public class ProjectionValidator : IValidate
     {
         readonly Exception _error;
 
-        readonly IEnumerable<object> _projections;
+        readonly object[] _projections;
 
-        public ProjectionQueryValidator(Exception error, IEnumerable<object> projections)
+        public ProjectionValidator(Exception error)
         {
             _error = error;
-            _projections = projections;
         }
 
-        public ProjectionQueryValidator(Exception error, params object[] projections)
+        public ProjectionValidator(object projection)
         {
-            _error = error;
-            _projections = projections.ToList();
+            if (projection is IEnumerable<object>) {
+                _projections = ((IEnumerable<object>)projection).ToArray();
+            } else {
+                _projections = new object[] { projection };
+            }
         }
 
 		public IValidate Expect()
@@ -37,7 +39,7 @@ namespace SprayChronicle.Testing
 
 		public IValidate Expect(params object[] results)
         {
-            _projections.ToArray().ShouldAllBeEquivalentTo(results);
+            _projections.ShouldAllBeEquivalentTo(results);
             return this;
         }
 

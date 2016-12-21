@@ -55,15 +55,9 @@ namespace SprayChronicle.QueryHandling
             return _saves[identity];
         }
         
-        public IEnumerable<T> FindBy(Func<IQueryable<T>,IEnumerable<T>> callback)
+        public IQueryable<T> Query()
         {
-            foreach (T obj in callback(_saves.Values.AsQueryable())) {
-                yield return obj;
-            }
-            foreach (T obj in _repository.FindBy(callback)) {
-                _saves.TryAdd(Identity(obj), obj);
-                yield return obj;
-            }
+            return _repository.Query().Concat(_saves.Values.AsQueryable());
         }
 
         public void Save(T obj)
