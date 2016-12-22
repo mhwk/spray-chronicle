@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using System.Collections.Generic;
 
@@ -22,21 +21,21 @@ namespace SprayChronicle.CommandHandling
 
         public void Dispatch(object command)
         {
-            try {
-                handlers
-                    .Where(handler => handler.Handles(command))
-                    .First()
-                    .Handle(command);
-            } catch (Exception error) {
+            var handler = handlers
+                .Where(h => h.Handles(command))
+                .FirstOrDefault();
+            
+            if (null == handler) {
                 throw new UnhandledCommandException(
                     string.Format(
                         "Command {0} could not be handled by one of the following handlers: {1}",
                         command.GetType(),
                         string.Join(", ", handlers.Select(h => h.GetType().Name))
-                    ),
-                    error
+                    )
                 );
             }
+
+            handler.Handle(command);
         }
     }
 }

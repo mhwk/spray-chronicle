@@ -1,6 +1,6 @@
 using System;
-using System.Linq;
 using System.Reflection;
+using System.Runtime.ExceptionServices;
 using SprayChronicle.EventSourcing;
 using SprayChronicle.MessageHandling;
 
@@ -27,7 +27,7 @@ namespace SprayChronicle.CommandHandling
             try {
                 _handlers.ProcessMessage(this, command);
             } catch (TargetInvocationException error) {
-                throw error.InnerException;
+                ExceptionDispatchInfo.Capture(error).Throw();
             } catch (Exception error) {
                 throw new UnhandledCommandException(
                     string.Format(
