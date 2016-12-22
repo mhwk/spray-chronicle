@@ -28,6 +28,16 @@ namespace SprayChronicle.Persistence.Mongo
                 .FirstOrDefault();
         }
 
+        public T Load(Func<IQueryable<T>,T> callback)
+        {
+            return callback(_collection.AsQueryable());
+        }
+
+        public IEnumerable<T> Load(Func<IQueryable<T>,IEnumerable<T>> callback)
+        {
+            return callback(_collection.AsQueryable());
+        }
+
         public void Save(T obj)
         {
             _collection.FindOneAndReplace(
@@ -76,11 +86,6 @@ namespace SprayChronicle.Persistence.Mongo
         public void Clear()
         {
             _collection.DeleteMany(new BsonDocument());
-        }
-
-        public IQueryable<T> Query()
-        {
-            return _collection.AsQueryable<T>();
         }
     }
 }

@@ -13,14 +13,15 @@ namespace SprayChronicle.Example.Projection
 
         public NumberOfProductsInBasket On(NumberOfProductsForBasketId query)
         {
-            return _repository.Query()
+            return _repository.Load(q => q
                 .Where(item => item.BasketId == query.BasketId)
-                .FirstOrDefault();
+                .FirstOrDefault()
+            );
         }
 
         public IEnumerable<NumberOfProductsInBasket> On(NumberOfProductsInBaskets query)
         {
-            return _repository.Query();
+            return _repository.Load(q => q);
         }
     }
 }

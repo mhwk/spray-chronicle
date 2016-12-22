@@ -39,6 +39,16 @@ namespace SprayChronicle.Persistence.Memory
             return _data[identity];
         }
 
+        public T Load(Func<IQueryable<T>,T> callback)
+        {
+            return callback(_data.Values.AsQueryable());
+        }
+
+        public IEnumerable<T> Load(Func<IQueryable<T>,IEnumerable<T>> callback)
+        {
+            return callback(_data.Values.AsQueryable());
+        }
+
         public void Save(T obj)
         {
             if (_data.ContainsKey(Identity(obj))) {
@@ -83,11 +93,6 @@ namespace SprayChronicle.Persistence.Memory
         public void Clear()
         {
             _data.Clear();
-        }
-
-        public IQueryable<T> Query()
-        {
-            return _data.Values.AsQueryable();
         }
     }
 }

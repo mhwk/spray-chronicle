@@ -11,7 +11,7 @@ namespace SprayChronicle.Server
     {
         static ContainerBuilder _containerBuilder = new ContainerBuilder();
 
-        static ILoggerFactory _loggerFactory = new LoggerFactory().AddConsole(LogLevel.Information);
+        static ILoggerFactory _loggerFactory = new LoggerFactory();
 
         static IContainer _container;
 
@@ -72,7 +72,7 @@ namespace SprayChronicle.Server
                 OnConfigure(ContainerBuilder());
             }
 
-            ContainerBuilder().Register<ILoggerFactory>(c => LoggerFactory());
+            ContainerBuilder().Register<ILoggerFactory>(c => LoggerFactory()).SingleInstance();
 
             if (null != OnInitialize) {
                 OnInitialize();

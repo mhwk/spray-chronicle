@@ -9,7 +9,7 @@ namespace SprayChronicle.Persistence.Mongo
     {
         public static SprayChronicleServer WithMongoPersistence(this SprayChronicleServer server)
         {
-            server.OnConfigure += builder => builder.RegisterModule<AsyncEventHandlingModule>();
+            // server.OnConfigure += builder => builder.RegisterModule<AsyncEventHandlingModule>();
             server.OnConfigure += builder => builder.RegisterModule<MongoModule>();
             server.OnConfigure += builder => builder.RegisterModule<ProjectingModule>();
             return server;

@@ -9,19 +9,23 @@ namespace SprayChronicle.Server.Http
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder.Register<HttpCommandRouteMapper>(c => new HttpCommandRouteMapper(
-                c.Resolve<ILoggerFactory>().CreateLogger<HttpCommandDispatcher>(),
-                c.Resolve<IAuthorizer>(),
-                c.Resolve<SubscriptionCommandBus>()
-            ));
+            builder
+                .Register<HttpCommandRouteMapper>(c => new HttpCommandRouteMapper(
+                    c.Resolve<ILoggerFactory>().CreateLogger<HttpCommandDispatcher>(),
+                    c.Resolve<IAuthorizer>(),
+                    c.Resolve<SubscriptionCommandBus>()
+                ))
+                .SingleInstance();
 
-            builder.Register<HttpQueryRouteMapper>(c => new HttpQueryRouteMapper(
-                c.Resolve<ILoggerFactory>().CreateLogger<HttpQueryProcessor>(),
-                c.Resolve<IAuthorizer>(),
-                c.Resolve<SubscriptionQueryProcessor>()
-            ));
+            builder
+                .Register<HttpQueryRouteMapper>(c => new HttpQueryRouteMapper(
+                    c.Resolve<ILoggerFactory>().CreateLogger<HttpQueryProcessor>(),
+                    c.Resolve<IAuthorizer>(),
+                    c.Resolve<SubscriptionQueryProcessor>()
+                ))
+                .SingleInstance();
 
-            builder.Register<IAuthorizer>(c => new VoidAuthorizer());
+            builder.Register<IAuthorizer>(c => new VoidAuthorizer()).SingleInstance();
         }
     }
 }

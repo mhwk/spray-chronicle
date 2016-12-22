@@ -12,9 +12,10 @@ namespace SprayChronicle.Example.Projection
 
         public PickedUpBasketsPerDay On(PickedUpBasketsOnDay query)
         {
-            return _repository.Query()
+            return _repository.Load(q => q
                 .Where(item => item.Day == query.Day)
-                .FirstOrDefault();
+                .FirstOrDefault()
+            );
         }
     }
 }

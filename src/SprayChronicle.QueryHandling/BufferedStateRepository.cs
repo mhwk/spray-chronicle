@@ -54,12 +54,22 @@ namespace SprayChronicle.QueryHandling
             }
             return _saves[identity];
         }
-        
-        public IQueryable<T> Query()
+
+        public T Load(Func<IQueryable<T>,T> callback)
         {
-            return _repository.Query().Concat(_saves.Values.AsQueryable());
+            T obj = callback(_saves.Values.AsQueryable());
+            if (null != obj) {
+                return obj;
+            }
+            return _repository.Load(callback);
         }
 
+        public IEnumerable<T> Load(Func<IQueryable<T>,IEnumerable<T>> callback)
+        {
+            return callback(_saves.Values.AsQueryable())
+                .Concat(_repository.Load(callback));
+        }
+        
         public void Save(T obj)
         {
             string identity = Identity(obj);

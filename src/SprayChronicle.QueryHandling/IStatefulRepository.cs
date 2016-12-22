@@ -14,6 +14,10 @@ namespace SprayChronicle.QueryHandling
 
         T Load(string identity);
 
+        T Load(Func<IQueryable<T>,T> callback);
+
+        IEnumerable<T> Load(Func<IQueryable<T>,IEnumerable<T>> callback);
+
         void Remove(string identity);
 
         void Remove(string[] identities);
@@ -21,8 +25,6 @@ namespace SprayChronicle.QueryHandling
         void Remove(T obj);
 
         void Remove(T[] objs);
-
-        IQueryable<T> Query();
 
         void Clear();
     }

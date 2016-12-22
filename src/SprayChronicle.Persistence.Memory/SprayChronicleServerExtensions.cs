@@ -8,7 +8,7 @@ namespace SprayChronicle.Persistence.Memory
     {
         public static SprayChronicleServer WithMemoryPersistence(this SprayChronicleServer server)
         {
-            server.OnConfigure += builder => builder.RegisterModule<AsyncEventHandlingModule>();
+            // server.OnConfigure += builder => builder.RegisterModule<AsyncEventHandlingModule>();
             server.OnConfigure += builder => builder.RegisterModule<MemoryModule>();
             return server;
         }

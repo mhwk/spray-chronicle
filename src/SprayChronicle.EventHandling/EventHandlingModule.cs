@@ -42,7 +42,10 @@ namespace SprayChronicle.EventHandling
 
             protected override void Load(ContainerBuilder builder)
             {
-                builder.RegisterType<THandler>();
+                builder
+                    .RegisterType<THandler>()
+                    .SingleInstance();
+                
                 builder
                     .Register<StreamEventHandler<THandler>>(c => new StreamEventHandler<THandler>(
                         c.Resolve<ILoggerFactory>().CreateLogger<THandler>(),
@@ -54,7 +57,7 @@ namespace SprayChronicle.EventHandling
                     ))
                     .As<IHandleStream>()
                     .AsSelf()
-                    .InstancePerDependency();
+                    .SingleInstance();
             }
         }
 
@@ -95,7 +98,7 @@ namespace SprayChronicle.EventHandling
                     ))
                     .As<IHandleStream>()
                     .AsSelf()
-                    .InstancePerDependency();
+                    .SingleInstance();
             }
         }
     }
