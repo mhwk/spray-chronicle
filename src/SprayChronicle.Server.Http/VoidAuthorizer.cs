@@ -5,7 +5,7 @@ namespace SprayChronicle.Server.Http
 {
     public class VoidAuthorizer : IAuthorizer
     {
-        public void Authorize(Type type, HttpContext httpContext)
+        public void Authorize(object payload, HttpContext httpContext)
         {}
     }
 }

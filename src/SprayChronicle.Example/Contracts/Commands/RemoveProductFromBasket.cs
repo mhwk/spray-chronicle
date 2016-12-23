@@ -1,13 +1,16 @@
 using SprayChronicle.Server.Http;
+using System.ComponentModel.DataAnnotations;
 
 namespace SprayChronicle.Example.Contracts.Commands
 {
     [HttpCommandAttribute("basket/remove-product")]
     public sealed class RemoveProductFromBasket
     {
-        public readonly string BasketId;
+        [Required()]
+        public string BasketId { get; private set; }
 
-        public readonly string ProductId;
+        [Required()]
+        public string ProductId { get; private set; }
 
         public RemoveProductFromBasket(string basketId, string productId)
         {

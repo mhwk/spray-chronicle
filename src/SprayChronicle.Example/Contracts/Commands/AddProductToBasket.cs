@@ -1,13 +1,16 @@
 using SprayChronicle.Server.Http;
+using System.ComponentModel.DataAnnotations;
 
 namespace SprayChronicle.Example.Contracts.Commands
 {
     [HttpCommandAttribute("basket/add-product")]
     public sealed class AddProductToBasket
     {
-        public readonly string BasketId;
+        [Required()]
+        public string BasketId { get; private set; }
 
-        public readonly string ProductId;
+        [Required()]
+        public string ProductId { get; private set; }
 
         public AddProductToBasket(string basketId, string productId)
         {

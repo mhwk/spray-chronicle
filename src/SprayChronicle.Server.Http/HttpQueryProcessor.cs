@@ -13,6 +13,8 @@ namespace SprayChronicle.Server.Http
 
         readonly IAuthorizer _authorizer;
 
+        readonly IValidator _validator;
+
         readonly IProcessQueries _dispatcher;
 
         readonly Type _type;
@@ -22,11 +24,13 @@ namespace SprayChronicle.Server.Http
         public HttpQueryProcessor(
             ILogger<HttpQueryProcessor> logger,
             IAuthorizer authorizer,
+            IValidator validator,
             IProcessQueries dispatcher,
             Type type)
         {
             _logger = logger;
             _authorizer = authorizer;
+            _validator = validator;
             _dispatcher = dispatcher;
             _type = type;
         }
@@ -36,21 +40,29 @@ namespace SprayChronicle.Server.Http
             context.Response.ContentType = "application/json";
 
             try {
-                _authorizer.Authorize(_type, context);
-
                 var payload = await converter.Convert(context.Request, _type);
+
+                _authorizer.Authorize(payload, context);
+                _validator.Validate(payload);
+
                 _logger.LogDebug("Processing {0} {1}", _type, JsonConvert.SerializeObject(payload));
                 var result = _dispatcher.Process(payload);
                 context.Response.StatusCode = 200;
                 await context.Response.WriteAsync(JsonConvert.SerializeObject(result));
             } catch (UnhandledQueryException error) {
-                _logger.LogError(error.ToString());
-                context.Response.StatusCode = 500;
+                _logger.LogInformation(error.ToString());
+                context.Response.StatusCode = 400;
                 await context.Response.WriteAsync(JsonConvert.SerializeObject(new {
                     Error = error.InnerException.Message
                 }));
+            } catch (InvalidatedException error) {
+                _logger.LogInformation(error.ToString());
+                context.Response.StatusCode = 400;
+                await context.Response.WriteAsync(JsonConvert.SerializeObject(new {
+                    Error = error.Message
+                }));
             } catch (UnauthorizedException error) {
-                _logger.LogWarning(error.ToString());
+                _logger.LogInformation(error.ToString());
                 context.Response.StatusCode = 401;
                 await context.Response.WriteAsync(JsonConvert.SerializeObject(new {
                     Error = error.Message

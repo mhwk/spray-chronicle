@@ -1,11 +1,13 @@
 using SprayChronicle.Server.Http;
+using System.ComponentModel.DataAnnotations;
 
 namespace SprayChronicle.Example.Contracts.Commands
 {
     [HttpCommandAttribute("basket/pick-up")]
     public sealed class PickUpBasket
     {
-        public readonly string BasketId;
+        [Required()]
+        public string BasketId { get; private set; }
 
         public PickUpBasket(string basketId)
         {

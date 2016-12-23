@@ -15,6 +15,8 @@ namespace SprayChronicle.Server.Http
 
         readonly IAuthorizer _authorizer;
 
+        readonly IValidator _validator;
+
         readonly IDispatchCommands _dispatcher;
 
         readonly Type _type;
@@ -24,11 +26,13 @@ namespace SprayChronicle.Server.Http
         public HttpCommandDispatcher(
             ILogger<HttpCommandDispatcher> logger,
             IAuthorizer authorizer,
+            IValidator validator,
             IDispatchCommands dispatcher,
             Type type)
         {
             _logger = logger;
             _authorizer = authorizer;
+            _validator = validator;
             _dispatcher = dispatcher;
             _type = type;
         }
@@ -39,28 +43,40 @@ namespace SprayChronicle.Server.Http
                 context.Response.ContentType = "application/json";
 
                 try {
-                    _authorizer.Authorize(_type, context);
-
                     var payload = await converter.Convert(context.Request, _type);
+
+                    _authorizer.Authorize(payload, context);
+                    _validator.Validate(payload);
+
                     _logger.LogDebug("Dispatching {0} {1}", _type, JsonConvert.SerializeObject(payload));
                     _dispatcher.Dispatch(payload);
                 } catch (UnhandledCommandException error) {
-                    if (error.InnerException is ConcurrencyException) {
-                        _logger.LogWarning(error.ToString());
-                        context.Response.StatusCode = 409;
-                    } else if (error.InnerException is InvalidStateException) {
-                        _logger.LogWarning(error.ToString());
-                        context.Response.StatusCode = 428;
-                    } else {
-                        _logger.LogError(error.ToString());
-                        context.Response.StatusCode = 500;
-                    }
+                    _logger.LogWarning(error.ToString());
+                    context.Response.StatusCode = 404;
                     await context.Response.WriteAsync(JsonConvert.SerializeObject(new {
-                        Error = error.InnerException.Message
+                        Error = error.Message
+                    }));
+                } catch (ConcurrencyException error) {
+                    _logger.LogWarning(error.ToString());
+                    context.Response.StatusCode = 409;
+                    await context.Response.WriteAsync(JsonConvert.SerializeObject(new {
+                        Error = error.Message
+                    }));
+                } catch (InvalidStateException error) {
+                    _logger.LogWarning(error.ToString());
+                    context.Response.StatusCode = 428;
+                    await context.Response.WriteAsync(JsonConvert.SerializeObject(new {
+                        Error = error.Message
                     }));
                 } catch (UnauthorizedException error) {
                     _logger.LogWarning(error.ToString());
                     context.Response.StatusCode = 401;
+                    await context.Response.WriteAsync(JsonConvert.SerializeObject(new {
+                        Error = error.Message
+                    }));
+                } catch (InvalidatedException error) {
+                    _logger.LogWarning(error.ToString());
+                    context.Response.StatusCode = 400;
                     await context.Response.WriteAsync(JsonConvert.SerializeObject(new {
                         Error = error.Message
                     }));
