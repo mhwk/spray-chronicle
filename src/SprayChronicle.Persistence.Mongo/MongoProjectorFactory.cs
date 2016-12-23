@@ -8,13 +8,10 @@ namespace SprayChronicle.Persistence.Mongo
 {
     public sealed class MongoProjectorFactory : IBuildProjectors
     {
-        readonly ILoggerFactory _loggerFactory;
-
         readonly MongoRepositoryFactory _repositoryFactory;
 
-        public MongoProjectorFactory(ILoggerFactory loggerFactory, MongoRepositoryFactory repositoryFactory)
+        public MongoProjectorFactory(MongoRepositoryFactory repositoryFactory)
         {
-            _loggerFactory = loggerFactory;
             _repositoryFactory = repositoryFactory;
         }
 
@@ -22,10 +19,7 @@ namespace SprayChronicle.Persistence.Mongo
         {
             return (TProjector) Activator.CreateInstance(
                 typeof(TProjector),
-                new BufferedStateRepository<TProjection>(
-                    _loggerFactory.CreateLogger<TProjection>(),
-                    _repositoryFactory.Build<TProjection>()
-                )
+                _repositoryFactory.Build<TProjection>()
             );
         }
 
@@ -33,10 +27,7 @@ namespace SprayChronicle.Persistence.Mongo
         {
             return (TProjector) Activator.CreateInstance(
                 typeof(TProjector),
-                new BufferedStateRepository<TProjection>(
-                    _loggerFactory.CreateLogger<TProjection>(),
-                    _repositoryFactory.Build<TProjection>(projectionReference)
-                )
+                _repositoryFactory.Build<TProjection>(projectionReference)
             );
         }
 
@@ -44,10 +35,7 @@ namespace SprayChronicle.Persistence.Mongo
         {
             return (TProjector) Activator.CreateInstance(
                 typeof(TProjector),
-                new BufferedStateRepository<TProjection>(
-                    _loggerFactory.CreateLogger<TProjection>(),
-                    repository
-                )
+                repository
             );
         }
     }
