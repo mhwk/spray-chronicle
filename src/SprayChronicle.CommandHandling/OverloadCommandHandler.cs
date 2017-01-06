@@ -27,7 +27,7 @@ namespace SprayChronicle.CommandHandling
             try {
                 _handlers.ProcessMessage(this, command);
             } catch (TargetInvocationException error) {
-                ExceptionDispatchInfo.Capture(error).Throw();
+                ExceptionDispatchInfo.Capture(error.InnerException).Throw();
             } catch (Exception error) {
                 throw new UnhandledCommandException(
                     string.Format(
