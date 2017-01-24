@@ -26,7 +26,8 @@ namespace SprayChronicle.Persistence.Ouro
             builder
                 .Register<IEventStore>(c => new OuroEventStore(
                     c.Resolve<ILoggerFactory>().CreateLogger<IEventStore>(),
-                    c.Resolve<IEventStoreConnection>()
+                    c.Resolve<IEventStoreConnection>(),
+                    c.Resolve<UserCredentials>()
                 ))
                 .AsSelf()
                 .As<IEventStore>()

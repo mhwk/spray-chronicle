@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using EventStore.ClientAPI;
+using EventStore.ClientAPI.SystemData;
 using Newtonsoft.Json;
 using SprayChronicle.EventSourcing;
 
@@ -17,12 +18,16 @@ namespace SprayChronicle.Persistence.Ouro
 
         readonly IEventStoreConnection _eventStore;
 
+        readonly UserCredentials _credentials;
+
         public OuroEventStore(
             ILogger<IEventStore> logger,
-            IEventStoreConnection eventStore)
+            IEventStoreConnection eventStore,
+            UserCredentials credentials)
         {
             _logger = logger;
             _eventStore = eventStore;
+            _credentials = credentials;
         }
 
         public void Append<T>(string identity, IEnumerable<DomainMessage> domainMessages)
@@ -38,7 +43,8 @@ namespace SprayChronicle.Persistence.Ouro
                 _eventStore.AppendToStreamAsync(
                     Stream<T>(identity),
                     domainMessages.First().Sequence - 1,
-                    domainMessages.Select(dm => BuildEventData(dm))
+                    domainMessages.Select(dm => BuildEventData(dm)),
+                    _credentials
                 ).Wait();
 
                 stopwatch.Stop();
@@ -60,7 +66,7 @@ namespace SprayChronicle.Persistence.Ouro
             int current = 0;
 
             do {
-                var slice = _eventStore.ReadStreamEventsForwardAsync(Stream<T>(identity), current, 50, false).Result;
+                var slice = _eventStore.ReadStreamEventsForwardAsync(Stream<T>(identity), current, 50, false, _credentials).Result;
                 foreach (DomainMessage domainMessage in slice.Events.Select(ev => BuildDomainMessage(ev))) {
                     yield return domainMessage;
                     current++;
