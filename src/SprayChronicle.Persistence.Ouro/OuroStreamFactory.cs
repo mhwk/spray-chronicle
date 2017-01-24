@@ -29,6 +29,7 @@ namespace SprayChronicle.Persistence.Ouro
             return new CatchUpStream(
                 _logger,
                 _eventStore,
+                _credentials,
                 typeLocator,
                 streamName
             );

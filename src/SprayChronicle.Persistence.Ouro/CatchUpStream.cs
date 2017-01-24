@@ -2,6 +2,7 @@ using System;
 using System.Text;
 using Microsoft.Extensions.Logging;
 using EventStore.ClientAPI;
+using EventStore.ClientAPI.SystemData;
 using Newtonsoft.Json;
 using SprayChronicle.EventHandling;
 using SprayChronicle.EventSourcing;
@@ -14,6 +15,8 @@ namespace SprayChronicle.Persistence.Ouro
 
         readonly IEventStoreConnection _eventStore;
 
+        readonly UserCredentials _credentials;
+
         readonly ILocateTypes _typeLocator;
 
         readonly string _streamName;
@@ -21,11 +24,13 @@ namespace SprayChronicle.Persistence.Ouro
         public CatchUpStream(
             ILogger<IEventStore> logger,
             IEventStoreConnection eventStore,
+            UserCredentials credentials,
             ILocateTypes typeLocator,
             string streamName)
         {
             _logger = logger;
             _eventStore = eventStore;
+            _credentials = credentials;
             _typeLocator = typeLocator;
             _streamName = streamName;
         }
@@ -38,7 +43,8 @@ namespace SprayChronicle.Persistence.Ouro
                 new CatchUpSubscriptionSettings(200, 100, false, true),
                 (subscription, resolvedEvent) => OnEventAppeared(subscription, resolvedEvent, callback),
                 OnLiveProcessingStarted,
-                OnSubscriptionDropped
+                OnSubscriptionDropped,
+                _credentials
             );
         }
 
