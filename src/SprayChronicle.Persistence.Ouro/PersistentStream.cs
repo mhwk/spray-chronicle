@@ -85,7 +85,8 @@ namespace SprayChronicle.Persistence.Ouro
                 },
                 (subscription, reason, error) => {
                     _logger.LogCritical("Persistent subscription {0}_{1} error: {2}, {3}", _streamName, _groupName, reason.ToString(), error.ToString());
-                }
+                },
+                _credentials
             );
         }
     }
