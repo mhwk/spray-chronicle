@@ -18,6 +18,8 @@ namespace SprayChronicle.QueryHandling
 
         IEnumerable<T> Load(Func<IQueryable<T>,IEnumerable<T>> callback);
 
+        PagedResult<T> Load(Func<IQueryable<T>,IEnumerable<T>> callback, int page, int perPage);
+
         void Remove(string identity);
 
         void Remove(string[] identities);

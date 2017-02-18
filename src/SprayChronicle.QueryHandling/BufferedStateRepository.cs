@@ -69,6 +69,20 @@ namespace SprayChronicle.QueryHandling
             return callback(_saves.Values.AsQueryable())
                 .Concat(_repository.Load(callback));
         }
+
+        public PagedResult<T> Load(Func<IQueryable<T>,IEnumerable<T>> callback, int page, int perPage)
+        {
+            var results = callback(_saves.Values.AsQueryable())
+                .Concat(_repository.Load(callback));
+
+            return new PagedResult<T>(
+                results.Skip((page - 1) * perPage).Take(perPage),
+                page,
+                perPage,
+                results.Count()
+            );
+        }
+
         
         public void Save(T obj)
         {

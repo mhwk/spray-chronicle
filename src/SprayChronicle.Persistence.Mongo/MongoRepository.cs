@@ -38,6 +38,17 @@ namespace SprayChronicle.Persistence.Mongo
             return callback(_collection.AsQueryable());
         }
 
+        public PagedResult<T> Load(Func<IQueryable<T>,IEnumerable<T>> callback, int page, int perPage)
+        {
+            var results = callback(_data.Values.AsQueryable()); 
+            return new PagedResult<T>(
+                results.Skip((page - 1) * perPage).Take(perPage),
+                page,
+                perPage,
+                results.Count()
+            );
+        }
+
         public void Save(T obj)
         {
             _collection.FindOneAndReplace(

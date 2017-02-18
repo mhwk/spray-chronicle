@@ -11,7 +11,7 @@ namespace SprayChronicle.Example.Projection
         public NumberOfProductsInBasketExecutor(IStatefulRepository<NumberOfProductsInBasket> repository): base(repository)
         {}
 
-        public NumberOfProductsInBasket On(NumberOfProductsForBasketId query)
+        public object On(NumberOfProductsForBasketId query)
         {
             return _repository.Load(q => q
                 .Where(item => item.BasketId == query.BasketId)
@@ -19,9 +19,14 @@ namespace SprayChronicle.Example.Projection
             );
         }
 
-        public IEnumerable<NumberOfProductsInBasket> On(NumberOfProductsInBaskets query)
+        public object On(NumberOfProductsInBaskets query)
         {
             return _repository.Load(q => q);
+        }
+
+        public object On(PagedNumberOfProductsInBasket query)
+        {
+            return _repository.Load(q => q, query.Page, query.PerPage);
         }
     }
 }
