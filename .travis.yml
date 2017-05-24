@@ -2,7 +2,7 @@ language: csharp
 sudo: required
 dist: trusty
 mono: none
-dotnet: latest
+dotnet: 1.0.1
 env:
   - CLI_VERSION=latest
   - TEST_DIR=test/SprayChronicle.CommandHandling.Test
@@ -27,8 +27,5 @@ env:
   - PACK_DIR=src/SprayChronicle.Server.Http
   - PACK_DIR=src/SprayChronicle.Testing
 script:
-  - cd $PACK_DIR && dotnet restore
-  - cd $TEST_DIR && dotnet restore
-  - cd $TEST_DIR && dotnet test
-  - cd $PACK_DIR && dotnet pack -c Release --version-suffix build-$TRAVIS_BUILD_NUMBER --include-symbols --output SprayChronicle.nupkg
-  - cd $PACK_DIR && dotnet nuget push SprayChronicle.nupkg --api-key $NUGET_KEY
+  - cd $TEST_DIR && dotnet restore && dotnet test
+  - cd $PACK_DIR && dotnet pack -c Release --version-suffix build-$TRAVIS_BUILD_NUMBER --include-symbols --output SprayChronicle.nupkg && dotnet nuget push SprayChronicle.nupkg --api-key $NUGET_KEY
