@@ -20,6 +20,6 @@ install:
   - cd $TRAVIS_BUILD_DIR/src/$PACKAGE && dotnet restore
   - cd $TRAVIS_BUILD_DIR/test/$PACKAGE.Test && dotnet restore
 script:
-  - $TRAVIS_BUILD_DIR/test/$PACKAGE.Test && dotnet test
+  - cd $TRAVIS_BUILD_DIR/test/$PACKAGE.Test && dotnet test
 after_script:
-  - $TRAVIS_BUILD_DIR/src/$PACKAGE && dotnet pack -c Release --version-suffix build-$TRAVIS_BUILD_NUMBER --include-symbols --output SprayChronicle.nupkg && dotnet nuget push SprayChronicle.nupkg --api-key $NUGET_KEY
+  - cd $TRAVIS_BUILD_DIR/src/$PACKAGE && dotnet pack -c Release --version-suffix build-$TRAVIS_BUILD_NUMBER --include-symbols --output SprayChronicle.nupkg && dotnet nuget push SprayChronicle.nupkg --api-key $NUGET_KEY
