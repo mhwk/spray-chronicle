@@ -1,11 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.6</TargetFramework>
+    <TargetFramework>netcoreapp1.1</TargetFramework>
     <DebugType>portable</DebugType>
     <AssemblyName>SprayChronicle.Example</AssemblyName>
+    <OutputType>Exe</OutputType>
     <PackageId>SprayChronicle.Example</PackageId>
-    <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
+    <PackageTargetFallback>$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
+    <RuntimeFrameworkVersion>1.1.1</RuntimeFrameworkVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,6 +15,8 @@
     <ProjectReference Include="../SprayChronicle.EventHandling/SprayChronicle.EventHandling.csproj" />
     <ProjectReference Include="../SprayChronicle.EventSourcing/SprayChronicle.EventSourcing.csproj" />
     <ProjectReference Include="../SprayChronicle.Persistence.Memory/SprayChronicle.Persistence.Memory.csproj" />
+    <ProjectReference Include="../SprayChronicle.Persistence.Mongo/SprayChronicle.Persistence.Mongo.csproj" />
+    <ProjectReference Include="../SprayChronicle.Persistence.Ouro/SprayChronicle.Persistence.Ouro.csproj" />
     <ProjectReference Include="../SprayChronicle.Projecting/SprayChronicle.Projecting.csproj" />
     <ProjectReference Include="../SprayChronicle.QueryHandling/SprayChronicle.QueryHandling.csproj" />
     <ProjectReference Include="../SprayChronicle.Server.Http/SprayChronicle.Server.Http.csproj" />
