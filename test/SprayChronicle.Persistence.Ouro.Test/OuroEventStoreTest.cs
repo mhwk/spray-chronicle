@@ -26,7 +26,7 @@ namespace SprayChronicle.Test.EventPersisting
          [Fact]
          public void ItCanInstantiateOuroPersister()
          {
-             var persister = new OuroEventStore(Logger.Object, EventStore.Object);
+             var persister = new OuroEventStore(Logger.Object, EventStore.Object, new UserCredentials("username", "password"));
              persister.Should().NotBeNull();
          }
 
