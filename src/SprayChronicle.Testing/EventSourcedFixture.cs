@@ -23,7 +23,7 @@ namespace SprayChronicle.Testing
             builder.RegisterModule<SprayChronicle.CommandHandling.CommandHandlingModule>();
             builder.RegisterModule<TModule>();
 
-            builder.Register<ILoggerFactory>(c => new LoggerFactory().AddConsole(LogLevel.Debug).AddDebug(LogLevel.Debug));
+            builder.Register<ILoggerFactory>(c => new LoggerFactory().AddConsole(LogLevel.Debug).AddConsole(LogLevel.Debug));
             builder
                 .Register<EventSourcedTestStore>(c => new EventSourcedTestStore())
                 .AsSelf()
