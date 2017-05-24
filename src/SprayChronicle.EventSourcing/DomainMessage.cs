@@ -4,13 +4,13 @@ namespace SprayChronicle.EventSourcing
 {
     public sealed class DomainMessage
     {
-        public readonly int Sequence;
+        public readonly long Sequence;
 
         public readonly DateTime Epoch;
 
         public object Payload;
 
-        public DomainMessage(int sequence, DateTime epoch, object payload)
+        public DomainMessage(long sequence, DateTime epoch, object payload)
         {
             Sequence = sequence;
             Epoch = epoch;

@@ -6,7 +6,7 @@ namespace SprayChronicle.EventSourcing
 {
     public abstract class EventSourced<T> : IEventSourcable<T> where T : IEventSourcable<T>
     {
-        int _sequence = -1;
+        long _sequence = -1;
 
         List<DomainMessage> _queue = new List<DomainMessage>();
 
