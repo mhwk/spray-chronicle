@@ -12,7 +12,7 @@ namespace SprayChronicle.Testing
     {
         IContainer _container;
 
-        int _sequence = -1;
+        long _sequence = -1;
 
         public EventSourcedFixture(): this(builder => {})
         {}
