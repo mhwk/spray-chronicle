@@ -28,7 +28,7 @@ namespace SprayChronicle.Testing
         }
 
         [Fact]
-        public virtual void ItAcceptsScenario()
+        public virtual void Scenario()
         {
             var container = new ContainerBuilder();
             Configure(container);

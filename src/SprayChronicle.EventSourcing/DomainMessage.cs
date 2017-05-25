@@ -8,7 +8,7 @@ namespace SprayChronicle.EventSourcing
 
         public readonly DateTime Epoch;
 
-        public object Payload;
+        public readonly object Payload;
 
         public DomainMessage(long sequence, DateTime epoch, object payload)
         {

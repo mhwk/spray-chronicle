@@ -22,7 +22,7 @@ namespace SprayChronicle.Testing
             builder.RegisterModule<SprayChronicle.Projecting.ProjectingModule>();
             builder.RegisterModule<SprayChronicle.QueryHandling.QueryHandlingModule>();
             builder.RegisterModule<TModule>();
-            builder.Register<ILoggerFactory>(c => new LoggerFactory().AddConsole(LogLevel.Debug).AddConsole(LogLevel.Debug)).SingleInstance();
+            builder.Register<ILoggerFactory>(c => new LoggerFactory().AddConsole(LogLevel.Debug)).SingleInstance();
             builder.Register<TestStream>(c => new TestStream()).SingleInstance();
             builder.Register<IBuildStreams>(c => new TestStreamFactory(c.Resolve<TestStream>())).SingleInstance();
             configure(builder);
