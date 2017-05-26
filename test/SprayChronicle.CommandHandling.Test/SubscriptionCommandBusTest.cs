@@ -3,7 +3,6 @@ using Xunit;
 using Moq;
 using FluentAssertions;
 using SprayChronicle.CommandHandling;
-using SprayChronicle.Example.Contracts.Commands;
 
 namespace SprayChronicle.Test.CommandHandling
 {

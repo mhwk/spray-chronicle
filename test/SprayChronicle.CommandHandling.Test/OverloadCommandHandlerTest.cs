@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Immutable;
 using Xunit;
 using Moq;
 using FluentAssertions;
@@ -38,6 +39,14 @@ namespace SprayChronicle.Test.CommandHandling
         {
             new BasketHandler(Repository.Object).Handle(new PickUpBasket("foo"));
             Repository.Verify(repository => repository.Save(It.IsAny<Basket>()));
+        }
+        
+        [Fact]
+        public void ItThrowsDomainException()
+        {
+            Repository.Setup(r => r.Load<PickedUpBasket>(It.IsAny<string>())).Returns(new PickedUpBasket(new BasketId("foo"), ImmutableList.Create<ProductId>()));
+            Action a = () => new BasketHandler(Repository.Object).Handle(new RemoveProductFromBasket("foo", "bar"));
+            a.ShouldThrow<ProductNotInBasketException>();
         }
 
         public class DoNotAcceptCommand
