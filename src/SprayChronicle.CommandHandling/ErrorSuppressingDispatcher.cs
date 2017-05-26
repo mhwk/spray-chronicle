@@ -2,11 +2,11 @@ using System;
 
 namespace SprayChronicle.CommandHandling
 {
-    public class ErrorSuppressingCommandBus : IDispatchCommands
+    public class ErrorSuppressingDispatcher : IDispatchCommand
     {
-        readonly LoggingCommandBus _internalDispatcher;
+        readonly LoggingDispatcher _internalDispatcher;
 
-        public ErrorSuppressingCommandBus(LoggingCommandBus internalDispatcher)
+        public ErrorSuppressingDispatcher(LoggingDispatcher internalDispatcher)
         {
             _internalDispatcher = internalDispatcher;
         }

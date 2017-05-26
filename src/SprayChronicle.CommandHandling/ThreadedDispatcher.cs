@@ -2,11 +2,11 @@ using System.Threading.Tasks;
 
 namespace SprayChronicle.CommandHandling
 {
-    public class ThreadedCommandBus : IDispatchCommands
+    public class ThreadedDispatcher : IDispatchCommand
     {
-        readonly IDispatchCommands _internalDispatcher;
+        readonly IDispatchCommand _internalDispatcher;
 
-        public ThreadedCommandBus(IDispatchCommands internalDispatcher)
+        public ThreadedDispatcher(IDispatchCommand internalDispatcher)
         {
             _internalDispatcher = internalDispatcher;
         }

@@ -13,7 +13,7 @@ namespace SprayChronicle.Test.CommandHandling
         [Fact]
         public void ItFailsIfNoSubscriptions()
         {
-            var commandBus = new SubscriptionCommandBus();
+            var commandBus = new SubscriptionDispatcher();
             Action a = () => commandBus.Dispatch(new Command());
             a.ShouldThrow<UnhandledCommandException>();
         }
@@ -23,7 +23,7 @@ namespace SprayChronicle.Test.CommandHandling
         {
             CommandHandler.Setup(commandHandler => commandHandler.Handles(It.IsAny<object>())).Returns(false);
 
-            var commandBus = new SubscriptionCommandBus();
+            var commandBus = new SubscriptionDispatcher();
             commandBus.Subscribe(CommandHandler.Object);
 
             Action a = () => commandBus.Dispatch(new Command());
@@ -35,7 +35,7 @@ namespace SprayChronicle.Test.CommandHandling
         {
             CommandHandler.Setup(commandHandler => commandHandler.Handles(It.IsAny<object>())).Returns(true);
 
-            var commandBus = new SubscriptionCommandBus();
+            var commandBus = new SubscriptionDispatcher();
             commandBus.Subscribe(CommandHandler.Object);
 
             commandBus.Dispatch(new Command());

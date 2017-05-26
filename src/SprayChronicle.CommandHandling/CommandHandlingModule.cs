@@ -10,31 +10,31 @@ namespace SprayChronicle.CommandHandling
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .Register<SubscriptionCommandBus>(c => new SubscriptionCommandBus())
-                .OnActivating(e => RegisterCommandHandlers(e.Context, e.Instance as SubscriptionCommandBus))
+                .Register<SubscriptionDispatcher>(c => new SubscriptionDispatcher())
+                .OnActivating(e => RegisterCommandHandlers(e.Context, e.Instance as SubscriptionDispatcher))
                 .SingleInstance();
             
             builder
-                .Register<LoggingCommandBus>(c => new LoggingCommandBus(
-                    c.Resolve<ILoggerFactory>().CreateLogger<LoggingCommandBus>(),
-                    c.Resolve<SubscriptionCommandBus>()
+                .Register<LoggingDispatcher>(c => new LoggingDispatcher(
+                    c.Resolve<ILoggerFactory>().CreateLogger<LoggingDispatcher>(),
+                    c.Resolve<SubscriptionDispatcher>()
                 ))
                 .SingleInstance();
             
             builder
-                .Register<ErrorSuppressingCommandBus>(c => new ErrorSuppressingCommandBus(
-                    c.Resolve<LoggingCommandBus>()
+                .Register<ErrorSuppressingDispatcher>(c => new ErrorSuppressingDispatcher(
+                    c.Resolve<LoggingDispatcher>()
                 ))
                 .SingleInstance();
             
             builder
-                .Register<ThreadedCommandBus>(c => new ThreadedCommandBus(
-                    c.Resolve<ErrorSuppressingCommandBus>()
+                .Register<ThreadedDispatcher>(c => new ThreadedDispatcher(
+                    c.Resolve<ErrorSuppressingDispatcher>()
                 ))
                 .SingleInstance();
         }
 
-        void RegisterCommandHandlers(IComponentContext context, SubscriptionCommandBus dispatcher)
+        void RegisterCommandHandlers(IComponentContext context, SubscriptionDispatcher dispatcher)
         {
             context.ComponentRegistry.Registrations
                 .Where(r => r.Activator.LimitType.IsAssignableTo<IHandleCommand>())

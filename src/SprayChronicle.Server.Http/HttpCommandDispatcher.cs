@@ -17,7 +17,7 @@ namespace SprayChronicle.Server.Http
 
         readonly IValidator _validator;
 
-        readonly IDispatchCommands _dispatcher;
+        readonly IDispatchCommand _dispatcher;
 
         readonly Type _type;
 
@@ -27,7 +27,7 @@ namespace SprayChronicle.Server.Http
             ILogger<HttpCommandDispatcher> logger,
             IAuthorizer authorizer,
             IValidator validator,
-            IDispatchCommands dispatcher,
+            IDispatchCommand dispatcher,
             Type type)
         {
             _logger = logger;

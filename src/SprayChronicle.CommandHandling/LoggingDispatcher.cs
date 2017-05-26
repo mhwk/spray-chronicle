@@ -4,13 +4,13 @@ using Microsoft.Extensions.Logging;
 
 namespace SprayChronicle.CommandHandling
 {
-    public class LoggingCommandBus : IDispatchCommands
+    public class LoggingDispatcher : IDispatchCommand
     {
-        readonly ILogger<LoggingCommandBus> _logger;
+        readonly ILogger<LoggingDispatcher> _logger;
 
-        readonly IDispatchCommands _internalDispatcher;
+        readonly IDispatchCommand _internalDispatcher;
 
-        public LoggingCommandBus(ILogger<LoggingCommandBus> logger, IDispatchCommands internalDispatcher)
+        public LoggingDispatcher(ILogger<LoggingDispatcher> logger, IDispatchCommand internalDispatcher)
         {
             _logger = logger;
             _internalDispatcher = internalDispatcher;

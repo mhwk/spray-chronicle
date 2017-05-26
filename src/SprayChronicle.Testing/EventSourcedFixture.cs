@@ -14,6 +14,8 @@ namespace SprayChronicle.Testing
 
         long _sequence = -1;
 
+        protected LogLevel _logLevel = LogLevel.Information;
+
         public EventSourcedFixture(): this(builder => {})
         {}
 
@@ -23,7 +25,7 @@ namespace SprayChronicle.Testing
             builder.RegisterModule<SprayChronicle.CommandHandling.CommandHandlingModule>();
             builder.RegisterModule<TModule>();
 
-            builder.Register<ILoggerFactory>(c => new LoggerFactory().AddConsole(LogLevel.Debug));
+            builder.Register<ILoggerFactory>(c => new LoggerFactory().AddConsole(_logLevel));
             builder
                 .Register<EventSourcedTestStore>(c => new EventSourcedTestStore())
                 .AsSelf()
@@ -49,7 +51,7 @@ namespace SprayChronicle.Testing
         {
             Exception e = null;
             try {
-                _container.Resolve<LoggingCommandBus>().Dispatch(message);
+                _container.Resolve<LoggingDispatcher>().Dispatch(message);
             } catch (UnhandledCommandException error) {
                 e = error.InnerException;
             } catch (Exception error) {

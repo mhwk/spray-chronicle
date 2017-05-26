@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SprayChronicle.CommandHandling
 {
-    public sealed class SubscriptionCommandBus : IDispatchCommands
+    public sealed class SubscriptionDispatcher : IDispatchCommand
     {
         readonly List<IHandleCommand> handlers = new List<IHandleCommand>();
 

@@ -15,7 +15,7 @@ namespace SprayChronicle.Server.Http
                     c.Resolve<ILoggerFactory>().CreateLogger<HttpCommandDispatcher>(),
                     c.Resolve<IAuthorizer>(),
                     c.Resolve<IValidator>(),
-                    c.Resolve<SubscriptionCommandBus>()
+                    c.Resolve<SubscriptionDispatcher>()
                 ))
                 .SingleInstance();
 
