@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace SprayChronicle.Server.Http
 {
@@ -20,7 +21,7 @@ namespace SprayChronicle.Server.Http
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseUrls("http://0.0.0.0:5000/")
                 .UseStartup<Startup>()
-                .UseLoggerFactory(SprayChronicleServer.LoggerFactory())
+                .ConfigureLogging(builder => Console.WriteLine("Configure logging"))
                 .Build();
         }
 
@@ -44,7 +45,7 @@ namespace SprayChronicle.Server.Http
                 return SprayChronicleServer.Container().Resolve<IServiceProvider>();
             }
 
-            public void Configure(IApplicationBuilder app)
+            public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
             {
                 app.UseCors(policy => policy
                     .AllowAnyHeader()

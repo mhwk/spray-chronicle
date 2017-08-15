@@ -6,7 +6,6 @@
     <AssemblyName>SprayChronicle.Example</AssemblyName>
     <OutputType>Exe</OutputType>
     <PackageId>SprayChronicle.Example</PackageId>
-    <PackageTargetFallback>$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
   </PropertyGroup>
 
   <ItemGroup>

@@ -6,7 +6,6 @@
     <DebugType>portable</DebugType>
     <AssemblyName>SprayChronicle.Testing</AssemblyName>
     <PackageId>SprayChronicle.Testing</PackageId>
-    <PackageTargetFallback>$(PackageTargetFallback);dotnet;net35</PackageTargetFallback>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../SprayChronicle.CommandHandling/SprayChronicle.CommandHandling.csproj"/>

@@ -11,8 +11,6 @@ namespace SprayChronicle.Server
     {
         static ContainerBuilder _containerBuilder = new ContainerBuilder();
 
-        static ILoggerFactory _loggerFactory = new LoggerFactory();
-
         static IContainer _container;
 
         public delegate void ConfigurationHandler(ContainerBuilder builder);
@@ -27,12 +25,6 @@ namespace SprayChronicle.Server
 
         public event ExecutionHandler OnExecute;
 
-        public SprayChronicleServer WithLogLevel(LogLevel logLevel)
-        {
-            _loggerFactory.AddConsole(logLevel);
-            return this;
-        }
-
         public SprayChronicleServer WithAutofacModule(Module module)
         {
             OnConfigure += builder => builder.RegisterModule(module);
@@ -43,11 +35,6 @@ namespace SprayChronicle.Server
         {
             OnConfigure += builder => builder.RegisterModule<T>();
             return this;
-        }
-
-        public static ILoggerFactory LoggerFactory()
-        {
-            return _loggerFactory;
         }
 
         public static ContainerBuilder ContainerBuilder()
@@ -72,7 +59,7 @@ namespace SprayChronicle.Server
                 OnConfigure(ContainerBuilder());
             }
 
-            ContainerBuilder().Register<ILoggerFactory>(c => LoggerFactory()).SingleInstance();
+            ContainerBuilder().Register<ILoggerFactory>(c => new LoggerFactory()).SingleInstance();
 
             if (null != OnInitialize) {
                 OnInitialize();

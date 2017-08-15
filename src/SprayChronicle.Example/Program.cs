@@ -16,7 +16,7 @@ namespace SprayChronicle.Example.Server
                 .WithMongoPersistence()
                 .WithOuroPersistence()
                 #if DEBUG
-                .WithLogLevel(LogLevel.Debug)
+                // .WithLogLevel(LogLevel.Debug)
                 .WithMemoryPersistence()
                 # else
                 .WithLogLevel(LogLevel.Information)
