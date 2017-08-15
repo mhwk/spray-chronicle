@@ -12,7 +12,7 @@ namespace SprayChronicle.Example.Coordination
         
         public void Handle(PickUpBasket command)
         {
-            Start<PickedUpBasket>(
+            Start(
                 () => Basket.PickUp(new BasketId(command.BasketId))
             );
         }

@@ -4,7 +4,7 @@ namespace SprayChronicle.CommandHandling
 {
     public class ErrorSuppressingDispatcher : IDispatchCommand
     {
-        readonly LoggingDispatcher _internalDispatcher;
+        private readonly LoggingDispatcher _internalDispatcher;
 
         public ErrorSuppressingDispatcher(LoggingDispatcher internalDispatcher)
         {
@@ -15,7 +15,9 @@ namespace SprayChronicle.CommandHandling
         {
             try {
                 _internalDispatcher.Dispatch(command);
-            } catch (Exception) {}
+            } catch (Exception) {
+                // ignored
+            }
         }
     }
 }

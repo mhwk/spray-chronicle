@@ -8,15 +8,12 @@ namespace SprayChronicle.Persistence.Memory
 {
     public class MemoryProjectorFactory : IBuildProjectors
     {
-        readonly ILoggerFactory _loggerFactory;
-
         readonly IBuildStatefulRepositories _repositoryFactory;
 
         public MemoryProjectorFactory(
             ILoggerFactory loggerFactory,
             IBuildStatefulRepositories repositoryFactory)
         {
-            _loggerFactory = loggerFactory;
             _repositoryFactory = repositoryFactory;
         }
 

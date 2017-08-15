@@ -35,7 +35,7 @@ namespace SprayChronicle.Example.Domain
             ));
         }
 
-        void AssertContainsProduct(ProductId productId)
+        private void AssertContainsProduct(ProductId productId)
         {
             if ( ! ProductsInBasket.Contains(productId)) {
                 throw new ProductNotInBasketException(string.Format(

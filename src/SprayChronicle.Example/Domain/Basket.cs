@@ -8,9 +8,9 @@ namespace SprayChronicle.Example.Domain
     {
         protected readonly BasketId BasketId;
 
-        protected readonly ImmutableList<ProductId> ProductsInBasket; 
+        protected readonly ImmutableList<ProductId> ProductsInBasket;
 
-        public Basket(BasketId basketId, ImmutableList<ProductId> productsInBasket)
+        protected Basket(BasketId basketId, ImmutableList<ProductId> productsInBasket)
         {
             BasketId = basketId;
             ProductsInBasket = productsInBasket;
@@ -28,7 +28,7 @@ namespace SprayChronicle.Example.Domain
             ));
         }
 
-        static PickedUpBasket On(BasketPickedUp @event)
+        protected static PickedUpBasket On(BasketPickedUp @event)
         {
             return new PickedUpBasket(
                 new BasketId(@event.BasketId),

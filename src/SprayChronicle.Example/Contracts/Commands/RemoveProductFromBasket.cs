@@ -6,11 +6,11 @@ namespace SprayChronicle.Example.Contracts.Commands
     [HttpCommandAttribute("basket/remove-product")]
     public sealed class RemoveProductFromBasket
     {
-        [Required()]
-        public string BasketId { get; private set; }
+        [Required]
+        public string BasketId { get; }
 
-        [Required()]
-        public string ProductId { get; private set; }
+        [Required]
+        public string ProductId { get; }
 
         public RemoveProductFromBasket(string basketId, string productId)
         {

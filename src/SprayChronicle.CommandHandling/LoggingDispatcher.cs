@@ -6,9 +6,9 @@ namespace SprayChronicle.CommandHandling
 {
     public class LoggingDispatcher : IDispatchCommand
     {
-        readonly ILogger<LoggingDispatcher> _logger;
+        private readonly ILogger<LoggingDispatcher> _logger;
 
-        readonly IDispatchCommand _internalDispatcher;
+        private readonly IDispatchCommand _internalDispatcher;
 
         public LoggingDispatcher(ILogger<LoggingDispatcher> logger, IDispatchCommand internalDispatcher)
         {
@@ -19,7 +19,7 @@ namespace SprayChronicle.CommandHandling
         public void Dispatch(object command)
         {
             try {
-                _logger.LogDebug("Dispatching: " + command.GetType().ToString());
+                _logger.LogDebug("Dispatching: " + command.GetType());
 
                 var stopwatch = new Stopwatch();
                 stopwatch.Start();

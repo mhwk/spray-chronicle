@@ -4,7 +4,7 @@ namespace SprayChronicle.MessageHandling
 {
     public abstract class MessageHandlingException : Exception
     {
-        public MessageHandlingException(string message): base(message)
+        protected MessageHandlingException(string message): base(message)
         {}
     }
 }

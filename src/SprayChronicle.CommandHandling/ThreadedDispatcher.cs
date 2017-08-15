@@ -4,7 +4,7 @@ namespace SprayChronicle.CommandHandling
 {
     public class ThreadedDispatcher : IDispatchCommand
     {
-        readonly IDispatchCommand _internalDispatcher;
+        private readonly IDispatchCommand _internalDispatcher;
 
         public ThreadedDispatcher(IDispatchCommand internalDispatcher)
         {

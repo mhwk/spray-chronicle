@@ -6,7 +6,7 @@ namespace SprayChronicle.Persistence.Memory
 {
     public class MemoryEventStore : IEventStore
     {
-        Dictionary<string,List<DomainMessage>> _streams = new Dictionary<string,List<DomainMessage>>();
+        private readonly Dictionary<string,List<DomainMessage>> _streams = new Dictionary<string,List<DomainMessage>>();
 
         public delegate void EventAppearedHandler(DomainMessage domainMessage);
 
@@ -18,9 +18,7 @@ namespace SprayChronicle.Persistence.Memory
 
             foreach (var domainMessage in domainMessages) {
                 Stream(identity).Add(domainMessage);
-                if (null != OnEventAppreared) {
-                    OnEventAppreared(domainMessage);
-                }
+                OnEventAppreared?.Invoke(domainMessage);
             }
         }
 
@@ -29,7 +27,7 @@ namespace SprayChronicle.Persistence.Memory
             return Stream(identity);
         }
 
-        List<DomainMessage> Stream(string identity)
+        private List<DomainMessage> Stream(string identity)
         {
             if ( ! _streams.ContainsKey(identity)) {
                 _streams.Add(identity, new List<DomainMessage>());
@@ -37,9 +35,9 @@ namespace SprayChronicle.Persistence.Memory
             return _streams[identity];
         }
 
-        void CheckConcurrency(string identity, IEnumerable<DomainMessage> domainMessages)
+        private void CheckConcurrency(string identity, IEnumerable<DomainMessage> domainMessages)
         {
-            if (0 == domainMessages.Count()) {
+            if (!domainMessages.Any()) {
                 return;
             }
             if (domainMessages.First().Sequence != Stream(identity).Count()) {

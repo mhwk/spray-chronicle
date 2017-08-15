@@ -1,11 +1,10 @@
-using System.Threading.Tasks;
 using System.Collections.Generic;
 
 namespace SprayChronicle.EventHandling
 {
     public sealed class SyncStreamHandlerManager : IManageStreamHandlers
     {
-        readonly List<IHandleStream> _handlers = new List<IHandleStream>();
+        private readonly List<IHandleStream> _handlers = new List<IHandleStream>();
 
         public void Add(IEnumerable<IHandleStream> handlers)
         {

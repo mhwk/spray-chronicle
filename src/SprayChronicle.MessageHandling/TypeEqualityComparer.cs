@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SprayChronicle.MessageHandling
 {
@@ -10,22 +11,14 @@ namespace SprayChronicle.MessageHandling
             if (x.Length != y.Length) {
                 return false;
             }
-            for (int i = 0; i < x.Length; i++) {
-                if ( ! x[i].Equals(y[i])) {
-                    return false;
-                }
-            }
-            return true;
+            return !x.Where((t, i) => t != y[i]).Any();
         }
 
         public int GetHashCode(Type[] obj)
         {
-            unchecked {
-                int hash = (int) 2166136261;
-                foreach (var type in obj) {
-                    hash = (hash * 16777619) ^ type.GetHashCode();
-                }
-                return hash;
+            unchecked
+            {
+                return obj.Aggregate((int) 2166136261, (current, type) => (current * 16777619) ^ type.GetHashCode());
             }
         }
     }

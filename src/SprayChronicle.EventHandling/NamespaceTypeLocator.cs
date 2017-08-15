@@ -7,7 +7,7 @@ namespace SprayChronicle.EventHandling
 {
     public class NamespaceTypeLocator : ILocateTypes
     {
-        Dictionary<string,Type> _map = new Dictionary<string,Type>();
+        private readonly Dictionary<string,Type> _map = new Dictionary<string,Type>();
 
         public NamespaceTypeLocator(string @namespace)
         {
@@ -19,10 +19,9 @@ namespace SprayChronicle.EventHandling
 
         public Type Locate(string type)
         {
-            if ( ! _map.ContainsKey(type)) {
-                return default(Type);
-            }
-            return _map[type];
+            return ! _map.ContainsKey(type)
+                ? default(Type)
+                : _map[type];
         }
     }
 }

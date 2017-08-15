@@ -13,10 +13,7 @@ namespace SprayChronicle.Example.Projection
 
         public object On(NumberOfProductsForBasketId query)
         {
-            return _repository.Load(q => q
-                .Where(item => item.BasketId == query.BasketId)
-                .FirstOrDefault()
-            );
+            return _repository.Load(q => q.FirstOrDefault(item => item.BasketId == query.BasketId));
         }
 
         public object On(NumberOfProductsInBaskets query)

@@ -7,13 +7,13 @@ namespace SprayChronicle.EventHandling
 {
     public sealed class StreamEventHandler<T> : IHandleStream where T: IHandleEvent
     {
-        readonly ILogger<T> _logger;
+        private readonly ILogger<T> _logger;
 
-        readonly IStream _stream;
+        private readonly IStream _stream;
 
-        readonly IHandleEvent _eventHandler;
+        private readonly IHandleEvent _eventHandler;
 
-        static readonly IMessageHandlingStrategy _handlers = new OverloadHandlingStrategy<T>();
+        private static readonly IMessageHandlingStrategy _handlers = new OverloadHandlingStrategy<T>();
 
         public StreamEventHandler(
             ILogger<T> logger,
@@ -41,7 +41,7 @@ namespace SprayChronicle.EventHandling
                     return;
                 }
 
-                Stopwatch stopwatch = new Stopwatch();
+                var stopwatch = new Stopwatch();
                 stopwatch.Start();
 
                 _handlers.ProcessMessage(_eventHandler, @event, occurrence);

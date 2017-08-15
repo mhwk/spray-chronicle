@@ -5,45 +5,45 @@ using SprayChronicle.EventSourcing;
 
 namespace SprayChronicle.CommandHandling
 {
-    public class CommandHandlingModule : Autofac.Module
+    public class CommandHandlingModule : Module
     {
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .Register<SubscriptionDispatcher>(c => new SubscriptionDispatcher())
+                .Register(c => new SubscriptionDispatcher())
                 .OnActivating(e => RegisterCommandHandlers(e.Context, e.Instance as SubscriptionDispatcher))
                 .SingleInstance();
             
             builder
-                .Register<LoggingDispatcher>(c => new LoggingDispatcher(
+                .Register(c => new LoggingDispatcher(
                     c.Resolve<ILoggerFactory>().CreateLogger<LoggingDispatcher>(),
                     c.Resolve<SubscriptionDispatcher>()
                 ))
                 .SingleInstance();
             
             builder
-                .Register<ErrorSuppressingDispatcher>(c => new ErrorSuppressingDispatcher(
+                .Register(c => new ErrorSuppressingDispatcher(
                     c.Resolve<LoggingDispatcher>()
                 ))
                 .SingleInstance();
             
             builder
-                .Register<ThreadedDispatcher>(c => new ThreadedDispatcher(
+                .Register(c => new ThreadedDispatcher(
                     c.Resolve<ErrorSuppressingDispatcher>()
                 ))
                 .SingleInstance();
         }
 
-        void RegisterCommandHandlers(IComponentContext context, SubscriptionDispatcher dispatcher)
+        private static void RegisterCommandHandlers(IComponentContext context, SubscriptionDispatcher dispatcher)
         {
             context.ComponentRegistry.Registrations
                 .Where(r => r.Activator.LimitType.IsAssignableTo<IHandleCommand>())
                 .Select(r => context.Resolve(r.Activator.LimitType) as IHandleCommand)
                 .ToList()
-                .ForEach(h => dispatcher.Subscribe(h));
+                .ForEach(dispatcher.Subscribe);
         }
 
-        public class OverloadHandler<THandler,TSourced> : Autofac.Module where THandler : OverloadCommandHandler<TSourced> where TSourced : EventSourced<TSourced>
+        public class OverloadHandler<THandler,TSourced> : Module where THandler : OverloadCommandHandler<TSourced> where TSourced : EventSourced<TSourced>
         {
             protected override void Load(ContainerBuilder builder)
             {

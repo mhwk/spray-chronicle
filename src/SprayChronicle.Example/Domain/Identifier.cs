@@ -3,9 +3,9 @@ namespace SprayChronicle.Example.Domain
 {
     public abstract class Identifier
     {
-        readonly string _id;
+        private readonly string _id;
 
-        public Identifier(string id)
+        protected Identifier(string id)
         {
             _id = id;
         }
@@ -31,10 +31,7 @@ namespace SprayChronicle.Example.Domain
 
         public static implicit operator string(Identifier identifier)
         {
-            if (null == identifier) {
-                return null;
-            }
-            return identifier._id;
+            return identifier?._id;
         }
     }
 }

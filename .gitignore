@@ -1,6 +1,7 @@
 #User Specific
 *.userprefs
 *.usertasks
+*.idea
 
 #Mono Project Files
 *.pidb

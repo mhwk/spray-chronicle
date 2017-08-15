@@ -18,7 +18,7 @@ namespace SprayChronicle.MessageHandling
         public OverloadHandlingStrategy()
         {
             TypeLocator.LocateRuntimeTypes()
-                .Where(type => type.Equals(typeof(T)) || type.GetTypeInfo().IsSubclassOf(typeof(T)))
+                .Where(type => type == typeof(T) || type.GetTypeInfo().IsSubclassOf(typeof(T)))
                 .SelectMany(type => type.GetMethods(_bindingFlags))
                 .Where(method => method.GetParameters().Length > 0)
                 .ToList()
@@ -60,17 +60,16 @@ namespace SprayChronicle.MessageHandling
             return method.Invoke(subject, BuildArguments(message, arguments));
         }
 
-        MethodInfo MethodForMessage(object subject, object message, params object[] arguments)
+        private MethodInfo MethodForMessage(object subject, object message, params object[] arguments)
         {
             var args = BuildArguments(message, arguments);
             return _methodsForMessage.MethodsFor(args.Select(a => a.GetType()).ToArray())
                 .FirstOrDefault();
         }
 
-        object[] BuildArguments(object message, params object[] arguments)
+        private static object[] BuildArguments(object message, params object[] arguments)
         {
-            var args = new List<object>();
-            args.Add(message);
+            var args = new List<object> {message};
             args.AddRange(arguments);
             return args.ToArray();
         }

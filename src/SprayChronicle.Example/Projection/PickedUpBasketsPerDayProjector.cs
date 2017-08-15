@@ -12,16 +12,10 @@ namespace SprayChronicle.Example.Projection
             : base(repository)
         {}
 
-        PickedUpBasketsPerDay FindOrCreate(DateTime epoch)
+        private PickedUpBasketsPerDay FindOrCreate(DateTime epoch)
         {
-            var item = Repository().Load(q => q
-                .Where(i => i.Day == epoch.ToString("yyyy-MM-dd"))
-                .FirstOrDefault()
-            );
-            if (null != item) {
-                return item;
-            }
-            return new PickedUpBasketsPerDay(epoch.ToString("yyyy-MM-dd"));
+            var item = Repository().Load(q => q.FirstOrDefault(i => i.Day == epoch.ToString("yyyy-MM-dd")));
+            return item ?? new PickedUpBasketsPerDay(epoch.ToString("yyyy-MM-dd"));
         }
 
         public void On(BasketPickedUp @event, DateTime epoch)

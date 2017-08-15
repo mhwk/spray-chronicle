@@ -12,7 +12,7 @@ namespace SprayChronicle.Persistence.Memory
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .Register<MemoryRepositoryFactory>(
+                .Register(
                     c => new MemoryRepositoryFactory()
                 )
                 .AsSelf()
@@ -20,7 +20,7 @@ namespace SprayChronicle.Persistence.Memory
                 .SingleInstance();
             
             builder
-                .Register<MemoryProjectorFactory>(
+                .Register(
                     c => new MemoryProjectorFactory(
                         c.Resolve<ILoggerFactory>(),
                         c.Resolve<MemoryRepositoryFactory>()
@@ -31,13 +31,13 @@ namespace SprayChronicle.Persistence.Memory
                 .SingleInstance();
 
             builder
-                .Register<MemoryEventStore>(c => new MemoryEventStore())
+                .Register(c => new MemoryEventStore())
                 .AsSelf()
                 .As<IEventStore>()
                 .SingleInstance();
             
             builder
-                .Register<MemoryStreamFactory>(c => new MemoryStreamFactory(
+                .Register(c => new MemoryStreamFactory(
                     c.Resolve<MemoryEventStore>()
                 ))
                 .AsSelf()

@@ -7,7 +7,7 @@ namespace SprayChronicle.Example.Contracts.Queries
     public class NumberOfProductsForBasketId
     {
         [Required]
-        public string BasketId { get; private set; }
+        public string BasketId { get; }
 
         public NumberOfProductsForBasketId(string basketId)
         {

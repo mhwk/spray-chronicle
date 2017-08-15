@@ -5,9 +5,9 @@ namespace SprayChronicle.EventHandling
 {
     public sealed class AsyncStreamHandlerManager : IManageStreamHandlers
     {
-        readonly List<IHandleStream> _handlers = new List<IHandleStream>();
-        
-        readonly List<Task> _tasks = new List<Task>();
+        private readonly List<IHandleStream> _handlers = new List<IHandleStream>();
+
+        private readonly List<Task> _tasks = new List<Task>();
 
         public void Add(IEnumerable<IHandleStream> handlers)
         {

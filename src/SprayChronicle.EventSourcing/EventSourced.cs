@@ -6,27 +6,27 @@ namespace SprayChronicle.EventSourcing
 {
     public abstract class EventSourced<T> : IEventSourcable<T> where T : IEventSourcable<T>
     {
-        long _sequence = -1;
+        private long _sequence = -1;
 
-        List<DomainMessage> _queue = new List<DomainMessage>();
+        private readonly List<DomainMessage> _queue = new List<DomainMessage>();
 
-        protected static IMessageHandlingStrategy _router = new OverloadHandlingStrategy<T>();
+        protected static IMessageHandlingStrategy Router = new OverloadHandlingStrategy<T>();
 
         public abstract string Identity();
 
         public IEnumerable<DomainMessage> Diff()
         {
-            DomainMessage[] diff = _queue.ToArray();
+            var diff = _queue.ToArray();
             _queue.Clear();
             return diff;
         }
 
         public static T Patch(IEnumerable<DomainMessage> messages)
         {
-            IEventSourcable<T> sourcable = default(IEventSourcable<T>);
+            var sourcable = default(IEventSourcable<T>);
             foreach (var message in messages) {
-                if (_router.AcceptsMessage(sourcable, message.Payload)) {
-                    sourcable = (EventSourced<T>) _router.ProcessMessage(sourcable, message.Payload);
+                if (Router.AcceptsMessage(sourcable, message.Payload)) {
+                    sourcable = (EventSourced<T>) Router.ProcessMessage(sourcable, message.Payload);
                 }
                 ((EventSourced<T>)sourcable)._sequence = message.Sequence;
             }
@@ -36,14 +36,14 @@ namespace SprayChronicle.EventSourcing
         protected static T Apply(IEventSourcable<T> sourcable, object payload)
         {
             var domainMessage = new DomainMessage(
-                null == sourcable ? 0 : ((EventSourced<T>)sourcable)._sequence + 1,
+                ((EventSourced<T>) sourcable)?._sequence + 1 ?? 0,
                 new DateTime(),
                 payload
             );
 
             var updated = sourcable;
-            if (_router.AcceptsMessage(sourcable, payload)) {
-                updated = (IEventSourcable<T>) _router.ProcessMessage(sourcable, payload);
+            if (Router.AcceptsMessage(sourcable, payload)) {
+                updated = (IEventSourcable<T>) Router.ProcessMessage(sourcable, payload);
             }
             
             if (updated != sourcable && null != sourcable) {

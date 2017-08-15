@@ -2,7 +2,7 @@ namespace SprayChronicle.EventSourcing
 {
     public class EventSourcedRepository<T> : IEventSourcingRepository<T> where T : EventSourced<T>
     {
-        IEventStore _persistence;
+        private readonly IEventStore _persistence;
 
         public EventSourcedRepository(IEventStore persistence)
         {
@@ -23,7 +23,7 @@ namespace SprayChronicle.EventSourcing
                     sourced.GetType()
                 ));
             }
-            Save((T) sourced);
+            Save(sourced);
         }
 
         public T Load(string identity)

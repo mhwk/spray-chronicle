@@ -7,7 +7,5 @@ namespace SprayChronicle.EventSourcing
         string Identity();
 
         IEnumerable<DomainMessage> Diff();
-
-        // T Patch(IEnumerable<DomainMessage> messages);
     }
 }

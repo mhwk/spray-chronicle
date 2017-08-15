@@ -10,9 +10,9 @@ namespace SprayChronicle.CommandHandling
     {
         protected readonly IEventSourcingRepository<T> _repository;
 
-        static IMessageHandlingStrategy _handlers = new OverloadHandlingStrategy<OverloadCommandHandler<T>>(); 
+        static readonly IMessageHandlingStrategy _handlers = new OverloadHandlingStrategy<OverloadCommandHandler<T>>();
 
-        public OverloadCommandHandler(IEventSourcingRepository<T> repository)
+        protected OverloadCommandHandler(IEventSourcingRepository<T> repository)
         {
             _repository = repository;
         }

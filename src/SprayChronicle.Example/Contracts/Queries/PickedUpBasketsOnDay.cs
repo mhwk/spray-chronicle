@@ -7,7 +7,7 @@ namespace SprayChronicle.Example.Contracts.Queries
     public sealed class PickedUpBasketsOnDay
     {
         [Required]
-        public string Day { get; private set; }
+        public string Day { get; }
 
         public PickedUpBasketsOnDay(string day)
         {
