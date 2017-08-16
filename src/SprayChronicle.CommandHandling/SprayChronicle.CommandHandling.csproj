@@ -7,7 +7,6 @@
     <PackageId>SprayChronicle.CommandHandling</PackageId>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="../SprayChronicle.Server/SprayChronicle.Server.csproj" />
     <ProjectReference Include="../SprayChronicle.EventSourcing/SprayChronicle.EventSourcing.csproj" />
     <ProjectReference Include="../SprayChronicle.MessageHandling/SprayChronicle.MessageHandling.csproj" />
   </ItemGroup>

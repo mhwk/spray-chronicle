@@ -10,8 +10,17 @@
 
   <ItemGroup>
     <PackageReference Include="Autofac" Version="4.6.1" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore" Version="2.0.0" />
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="4.2.0" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="../SprayChronicle.CommandHandling/SprayChronicle.CommandHandling.csproj" />
+    <ProjectReference Include="../SprayChronicle.Projecting/SprayChronicle.Projecting.csproj" />
+    <ProjectReference Include="../SprayChronicle.QueryHandling/SprayChronicle.QueryHandling.csproj" />
+    <ProjectReference Include="../SprayChronicle.Persistence.Memory/SprayChronicle.Persistence.Memory.csproj" />
+    <ProjectReference Include="../SprayChronicle.Persistence.Mongo/SprayChronicle.Persistence.Mongo.csproj" />
+    <ProjectReference Include="../SprayChronicle.Persistence.Ouro/SprayChronicle.Persistence.Ouro.csproj" />
   </ItemGroup>
 
 </Project>

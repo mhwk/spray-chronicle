@@ -1,5 +1,5 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <VersionPrefix>0.1.0</VersionPrefix>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -7,26 +7,16 @@
     <AssemblyName>SprayChronicle.Server.Http</AssemblyName>
     <PackageId>SprayChronicle.Server.Http</PackageId>
   </PropertyGroup>
-
   <ItemGroup>
-    <ProjectReference Include="../SprayChronicle.Server/SprayChronicle.Server.csproj" />
-    <ProjectReference Include="../SprayChronicle.CommandHandling/SprayChronicle.CommandHandling.csproj" />
-    <ProjectReference Include="../SprayChronicle.Projecting/SprayChronicle.Projecting.csproj" />
-    <ProjectReference Include="../SprayChronicle.QueryHandling/SprayChronicle.QueryHandling.csproj" />
+    <ProjectReference Include="../SprayChronicle.Server/SprayChronicle.Server.csproj"/>
+    <ProjectReference Include="../SprayChronicle.CommandHandling/SprayChronicle.CommandHandling.csproj"/>
+    <ProjectReference Include="../SprayChronicle.Projecting/SprayChronicle.Projecting.csproj"/>
+    <ProjectReference Include="../SprayChronicle.QueryHandling/SprayChronicle.QueryHandling.csproj"/>
   </ItemGroup>
-
   <ItemGroup>
-    <PackageReference Include="Autofac" Version="4.6.1" />
-    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="4.2.0" />
-    <PackageReference Include="System.ComponentModel.Annotations" Version="4.4.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Routing" Version="2.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Cors" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="2.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore" Version="2.0.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.0.0" />
+    <PackageReference Include="Autofac" Version="4.6.1"/>
+    <PackageReference Include="Microsoft.AspNetCore" Version="2.0.0"/>
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3"/>
+    <PackageReference Include="System.ComponentModel.Annotations" Version="4.4.0"/>
   </ItemGroup>
-
 </Project>
