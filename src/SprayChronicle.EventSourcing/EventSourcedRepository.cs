@@ -11,6 +11,9 @@ namespace SprayChronicle.EventSourcing
 
         public void Save(T subject)
         {
+            if (null == subject.Identity() || "" == subject.Identity()) {
+                throw new UnknownStreamException("No identity found after apply of events");
+            }
             _persistence.Append<T>(subject.Identity(), subject.Diff());
         }
 
