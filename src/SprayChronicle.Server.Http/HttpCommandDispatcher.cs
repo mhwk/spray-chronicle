@@ -1,9 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using SprayChronicle.CommandHandling;
 using SprayChronicle.EventSourcing;
@@ -22,7 +24,10 @@ namespace SprayChronicle.Server.Http
 
         readonly Type _type;
 
-        readonly JsonSerializerSettings _serializerSettings = new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() };
+        readonly JsonSerializerSettings _serializerSettings = new JsonSerializerSettings {
+            ContractResolver = new CamelCasePropertyNamesContractResolver(),
+            Converters = new List<JsonConverter>() { new ISO8601DateConverter() }
+        };
 
         static readonly RequestToMessageConverter converter = new RequestToMessageConverter();
 
