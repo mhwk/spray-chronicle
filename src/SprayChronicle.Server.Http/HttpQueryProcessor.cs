@@ -58,7 +58,17 @@ namespace SprayChronicle.Server.Http
                 var result = _dispatcher.Process(payload);
                 context.Response.ContentType = _contentType;
                 context.Response.StatusCode = 200;
-                await context.Response.WriteAsync(JsonConvert.SerializeObject(result, _serializerSettings));
+                if (_contentType == "application/json") {
+                    await context.Response.WriteAsync(JsonConvert.SerializeObject(result, _serializerSettings));
+                } else if (result is string) {
+                    await context.Response.WriteAsync((string) result);
+                } else {
+                    throw new UnexpectedContentException(string.Format(
+                        "Could not send output of type {0} as content type {1}",
+                        result.GetType(),
+                        _contentType
+                    ));
+                }
             } catch (UnhandledQueryException error) {
                 _logger.LogInformation(error.ToString());
                 context.Response.ContentType = "application/json";
