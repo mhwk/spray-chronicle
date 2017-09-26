@@ -11,6 +11,7 @@ namespace SprayChronicle.Server.Http
         {
             Template = template;
             Method = "POST";
+            ContentType = "application/json";
         }
     }
 }

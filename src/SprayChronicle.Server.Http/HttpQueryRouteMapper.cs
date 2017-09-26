@@ -35,13 +35,13 @@ namespace SprayChronicle.Server.Http
                     case "POST":
                         builder.MapPost(
                             query.GetTypeInfo().GetCustomAttribute<HttpQueryAttribute>().Template,
-                            new HttpQueryProcessor(_logger, _authorizer, _validator, _processor, query).Process
+                            new HttpQueryProcessor(_logger, _authorizer, _validator, _processor, query, query.GetTypeInfo().GetCustomAttribute<HttpQueryAttribute>().ContentType).Process
                         );
                     break;
                     case "GET":
                         builder.MapGet(
                             query.GetTypeInfo().GetCustomAttribute<HttpQueryAttribute>().Template,
-                            new HttpQueryProcessor(_logger, _authorizer, _validator, _processor, query).Process
+                            new HttpQueryProcessor(_logger, _authorizer, _validator, _processor, query, query.GetTypeInfo().GetCustomAttribute<HttpQueryAttribute>().ContentType).Process
                         );
                     break;
                 }

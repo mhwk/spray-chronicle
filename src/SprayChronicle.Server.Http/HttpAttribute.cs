@@ -6,5 +6,7 @@ namespace SprayChronicle.Server.Http
     public class HttpAttribute : Attribute
     {
         public string Method { set; get; }
+
+        public string ContentType { set; get; }
     }
 }
