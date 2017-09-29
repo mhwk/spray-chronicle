@@ -78,7 +78,7 @@ namespace SprayChronicle.Persistence.Ouro
                     
                         subscription.Acknowledge(resolvedEvent);
                     } catch (Exception error) {
-                        _logger.LogWarning("Persistent subscription {0}_{1} failure: {2}", _streamName, _groupName, error);
+                        _logger.LogWarning("Persistent subscription {0}_{1} failure: {2}", _streamName, _groupName, error.ToString());
                         subscription.Fail(resolvedEvent, PersistentSubscriptionNakEventAction.Park, error.ToString());
                         return;
                     }
