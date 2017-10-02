@@ -80,6 +80,12 @@ namespace SprayChronicle.Persistence.Ouro
 
         string Stream<T>(string identity)
         {
+            if (identity.Contains('@')) {
+                throw new InvalidStreamException(string.Format(
+                    "Stream {0} contains invalid character '@'",
+                    identity
+                ));
+            }
             return string.Format(
                 "{0}-{1}",
                 typeof(T).Namespace.Split('.').First(),

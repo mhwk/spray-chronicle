@@ -30,6 +30,13 @@ namespace SprayChronicle.Test.EventPersisting
              persister.Should().NotBeNull();
          }
 
+         [Fact]
+         public void ItCanNotSaveInvalidStreamName()
+         {
+             var persister = new OuroEventStore(Logger.Object, EventStore.Object, new UserCredentials("username", "password"));
+             persister.Append<ExampleAggregate>("@", new DomainMessage[0] {});
+         }
+
         //  [Fact]
         //  public void ItAppendsEvents()
         //  {
@@ -45,5 +52,13 @@ namespace SprayChronicle.Test.EventPersisting
         //         It.Is<UserCredentials>(uc => uc == null)
         //     ));
         //  }
+
+        public class ExampleAggregate : EventSourced<ExampleAggregate>
+        {
+            public override string Identity()
+            {
+                return "identity";
+            }
+        }
     }
 }
