@@ -52,8 +52,17 @@ namespace SprayChronicle.Test.EventSourcing
             Persistence.Setup(p => p
                 .Load<Basket>(It.Is<string>(i => i == "foo")))
                 .Returns(new DomainMessage[] { new DomainMessage(0, new DateTime(), new object {}) });
-            Action action = () => new EventSourcedRepository<Basket>(Persistence.Object).Load<Basket>("foo").ShouldBeEquivalentTo(null);
+            Action action = () => new EventSourcedRepository<Basket>(Persistence.Object).Load<Basket>("foo");
             action.ShouldThrow<InvalidStateException>();
+        }
+
+        [Fact]
+        public void ItIsOkIfDefaultIsNull()
+        {
+            Persistence.Setup(p => p
+                .Load<Basket>(It.Is<string>(i => i == "foo")))
+                .Returns(new DomainMessage[] { new DomainMessage(0, new DateTime(), new object {}) });
+            new EventSourcedRepository<Basket>(Persistence.Object).LoadOrDefault<Basket>("foo").ShouldBeEquivalentTo(null);
         }
 
         bool IsEqual(object first, object second)

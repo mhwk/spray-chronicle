@@ -9,5 +9,7 @@ namespace SprayChronicle.EventSourcing
         T Load(string identity);
 
         TChild Load<TChild>(string identity) where TChild : T;
+
+        TChild LoadOrDefault<TChild>(string identity) where TChild : T;
     }
 }

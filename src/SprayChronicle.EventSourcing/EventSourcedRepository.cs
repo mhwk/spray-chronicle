@@ -34,20 +34,29 @@ namespace SprayChronicle.EventSourcing
             return EventSourced<T>.Patch(_persistence.Load<T>(identity));
         }
 
-        public TChild Load<TChild>(string identity) where TChild : T
+        public TChild LoadOrDefault<TChild>(string identity) where TChild : T
         {
             var sourced = Load(identity);
             if (null == sourced) {
-                throw new InvalidStateException(string.Format(
-                    "Expected state {0}, but got null",
-                    typeof(TChild)
-                ));
+                return null;
             }
             if ( ! (sourced is TChild)) {
                 throw new InvalidStateException(string.Format(
                     "Expected state {0}, but got {1}",
                     typeof(TChild),
                     sourced.GetType()
+                ));
+            }
+            return (TChild) sourced;
+        }
+
+        public TChild Load<TChild>(string identity) where TChild : T
+        {
+            var sourced = LoadOrDefault<TChild>(identity);
+            if (null == sourced) {
+                throw new InvalidStateException(string.Format(
+                    "Expected state {0}, but got null",
+                    typeof(TChild)
                 ));
             }
             return (TChild) sourced;
