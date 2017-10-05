@@ -59,6 +59,7 @@ namespace SprayChronicle.Persistence.Ouro
 
         public IEnumerable<DomainMessage> Load<T>(string identity)
         {
+            var stream = Stream<T>(identity);
             var stopwatch = new Stopwatch();
             stopwatch.Start();
 
@@ -66,7 +67,7 @@ namespace SprayChronicle.Persistence.Ouro
             int current = 0;
 
             do {
-                var slice = _eventStore.ReadStreamEventsForwardAsync(Stream<T>(identity), current, 50, false, _credentials).Result;
+                var slice = _eventStore.ReadStreamEventsForwardAsync(stream, current, 50, false, _credentials).Result;
                 foreach (DomainMessage domainMessage in slice.Events.Select(ev => BuildDomainMessage(ev))) {
                     yield return domainMessage;
                     current++;
@@ -75,12 +76,12 @@ namespace SprayChronicle.Persistence.Ouro
             } while (!eos);
 
             stopwatch.Stop();
-            _logger.LogDebug("[{0}::load] {1}ms", Stream<T>(identity), stopwatch.ElapsedMilliseconds);
+            _logger.LogDebug("[{0}::load] {1}ms", stream, stopwatch.ElapsedMilliseconds);
         }
 
         string Stream<T>(string identity)
         {
-            if (identity.Contains('@')) {
+            if (identity.Contains("@")) {
                 throw new InvalidStreamException(string.Format(
                     "Stream {0} contains invalid character '@'",
                     identity

@@ -2,6 +2,7 @@
 *.userprefs
 *.usertasks
 *.idea
+.DS_Store
 
 #Mono Project Files
 *.pidb

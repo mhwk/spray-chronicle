@@ -54,5 +54,10 @@ namespace SprayChronicle.CommandHandling
         {
             _repository.Save<TResult>(callback(_repository.Load<TInit>(identity)));
         }
+
+        protected void Continue<TInit,TResult>(Func<TInit> load, Func<TInit,TResult> callback) where TInit : T where TResult : T
+        {
+            _repository.Save<TResult>(callback(load()));
+        }
     }
 }

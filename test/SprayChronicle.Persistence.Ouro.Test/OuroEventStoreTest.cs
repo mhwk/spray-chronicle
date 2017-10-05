@@ -34,7 +34,8 @@ namespace SprayChronicle.Test.EventPersisting
          public void ItCanNotSaveInvalidStreamName()
          {
              var persister = new OuroEventStore(Logger.Object, EventStore.Object, new UserCredentials("username", "password"));
-             persister.Append<ExampleAggregate>("@", new DomainMessage[0] {});
+             Action append = () => persister.Append<ExampleAggregate>("@", new DomainMessage[0] {});
+             append.ShouldThrow<InvalidStreamException>();
          }
 
         //  [Fact]
