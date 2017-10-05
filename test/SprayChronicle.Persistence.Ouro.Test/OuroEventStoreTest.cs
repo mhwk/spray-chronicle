@@ -31,10 +31,22 @@ namespace SprayChronicle.Test.EventPersisting
          }
 
          [Fact]
+         public void ItCanNotSaveEmptyStreamName()
+         {
+             var persister = new OuroEventStore(Logger.Object, EventStore.Object, new UserCredentials("username", "password"));
+             Action append = () => persister.Append<ExampleAggregate>("", new DomainMessage[1] {
+                 new DomainMessage(0, new DateTime(), new object{})
+             });
+             append.ShouldThrow<InvalidStreamException>();
+         }
+
+         [Fact]
          public void ItCanNotSaveInvalidStreamName()
          {
              var persister = new OuroEventStore(Logger.Object, EventStore.Object, new UserCredentials("username", "password"));
-             Action append = () => persister.Append<ExampleAggregate>("@", new DomainMessage[0] {});
+             Action append = () => persister.Append<ExampleAggregate>("@", new DomainMessage[1] {
+                 new DomainMessage(0, new DateTime(), new object{})
+             });
              append.ShouldThrow<InvalidStreamException>();
          }
 

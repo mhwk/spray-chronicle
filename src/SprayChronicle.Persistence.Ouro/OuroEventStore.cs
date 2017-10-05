@@ -81,6 +81,12 @@ namespace SprayChronicle.Persistence.Ouro
 
         string Stream<T>(string identity)
         {
+            if (identity.Equals("")) {
+                throw new InvalidStreamException(string.Format(
+                    "Stream can not be empty",
+                    identity
+                ));
+            }
             if (identity.Contains("@")) {
                 throw new InvalidStreamException(string.Format(
                     "Stream {0} contains invalid character '@'",
