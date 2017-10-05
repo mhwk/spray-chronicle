@@ -28,6 +28,9 @@ namespace SprayChronicle.EventSourcing
                 if (Router.AcceptsMessage(sourcable, message.Payload)) {
                     sourcable = (EventSourced<T>) Router.ProcessMessage(sourcable, message.Payload);
                 }
+                if (null == sourcable) {
+                    continue;
+                }
                 ((EventSourced<T>)sourcable)._sequence = message.Sequence;
             }
             return (T) sourcable;

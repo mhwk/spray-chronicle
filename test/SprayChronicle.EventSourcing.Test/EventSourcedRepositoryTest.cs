@@ -31,11 +31,29 @@ namespace SprayChronicle.Test.EventSourcing
         public void ItLoadsMessages()
         {
             Persistence.Setup(p => p
-                .Load<Basket>(
-                    It.Is<string>(i => i == "foo")))
+                .Load<Basket>(It.Is<string>(i => i == "foo")))
                 .Returns(new DomainMessage[] { new DomainMessage(0, new DateTime(), new BasketPickedUp("foo")) });
                 
             new EventSourcedRepository<Basket>(Persistence.Object).Load("foo").Should().BeAssignableTo<PickedUpBasket>();
+        }
+
+        [Fact]
+        public void ItIsOkIfNull()
+        {
+            Persistence.Setup(p => p
+                .Load<Basket>(It.Is<string>(i => i == "foo")))
+                .Returns(new DomainMessage[] { new DomainMessage(0, new DateTime(), new object {}) });
+            new EventSourcedRepository<Basket>(Persistence.Object).Load("foo").ShouldBeEquivalentTo(null);
+        }
+
+        [Fact]
+        public void ItFailsIfSpecificStateIsNull()
+        {
+            Persistence.Setup(p => p
+                .Load<Basket>(It.Is<string>(i => i == "foo")))
+                .Returns(new DomainMessage[] { new DomainMessage(0, new DateTime(), new object {}) });
+            Action action = () => new EventSourcedRepository<Basket>(Persistence.Object).Load<Basket>("foo").ShouldBeEquivalentTo(null);
+            action.ShouldThrow<InvalidStateException>();
         }
 
         bool IsEqual(object first, object second)

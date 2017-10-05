@@ -37,6 +37,12 @@ namespace SprayChronicle.EventSourcing
         public TChild Load<TChild>(string identity) where TChild : T
         {
             var sourced = Load(identity);
+            if (null == sourced) {
+                throw new InvalidStateException(string.Format(
+                    "Expected state {0}, but got null",
+                    typeof(TChild)
+                ));
+            }
             if ( ! (sourced is TChild)) {
                 throw new InvalidStateException(string.Format(
                     "Expected state {0}, but got {1}",
