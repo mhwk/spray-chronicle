@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using SprayChronicle.QueryHandling;
 
 namespace SprayChronicle.Persistence.Memory
@@ -46,14 +47,14 @@ namespace SprayChronicle.Persistence.Memory
 
         public IEnumerable<T> Load(Func<IQueryable<T>,IEnumerable<T>> callback)
         {
-            return callback(_data.Values.AsQueryable());
+            return callback(_data.Values.AsQueryable()).ToImmutableArray();
         }
 
         public PagedResult<T> Load(Func<IQueryable<T>,IEnumerable<T>> callback, int page, int perPage)
         {
             var results = callback(_data.Values.AsQueryable()); 
             return new PagedResult<T>(
-                results.Skip((page - 1) * perPage).Take(perPage),
+                results.Skip((page - 1) * perPage).Take(perPage).ToImmutableArray(),
                 page,
                 perPage,
                 results.Count()
