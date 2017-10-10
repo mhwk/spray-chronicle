@@ -1,12 +1,12 @@
 using Xunit;
-using SprayChronicle.Example.Contracts.Events;
-using SprayChronicle.Example.Contracts.Queries;
-using SprayChronicle.Example.Projection;
+using SprayChronicle.Example.Application;
+using SprayChronicle.Example.Application.Model;
+using SprayChronicle.Example.Domain;
 using SprayChronicle.Testing;
 
 namespace SprayChronicle.Example.Test.Projection
 {
-    public class ItCanFindNumberOfProductsForBasketId : ProjectionQueryTestCase<ExampleProjectionModule>
+    public class ItCanFindNumberOfProductsForBasketId : ProjectionQueryTestCase<ExampleModule>
     {
         protected override object[] Given()
         {

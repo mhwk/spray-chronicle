@@ -41,12 +41,11 @@ namespace SprayChronicle.Example
             builder.UseChronicleHttp();
 
             #if !DEBUG
-            builder.UseMongoPersistence();
-            builder.UseOuroPersistence();
+            // builder.UseMongoPersistence();
+            // builder.UseOuroPersistence();
             #endif
 
-            builder.UseModule<ExampleCoordinationModule>();
-            builder.UseModule<ExampleProjectionModule>();
+            builder.UseModule<ExampleModule>();
         }
     }
 }

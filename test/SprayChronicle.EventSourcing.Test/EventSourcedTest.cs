@@ -3,8 +3,8 @@ using System.Linq;
 using Xunit;
 using FluentAssertions;
 using SprayChronicle.EventSourcing;
-using SprayChronicle.Example.Domain;
-using SprayChronicle.Example.Contracts.Events;
+using SprayChronicle.Example.Domain.Model;
+using SprayChronicle.Example.Application.Events;
 
 namespace SprayChronicle.Test.EvenSourcing
 {

@@ -1,10 +1,10 @@
-using SprayChronicle.Example.Contracts.Commands;
-using SprayChronicle.Example.Contracts.Events;
+using SprayChronicle.Example.Application;
+using SprayChronicle.Example.Domain;
 using SprayChronicle.Example;
 
 namespace SprayChronicle.Testing.Test
 {
-    public class EventSourcedTestCaseTest : EventSourcedTestCase<ExampleCoordinationModule>
+    public class EventSourcedTestCaseTest : EventSourcedTestCase<ExampleModule>
     {
         protected override object[] Given()
         {

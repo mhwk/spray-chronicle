@@ -1,6 +1,6 @@
 using Xunit;
 using FluentAssertions;
-using SprayChronicle.Example.Contracts.Events;
+using SprayChronicle.Example.Domain;
 
 namespace SprayChronicle.EventHandling.Test
 {
@@ -9,7 +9,7 @@ namespace SprayChronicle.EventHandling.Test
         [Fact]
         public void ItFindsTypes()
         {
-            var locator = new NamespaceTypeLocator("SprayChronicle.Example.Contracts.Events");
+            var locator = new NamespaceTypeLocator("SprayChronicle.Example.Domain");
             locator.Locate("BasketPickedUp").ShouldBeEquivalentTo(typeof(BasketPickedUp));
         }
     }

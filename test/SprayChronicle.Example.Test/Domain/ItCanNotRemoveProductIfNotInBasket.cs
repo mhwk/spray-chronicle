@@ -1,12 +1,12 @@
 using System;
 using SprayChronicle.Testing;
-using SprayChronicle.Example.Contracts.Commands;
-using SprayChronicle.Example.Contracts.Events;
+using SprayChronicle.Example.Application;
 using SprayChronicle.Example.Domain;
+using SprayChronicle.Example.Domain.Model;
 
 namespace SprayChronicle.Example.Test.Domain
 {
-    public sealed class ItCanNotRemoveProductifNotInBasket : EventSourcedTestCase<ExampleCoordinationModule>
+    public sealed class ItCanNotRemoveProductifNotInBasket : EventSourcedTestCase<ExampleModule>
     {
         protected override object[] Given()
         {

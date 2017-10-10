@@ -1,13 +1,13 @@
 using System;
 using System.Globalization;
 using SprayChronicle.Testing;
-using SprayChronicle.Example.Contracts.Events;
-using SprayChronicle.Example.Contracts.Queries;
-using SprayChronicle.Example.Projection;
+using SprayChronicle.Example.Application;
+using SprayChronicle.Example.Application.Model;
+using SprayChronicle.Example.Domain;
 
 namespace SprayChronicle.Example.Test.Projection
 {
-    public class TwoPickedUpBasketsForDay : ProjectionQueryTestCase<ExampleProjectionModule>
+    public class TwoPickedUpBasketsForDay : ProjectionQueryTestCase<ExampleModule>
     {
         protected override DateTime[] Epoch()
         {

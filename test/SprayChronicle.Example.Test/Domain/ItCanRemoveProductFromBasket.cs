@@ -1,10 +1,10 @@
 using SprayChronicle.Testing;
-using SprayChronicle.Example.Contracts.Commands;
-using SprayChronicle.Example.Contracts.Events;
+using SprayChronicle.Example.Application;
+using SprayChronicle.Example.Domain;
 
 namespace SprayChronicle.Example.Test.Domain
 {
-    public sealed class ItCanRemoveProductFromBasket : EventSourcedTestCase<ExampleCoordinationModule>
+    public sealed class ItCanRemoveProductFromBasket : EventSourcedTestCase<ExampleModule>
     {
         protected override object[] Given()
         {

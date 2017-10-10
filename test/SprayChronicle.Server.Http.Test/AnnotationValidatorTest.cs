@@ -1,5 +1,5 @@
 using Xunit;
-using SprayChronicle.Example.Contracts.Commands;
+using SprayChronicle.Example.Application;
 
 namespace SprayChronicle.Server.Http.Test
 {

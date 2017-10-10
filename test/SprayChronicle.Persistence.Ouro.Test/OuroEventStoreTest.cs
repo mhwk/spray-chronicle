@@ -6,8 +6,8 @@ using Moq;
 using FluentAssertions;
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.SystemData;
-using SprayChronicle.Example.Contracts.Events;
 using SprayChronicle.Example.Domain;
+using SprayChronicle.Example.Domain.Model;
 using SprayChronicle.EventSourcing;
 using SprayChronicle.Persistence.Ouro;
 

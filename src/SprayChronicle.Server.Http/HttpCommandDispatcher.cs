@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -45,62 +46,62 @@ namespace SprayChronicle.Server.Http
             _type = type;
         }
 
-        public async Task Dispatch(HttpContext context)
+        public async Task Dispatch(HttpRequest request, HttpResponse response, RouteData routeData)
         {
-            using (var reader = new StreamReader(context.Request.Body)) {
-                context.Response.ContentType = "application/json";
+            using (var reader = new StreamReader(request.Body)) {
+                response.ContentType = "application/json";
 
                 try {
-                    var payload = await converter.Convert(context.Request, _type);
+                    var payload = await converter.Convert(request, routeData, _type);
 
-                    _authorizer.Authorize(payload, context);
+                    // _authorizer.Authorize(payload, context);
                     _validator.Validate(payload);
 
                     _logger.LogDebug("Dispatching {0} {1}", _type, JsonConvert.SerializeObject(payload));
                     _dispatcher.Dispatch(payload);
-                    context.Response.StatusCode = 200;
-                    await context.Response.WriteAsync(JsonConvert.SerializeObject(new {
+                    response.StatusCode = 200;
+                    await response.WriteAsync(JsonConvert.SerializeObject(new {
                         Success = true
                     }, _serializerSettings));
                 } catch (UnhandledCommandException error) {
                     _logger.LogWarning(error.ToString());
-                    context.Response.StatusCode = 404;
-                    await context.Response.WriteAsync(JsonConvert.SerializeObject(new {
+                    response.StatusCode = 404;
+                    await response.WriteAsync(JsonConvert.SerializeObject(new {
                         Success = false,
                         Error = error.Message
                     }, _serializerSettings));
                 } catch (ConcurrencyException error) {
                     _logger.LogWarning(error.ToString());
-                    context.Response.StatusCode = 409;
-                    await context.Response.WriteAsync(JsonConvert.SerializeObject(new {
+                    response.StatusCode = 409;
+                    await response.WriteAsync(JsonConvert.SerializeObject(new {
                         Success = false,
                         Error = error.Message
                     }, _serializerSettings));
                 } catch (InvalidStateException error) {
                     _logger.LogWarning(error.ToString());
-                    context.Response.StatusCode = 428;
-                    await context.Response.WriteAsync(JsonConvert.SerializeObject(new {
+                    response.StatusCode = 428;
+                    await response.WriteAsync(JsonConvert.SerializeObject(new {
                         Success = false,
                         Error = error.Message
                     }, _serializerSettings));
                 } catch (UnauthorizedException error) {
                     _logger.LogWarning(error.ToString());
-                    context.Response.StatusCode = 401;
-                    await context.Response.WriteAsync(JsonConvert.SerializeObject(new {
+                    response.StatusCode = 401;
+                    await response.WriteAsync(JsonConvert.SerializeObject(new {
                         Success = false,
                         Error = error.Message
                     }, _serializerSettings));
                 } catch (InvalidatedException error) {
                     _logger.LogWarning(error.ToString());
-                    context.Response.StatusCode = 400;
-                    await context.Response.WriteAsync(JsonConvert.SerializeObject(new {
+                    response.StatusCode = 400;
+                    await response.WriteAsync(JsonConvert.SerializeObject(new {
                         Success = false,
                         Error = error.Message
                     }, _serializerSettings));
                 } catch (Exception error) {
                     _logger.LogCritical(error.ToString());
-                    context.Response.StatusCode = 500;
-                    await context.Response.WriteAsync(JsonConvert.SerializeObject(new {
+                    response.StatusCode = 500;
+                    await response.WriteAsync(JsonConvert.SerializeObject(new {
                         Success = false,
                         Error = error.Message
                     }, _serializerSettings));

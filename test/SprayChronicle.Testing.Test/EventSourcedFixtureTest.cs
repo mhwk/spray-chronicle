@@ -1,16 +1,16 @@
 using Xunit;
+using SprayChronicle.Example.Domain.Model;
+using SprayChronicle.Example.Application;
 using SprayChronicle.Example.Domain;
-using SprayChronicle.Example.Contracts.Commands;
-using SprayChronicle.Example.Contracts.Events;
 using SprayChronicle.Example;
 
 namespace SprayChronicle.Testing.Test
 {
     public class EventSourcedFixtureTest
     {
-        public EventSourcedFixture<ExampleCoordinationModule> Fixture()
+        public EventSourcedFixture<ExampleModule> Fixture()
         {
-            return new EventSourcedFixture<ExampleCoordinationModule>();
+            return new EventSourcedFixture<ExampleModule>();
         }
 
         [Fact]

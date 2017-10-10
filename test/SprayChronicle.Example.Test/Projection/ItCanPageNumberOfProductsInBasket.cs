@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using SprayChronicle.QueryHandling;
 using SprayChronicle.Testing;
-using SprayChronicle.Example.Contracts.Events;
-using SprayChronicle.Example.Contracts.Queries;
-using SprayChronicle.Example.Projection;
+using SprayChronicle.Example.Application;
+using SprayChronicle.Example.Application.Model;
+using SprayChronicle.Example.Domain;
 
 namespace SprayChronicle.Example.Test.Projection
 {
-    public class ItCanPageNumberOfProductsInBasket : ProjectionQueryTestCase<ExampleProjectionModule>
+    public class ItCanPageNumberOfProductsInBasket : ProjectionQueryTestCase<ExampleModule>
     {
         protected override object[] Given()
         {

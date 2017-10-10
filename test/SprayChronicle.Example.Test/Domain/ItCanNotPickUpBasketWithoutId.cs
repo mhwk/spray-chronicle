@@ -1,12 +1,12 @@
 using System;
 using SprayChronicle.EventSourcing;
-using SprayChronicle.Example.Contracts.Commands;
-using SprayChronicle.Example.Contracts.Events;
+using SprayChronicle.Example.Application;
+using SprayChronicle.Example.Domain;
 using SprayChronicle.Testing;
 
 namespace SprayChronicle.Example.Test.Domain
 {
-    public class ItCanNotPickUpBasketWithoutId : EventSourcedTestCase<ExampleCoordinationModule>
+    public class ItCanNotPickUpBasketWithoutId : EventSourcedTestCase<ExampleModule>
     {
         protected override object When()
         {

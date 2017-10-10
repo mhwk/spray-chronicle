@@ -5,9 +5,10 @@ using Moq;
 using FluentAssertions;
 using SprayChronicle.CommandHandling;
 using SprayChronicle.EventSourcing;
+using SprayChronicle.Example.Domain.Model;
+using SprayChronicle.Example.Application;
+using SprayChronicle.Example.Application.Service;
 using SprayChronicle.Example.Domain;
-using SprayChronicle.Example.Contracts.Commands;
-using SprayChronicle.Example.Coordination;
 
 namespace SprayChronicle.Test.CommandHandling
 {

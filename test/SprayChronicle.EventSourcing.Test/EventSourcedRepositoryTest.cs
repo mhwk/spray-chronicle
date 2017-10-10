@@ -5,8 +5,8 @@ using Xunit;
 using Moq;
 using FluentAssertions;
 using SprayChronicle.EventSourcing;
+using SprayChronicle.Example.Domain.Model;
 using SprayChronicle.Example.Domain;
-using SprayChronicle.Example.Contracts.Events;
 
 namespace SprayChronicle.Test.EventSourcing
 {
