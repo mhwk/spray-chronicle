@@ -4,7 +4,7 @@ using Xunit;
 using FluentAssertions;
 using SprayChronicle.EventSourcing;
 using SprayChronicle.Example.Domain.Model;
-using SprayChronicle.Example.Application.Events;
+using SprayChronicle.Example.Domain;
 
 namespace SprayChronicle.Test.EvenSourcing
 {
