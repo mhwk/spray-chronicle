@@ -46,24 +46,26 @@ namespace SprayChronicle.Persistence.Ouro
 
         IEventStoreConnection InitEventStore(IComponentContext container)
 		{
-            var uri = string.Format(
-                "tcp://{0}:{1}@{2}:{3}",
-                Environment.GetEnvironmentVariable("EVENTSTORE_USERNAME") ?? "admin",
-                Environment.GetEnvironmentVariable("EVENTSTORE_PASSWORD") ?? "changeit",
-                Environment.GetEnvironmentVariable("EVENTSTORE_HOST") ?? "127.0.0.1",
-                Environment.GetEnvironmentVariable("EVENTSTORE_PORT") ?? "1113"
-            );
+            var logger = container.Resolve<ILoggerFactory>().CreateLogger<IEventStoreConnection>();
 
-            container.Resolve<ILoggerFactory>().CreateLogger<IEventStoreConnection>().LogInformation("Connecting to eventstore on {0}", uri);
+            logger.LogInformation(
+                "Connecting to eventstore cluster dns {0}:{1}",
+                Environment.GetEnvironmentVariable("EVENTSTORE_CLUSTER_DNS") ?? "eventstore",
+                Environment.GetEnvironmentVariable("EVENTSTORE_GOSSIP_PORT") ?? "2113"
+            );
             
 			IEventStoreConnection connection = EventStoreConnection.Create (
-				ConnectionSettings.Create ()
-				.WithConnectionTimeoutOf (TimeSpan.FromSeconds (5))
-				.KeepReconnecting ()
-				.KeepRetrying ()
-				.UseConsoleLogger ()
-				.Build (),
-				new Uri (uri)
+                ConnectionSettings.Create()
+                    .KeepReconnecting()
+                    .PerformOnAnyNode()
+                    .SetDefaultUserCredentials(new UserCredentials(
+                        Environment.GetEnvironmentVariable("EVENTSTORE_USERNAME") ?? "admin",
+                        Environment.GetEnvironmentVariable("EVENTSTORE_PASSWORD") ?? "changeit"
+                    )),
+                ClusterSettings.Create().DiscoverClusterViaDns()
+                    .SetClusterDns(Environment.GetEnvironmentVariable("EVENTSTORE_CLUSTER_DNS") ?? "eventstore")
+                    .SetClusterGossipPort(Int32.Parse(Environment.GetEnvironmentVariable("EVENTSTORE_GOSSIP_PORT") ?? "2113"))
+                    .PreferRandomNode()
 			);
 			connection.ConnectAsync().Wait();
 			return connection;
