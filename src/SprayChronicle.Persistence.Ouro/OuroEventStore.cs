@@ -20,14 +20,18 @@ namespace SprayChronicle.Persistence.Ouro
 
         readonly UserCredentials _credentials;
 
+        readonly string _tenant;
+
         public OuroEventStore(
             ILogger<IEventStore> logger,
             IEventStoreConnection eventStore,
-            UserCredentials credentials)
+            UserCredentials credentials,
+            string tenant)
         {
             _logger = logger;
             _eventStore = eventStore;
             _credentials = credentials;
+            _tenant = tenant;
         }
 
         public void Append<T>(string identity, IEnumerable<DomainMessage> domainMessages)
@@ -68,8 +72,13 @@ namespace SprayChronicle.Persistence.Ouro
 
             do {
                 var slice = _eventStore.ReadStreamEventsForwardAsync(stream, current, 50, false, _credentials).Result;
-                foreach (DomainMessage domainMessage in slice.Events.Select(ev => BuildDomainMessage(ev))) {
-                    yield return domainMessage;
+                foreach (var resolvedEvent in slice.Events) {
+                    var metadata = JsonConvert.DeserializeObject<Metadata>(Encoding.UTF8.GetString(resolvedEvent.Event.Metadata));
+
+                    if (metadata.Tenant.Equals(_tenant)) {
+                        yield return BuildDomainMessage(metadata, resolvedEvent);
+                    }
+
                     current++;
                 }
                 eos = slice.IsEndOfStream;
@@ -107,14 +116,15 @@ namespace SprayChronicle.Persistence.Ouro
                 domainMessage.Payload.GetType().Name,
                 true,
                 Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(domainMessage.Payload)),
-                Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(new Metadata(domainMessage.Payload.GetType())))
+                Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(new Metadata(
+                    domainMessage.Payload.GetType(),
+                    _tenant
+                )))
             );
         }
 
-        DomainMessage BuildDomainMessage(ResolvedEvent resolvedEvent)
+        DomainMessage BuildDomainMessage(Metadata metadata, ResolvedEvent resolvedEvent)
         {
-            var metadata = JsonConvert.DeserializeObject<Metadata>(Encoding.UTF8.GetString(resolvedEvent.Event.Metadata));
-
             return new DomainMessage(
                 resolvedEvent.Event.EventNumber,
                 resolvedEvent.Event.Created,
@@ -129,13 +139,16 @@ namespace SprayChronicle.Persistence.Ouro
         {
             public readonly string OriginalFqn;
 
-            public Metadata(Type originalFqn)
+            public readonly string Tenant;
+
+            public Metadata(Type originalFqn, string tenant)
             {
                 OriginalFqn = string.Format(
                     "{0}, {1}",
                     originalFqn.ToString(),
                     originalFqn.GetTypeInfo().Assembly
                 );
+                Tenant = tenant;
             }
         }
     }

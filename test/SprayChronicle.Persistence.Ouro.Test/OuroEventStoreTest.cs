@@ -26,14 +26,14 @@ namespace SprayChronicle.Test.EventPersisting
          [Fact]
          public void ItCanInstantiateOuroPersister()
          {
-             var persister = new OuroEventStore(Logger.Object, EventStore.Object, new UserCredentials("username", "password"));
+             var persister = new OuroEventStore(Logger.Object, EventStore.Object, new UserCredentials("username", "password"), "Tenant");
              persister.Should().NotBeNull();
          }
 
          [Fact]
          public void ItCanNotSaveEmptyStreamName()
          {
-             var persister = new OuroEventStore(Logger.Object, EventStore.Object, new UserCredentials("username", "password"));
+             var persister = new OuroEventStore(Logger.Object, EventStore.Object, new UserCredentials("username", "password"), "Tenant");
              Action append = () => persister.Append<ExampleAggregate>("", new DomainMessage[1] {
                  new DomainMessage(0, new DateTime(), new object{})
              });
@@ -43,7 +43,7 @@ namespace SprayChronicle.Test.EventPersisting
          [Fact]
          public void ItCanNotSaveInvalidStreamName()
          {
-             var persister = new OuroEventStore(Logger.Object, EventStore.Object, new UserCredentials("username", "password"));
+             var persister = new OuroEventStore(Logger.Object, EventStore.Object, new UserCredentials("username", "password"), "Tenant");
              Action append = () => persister.Append<ExampleAggregate>("@", new DomainMessage[1] {
                  new DomainMessage(0, new DateTime(), new object{})
              });
