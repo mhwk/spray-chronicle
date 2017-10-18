@@ -28,7 +28,7 @@ namespace SprayChronicle.Persistence.Ouro
                     c.Resolve<ILoggerFactory>().CreateLogger<IEventStore>(),
                     c.Resolve<IEventStoreConnection>(),
                     c.Resolve<UserCredentials>(),
-                    Environment.GetEnvironmentVariable("EVENTSTORE_TENANT") ?? "default"
+                    Environment.GetEnvironmentVariable("EVENTSTORE_TENANT")
                 ))
                 .AsSelf()
                 .As<IEventStore>()

@@ -102,6 +102,14 @@ namespace SprayChronicle.Persistence.Ouro
                     identity
                 ));
             }
+            if (null == _tenant) {
+                return string.Format(
+                    "{0}-{1}",
+                    typeof(T).Namespace.Split('.').First(),
+                    identity
+                );
+            }
+
             return string.Format(
                 "{0}-{1}-{2}",
                 typeof(T).Namespace.Split('.').First(),
