@@ -92,19 +92,20 @@ namespace SprayChronicle.Persistence.Ouro
         {
             if (identity.Equals("")) {
                 throw new InvalidStreamException(string.Format(
-                    "Stream can not be empty",
+                    "Stream name can not be empty",
                     identity
                 ));
             }
             if (identity.Contains("@")) {
                 throw new InvalidStreamException(string.Format(
-                    "Stream {0} contains invalid character '@'",
+                    "Stream name {0} contains invalid character '@'",
                     identity
                 ));
             }
             return string.Format(
-                "{0}-{1}",
+                "{0}-{1}-{2}",
                 typeof(T).Namespace.Split('.').First(),
+                _tenant,
                 identity
             );
         }
