@@ -75,7 +75,7 @@ namespace SprayChronicle.Persistence.Ouro
                 foreach (var resolvedEvent in slice.Events) {
                     var metadata = JsonConvert.DeserializeObject<Metadata>(Encoding.UTF8.GetString(resolvedEvent.Event.Metadata));
 
-                    if (metadata.Tenant.Equals(_tenant)) {
+                    if (metadata.Tenant == _tenant) {
                         yield return BuildDomainMessage(metadata, resolvedEvent);
                     }
 

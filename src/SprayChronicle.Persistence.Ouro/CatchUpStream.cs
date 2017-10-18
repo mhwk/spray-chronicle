@@ -55,7 +55,7 @@ namespace SprayChronicle.Persistence.Ouro
         public void OnEventAppeared(EventStoreCatchUpSubscription subscription, ResolvedEvent resolvedEvent, Action<object,DateTime> callback)
         {
             var metadata = JsonConvert.DeserializeObject<Metadata>(Encoding.UTF8.GetString(resolvedEvent.Event.Metadata));
-            if ( ! metadata.Tenant.Equals(_tenant)) {
+            if (metadata.Tenant != _tenant) {
                 _logger.LogDebug("Skipping {0}, tenant {1} did not match {2}", resolvedEvent.Event.EventType, metadata.Tenant, _tenant);
                 return;
             }

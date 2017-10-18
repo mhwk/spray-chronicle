@@ -66,7 +66,7 @@ namespace SprayChronicle.Persistence.Ouro
                     try {
                         var metadata = JsonConvert.DeserializeObject<Metadata>(Encoding.UTF8.GetString(resolvedEvent.Event.Metadata));
 
-                        if (metadata.Tenant.Equals(_tenant)) {
+                        if (metadata.Tenant == _tenant) {
                             var type = _typeLocator.Locate(resolvedEvent.Event.EventType);
 
                             if (null == type) {
