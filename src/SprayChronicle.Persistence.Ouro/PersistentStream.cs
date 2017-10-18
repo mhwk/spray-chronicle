@@ -22,6 +22,8 @@ namespace SprayChronicle.Persistence.Ouro
         readonly string _streamName;
 
         readonly string _groupName;
+        
+        readonly string _tenant;
 
         public PersistentStream(
             ILogger<IEventStore> logger,
@@ -29,7 +31,8 @@ namespace SprayChronicle.Persistence.Ouro
             UserCredentials credentials,
             ILocateTypes typeLocator,
             string streamName,
-            string groupName)
+            string groupName,
+            string tenant)
         {
             _logger = logger;
             _eventStore = eventStore;
@@ -37,6 +40,7 @@ namespace SprayChronicle.Persistence.Ouro
             _typeLocator = typeLocator;
             _streamName = streamName;
             _groupName = groupName;
+            _tenant = tenant;
         }
 
         public void OnEvent(Action<object,DateTime> callback)
@@ -44,7 +48,7 @@ namespace SprayChronicle.Persistence.Ouro
              try {
                 _eventStore.CreatePersistentSubscriptionAsync(
                     _streamName,
-                    _groupName,
+                    string.Format("{0}_{1}", _tenant, _groupName),
                     PersistentSubscriptionSettings.Create()
                         .ResolveLinkTos()
                         .StartFromBeginning()
@@ -57,24 +61,30 @@ namespace SprayChronicle.Persistence.Ouro
 
             _eventStore.ConnectToPersistentSubscription(
                 _streamName,
-                _groupName,
+                string.Format("{0}_{1}", _tenant, _groupName),
                 (subscription, resolvedEvent) => {
                     try {
-                        var type = _typeLocator.Locate(resolvedEvent.Event.EventType);
+                        var metadata = JsonConvert.DeserializeObject<Metadata>(Encoding.UTF8.GetString(resolvedEvent.Event.Metadata));
 
-                        if (null == type) {
-                            _logger.LogDebug("[{0}] unknown type", _streamName);
-                            subscription.Acknowledge(resolvedEvent);
-                            return;
+                        if (metadata.Tenant.Equals(_tenant)) {
+                            var type = _typeLocator.Locate(resolvedEvent.Event.EventType);
+
+                            if (null == type) {
+                                _logger.LogDebug("[{0}] unknown type", _streamName);
+                                subscription.Acknowledge(resolvedEvent);
+                                return;
+                            }
+
+                            callback(
+                                JsonConvert.DeserializeObject(
+                                    Encoding.UTF8.GetString(resolvedEvent.Event.Data),
+                                    type
+                                ),
+                                resolvedEvent.Event.Created
+                            );
+                        } else {
+                            _logger.LogDebug("Skipping {0}, tenant {1} did not match {2}", resolvedEvent.Event.EventType, metadata.Tenant, _tenant);
                         }
-
-                        callback(
-                            JsonConvert.DeserializeObject(
-                                Encoding.UTF8.GetString(resolvedEvent.Event.Data),
-                                type
-                            ),
-                            resolvedEvent.Event.Created
-                        );
                     
                         subscription.Acknowledge(resolvedEvent);
                     } catch (Exception error) {

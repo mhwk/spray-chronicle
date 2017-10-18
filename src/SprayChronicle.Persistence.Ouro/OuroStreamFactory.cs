@@ -14,14 +14,18 @@ namespace SprayChronicle.Persistence.Ouro
 
         readonly UserCredentials _credentials;
 
+        readonly string _tenant;
+
         public OuroStreamFactory(
             ILogger<IEventStore> logger,
             IEventStoreConnection eventStore,
-            UserCredentials credentials)
+            UserCredentials credentials,
+            string tenant)
         {
             _logger = logger;
             _eventStore = eventStore;
             _credentials = credentials;
+            _tenant = tenant;
         }
 
         public IStream CatchUp(string streamName, ILocateTypes typeLocator)
@@ -31,7 +35,8 @@ namespace SprayChronicle.Persistence.Ouro
                 _eventStore,
                 _credentials,
                 typeLocator,
-                streamName
+                streamName,
+                _tenant
             );
         }
 
@@ -43,7 +48,8 @@ namespace SprayChronicle.Persistence.Ouro
                 _credentials,
                 typeLocator,
                 streamName,
-                groupName
+                groupName,
+                _tenant
             );
         }
     }

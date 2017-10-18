@@ -38,7 +38,8 @@ namespace SprayChronicle.Persistence.Ouro
                 .Register<OuroStreamFactory>(c => new OuroStreamFactory(
                     c.Resolve<ILoggerFactory>().CreateLogger<IEventStore>(),
                     c.Resolve<IEventStoreConnection>(),
-                    c.Resolve<UserCredentials>()
+                    c.Resolve<UserCredentials>(),
+                    Environment.GetEnvironmentVariable("EVENTSTORE_TENANT") ?? "default"
                 ))
                 .AsSelf()
                 .As<IBuildStreams>()

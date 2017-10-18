@@ -21,18 +21,22 @@ namespace SprayChronicle.Persistence.Ouro
 
         readonly string _streamName;
 
+        readonly string _tenant;
+
         public CatchUpStream(
             ILogger<IEventStore> logger,
             IEventStoreConnection eventStore,
             UserCredentials credentials,
             ILocateTypes typeLocator,
-            string streamName)
+            string streamName,
+            string tenant)
         {
             _logger = logger;
             _eventStore = eventStore;
             _credentials = credentials;
             _typeLocator = typeLocator;
             _streamName = streamName;
+            _tenant = tenant;
         }
 
         public void OnEvent(Action<object,DateTime> callback)
@@ -50,6 +54,12 @@ namespace SprayChronicle.Persistence.Ouro
 
         public void OnEventAppeared(EventStoreCatchUpSubscription subscription, ResolvedEvent resolvedEvent, Action<object,DateTime> callback)
         {
+            var metadata = JsonConvert.DeserializeObject<Metadata>(Encoding.UTF8.GetString(resolvedEvent.Event.Metadata));
+            if ( ! metadata.Tenant.Equals(_tenant)) {
+                _logger.LogDebug("Skipping {0}, tenant {1} did not match {2}", resolvedEvent.Event.EventType, metadata.Tenant, _tenant);
+                return;
+            }
+
             var type = _typeLocator.Locate(resolvedEvent.Event.EventType);
 
             if (null == type) {
