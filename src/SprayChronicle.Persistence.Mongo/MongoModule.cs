@@ -35,12 +35,23 @@ namespace SprayChronicle.Persistence.Mongo
             builder
                 .Register<IMongoDatabase>(
                     c => {
-                        IMongoClient client = new MongoClient(string.Format(
+                        var logger = c.Resolve<ILoggerFactory>().CreateLogger<IMongoDatabase>();
+                        var client = new MongoClient(string.Format(
                             "mongodb://{0}",
                             Environment.GetEnvironmentVariable("MONGODB_HOST") ?? "127.0.0.1"
                         ));
-                        c.Resolve<ILoggerFactory>().CreateLogger<IMongoDatabase>().LogInformation("Connected to MongoDB!");
-                        return client.GetDatabase(Environment.GetEnvironmentVariable("MONGODB_DB") ?? "projections");
+                        logger.LogInformation("Connected to MongoDB!");
+
+                        var dbName = Environment.GetEnvironmentVariable("MONGODB_DB");
+                        if (null == dbName) {
+                            dbName = Guid.NewGuid().ToString();
+                            logger.LogInformation("Using temporary database {0}", dbName);
+                            System.AppDomain.CurrentDomain.ProcessExit += (s, e) => {
+                                client.DropDatabase(dbName);
+                                logger.LogInformation("Cleaned up temporary database {0}", dbName);
+                            };
+                        }
+                        return client.GetDatabase(dbName);
                     }
                 )
                 .SingleInstance();
