@@ -44,7 +44,7 @@ namespace SprayChronicle.Persistence.Mongo
 
                         var dbName = Environment.GetEnvironmentVariable("MONGODB_DB");
                         if (null == dbName) {
-                            dbName = Guid.NewGuid().ToString();
+                            dbName = Guid.NewGuid().ToString().Replace('-', '_');
                             logger.LogInformation("Using temporary database {0}", dbName);
                             System.AppDomain.CurrentDomain.ProcessExit += (s, e) => {
                                 client.DropDatabase(dbName);

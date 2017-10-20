@@ -39,7 +39,7 @@ namespace SprayChronicle.Persistence.Ouro
                     c.Resolve<ILoggerFactory>().CreateLogger<IEventStore>(),
                     c.Resolve<IEventStoreConnection>(),
                     c.Resolve<UserCredentials>(),
-                    Environment.GetEnvironmentVariable("EVENTSTORE_TENANT") ?? "default"
+                    Environment.GetEnvironmentVariable("EVENTSTORE_TENANT")
                 ))
                 .AsSelf()
                 .As<IBuildStreams>()
@@ -53,7 +53,7 @@ namespace SprayChronicle.Persistence.Ouro
             } else if ("" != (Environment.GetEnvironmentVariable("EVENTSTORE_HOST") ?? "")) {
                 return InitEventStoreSingle(container);
             } else {
-                throw new Exception("Please provide either EVENTSTORE_CLUSTER_DNS or EVENTSTORE_HOST environment vairables");
+                throw new Exception("Please provide either EVENTSTORE_CLUSTER_DNS or EVENTSTORE_HOST environment variables");
             }
         }
 
@@ -66,9 +66,6 @@ namespace SprayChronicle.Persistence.Ouro
                 Environment.GetEnvironmentVariable("EVENTSTORE_HOST") ?? "127.0.0.1",
                 Environment.GetEnvironmentVariable("EVENTSTORE_PORT") ?? "1113"
             );
-
-            container.Resolve<ILoggerFactory>().CreateLogger<IEventStoreConnection>().LogInformation("Connecting to eventstore on {0}", uri);
-            
 			IEventStoreConnection connection = EventStoreConnection.Create (
 				ConnectionSettings.Create()
                     .WithConnectionTimeoutOf(TimeSpan.FromSeconds(5))
@@ -79,18 +76,15 @@ namespace SprayChronicle.Persistence.Ouro
 				new Uri (uri)
 			);
 			connection.ConnectAsync().Wait();
+
+            container.Resolve<ILoggerFactory>().CreateLogger<IEventStoreConnection>().LogInformation("Connected to eventstore on {0}!", uri);
+            
 			return connection;
 		}
 
         IEventStoreConnection InitEventStoreCluster(IComponentContext container)
         {
             var logger = container.Resolve<ILoggerFactory>().CreateLogger<IEventStoreConnection>();
-
-            logger.LogInformation(
-                "Connecting to eventstore cluster dns {0}:{1}",
-                Environment.GetEnvironmentVariable("EVENTSTORE_CLUSTER_DNS"),
-                Environment.GetEnvironmentVariable("EVENTSTORE_GOSSIP_PORT") ?? "2113"
-            );
             
 			IEventStoreConnection connection = EventStoreConnection.Create (
                 ConnectionSettings.Create()
@@ -106,6 +100,13 @@ namespace SprayChronicle.Persistence.Ouro
                     .PreferRandomNode()
 			);
 			connection.ConnectAsync().Wait();
+
+            logger.LogInformation(
+                "Connected to eventstore cluster dns {0}:{1}!",
+                Environment.GetEnvironmentVariable("EVENTSTORE_CLUSTER_DNS"),
+                Environment.GetEnvironmentVariable("EVENTSTORE_GOSSIP_PORT") ?? "2113"
+            );
+
 			return connection;
         }
     }

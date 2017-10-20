@@ -48,7 +48,7 @@ namespace SprayChronicle.Persistence.Ouro
              try {
                 _eventStore.CreatePersistentSubscriptionAsync(
                     _streamName,
-                    string.Format("{0}_{1}", _tenant, _groupName),
+                    null == _tenant ? _groupName : string.Format("{0}_{1}", _tenant, _groupName),
                     PersistentSubscriptionSettings.Create()
                         .ResolveLinkTos()
                         .StartFromBeginning()
