@@ -9,11 +9,17 @@ namespace SprayChronicle.Persistence.Mongo
 {
     public class MongoRepository<T> : IStatefulRepository<T>
     {
-        IMongoCollection<T> _collection;
+        readonly IMongoDatabase _database;
 
-        public MongoRepository(IMongoCollection<T> collection)
+        readonly string _name;
+
+        public MongoRepository(IMongoDatabase database) : this(database, typeof(T).Name)
+        {}
+
+        public MongoRepository(IMongoDatabase database, string name)
         {
-            _collection = collection;
+            _database = database;
+            _name = name;
         }
 
         public string Identity(T obj)
@@ -23,24 +29,25 @@ namespace SprayChronicle.Persistence.Mongo
 
         public T Load(string identity)
         {
-            return _collection
+            return _database
+                .GetCollection<T>(_name)
                 .Find(Builders<T>.Filter.Eq("_id", identity))
                 .FirstOrDefault();
         }
 
         public T Load(Func<IQueryable<T>,T> callback)
         {
-            return callback(_collection.AsQueryable());
+            return callback(_database.GetCollection<T>(_name).AsQueryable());
         }
 
         public IEnumerable<T> Load(Func<IQueryable<T>,IEnumerable<T>> callback)
         {
-            return callback(_collection.AsQueryable());
+            return callback(_database.GetCollection<T>(_name).AsQueryable());
         }
 
         public PagedResult<T> Load(Func<IQueryable<T>,IEnumerable<T>> callback, int page, int perPage)
         {
-            var results = callback(_collection.AsQueryable()); 
+            var results = callback(_database.GetCollection<T>(_name).AsQueryable()); 
             return new PagedResult<T>(
                 results.Skip((page - 1) * perPage).Take(perPage),
                 page,
@@ -51,7 +58,7 @@ namespace SprayChronicle.Persistence.Mongo
 
         public void Save(T obj)
         {
-            _collection.FindOneAndReplace(
+            _database.GetCollection<T>(_name).FindOneAndReplace(
                 Builders<T>.Filter.Eq("_id", Identity(obj)),
                 obj,
                 new FindOneAndReplaceOptions<T> {
@@ -71,7 +78,7 @@ namespace SprayChronicle.Persistence.Mongo
                 };
             }
 
-            _collection.BulkWrite(models, new BulkWriteOptions() { IsOrdered = false, BypassDocumentValidation = true });
+            _database.GetCollection<T>(_name).BulkWrite(models, new BulkWriteOptions() { IsOrdered = false, BypassDocumentValidation = true });
         }
 
         public void Remove(string identity)
@@ -81,7 +88,7 @@ namespace SprayChronicle.Persistence.Mongo
 
         public void Remove(string[] identities)
         {
-            _collection.DeleteMany(Builders<T>.Filter.In("_id", new BsonArray(identities)));
+            _database.GetCollection<T>(_name).DeleteMany(Builders<T>.Filter.In("_id", new BsonArray(identities)));
         }
 
         public void Remove(T obj)
@@ -96,7 +103,7 @@ namespace SprayChronicle.Persistence.Mongo
 
         public void Clear()
         {
-            _collection.DeleteMany(new BsonDocument());
+            _database.DropCollection(_name);
         }
     }
 }

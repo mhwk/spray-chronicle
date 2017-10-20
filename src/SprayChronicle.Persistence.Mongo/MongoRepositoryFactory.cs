@@ -20,14 +20,17 @@ namespace SprayChronicle.Persistence.Mongo
 
         public IStatefulRepository<T> Build<T>()
         {
-            return Build<T>(typeof(T).Name);
+            return new BufferedStateRepository<T>(
+                _loggerFactory.CreateLogger<T>(),
+                new MongoRepository<T>(_database)
+            );
         }
 
         public IStatefulRepository<T> Build<T>(string reference)
         {
             return new BufferedStateRepository<T>(
                 _loggerFactory.CreateLogger<T>(),
-                new MongoRepository<T>(_database.GetCollection<T>(reference))
+                new MongoRepository<T>(_database, reference)
             );
         }
     }
