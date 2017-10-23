@@ -9,8 +9,7 @@ namespace SprayChronicle.Persistence.Mongo
         public static ChronicleServer WithMongoPersistence(this ChronicleServer server)
         {
             server.OnAutofacConfigure += builder => builder.RegisterMongoPersistence();
-            server.OnShutdown += services => Console.WriteLine(services.GetType());
-            // server.OnShutdown += services => ((IContainer)services.GetService(typeof(IContainer))).Dispose();
+            server.OnShutdown += services => ((DisposableDatabaseFactory)services.GetService(typeof(DisposableDatabaseFactory))).Dispose();
             return server;
         }
     }

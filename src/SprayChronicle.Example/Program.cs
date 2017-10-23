@@ -23,8 +23,8 @@ namespace SprayChronicle.Example
             new ChronicleServer()
                 .WithEventHandling()
                 .WithHttp()
-                // .WithOuroPersistence()
-                // .WithMongoPersistence()
+                .WithOuroPersistence()
+                .WithMongoPersistence()
                 .WithModule<ExampleModule>()
                 .Run();
         }
