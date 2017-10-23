@@ -8,6 +8,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../SprayChronicle.MessageHandling/SprayChronicle.MessageHandling.csproj" />
+    <ProjectReference Include="../SprayChronicle.Server/SprayChronicle.Server.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Autofac" Version="4.6.1" />

@@ -13,7 +13,6 @@ namespace SprayChronicle.Server.Http
             builder
                 .Register<HttpCommandRouteMapper>(c => new HttpCommandRouteMapper(
                     c.Resolve<ILoggerFactory>().CreateLogger<HttpCommandDispatcher>(),
-                    c.Resolve<IAuthorizer>(),
                     c.Resolve<IValidator>(),
                     c.Resolve<SubscriptionDispatcher>()
                 ))
@@ -22,13 +21,11 @@ namespace SprayChronicle.Server.Http
             builder
                 .Register<HttpQueryRouteMapper>(c => new HttpQueryRouteMapper(
                     c.Resolve<ILoggerFactory>().CreateLogger<HttpQueryProcessor>(),
-                    c.Resolve<IAuthorizer>(),
                     c.Resolve<IValidator>(),
                     c.Resolve<SubscriptionQueryProcessor>()
                 ))
                 .SingleInstance();
-
-            builder.Register<IAuthorizer>(c => new VoidAuthorizer()).SingleInstance();
+            
             builder.Register<IValidator>(c => new AnnotationValidator()).SingleInstance();
         }
     }

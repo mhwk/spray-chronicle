@@ -11,6 +11,7 @@
   <ItemGroup>
     <ProjectReference Include="../SprayChronicle.EventSourcing/SprayChronicle.EventSourcing.csproj" />
     <ProjectReference Include="../SprayChronicle.EventHandling/SprayChronicle.EventHandling.csproj" />
+    <ProjectReference Include="../SprayChronicle.Server/SprayChronicle.Server.csproj" />
   </ItemGroup>
 
   <ItemGroup>

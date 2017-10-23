@@ -8,6 +8,11 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Autofac.Extensions.DependencyInjection;
+using SprayChronicle.EventHandling;
+using SprayChronicle.Persistence.Mongo;
+using SprayChronicle.Persistence.Ouro;
+using SprayChronicle.Server;
+using SprayChronicle.Server.Http;
 
 namespace SprayChronicle.Example
 {
@@ -15,15 +20,13 @@ namespace SprayChronicle.Example
     {
         public static void Main(string[] args)
         {
-            BuildWebHost(args).Run();
+            new ChronicleServer()
+                .WithEventHandling()
+                .WithHttp()
+                // .WithOuroPersistence()
+                // .WithMongoPersistence()
+                .WithModule<ExampleModule>()
+                .Run();
         }
-
-        public static IWebHost BuildWebHost(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
-                .UseKestrel()
-                .ConfigureServices(services => services.AddAutofac())
-                .UseUrls("http://0.0.0.0:5000/")
-                .UseStartup<Startup>()
-                .Build();
     }
 }

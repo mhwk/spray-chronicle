@@ -14,8 +14,6 @@ namespace SprayChronicle.Server.Http
     {
         readonly ILogger<HttpQueryProcessor> _logger;
 
-        readonly IAuthorizer _authorizer;
-
         readonly IValidator _validator;
 
         readonly IProcessQueries _dispatcher;
@@ -33,14 +31,12 @@ namespace SprayChronicle.Server.Http
 
         public HttpQueryProcessor(
             ILogger<HttpQueryProcessor> logger,
-            IAuthorizer authorizer,
             IValidator validator,
             IProcessQueries dispatcher,
             Type type,
             string contentType)
         {
             _logger = logger;
-            _authorizer = authorizer;
             _validator = validator;
             _dispatcher = dispatcher;
             _type = type;
@@ -52,7 +48,6 @@ namespace SprayChronicle.Server.Http
             try {
                 var payload = await converter.Convert(request, routeData, _type);
 
-                // _authorizer.Authorize(payload, context);
                 _validator.Validate(payload);
 
                 _logger.LogDebug("Processing {0} {1}", _type, JsonConvert.SerializeObject(payload));

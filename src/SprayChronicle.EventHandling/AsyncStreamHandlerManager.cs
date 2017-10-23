@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
@@ -23,6 +24,7 @@ namespace SprayChronicle.EventHandling
 
         public void Manage()
         {
+            Console.WriteLine("Listening async...");
             foreach (var handler in _handlers) {
                 _tasks.Add(handler.ListenAsync());
             }

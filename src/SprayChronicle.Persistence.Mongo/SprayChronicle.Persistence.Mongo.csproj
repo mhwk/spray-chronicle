@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../SprayChronicle.Projecting/SprayChronicle.Projecting.csproj" />
+    <ProjectReference Include="../SprayChronicle.Server/SprayChronicle.Server.csproj" />
   </ItemGroup>
 
   <ItemGroup>

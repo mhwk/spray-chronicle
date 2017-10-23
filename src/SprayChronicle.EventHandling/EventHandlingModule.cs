@@ -1,6 +1,7 @@
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using Autofac;
+using SprayChronicle.Server;
 
 namespace SprayChronicle.EventHandling
 {
@@ -9,7 +10,7 @@ namespace SprayChronicle.EventHandling
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .Register(c => CreateManager())
+                .Register<IManageStreamHandlers>(c => CreateManager())
                 .OnActivating(e => RegisterStreamHandlers(e.Context, e.Instance))
                 .SingleInstance();
         }

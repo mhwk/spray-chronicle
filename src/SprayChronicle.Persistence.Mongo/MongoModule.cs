@@ -3,6 +3,7 @@ using Autofac;
 using MongoDB.Driver;
 using Microsoft.Extensions.Logging;
 using SprayChronicle.Projecting;
+using SprayChronicle.Server;
 using SprayChronicle.QueryHandling;
 
 namespace SprayChronicle.Persistence.Mongo
@@ -31,30 +32,34 @@ namespace SprayChronicle.Persistence.Mongo
                 .AsSelf()
                 .As<IBuildProjectors>()
                 .SingleInstance();
+            
+            builder
+                .Register<ILogger<IMongoDatabase>>(c => c.Resolve<ILoggerFactory>().CreateLogger<IMongoDatabase>())
+                .SingleInstance();
 
             builder
-                .Register<IMongoDatabase>(
-                    c => {
-                        var logger = c.Resolve<ILoggerFactory>().CreateLogger<IMongoDatabase>();
-                        var client = new MongoClient(string.Format(
-                            "mongodb://{0}",
-                            Environment.GetEnvironmentVariable("MONGODB_HOST") ?? "127.0.0.1"
-                        ));
-                        logger.LogInformation("Connected to MongoDB!");
-
-                        var dbName = Environment.GetEnvironmentVariable("MONGODB_DB");
-                        if (null == dbName) {
-                            dbName = Guid.NewGuid().ToString().Replace('-', '_');
-                            logger.LogInformation("Using temporary database {0}", dbName);
-                            System.AppDomain.CurrentDomain.ProcessExit += (s, e) => {
-                                client.DropDatabase(dbName);
-                                logger.LogInformation("Cleaned up temporary database {0}", dbName);
-                            };
-                        }
-                        return client.GetDatabase(dbName);
-                    }
-                )
+                .Register<IMongoClient>(c => {
+                    var client = new MongoClient(string.Format(
+                        "mongodb://{0}",
+                        Environment.GetEnvironmentVariable("MONGODB_HOST") ?? "127.0.0.1"
+                    ));
+                    c.Resolve<ILogger<IMongoDatabase>>().LogInformation("Connected to MongoDB!");
+                    return client;
+                })
                 .SingleInstance();
+            
+            builder
+                .Register<DisposableDatabaseFactory>(c => new DisposableDatabaseFactory(c.Resolve<IMongoClient>(), c.Resolve<ILogger<IMongoClient>>()))
+                .SingleInstance();
+
+            builder
+                .Register<IMongoDatabase>(c => c.Resolve<DisposableDatabaseFactory>().Build(DatabaseName()))
+                .SingleInstance();
+        }
+
+        static string DatabaseName()
+        {
+            return Environment.GetEnvironmentVariable("MONGODB_DB") ?? Guid.NewGuid().ToString();
         }
     }
 }
