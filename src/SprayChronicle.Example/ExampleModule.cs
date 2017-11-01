@@ -7,6 +7,7 @@ using SprayChronicle.Projecting;
 using SprayChronicle.Example.Application.Effect;
 using SprayChronicle.Example.Application.Model;
 using SprayChronicle.Example.Application.Service;
+using SprayChronicle.Example.Domain.Effect;
 using SprayChronicle.Example.Domain.Model;
 
 namespace SprayChronicle.Example
@@ -21,6 +22,10 @@ namespace SprayChronicle.Example
                 "SprayChronicle.Example.Domain"
             ));
             builder.RegisterModule(new ProjectingModule.ProjectionWithQuery<PickedUpBasketsPerDay,PickedUpBasketsPerDayProjector,PickedUpBasketsPerDayExecutor>(
+                "$ce-SprayChronicle",
+                "SprayChronicle.Example.Domain"
+            ));
+            builder.RegisterModule(new EventHandlingModule.Persistent<OrderReceptor>(
                 "$ce-SprayChronicle",
                 "SprayChronicle.Example.Domain"
             ));

@@ -15,7 +15,6 @@ namespace SprayChronicle.Example.Application.Service
 
         public object On(NumberOfProductsForBasketId query)
         {
-            Console.WriteLine(JsonConvert.SerializeObject(query));
             return _repository.Load(q => q.FirstOrDefault(item => item.BasketId == query.BasketId));
         }
 

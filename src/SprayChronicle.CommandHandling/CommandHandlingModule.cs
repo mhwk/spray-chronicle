@@ -10,27 +10,31 @@ namespace SprayChronicle.CommandHandling
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .Register(c => new SubscriptionDispatcher())
+                .Register<SubscriptionDispatcher>(c => new SubscriptionDispatcher())
+                .AsSelf()
                 .OnActivating(e => RegisterCommandHandlers(e.Context, e.Instance as SubscriptionDispatcher))
                 .SingleInstance();
             
             builder
-                .Register(c => new LoggingDispatcher(
+                .Register<LoggingDispatcher>(c => new LoggingDispatcher(
                     c.Resolve<ILoggerFactory>().CreateLogger<LoggingDispatcher>(),
                     c.Resolve<SubscriptionDispatcher>()
                 ))
+                .AsSelf()
                 .SingleInstance();
             
             builder
-                .Register(c => new ErrorSuppressingDispatcher(
+                .Register<ErrorSuppressingDispatcher>(c => new ErrorSuppressingDispatcher(
                     c.Resolve<LoggingDispatcher>()
                 ))
+                .AsSelf()
                 .SingleInstance();
             
             builder
-                .Register(c => new ThreadedDispatcher(
+                .Register<ThreadedDispatcher>(c => new ThreadedDispatcher(
                     c.Resolve<ErrorSuppressingDispatcher>()
                 ))
+                .AsSelf()
                 .SingleInstance();
         }
 

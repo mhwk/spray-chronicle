@@ -61,7 +61,7 @@ namespace SprayChronicle.Persistence.Ouro
 
             _eventStore.ConnectToPersistentSubscription(
                 _streamName,
-                string.Format("{0}_{1}", _tenant, _groupName),
+                null == _tenant ? _groupName : string.Format("{0}_{1}", _tenant, _groupName),
                 (subscription, resolvedEvent) => {
                     try {
                         var metadata = JsonConvert.DeserializeObject<Metadata>(Encoding.UTF8.GetString(resolvedEvent.Event.Metadata));

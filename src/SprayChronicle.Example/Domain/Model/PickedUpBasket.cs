@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Linq;
 
 namespace SprayChronicle.Example.Domain.Model
 {
@@ -30,7 +31,8 @@ namespace SprayChronicle.Example.Domain.Model
         {
             return (CheckedOutBasket) Apply(this, new BasketCheckedOut(
                 BasketId.ToString(),
-                orderId.ToString()
+                orderId.ToString(),
+                ProductsInBasket.Select(p => p.ToString()).ToArray()
             ));
         }
 

@@ -22,7 +22,8 @@ namespace SprayChronicle.Example.Test.Domain
         protected override object[] Expect()
         {
             return new object[] {
-                new BasketCheckedOut("basketId", "orderId")
+                new BasketCheckedOut("basketId", "orderId", new string[] {"productId"}),
+                // new OrderGenerated("orderId", new string[] {"productId"})
             };
         }
     }

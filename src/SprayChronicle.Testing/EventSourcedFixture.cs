@@ -4,7 +4,11 @@ using Autofac;
 using Autofac.Core;
 using Microsoft.Extensions.Logging;
 using SprayChronicle.CommandHandling;
+using SprayChronicle.EventHandling;
 using SprayChronicle.EventSourcing;
+using SprayChronicle.Persistence.Memory;
+using SprayChronicle.Projecting;
+using SprayChronicle.QueryHandling;
 
 namespace SprayChronicle.Testing
 {
@@ -22,8 +26,12 @@ namespace SprayChronicle.Testing
         public EventSourcedFixture(Action<ContainerBuilder> configure)
         {
             var builder = new ContainerBuilder();
-            builder.RegisterModule<SprayChronicle.CommandHandling.CommandHandlingModule>();
             builder.RegisterModule<TModule>();
+            builder.RegisterModule<CommandHandlingModule>();
+            builder.RegisterModule<SyncEventHandlingModule>();
+            builder.RegisterModule<MemoryModule>();
+            builder.RegisterModule<ProjectingModule>();
+            builder.RegisterModule<QueryHandlingModule>();
 
             builder.Register<ILoggerFactory>(c => new LoggerFactory().AddConsole(_logLevel));
             builder
@@ -34,6 +42,7 @@ namespace SprayChronicle.Testing
 
             configure(builder);
             _container = builder.Build();
+            _container.Resolve<IManageStreamHandlers>().Manage();
         }
 
 		public IExecute Given(params object[] messages)

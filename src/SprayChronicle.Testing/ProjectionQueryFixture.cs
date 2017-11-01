@@ -19,6 +19,7 @@ namespace SprayChronicle.Testing
         public ProjectionQueryFixture(Action<ContainerBuilder> configure)
         {
             var builder = new ContainerBuilder();
+            builder.RegisterModule<SprayChronicle.CommandHandling.CommandHandlingModule>();
             builder.RegisterModule<SprayChronicle.EventHandling.SyncEventHandlingModule>();
             builder.RegisterModule<SprayChronicle.Persistence.Memory.MemoryModule>();
             builder.RegisterModule<SprayChronicle.Projecting.ProjectingModule>();

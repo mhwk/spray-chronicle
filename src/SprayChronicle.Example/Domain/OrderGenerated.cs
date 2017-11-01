@@ -1,16 +1,13 @@
 namespace SprayChronicle.Example.Domain
 {
-    public sealed class BasketCheckedOut
+    public sealed class OrderGenerated
     {
-        public readonly string BasketId;
-
         public readonly string OrderId;
 
         public readonly string[] ProductIds;
 
-        public BasketCheckedOut(string basketId, string orderId, string[] productIds)
+        public OrderGenerated(string orderId, string[] productIds)
         {
-            BasketId = basketId;
             OrderId = orderId;
             ProductIds = productIds;
         }

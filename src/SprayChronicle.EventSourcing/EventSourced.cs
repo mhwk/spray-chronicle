@@ -58,5 +58,27 @@ namespace SprayChronicle.EventSourcing
 
             return (T) updated;
         }
+
+        protected static T Apply(IEventSourcable<T> sourcable, params object[] payloads)
+        {
+            foreach (var payload in payloads) {
+                sourcable = Apply(sourcable, payload);
+            }
+            return (T) sourcable;
+        }
+
+        protected static T Apply(object payload)
+        {
+            return Apply(null, payload);
+        }
+
+        protected static T Apply(params object[] payloads)
+        {
+            T sourcable = default(T);
+            foreach (var payload in payloads) {
+                sourcable = Apply(sourcable, payload);
+            }
+            return sourcable;
+        }
     }
 }

@@ -22,7 +22,7 @@ namespace SprayChronicle.Example.Domain.Model
 
         public static PickedUpBasket PickUp(BasketId basketId)
         {
-            return (PickedUpBasket) Apply(null, new BasketPickedUp(
+            return (PickedUpBasket) Apply(new BasketPickedUp(
                 basketId
             ));
         }

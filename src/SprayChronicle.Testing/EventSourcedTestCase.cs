@@ -30,9 +30,6 @@ namespace SprayChronicle.Testing
         [Fact]
         public virtual void Scenario()
         {
-            var container = new ContainerBuilder();
-            Configure(container);
-            
             new EventSourcedFixture<TModule>(Configure)
                 .Given(Given())
                 .When(When())
