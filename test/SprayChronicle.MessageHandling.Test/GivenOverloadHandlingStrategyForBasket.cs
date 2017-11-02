@@ -60,7 +60,7 @@ namespace SprayChronicle.MessageHandling.Test
         public void ItProcessesSecondMessage()
         {
             var basket = Strategy.ProcessMessage(null, new BasketPickedUp("basketId"));
-            Assert.IsAssignableFrom<CheckedOutBasket>(Strategy.ProcessMessage(basket, new BasketCheckedOut("basketId", "orderId")));
+            Assert.IsAssignableFrom<CheckedOutBasket>(Strategy.ProcessMessage(basket, new BasketCheckedOut("basketId", "orderId", new string[] {})));
         }
 
         public sealed class UnknownMessage

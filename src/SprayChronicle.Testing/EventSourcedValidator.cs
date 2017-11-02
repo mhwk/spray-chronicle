@@ -38,13 +38,20 @@ namespace SprayChronicle.Testing
 
 		public IValidate Expect(params object[] results)
         {
-            _domainMessages.Select(dm => dm.Payload).ShouldAllBeEquivalentTo(results, options => options.WithStrictOrdering().RespectingRuntimeTypes());
+            Expect(results.Select(r => r.GetType()).ToArray());
+            _domainMessages.Select(dm => dm.Payload).ShouldAllBeEquivalentTo(
+                results,
+                options => options.WithStrictOrdering().RespectingRuntimeTypes()
+            );
             return this;
         }
 
 		public IValidate Expect(params Type[] types)
         {
-            _domainMessages.Select(dm => dm.Payload.GetType()).ShouldAllBeEquivalentTo(types);
+            _domainMessages.Select(dm => dm.Payload.GetType()).ShouldAllBeEquivalentTo(
+                types,
+                options => options.WithStrictOrdering().RespectingRuntimeTypes()
+            );
             return this;
         }
 
