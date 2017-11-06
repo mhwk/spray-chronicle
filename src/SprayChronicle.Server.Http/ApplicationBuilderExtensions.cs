@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
@@ -22,6 +23,14 @@ namespace SprayChronicle.Server.Http
             var builder = new RouteBuilder(app);
             commandMapper.Map(builder);
             queryMapper.Map(builder);
+
+            builder.MapGet("_health", async context => {
+                using (var writer = new StreamWriter(context.Response.Body)) {
+                    context.Response.StatusCode = 200;
+                    await writer.WriteAsync("");
+                }
+            });
+            
             app.UseRouter(builder.Build());
         }
     }
