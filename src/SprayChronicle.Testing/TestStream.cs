@@ -13,7 +13,7 @@ namespace SprayChronicle.Testing
             _callbacks.ForEach(callback => callback(message, epoch));
         }
 
-        public void OnEvent(Action<object,DateTime> callback)
+        public void Subscribe(Action<object,DateTime> callback)
         {
             _callbacks.Add(callback);
         }

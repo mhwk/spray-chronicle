@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -32,7 +33,7 @@ namespace SprayChronicle.EventHandling
 
         public void Listen()
         {
-            _stream.OnEvent((@event, occurrence) => {
+            _stream.Subscribe((@event, occurrence) => {
                 if ( ! _handlers.AcceptsMessage(_eventHandler, @event, occurrence)) {
                     _logger.LogDebug(
                         "{0}: skipping",

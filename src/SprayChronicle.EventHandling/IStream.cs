@@ -4,6 +4,6 @@ namespace SprayChronicle.EventHandling
 {
     public interface IStream
     {
-        void OnEvent(Action<object,DateTime> callback);
+        void Subscribe(Action<object,DateTime> callback);
     }
 }

@@ -12,7 +12,7 @@ namespace SprayChronicle.Persistence.Memory
             _eventStore = eventStore;
         }
 
-        public void OnEvent(Action<object,DateTime> callback)
+        public void Subscribe(Action<object,DateTime> callback)
         {
             _eventStore.OnEventAppreared += domainMessage => callback(
                 domainMessage.Payload,

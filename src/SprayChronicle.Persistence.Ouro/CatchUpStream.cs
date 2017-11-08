@@ -39,7 +39,7 @@ namespace SprayChronicle.Persistence.Ouro
             _tenant = tenant;
         }
 
-        public void OnEvent(Action<object,DateTime> callback)
+        public void Subscribe(Action<object,DateTime> callback)
         {
             _eventStore.SubscribeToStreamFrom(
                 _streamName,

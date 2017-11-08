@@ -16,7 +16,6 @@ namespace SprayChronicle.Example.Domain.Effect
 
         public void On(BasketCheckedOut message, DateTime epoch)
         {
-            Console.WriteLine("-------------------_---_---_-_-_-_-_--_---_--_-");
             _dispatcher.Dispatch(new GenerateOrder(
                 message.OrderId,
                 message.ProductIds
