@@ -30,9 +30,9 @@ namespace SprayChronicle.Example.Test.Projection
         }
 
         [Fact]
-        public override void ItAcceptsScenario()
+        public override void Scenario()
         {
-            base.ItAcceptsScenario();
+            base.Scenario();
         }
     }
 }

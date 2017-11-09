@@ -27,5 +27,11 @@ namespace SprayChronicle.Example.Test.Projection
                 new NumberOfProductsInBasket("basketId", 1)
             };
         }
+
+        [Fact]
+        public override void Scenario()
+        {
+            base.Scenario();
+        }
     }
 }

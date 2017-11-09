@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using SprayChronicle.EventSourcing;
@@ -10,7 +11,7 @@ namespace SprayChronicle.Persistence.Memory
 
         public delegate void EventAppearedHandler(DomainMessage domainMessage);
 
-        public event EventAppearedHandler OnEventAppreared;
+        public event EventAppearedHandler OnEventAppeared;
 
         public void Append<T>(string identity, IEnumerable<DomainMessage> domainMessages)
         {
@@ -18,7 +19,7 @@ namespace SprayChronicle.Persistence.Memory
 
             foreach (var domainMessage in domainMessages) {
                 Stream(identity).Add(domainMessage);
-                OnEventAppreared?.Invoke(domainMessage);
+                OnEventAppeared?.Invoke(domainMessage);
             }
         }
 

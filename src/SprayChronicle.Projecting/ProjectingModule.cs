@@ -54,12 +54,12 @@ namespace SprayChronicle.Projecting
                     .Register<IStatefulRepository<TProjection>>(
                         c => c.Resolve<IBuildStatefulRepositories>().Build<TProjection>(_reference)
                     )
-                    .InstancePerDependency();
+                    .SingleInstance();
                 
                 builder
                     .RegisterType<TProjector>()
                     .AsSelf()
-                    .InstancePerDependency();
+                    .SingleInstance();
 
                 builder
                     .Register<StreamEventHandler<TProjector>>(

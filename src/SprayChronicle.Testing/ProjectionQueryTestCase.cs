@@ -33,7 +33,7 @@ namespace SprayChronicle.Testing
         }
 
         [Fact]
-        public virtual void ItAcceptsScenario()
+        public virtual void Scenario()
         {
             new ProjectionQueryFixture<TModule>(Configure)
                 .Epoch(Epoch())
