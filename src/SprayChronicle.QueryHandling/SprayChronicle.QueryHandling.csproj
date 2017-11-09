@@ -6,6 +6,7 @@
     <DebugType>portable</DebugType>
     <AssemblyName>SprayChronicle.QueryHandling</AssemblyName>
     <PackageId>SprayChronicle.QueryHandling</PackageId>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>

@@ -5,6 +5,7 @@
     <DebugType>portable</DebugType>
     <AssemblyName>SprayChronicle.Persistence.Memory</AssemblyName>
     <PackageId>SprayChronicle.Persistence.Memory</PackageId>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../SprayChronicle.EventHandling/SprayChronicle.EventHandling.csproj" />

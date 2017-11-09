@@ -5,6 +5,7 @@
     <DebugType>portable</DebugType>
     <AssemblyName>SprayChronicle.EventHandling</AssemblyName>
     <PackageId>SprayChronicle.EventHandling</PackageId>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../SprayChronicle.MessageHandling/SprayChronicle.MessageHandling.csproj" />

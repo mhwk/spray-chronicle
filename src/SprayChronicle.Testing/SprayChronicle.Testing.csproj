@@ -6,6 +6,7 @@
     <DebugType>portable</DebugType>
     <AssemblyName>SprayChronicle.Testing</AssemblyName>
     <PackageId>SprayChronicle.Testing</PackageId>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../SprayChronicle.CommandHandling/SprayChronicle.CommandHandling.csproj"/>

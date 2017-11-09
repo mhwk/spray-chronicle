@@ -6,6 +6,7 @@
     <DebugType>portable</DebugType>
     <AssemblyName>SprayChronicle.Persistence.Mongo</AssemblyName>
     <PackageId>SprayChronicle.Persistence.Mongo</PackageId>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>

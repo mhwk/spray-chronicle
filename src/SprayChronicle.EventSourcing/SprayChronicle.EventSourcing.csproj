@@ -6,6 +6,7 @@
     <DebugType>portable</DebugType>
     <AssemblyName>SprayChronicle.EventSourcing</AssemblyName>
     <PackageId>SprayChronicle.EventSourcing</PackageId>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>

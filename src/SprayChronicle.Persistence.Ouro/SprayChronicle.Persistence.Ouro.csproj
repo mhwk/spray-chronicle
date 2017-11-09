@@ -6,6 +6,7 @@
     <DebugType>portable</DebugType>
     <AssemblyName>SprayChronicle.Persistence.Ouro</AssemblyName>
     <PackageId>SprayChronicle.Persistence.Ouro</PackageId>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>

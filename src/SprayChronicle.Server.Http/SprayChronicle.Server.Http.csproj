@@ -6,6 +6,7 @@
     <DebugType>portable</DebugType>
     <AssemblyName>SprayChronicle.Server.Http</AssemblyName>
     <PackageId>SprayChronicle.Server.Http</PackageId>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../SprayChronicle.Server/SprayChronicle.Server.csproj" />
