@@ -7,11 +7,11 @@ namespace SprayChronicle.Server.Http
 {
     public class HttpCommandRouteMapper
     {
-        readonly ILogger<HttpCommandDispatcher> _logger;
+        private readonly ILogger<HttpCommandDispatcher> _logger;
 
-        readonly IValidator _validator;
+        private readonly IValidator _validator;
 
-        readonly IDispatchCommand _dispatcher;
+        private readonly IDispatchCommand _dispatcher;
 
         public HttpCommandRouteMapper(
             ILogger<HttpCommandDispatcher> logger,
@@ -26,7 +26,7 @@ namespace SprayChronicle.Server.Http
         public void Map(RouteBuilder builder)
         {
             foreach (var command in Locator.LocateWithAttribute<HttpCommandAttribute>()) {
-                _logger.LogDebug("Mapping {0} to command {1}", command.GetTypeInfo().GetCustomAttribute<HttpCommandAttribute>().Template, command);
+                _logger.LogDebug("Mapping {0} to command {1}", command.GetTypeInfo().GetCustomAttribute<HttpCommandAttribute>()?.Template, command);
                 switch (command.GetTypeInfo().GetCustomAttribute<HttpCommandAttribute>().Method) {
                     case "POST":
                         builder.MapPost(
@@ -40,6 +40,10 @@ namespace SprayChronicle.Server.Http
                             new HttpCommandDispatcher(_logger, _validator, _dispatcher, command).Dispatch
                         );
                     break;
+                    default: throw new UnsupportedHttpMethodException(string.Format(
+                        "The http method {0} is not supported, must be either POST or GET",
+                        command.GetTypeInfo().GetCustomAttribute<HttpCommandAttribute>().Method
+                    ));
                 }
             }
         }

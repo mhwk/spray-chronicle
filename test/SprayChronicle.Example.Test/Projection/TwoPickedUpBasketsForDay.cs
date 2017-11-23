@@ -7,7 +7,7 @@ using SprayChronicle.Example.Domain;
 
 namespace SprayChronicle.Example.Test.Projection
 {
-    public class TwoPickedUpBasketsForDay : ProjectionQueryTestCase<ExampleModule>
+    public class TwoPickedUpBasketsForDay : ProjectionQueryTestCase<Module>
     {
         protected override DateTime[] Epoch()
         {

@@ -6,7 +6,7 @@ using SprayChronicle.Example.Domain.Model;
 
 namespace SprayChronicle.Example.Test.Domain
 {
-    public sealed class ItCanNotRemoveProductifNotInBasket : EventSourcedTestCase<ExampleModule>
+    public sealed class ItCanNotRemoveProductifNotInBasket : EventSourcedTestCase<Module>
     {
         protected override object[] Given()
         {

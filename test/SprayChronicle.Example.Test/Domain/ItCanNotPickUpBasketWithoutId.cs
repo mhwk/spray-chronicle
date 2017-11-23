@@ -6,7 +6,7 @@ using SprayChronicle.Testing;
 
 namespace SprayChronicle.Example.Test.Domain
 {
-    public class ItCanNotPickUpBasketWithoutId : EventSourcedTestCase<ExampleModule>
+    public class ItCanNotPickUpBasketWithoutId : EventSourcedTestCase<Module>
     {
         protected override object When()
         {

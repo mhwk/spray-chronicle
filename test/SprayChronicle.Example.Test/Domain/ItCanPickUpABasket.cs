@@ -4,7 +4,7 @@ using SprayChronicle.Example.Domain;
 
 namespace SprayChronicle.Example.Test.Domain
 {
-    public sealed class ItCanPickUpABasket : EventSourcedTestCase<ExampleModule>
+    public sealed class ItCanPickUpABasket : EventSourcedTestCase<Module>
     {
         protected override object When()
         {

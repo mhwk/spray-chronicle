@@ -9,7 +9,7 @@ using SprayChronicle.Example.Domain;
 
 namespace SprayChronicle.Example.Test.Projection
 {
-    public class ItCanPageNumberOfProductsInBasket : ProjectionQueryTestCase<ExampleModule>
+    public class ItCanPageNumberOfProductsInBasket : ProjectionQueryTestCase<Module>
     {
         protected override object[] Given()
         {

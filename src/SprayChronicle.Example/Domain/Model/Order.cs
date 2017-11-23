@@ -5,11 +5,11 @@ namespace SprayChronicle.Example.Domain.Model
 {
     public sealed class Order : EventSourced<Order>
     {
-        readonly OrderId _orderId;
+        private readonly OrderId _orderId;
 
-        readonly ProductId[] _productIds;
+        private readonly ProductId[] _productIds;
 
-        Order(OrderId orderId, ProductId[] productIds)
+        private Order(OrderId orderId, ProductId[] productIds)
         {
             _orderId = orderId;
             _productIds = productIds;

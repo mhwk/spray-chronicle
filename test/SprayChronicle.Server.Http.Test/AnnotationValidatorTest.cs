@@ -8,7 +8,7 @@ namespace SprayChronicle.Server.Http.Test
         [Fact]
         public void ItValidates()
         {
-            Assert.Throws<InvalidatedException>(() => new AnnotationValidator().Validate(new PickUpBasket(null)));
+            Assert.Throws<InvalidRequestException>(() => new AnnotationValidator().Validate(new PickUpBasket(null)));
         }
     }
 }

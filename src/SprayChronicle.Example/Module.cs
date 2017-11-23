@@ -12,7 +12,7 @@ using SprayChronicle.Example.Domain.Model;
 
 namespace SprayChronicle.Example
 {
-    public class ExampleModule : Module
+    public class Module : Autofac.Module
     {
         protected override void Load(ContainerBuilder builder)
         {

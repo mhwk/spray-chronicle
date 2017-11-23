@@ -1,5 +1,4 @@
 using Xunit;
-using SprayChronicle.Example.Domain.Model;
 using SprayChronicle.Example.Application;
 using SprayChronicle.Example.Domain;
 using SprayChronicle.Example;
@@ -8,9 +7,9 @@ namespace SprayChronicle.Testing.Test
 {
     public class EventSourcedFixtureTest
     {
-        public EventSourcedFixture<ExampleModule> Fixture()
+        private EventSourcedFixture<Module> Fixture()
         {
-            return new EventSourcedFixture<ExampleModule>();
+            return new EventSourcedFixture<Module>();
         }
 
         [Fact]

@@ -7,7 +7,7 @@ namespace SprayChronicle.Example.Domain.Effect
 {
     public class OrderReceptor : IHandleEvent<BasketCheckedOut>
     {
-        readonly LoggingDispatcher _dispatcher;
+        private readonly LoggingDispatcher _dispatcher;
 
         public OrderReceptor(LoggingDispatcher dispatcher)
         {

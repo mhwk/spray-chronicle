@@ -4,7 +4,7 @@ using SprayChronicle.Example;
 
 namespace SprayChronicle.Testing.Test
 {
-    public class EventSourcedTestCaseTest : EventSourcedTestCase<ExampleModule>
+    public class EventSourcedTestCaseTest : EventSourcedTestCase<Module>
     {
         protected override object[] Given()
         {

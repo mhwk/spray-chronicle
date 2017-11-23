@@ -15,7 +15,7 @@ namespace SprayChronicle.Server.Http
             try {
                 Validator.ValidateObject(payload, new ValidationContext(payload), true);
             } catch (ValidationException error) {
-                throw new InvalidatedException(string.Format("Invalid message: {0}", error.Message), error);
+                throw new InvalidRequestException(string.Format("Invalid message: {0}", error.Message), error);
             }
         }
     }

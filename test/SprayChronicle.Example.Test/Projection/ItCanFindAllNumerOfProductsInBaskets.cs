@@ -6,7 +6,7 @@ using SprayChronicle.Example.Domain;
 
 namespace SprayChronicle.Example.Test.Projection
 {
-    public class ItCanFindAllNumerOfProductsInBaskets : ProjectionQueryTestCase<ExampleModule>
+    public class ItCanFindAllNumerOfProductsInBaskets : ProjectionQueryTestCase<Module>
     {
         protected override object[] Given()
         {

@@ -14,6 +14,7 @@ namespace SprayChronicle.CommandHandling
         {
             _repository = repository;
         }
+        
         public abstract bool Handles(object command);
         
         public abstract void Handle(object command);

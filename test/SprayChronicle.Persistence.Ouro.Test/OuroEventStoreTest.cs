@@ -1,13 +1,10 @@
 using System;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Xunit;
 using Moq;
 using FluentAssertions;
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.SystemData;
-using SprayChronicle.Example.Domain;
-using SprayChronicle.Example.Domain.Model;
 using SprayChronicle.EventSourcing;
 using SprayChronicle.Persistence.Ouro;
 
@@ -19,9 +16,9 @@ namespace SprayChronicle.Test.EventPersisting
          * Sadly, due to lack embedded client for dotnet core, a lot is untestable.
          */
 
-         public Mock<ILogger<IEventStore>> Logger = new Mock<ILogger<IEventStore>>();
+         public readonly Mock<ILogger<IEventStore>> Logger = new Mock<ILogger<IEventStore>>();
 
-         public Mock<IEventStoreConnection> EventStore = new Mock<IEventStoreConnection>();
+         public readonly Mock<IEventStoreConnection> EventStore = new Mock<IEventStoreConnection>();
 
          [Fact]
          public void ItCanInstantiateOuroPersister()
@@ -34,7 +31,7 @@ namespace SprayChronicle.Test.EventPersisting
          public void ItCanNotSaveEmptyStreamName()
          {
              var persister = new OuroEventStore(Logger.Object, EventStore.Object, new UserCredentials("username", "password"), "Tenant");
-             Action append = () => persister.Append<ExampleAggregate>("", new DomainMessage[1] {
+             Action append = () => persister.Append<ExampleAggregate>("", new[] {
                  new DomainMessage(0, new DateTime(), new object{})
              });
              append.ShouldThrow<InvalidStreamException>();
@@ -44,7 +41,7 @@ namespace SprayChronicle.Test.EventPersisting
          public void ItCanNotSaveInvalidStreamName()
          {
              var persister = new OuroEventStore(Logger.Object, EventStore.Object, new UserCredentials("username", "password"), "Tenant");
-             Action append = () => persister.Append<ExampleAggregate>("@", new DomainMessage[1] {
+             Action append = () => persister.Append<ExampleAggregate>("@", new[] {
                  new DomainMessage(0, new DateTime(), new object{})
              });
              append.ShouldThrow<InvalidStreamException>();

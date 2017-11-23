@@ -4,7 +4,7 @@ using SprayChronicle.Example.Domain;
 
 namespace SprayChronicle.Example.Test.Domain
 {
-    public sealed class ItCanCheckOutFilledBasket : EventSourcedTestCase<ExampleModule>
+    public sealed class ItCanCheckOutFilledBasket : EventSourcedTestCase<Module>
     {
         protected override object[] Given()
         {

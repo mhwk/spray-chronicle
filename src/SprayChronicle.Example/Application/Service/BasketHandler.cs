@@ -1,7 +1,6 @@
 using SprayChronicle.CommandHandling;
 using SprayChronicle.EventSourcing;
 using SprayChronicle.Example.Domain.Model;
-using SprayChronicle.Example.Application;
 
 namespace SprayChronicle.Example.Application.Service
 {

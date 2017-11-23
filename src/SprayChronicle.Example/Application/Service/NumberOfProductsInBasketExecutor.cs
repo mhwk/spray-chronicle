@@ -8,7 +8,7 @@ using SprayChronicle.Example.Application.Model;
 
 namespace SprayChronicle.Example.Application.Service
 {
-    public class NumberOfProductsInBasketExecutor : OverloadQueryExecutor<NumberOfProductsInBasket>
+    public sealed class NumberOfProductsInBasketExecutor : OverloadQueryExecutor<NumberOfProductsInBasket>
     {
         public NumberOfProductsInBasketExecutor(IStatefulRepository<NumberOfProductsInBasket> repository): base(repository)
         {}

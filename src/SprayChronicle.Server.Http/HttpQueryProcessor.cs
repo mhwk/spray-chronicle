@@ -72,20 +72,20 @@ namespace SprayChronicle.Server.Http
                 await response.WriteAsync(JsonConvert.SerializeObject(new {
                     Error = error.InnerException.Message
                 }, _serializerSettings));
-            } catch (InvalidatedException error) {
+            } catch (InvalidRequestException error) {
                 _logger.LogInformation(error.ToString());
                 response.ContentType = "application/json";
                 response.StatusCode = 400;
                 await response.WriteAsync(JsonConvert.SerializeObject(new {
                     Error = error.Message
                 }, _serializerSettings));
-            } catch (UnauthorizedException error) {
-                _logger.LogInformation(error.ToString());
-                response.ContentType = "application/json";
-                response.StatusCode = 401;
-                await response.WriteAsync(JsonConvert.SerializeObject(new {
-                    Error = error.Message
-                }, _serializerSettings));
+//            } catch (UnauthorizedException error) {
+//                _logger.LogInformation(error.ToString());
+//                response.ContentType = "application/json";
+//                response.StatusCode = 401;
+//                await response.WriteAsync(JsonConvert.SerializeObject(new {
+//                    Error = error.Message
+//                }, _serializerSettings));
             } catch (Exception error) {
                 _logger.LogCritical(error.ToString());
                 response.ContentType = "application/json";

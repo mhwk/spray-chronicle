@@ -2,9 +2,10 @@ using System;
 
 namespace SprayChronicle.Server.Http
 {
-    public class UnexpectedContentException : Exception
+    public sealed class UnexpectedContentException : HttpServerException
     {
-        public UnexpectedContentException(string message): base(message)
-        {}
+        public UnexpectedContentException(string message) : base(message)
+        {
+        }
     }
 }

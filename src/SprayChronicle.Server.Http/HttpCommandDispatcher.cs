@@ -15,20 +15,20 @@ namespace SprayChronicle.Server.Http
 {
     public class HttpCommandDispatcher
     {
-        readonly ILogger<HttpCommandDispatcher> _logger;
+        private readonly ILogger<HttpCommandDispatcher> _logger;
 
-        readonly IValidator _validator;
+        private readonly IValidator _validator;
 
-        readonly IDispatchCommand _dispatcher;
+        private readonly IDispatchCommand _dispatcher;
 
-        readonly Type _type;
+        private readonly Type _type;
 
-        readonly JsonSerializerSettings _serializerSettings = new JsonSerializerSettings {
+        private readonly JsonSerializerSettings _serializerSettings = new JsonSerializerSettings {
             ContractResolver = new CamelCasePropertyNamesContractResolver(),
             Converters = new List<JsonConverter>() { new ISO8601DateConverter() }
         };
 
-        static readonly RequestToMessageConverter converter = new RequestToMessageConverter();
+        private static readonly RequestToMessageConverter converter = new RequestToMessageConverter();
 
         public HttpCommandDispatcher(
             ILogger<HttpCommandDispatcher> logger,
@@ -79,14 +79,14 @@ namespace SprayChronicle.Server.Http
                         Success = false,
                         Error = error.Message
                     }, _serializerSettings));
-                } catch (UnauthorizedException error) {
-                    _logger.LogWarning(error.ToString());
-                    response.StatusCode = 401;
-                    await response.WriteAsync(JsonConvert.SerializeObject(new {
-                        Success = false,
-                        Error = error.Message
-                    }, _serializerSettings));
-                } catch (InvalidatedException error) {
+//                } catch (UnauthorizedException error) {
+//                    _logger.LogWarning(error.ToString());
+//                    response.StatusCode = 401;
+//                    await response.WriteAsync(JsonConvert.SerializeObject(new {
+//                        Success = false,
+//                        Error = error.Message
+//                    }, _serializerSettings));
+                } catch (InvalidRequestException error) {
                     _logger.LogWarning(error.ToString());
                     response.StatusCode = 400;
                     await response.WriteAsync(JsonConvert.SerializeObject(new {
