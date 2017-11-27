@@ -30,12 +30,9 @@ namespace SprayChronicle.EventHandling
         {
             private readonly string _stream;
 
-            private readonly string _namespace;
-
-            public CatchUp(string stream, string @namespace)
+            public CatchUp(string stream)
             {
                 _stream = stream;
-                _namespace = @namespace;
             }
 
             protected override void Load(ContainerBuilder builder)
@@ -62,17 +59,14 @@ namespace SprayChronicle.EventHandling
 
             private readonly string _category;
 
-            private readonly string _namespace;
-
-            public Persistent(string stream, string category, string @namespace)
+            public Persistent(string stream, string category)
             {
                 _stream = stream;
                 _category = category;
-                _namespace = @namespace;
             }
 
-            public Persistent(string stream, string @namespace)
-                : this(stream, typeof(THandler).FullName, @namespace)
+            public Persistent(string stream)
+                : this(stream, typeof(THandler).FullName)
             {}
 
             protected override void Load(ContainerBuilder builder)
