@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <VersionPrefix>0.1.0</VersionPrefix>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -8,18 +7,15 @@
     <PackageId>SprayChronicle.Persistence.Mongo</PackageId>
     <IsPackable>true</IsPackable>
   </PropertyGroup>
-
   <ItemGroup>
     <ProjectReference Include="../SprayChronicle.Projecting/SprayChronicle.Projecting.csproj" />
     <ProjectReference Include="../SprayChronicle.Server/SprayChronicle.Server.csproj" />
   </ItemGroup>
-
   <ItemGroup>
-    <PackageReference Include="Autofac" Version="4.6.1" />
+    <PackageReference Include="Autofac" Version="4.6.2" />
     <PackageReference Include="MongoDB.Driver" Version="2.4.4" />
     <PackageReference Include="MongoDB.Bson" Version="2.4.4" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.0.0" />
   </ItemGroup>
-
 </Project>

@@ -4,19 +4,19 @@ namespace SprayChronicle.Testing
 {
     public class TestStreamFactory : IBuildStreams
     {
-        readonly TestStream _stream;
+        private readonly TestStream _stream;
 
         public TestStreamFactory(TestStream stream)
         {
             _stream = stream;
         }
 
-        public IStream CatchUp(string streamName, ILocateTypes typeLocator)
+        public IStream CatchUp(string streamName)
         {
             return _stream;
         }
 
-        public IStream Persistent(string streamName, string groupName, ILocateTypes typeLocator)
+        public IStream Persistent(string streamName, string groupName)
         {
             return _stream;
         }

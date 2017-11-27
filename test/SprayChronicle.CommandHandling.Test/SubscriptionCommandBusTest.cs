@@ -1,14 +1,13 @@
 using System;
-using Xunit;
-using Moq;
 using FluentAssertions;
-using SprayChronicle.CommandHandling;
+using Moq;
+using Xunit;
 
-namespace SprayChronicle.Test.CommandHandling
+namespace SprayChronicle.CommandHandling.Test
 {
     public class SubscriptionCommandBusTest
     {
-        public Mock<IHandleCommand> CommandHandler = new Mock<IHandleCommand>();
+        private readonly Mock<IHandleCommand> _commandHandler = new Mock<IHandleCommand>();
 
         [Fact]
         public void ItFailsIfNoSubscriptions()
@@ -21,10 +20,10 @@ namespace SprayChronicle.Test.CommandHandling
         [Fact]
         public void ItFailsIfNotAccepted()
         {
-            CommandHandler.Setup(commandHandler => commandHandler.Handles(It.IsAny<object>())).Returns(false);
+            _commandHandler.Setup(commandHandler => commandHandler.Handles(It.IsAny<object>())).Returns(false);
 
             var commandBus = new SubscriptionDispatcher();
-            commandBus.Subscribe(CommandHandler.Object);
+            commandBus.Subscribe(_commandHandler.Object);
 
             Action a = () => commandBus.Dispatch(new Command());
             a.ShouldThrow<UnhandledCommandException>();
@@ -33,15 +32,15 @@ namespace SprayChronicle.Test.CommandHandling
         [Fact]
         public void ItDispatchesTohandler()
         {
-            CommandHandler.Setup(commandHandler => commandHandler.Handles(It.IsAny<object>())).Returns(true);
+            _commandHandler.Setup(commandHandler => commandHandler.Handles(It.IsAny<object>())).Returns(true);
 
             var commandBus = new SubscriptionDispatcher();
-            commandBus.Subscribe(CommandHandler.Object);
+            commandBus.Subscribe(_commandHandler.Object);
 
             commandBus.Dispatch(new Command());
         }
 
-        public class Command
+        private class Command
         {}
     }
 }

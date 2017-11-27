@@ -1,12 +1,12 @@
 using System;
 using System.Linq;
-using Xunit;
 using FluentAssertions;
-using SprayChronicle.EventSourcing;
-using SprayChronicle.Example.Domain.Model;
 using SprayChronicle.Example.Domain;
+using SprayChronicle.Example.Domain.Model;
+using SprayChronicle.MessageHandling;
+using Xunit;
 
-namespace SprayChronicle.Test.EvenSourcing
+namespace SprayChronicle.EventSourcing.Test
 {
     public class EventSourcedTest
     {
@@ -17,7 +17,7 @@ namespace SprayChronicle.Test.EvenSourcing
                 .PickUp(new BasketId("foo"))
                 .Diff()
                 .Select(domainMessage => domainMessage.Payload)
-                .ShouldBeEquivalentTo(new object[1] {new BasketPickedUp("foo")});
+                .ShouldAllBeEquivalentTo(new [] {new InstanceMessage(new BasketPickedUp("foo"))});
         }
 
         [Fact]
@@ -28,9 +28,9 @@ namespace SprayChronicle.Test.EvenSourcing
                 .AddProduct(new ProductId("bar"))
                 .Diff()
                 .Select(domainMessage => domainMessage.Payload)
-                .ShouldBeEquivalentTo(new object[2] {
-                    new BasketPickedUp("foo"),
-                    new ProductAddedToBasket("foo", "bar")
+                .ShouldAllBeEquivalentTo(new [] {
+                    new InstanceMessage(new BasketPickedUp("foo")),
+                    new InstanceMessage(new ProductAddedToBasket("foo", "bar"))
                 });
         }
 
@@ -43,17 +43,17 @@ namespace SprayChronicle.Test.EvenSourcing
                 .AddProduct(new ProductId("bar"))
                 .Diff()
                 .Select(domainMessage => domainMessage.Sequence)
-                .ShouldBeEquivalentTo(new int[] {0, 1, 2});
+                .ShouldAllBeEquivalentTo(new [] {0, 1, 2});
         }
 
         [Fact]
         public void ItCalculatesSequenceAfterPatch()
         {
-            var aggregate = (PickedUpBasket) Basket.Patch(new DomainMessage[] {
+            var aggregate = (PickedUpBasket) Basket.Patch(new [] {
                 new DomainMessage(
                     0,
                     new DateTime(),
-                    new BasketPickedUp("foo")
+                    new InstanceMessage(new BasketPickedUp("foo"))
                 )
             });
             aggregate
@@ -61,7 +61,7 @@ namespace SprayChronicle.Test.EvenSourcing
                 .AddProduct(new ProductId("bar"))
                 .Diff()
                 .Select(domainMessage => domainMessage.Sequence)
-                .ShouldBeEquivalentTo(new int[] {1, 2});
+                .ShouldAllBeEquivalentTo(new [] {1, 2});
         }
 
         [Fact]
@@ -71,12 +71,12 @@ namespace SprayChronicle.Test.EvenSourcing
                 new DomainMessage(
                     0,
                     new DateTime(),
-                    new BasketPickedUp("foo")
+                    new InstanceMessage(new BasketPickedUp("foo"))
                 ),
                 new DomainMessage(
                     1,
                     new DateTime(),
-                    new UnknownBasketEvent()
+                    new InstanceMessage(new UnknownBasketEvent())
                 ),
             });
         }
@@ -88,12 +88,12 @@ namespace SprayChronicle.Test.EvenSourcing
                 new DomainMessage(
                     0,
                     new DateTime(),
-                    new BasketPickedUp("foo")
+                    new InstanceMessage(new BasketPickedUp("foo"))
                 ),
                 new DomainMessage(
                     1,
                     new DateTime(),
-                    new UnknownBasketEvent()
+                    new InstanceMessage(new UnknownBasketEvent())
                 ),
             });
             aggregate
@@ -101,10 +101,10 @@ namespace SprayChronicle.Test.EvenSourcing
                 .AddProduct(new ProductId("bar"))
                 .Diff()
                 .Select(domainMessage => domainMessage.Sequence)
-                .ShouldBeEquivalentTo(new int[] {2, 3});
+                .ShouldAllBeEquivalentTo(new long[] {2, 3});
         }
 
-        public sealed class UnknownBasketEvent
+        private sealed class UnknownBasketEvent
         {
 
         }

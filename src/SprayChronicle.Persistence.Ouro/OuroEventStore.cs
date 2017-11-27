@@ -9,18 +9,19 @@ using EventStore.ClientAPI;
 using EventStore.ClientAPI.SystemData;
 using Newtonsoft.Json;
 using SprayChronicle.EventSourcing;
+using SprayChronicle.MessageHandling;
 
 namespace SprayChronicle.Persistence.Ouro
 {
     public sealed class OuroEventStore : IEventStore
     {
-        readonly ILogger<IEventStore> _logger;
+        private readonly ILogger<IEventStore> _logger;
 
-        readonly IEventStoreConnection _eventStore;
+        private readonly IEventStoreConnection _eventStore;
 
-        readonly UserCredentials _credentials;
+        private readonly UserCredentials _credentials;
 
-        readonly string _tenant;
+        private readonly string _tenant;
 
         public OuroEventStore(
             ILogger<IEventStore> logger,
@@ -36,7 +37,7 @@ namespace SprayChronicle.Persistence.Ouro
 
         public void Append<T>(string identity, IEnumerable<DomainMessage> domainMessages)
         {
-            if (0 == domainMessages.Count()) {
+            if ( ! domainMessages.Any()) {
                 return;
             }
             
@@ -67,8 +68,8 @@ namespace SprayChronicle.Persistence.Ouro
             var stopwatch = new Stopwatch();
             stopwatch.Start();
 
-            bool eos = false;
-            int current = 0;
+            var eos = false;
+            var current = 0;
 
             do {
                 var slice = _eventStore.ReadStreamEventsForwardAsync(stream, current, 50, false, _credentials).Result;
@@ -88,7 +89,7 @@ namespace SprayChronicle.Persistence.Ouro
             _logger.LogDebug("[{0}::load] {1}ms", stream, stopwatch.ElapsedMilliseconds);
         }
 
-        string Stream<T>(string identity)
+        private string Stream<T>(string identity)
         {
             if (identity.Equals("")) {
                 throw new InvalidStreamException(string.Format(
@@ -118,7 +119,7 @@ namespace SprayChronicle.Persistence.Ouro
             );
         }
 
-        EventData BuildEventData(DomainMessage domainMessage)
+        private EventData BuildEventData(DomainMessage domainMessage)
         {
             return new EventData(
                 Guid.NewGuid(),
@@ -132,15 +133,38 @@ namespace SprayChronicle.Persistence.Ouro
             );
         }
 
-        DomainMessage BuildDomainMessage(Metadata metadata, ResolvedEvent resolvedEvent)
+        private static DomainMessage BuildDomainMessage(Metadata metadata, ResolvedEvent resolvedEvent)
         {
             return new DomainMessage(
                 resolvedEvent.Event.EventNumber,
                 resolvedEvent.Event.Created,
-                JsonConvert.DeserializeObject(
-                    Encoding.UTF8.GetString(resolvedEvent.Event.Data),
-                    Type.GetType(metadata.OriginalFqn)
-                )
+                new OuroMessage(resolvedEvent)
+            );
+        }
+    }
+
+    internal class OuroMessage : IMessage
+    {
+        private readonly ResolvedEvent _resolvedEvent;
+        public string Type => _resolvedEvent.Event.EventType;
+
+        public OuroMessage(ResolvedEvent resolvedEvent)
+        {
+            _resolvedEvent = resolvedEvent;
+        }
+
+        public object Instance()
+        {
+            return JsonConvert.DeserializeObject(
+                Encoding.UTF8.GetString(_resolvedEvent.Event.Data)
+            );
+        }
+
+        public object Instance(Type type)
+        {
+            return JsonConvert.DeserializeObject(
+                Encoding.UTF8.GetString(_resolvedEvent.Event.Data),
+                type
             );
         }
     }

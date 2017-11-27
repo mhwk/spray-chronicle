@@ -1,6 +1,7 @@
 using System;
 using System.Reflection;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SprayChronicle.MessageHandling
 {
@@ -13,15 +14,28 @@ namespace SprayChronicle.MessageHandling
             if ( ! _map.ContainsKey(type)) {
                 _map[type] = new List<MethodInfo>();
             }
+            
             _map[type].Add(methodInfo);
         }
 
-        public IEnumerable<MethodInfo> MethodsFor(Type[] type)
+        public MethodInfo[] MethodsForTypes(IEnumerable<Type> types)
         {
-            if ( ! _map.ContainsKey(type)) {
-                _map[type] = new List<MethodInfo>();
+            if (null == types) {
+                return new MethodInfo[] {};
             }
-            return _map[type];
+            
+            var enumerable = types as Type[] ?? types.ToArray();
+            
+            if ( ! _map.ContainsKey(enumerable)) {
+                _map[enumerable] = new List<MethodInfo>();
+            }
+            
+            return _map[enumerable].ToArray();
+        }
+
+        public MethodInfo[] MethodsFor(IEnumerable<object> args)
+        {
+            return MethodsForTypes(args.Select(arg => arg.GetType()));
         }
     }
 }

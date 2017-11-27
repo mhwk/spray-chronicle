@@ -47,10 +47,7 @@ namespace SprayChronicle.EventHandling
                 builder
                     .Register(c => new StreamEventHandler<THandler>(
                         c.Resolve<ILoggerFactory>().CreateLogger<THandler>(),
-                        c.Resolve<IBuildStreams>().CatchUp(
-                            _stream,
-                            new NamespaceTypeLocator(_namespace)
-                        ),
+                        c.Resolve<IBuildStreams>().CatchUp(_stream),
                         c.Resolve<THandler>()
                     ))
                     .As<IHandleStream>()
@@ -89,8 +86,7 @@ namespace SprayChronicle.EventHandling
                         c.Resolve<ILoggerFactory>().CreateLogger<THandler>(),
                         c.Resolve<IBuildStreams>().Persistent(
                             _stream,
-                            _category,
-                            new NamespaceTypeLocator(_namespace)
+                            _category
                         ),
                         c.Resolve<THandler>()
                     ))

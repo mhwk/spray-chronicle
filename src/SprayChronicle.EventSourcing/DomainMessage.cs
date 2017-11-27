@@ -1,4 +1,5 @@
 using System;
+using SprayChronicle.MessageHandling;
 
 namespace SprayChronicle.EventSourcing
 {
@@ -8,9 +9,9 @@ namespace SprayChronicle.EventSourcing
 
         public readonly DateTime Epoch;
 
-        public readonly object Payload;
+        public readonly IMessage Payload;
 
-        public DomainMessage(long sequence, DateTime epoch, object payload)
+        public DomainMessage(long sequence, DateTime epoch, IMessage payload)
         {
             Sequence = sequence;
             Epoch = epoch;

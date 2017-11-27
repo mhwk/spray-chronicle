@@ -8,9 +8,9 @@ namespace SprayChronicle.Testing
 {
     public sealed class EventSourcedValidator : IValidate
     {
-        readonly Exception _error;
+        private readonly Exception _error;
 
-        readonly IEnumerable<DomainMessage> _domainMessages;
+        private readonly IEnumerable<DomainMessage> _domainMessages;
 
         public EventSourcedValidator(Exception error, IEnumerable<DomainMessage> domainMessages)
         {
@@ -39,19 +39,22 @@ namespace SprayChronicle.Testing
 		public IValidate Expect(params object[] results)
         {
             Expect(results.Select(r => r.GetType()).ToArray());
-            _domainMessages.Select(dm => dm.Payload).ShouldAllBeEquivalentTo(
+            
+            _domainMessages.Select(dm => dm.Payload.Instance()).ShouldAllBeEquivalentTo(
                 results,
                 options => options.WithStrictOrdering().RespectingRuntimeTypes()
             );
+            
             return this;
         }
 
 		public IValidate Expect(params Type[] types)
         {
-            _domainMessages.Select(dm => dm.Payload.GetType()).ShouldAllBeEquivalentTo(
+            _domainMessages.Select(dm => dm.Payload.Instance().GetType()).ShouldAllBeEquivalentTo(
                 types,
                 options => options.WithStrictOrdering().RespectingRuntimeTypes()
             );
+            
             return this;
         }
 

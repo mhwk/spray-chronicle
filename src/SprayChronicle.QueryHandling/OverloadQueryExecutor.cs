@@ -4,23 +4,23 @@ namespace SprayChronicle.QueryHandling
 {
     public class OverloadQueryExecutor<T> : IExecuteQueries
     {
-        protected readonly IStatefulRepository<T> _repository;
+        protected readonly IStatefulRepository<T> Repository;
 
-        readonly static IMessageHandlingStrategy _handlers = new OverloadHandlingStrategy<OverloadQueryExecutor<T>>();
+        private static readonly IMessageHandlingStrategy Handlers = new OverloadHandlingStrategy<OverloadQueryExecutor<T>>(new ContextTypeLocator<T>());
 
         public OverloadQueryExecutor(IStatefulRepository<T> repository)
         {
-            _repository = repository;
+            Repository = repository;
         }
 
         public bool Executes(object query)
         {
-            return _handlers.AcceptsMessage(this, query);
+            return Handlers.AcceptsMessage(this, new InstanceMessage(query));
         }
 
         public object Execute(object query)
         {
-            return _handlers.ProcessMessage(this, query);
+            return Handlers.ProcessMessage(this, new InstanceMessage(query));
         }
     }
 }

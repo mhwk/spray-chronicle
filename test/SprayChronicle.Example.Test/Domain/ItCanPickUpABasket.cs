@@ -1,6 +1,8 @@
+using System;
 using SprayChronicle.Testing;
 using SprayChronicle.Example.Application;
 using SprayChronicle.Example.Domain;
+using Xunit;
 
 namespace SprayChronicle.Example.Test.Domain
 {
@@ -16,6 +18,12 @@ namespace SprayChronicle.Example.Test.Domain
             return new object[] {
                 new BasketPickedUp("basketId")
             };
+        }
+
+        [Fact]
+        public override void Scenario()
+        {
+            base.Scenario();
         }
     }
 }

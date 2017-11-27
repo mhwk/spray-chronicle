@@ -9,8 +9,7 @@ namespace SprayChronicle.EventHandling.Test
         [Fact]
         public void ItFindsTypes()
         {
-            var locator = new NamespaceTypeLocator("SprayChronicle.Example.Domain");
-            locator.Locate("BasketPickedUp").ShouldBeEquivalentTo(typeof(BasketPickedUp));
+            
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <VersionPrefix>0.1.0</VersionPrefix>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -8,16 +7,13 @@
     <PackageId>SprayChronicle.QueryHandling</PackageId>
     <IsPackable>true</IsPackable>
   </PropertyGroup>
-
   <ItemGroup>
     <ProjectReference Include="../SprayChronicle.MessageHandling/SprayChronicle.MessageHandling.csproj" />
   </ItemGroup>
-
   <ItemGroup>
-    <PackageReference Include="Autofac" Version="4.6.1" />
+    <PackageReference Include="Autofac" Version="4.6.2" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.0.0" />
     <PackageReference Include="System.Linq.Queryable" Version="4.3.0" />
   </ItemGroup>
-
 </Project>

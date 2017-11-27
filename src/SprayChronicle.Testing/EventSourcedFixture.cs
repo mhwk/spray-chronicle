@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using SprayChronicle.CommandHandling;
 using SprayChronicle.EventHandling;
 using SprayChronicle.EventSourcing;
+using SprayChronicle.MessageHandling;
 using SprayChronicle.Persistence.Memory;
 using SprayChronicle.Projecting;
 using SprayChronicle.QueryHandling;
@@ -14,9 +15,9 @@ namespace SprayChronicle.Testing
 {
     public class EventSourcedFixture<TModule> : IPopulate, IExecute where TModule : IModule, new()
     {
-        IContainer _container;
+        private readonly IContainer _container;
 
-        long _sequence = -1;
+        private long _sequence = -1;
 
         protected LogLevel _logLevel = LogLevel.Information;
 
@@ -50,7 +51,7 @@ namespace SprayChronicle.Testing
             _container.Resolve<EventSourcedTestStore>().History(messages.Select(payload => new DomainMessage(
                 ++_sequence,
                 new DateTime(),
-                payload
+                new InstanceMessage(payload)
             )).ToArray());
 
             return this;

@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <VersionPrefix>0.1.0</VersionPrefix>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -8,9 +7,9 @@
     <PackageId>SprayChronicle.MessageHandling</PackageId>
     <IsPackable>true</IsPackable>
   </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="SprayLocator" Version="1.1.1" />
+    <Reference Include="System.Reflection.TypeExtensions, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <HintPath>..\..\..\..\.nuget\packages\system.reflection.typeextensions\4.1.0\ref\netstandard1.5\System.Reflection.TypeExtensions.dll</HintPath>
+    </Reference>
   </ItemGroup>
-
 </Project>

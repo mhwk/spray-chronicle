@@ -13,7 +13,7 @@ namespace SprayChronicle.Example.Application.Service
 
         public PickedUpBasketsPerDay On(PickedUpBasketsOnDay query)
         {
-            return _repository.Load(q => q.FirstOrDefault(item => item.Day == query.Day));
+            return Repository.Load(q => q.FirstOrDefault(item => item.Day == query.Day));
         }
     }
 }

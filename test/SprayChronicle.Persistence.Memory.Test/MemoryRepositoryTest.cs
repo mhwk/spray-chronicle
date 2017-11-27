@@ -13,10 +13,10 @@ namespace SprayChronicle.Persistence.Memory.Test
             var test = new Test();
             repository.Save(test);
 
-            test = repository.Load("id").DoFoo();
+            test = Test.DoFoo();
             repository.Save(test);
 
-            repository.Load("id").Foo.ShouldBeEquivalentTo(true);
+            repository.Load("id").Foo.Should().BeTrue();
         }
 
         public class Test
@@ -36,7 +36,7 @@ namespace SprayChronicle.Persistence.Memory.Test
                 Foo = foo;
             }
 
-            public Test DoFoo()
+            public static Test DoFoo()
             {
                 return new Test(true);
             }

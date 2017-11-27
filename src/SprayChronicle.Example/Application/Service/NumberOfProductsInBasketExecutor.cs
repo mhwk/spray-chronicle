@@ -15,17 +15,17 @@ namespace SprayChronicle.Example.Application.Service
 
         public object On(NumberOfProductsForBasketId query)
         {
-            return _repository.Load(q => q.FirstOrDefault(item => item.BasketId == query.BasketId));
+            return Repository.Load(q => q.FirstOrDefault(item => item.BasketId == query.BasketId));
         }
 
         public object On(NumberOfProductsInBaskets query)
         {
-            return _repository.Load(q => q);
+            return Repository.Load(q => q);
         }
 
         public object On(PagedNumberOfProductsInBasket query)
         {
-            return _repository.Load(q => q, query.Page, query.PerPage);
+            return Repository.Load(q => q, query.Page, query.PerPage);
         }
     }
 }

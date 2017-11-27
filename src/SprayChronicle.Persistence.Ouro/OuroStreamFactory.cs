@@ -8,13 +8,13 @@ namespace SprayChronicle.Persistence.Ouro
 {
     public sealed class OuroStreamFactory : IBuildStreams
     {
-        readonly ILogger<IEventStore> _logger;
+        private readonly ILogger<IEventStore> _logger;
 
-        readonly IEventStoreConnection _eventStore;
+        private readonly IEventStoreConnection _eventStore;
 
-        readonly UserCredentials _credentials;
+        private readonly UserCredentials _credentials;
 
-        readonly string _tenant;
+        private readonly string _tenant;
 
         public OuroStreamFactory(
             ILogger<IEventStore> logger,
@@ -28,25 +28,23 @@ namespace SprayChronicle.Persistence.Ouro
             _tenant = tenant;
         }
 
-        public IStream CatchUp(string streamName, ILocateTypes typeLocator)
+        public IStream CatchUp(string streamName)
         {
             return new CatchUpStream(
                 _logger,
                 _eventStore,
                 _credentials,
-                typeLocator,
                 streamName,
                 _tenant
             );
         }
 
-        public IStream Persistent(string streamName, string groupName, ILocateTypes typeLocator)
+        public IStream Persistent(string streamName, string groupName)
         {
             return new PersistentStream(
                 _logger,
                 _eventStore,
                 _credentials,
-                typeLocator,
                 streamName,
                 groupName,
                 _tenant

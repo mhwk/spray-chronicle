@@ -2,8 +2,8 @@ namespace SprayChronicle.MessageHandling
 {
     public interface IMessageHandlingStrategy
     {
-        bool AcceptsMessage(object subject, object message, params object[] arguments);
+        bool AcceptsMessage(object subject, IMessage message, params object[] arguments);
 
-        object ProcessMessage(object subject, object message, params object[] arguments);
+        object ProcessMessage(object subject, IMessage message, params object[] arguments);
     }
 }

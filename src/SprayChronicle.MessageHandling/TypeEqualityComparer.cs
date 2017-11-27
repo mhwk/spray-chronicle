@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace SprayChronicle.MessageHandling
 {
-    public class TypeEqualityComparer : IEqualityComparer<Type[]>
+    public sealed class TypeEqualityComparer : IEqualityComparer<Type[]>
     {
         public bool Equals(Type[] x, Type[] y)
         {

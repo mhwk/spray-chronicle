@@ -1,71 +1,71 @@
 using System;
-using System.Linq;
 using System.Collections.Generic;
-using Xunit;
-using Moq;
+using System.Linq;
 using FluentAssertions;
-using SprayChronicle.EventSourcing;
-using SprayChronicle.Example.Domain.Model;
+using Moq;
 using SprayChronicle.Example.Domain;
+using SprayChronicle.Example.Domain.Model;
+using SprayChronicle.MessageHandling;
+using Xunit;
 
-namespace SprayChronicle.Test.EventSourcing
+namespace SprayChronicle.EventSourcing.Test
 {
     public class EventSourcedRepositoryTest
     {
-        public Mock<IEventStore> Persistence = new Mock<IEventStore>();
+        private readonly Mock<IEventStore> _persistence = new Mock<IEventStore>();
 
         [Fact]
         public void ItAppendsMessages()
         {
-            new EventSourcedRepository<Basket>(Persistence.Object).Save(
+            new EventSourcedRepository<Basket>(_persistence.Object).Save(
                 Basket.PickUp(new BasketId("foo"))
             );
             
-            Persistence.Verify(p => p.Append<Basket>(
+            _persistence.Verify(p => p.Append<Basket>(
                 It.Is<string>(i => i == "foo"),
-                It.Is<IEnumerable<DomainMessage>>(i => IsEqual(i.Select(dm => dm.Payload), new object[] { new BasketPickedUp("foo") })
+                It.Is<IEnumerable<DomainMessage>>(i => IsEqual(i.Select(dm => dm.Payload), new object[] { new InstanceMessage(new BasketPickedUp("foo")),  })
             )));
         }
 
         [Fact]
         public void ItLoadsMessages()
         {
-            Persistence.Setup(p => p
+            _persistence.Setup(p => p
                 .Load<Basket>(It.Is<string>(i => i == "foo")))
-                .Returns(new DomainMessage[] { new DomainMessage(0, new DateTime(), new BasketPickedUp("foo")) });
+                .Returns(new DomainMessage[] { new DomainMessage(0, new DateTime(), new InstanceMessage(new BasketPickedUp("foo"))) });
                 
-            new EventSourcedRepository<Basket>(Persistence.Object).Load("foo").Should().BeAssignableTo<PickedUpBasket>();
+            new EventSourcedRepository<Basket>(_persistence.Object).Load("foo").Should().BeAssignableTo<PickedUpBasket>();
         }
 
         [Fact]
         public void ItIsOkIfNull()
         {
-            Persistence.Setup(p => p
+            _persistence.Setup(p => p
                 .Load<Basket>(It.Is<string>(i => i == "foo")))
-                .Returns(new DomainMessage[] { new DomainMessage(0, new DateTime(), new object {}) });
-            new EventSourcedRepository<Basket>(Persistence.Object).Load("foo").ShouldBeEquivalentTo(null);
+                .Returns(new DomainMessage[] { new DomainMessage(0, new DateTime(), new InstanceMessage(new object {})) });
+            new EventSourcedRepository<Basket>(_persistence.Object).Load("foo").Should().BeNull();
         }
 
         [Fact]
         public void ItFailsIfSpecificStateIsNull()
         {
-            Persistence.Setup(p => p
+            _persistence.Setup(p => p
                 .Load<Basket>(It.Is<string>(i => i == "foo")))
-                .Returns(new DomainMessage[] { new DomainMessage(0, new DateTime(), new object {}) });
-            Action action = () => new EventSourcedRepository<Basket>(Persistence.Object).Load<Basket>("foo");
+                .Returns(new DomainMessage[] { new DomainMessage(0, new DateTime(), new InstanceMessage(new object {})) });
+            Action action = () => new EventSourcedRepository<Basket>(_persistence.Object).Load<Basket>("foo");
             action.ShouldThrow<InvalidStateException>();
         }
 
         [Fact]
         public void ItIsOkIfDefaultIsNull()
         {
-            Persistence.Setup(p => p
+            _persistence.Setup(p => p
                 .Load<Basket>(It.Is<string>(i => i == "foo")))
-                .Returns(new DomainMessage[] { new DomainMessage(0, new DateTime(), new object {}) });
-            new EventSourcedRepository<Basket>(Persistence.Object).LoadOrDefault<Basket>("foo").ShouldBeEquivalentTo(null);
+                .Returns(new DomainMessage[] { new DomainMessage(0, new DateTime(), new InstanceMessage(new object {})) });
+            new EventSourcedRepository<Basket>(_persistence.Object).LoadOrDefault<Basket>("foo").Should().BeNull();
         }
 
-        bool IsEqual(object first, object second)
+        private static bool IsEqual(object first, object second)
         {
             try {
                 first.ShouldBeEquivalentTo(second);

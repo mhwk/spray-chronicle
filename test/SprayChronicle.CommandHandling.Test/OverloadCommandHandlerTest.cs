@@ -1,16 +1,14 @@
 using System;
 using System.Collections.Immutable;
-using Xunit;
-using Moq;
 using FluentAssertions;
-using SprayChronicle.CommandHandling;
+using Moq;
 using SprayChronicle.EventSourcing;
-using SprayChronicle.Example.Domain.Model;
 using SprayChronicle.Example.Application;
 using SprayChronicle.Example.Application.Service;
-using SprayChronicle.Example.Domain;
+using SprayChronicle.Example.Domain.Model;
+using Xunit;
 
-namespace SprayChronicle.Test.CommandHandling
+namespace SprayChronicle.CommandHandling.Test
 {
     public class OverloadCommandHandlerTest
     {
@@ -23,7 +21,7 @@ namespace SprayChronicle.Test.CommandHandling
         }
 
         [Fact]
-        public void IDoesAcceptCommand()
+        public void ItDoesAcceptCommand()
         {
             new BasketHandler(Repository.Object).Handles(new PickUpBasket("foo")).Should().BeTrue();
         }
@@ -50,7 +48,7 @@ namespace SprayChronicle.Test.CommandHandling
             a.ShouldThrow<ProductNotInBasketException>();
         }
 
-        public class DoNotAcceptCommand
+        private class DoNotAcceptCommand
         {}
     }
 }

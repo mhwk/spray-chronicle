@@ -27,25 +27,18 @@ namespace SprayChronicle.Projecting
 
         public sealed class ProjectionWithQuery<TProjection,TProjector,TExecutor> : Autofac.Module where TProjector : Projector<TProjection> where TExecutor : OverloadQueryExecutor<TProjection>
         {
-            readonly string _reference;
+            private readonly string _reference;
 
-            readonly string _stream;
+            private readonly string _stream;
 
-            readonly ILocateTypes _typeLocator;
-
-            public ProjectionWithQuery(string stream, string messageNamespace)
-                : this(typeof(TProjection).Name, stream, new NamespaceTypeLocator(messageNamespace))
+            public ProjectionWithQuery(string stream)
+                : this(typeof(TProjection).Name, stream)
             {}
 
-            public ProjectionWithQuery(string reference, string stream, string messageNamespace)
-                : this(reference, stream, new NamespaceTypeLocator(messageNamespace))
-            {}
-
-            public ProjectionWithQuery(string reference, string stream, ILocateTypes typeLocator)
+            public ProjectionWithQuery(string reference, string stream)
             {
                 _reference = reference;
                 _stream = stream;
-                _typeLocator = typeLocator;
             }
 
             protected override void Load(ContainerBuilder builder)
@@ -65,7 +58,7 @@ namespace SprayChronicle.Projecting
                     .Register<StreamEventHandler<TProjector>>(
                         c => new StreamEventHandler<TProjector>(
                             c.Resolve<ILoggerFactory>().CreateLogger<TProjector>(),
-                            c.Resolve<IBuildStreams>().CatchUp(_stream, _typeLocator),
+                            c.Resolve<IBuildStreams>().CatchUp(_stream),
                             c.Resolve<TProjector>()
                         )
                     )

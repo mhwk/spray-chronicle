@@ -6,66 +6,59 @@ namespace SprayChronicle.MessageHandling.Test
 {
     public class GivenOverloadHandlingStrategyForBasket
     {
-        public OverloadHandlingStrategy<Basket> Strategy;
-
-        public GivenOverloadHandlingStrategyForBasket()
-        {
-            Strategy = new OverloadHandlingStrategy<Basket>();
-        }
+        private readonly OverloadHandlingStrategy<Basket> _strategy = new OverloadHandlingStrategy<Basket>(new ContextTypeLocator<Basket>());
 
         [Fact]
         public void ItAcceptsInitialMessage()
         {
-            Assert.True(Strategy.AcceptsMessage(null, new BasketPickedUp("basketId")));
+            Assert.True(_strategy.AcceptsMessage(null, new InstanceMessage(new BasketPickedUp("basketId"))));
         }
 
         [Fact]
         public void ItDoesNotAcceptSecondMessage()
         {
-            Assert.False(Strategy.AcceptsMessage(null, new ProductAddedToBasket("basketId", "productId")));
+            Assert.False(_strategy.AcceptsMessage(null, new InstanceMessage(new ProductAddedToBasket("basketId", "productId"))));
         }
 
         [Fact]
         public void ItDoesNotAcceptUnknownMessage()
         {
-            Assert.False(Strategy.AcceptsMessage(null, new UnknownMessage()));
+            Assert.False(_strategy.AcceptsMessage(null, new InstanceMessage(new UnknownMessage())));
         }
 
         [Fact]
         public void ItReturnsAcceptedMethodResult()
         {
-            Assert.IsAssignableFrom<PickedUpBasket>(Strategy.ProcessMessage(null, new BasketPickedUp("basketId")));
+            Assert.IsAssignableFrom<PickedUpBasket>(_strategy.ProcessMessage(null, new InstanceMessage(new BasketPickedUp("basketId"))));
         }
 
         [Fact]
         public void ItThrowsUnhandledMessageException()
         {
-            Assert.Throws<UnhandledMessageException>(() => Strategy.ProcessMessage(null, new {}));
+            Assert.Throws<UnhandledMessageException>(() => _strategy.ProcessMessage(null, new InstanceMessage(new {})));
         }
 
         [Fact]
         public void ItThrowsUnexpectedStateExceptionExceptionForNewInstance()
         {
-            Assert.Throws<UnexpectedStateException>(() => Strategy.ProcessMessage(null, new ProductAddedToBasket("basketId", "productId")));
+            Assert.Throws<UnexpectedStateException>(() => _strategy.ProcessMessage(null, new InstanceMessage(new ProductAddedToBasket("basketId", "productId"))));
         }
 
         [Fact]
         public void ItThrowsUnexpectedStateExceptionExceptionForExistingInstance()
         {
-            var basket = Strategy.ProcessMessage(null, new BasketPickedUp("basketId"));
-            Assert.Throws<UnexpectedStateException>(() => Strategy.ProcessMessage(basket, new BasketPickedUp("basketId")));
+            var basket = _strategy.ProcessMessage(null, new InstanceMessage(new BasketPickedUp("basketId")));
+            Assert.Throws<UnexpectedStateException>(() => _strategy.ProcessMessage(basket, new InstanceMessage(new BasketPickedUp("basketId"))));
         }
 
         [Fact]
         public void ItProcessesSecondMessage()
         {
-            var basket = Strategy.ProcessMessage(null, new BasketPickedUp("basketId"));
-            Assert.IsAssignableFrom<CheckedOutBasket>(Strategy.ProcessMessage(basket, new BasketCheckedOut("basketId", "orderId", new string[] {})));
+            var basket = _strategy.ProcessMessage(null, new InstanceMessage(new BasketPickedUp("basketId")));
+            Assert.IsAssignableFrom<CheckedOutBasket>(_strategy.ProcessMessage(basket, new InstanceMessage(new BasketCheckedOut("basketId", "orderId", new string[] {}))));
         }
 
-        public sealed class UnknownMessage
-        {
-
-        }
+        private class UnknownMessage
+        {}
     }
 }

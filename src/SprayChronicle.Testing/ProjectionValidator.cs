@@ -7,9 +7,9 @@ namespace SprayChronicle.Testing
 {
     public class ProjectionValidator : IValidate
     {
-        readonly Exception _error;
+        private readonly Exception _error;
 
-        readonly object[] _projections;
+        private readonly object[] _projections;
 
         public ProjectionValidator(Exception error)
         {
@@ -18,8 +18,8 @@ namespace SprayChronicle.Testing
 
         public ProjectionValidator(object projection)
         {
-            if (projection is IEnumerable<object>) {
-                _projections = ((IEnumerable<object>)projection).ToArray();
+            if (projection is IEnumerable<object> objects) {
+                _projections = objects.ToArray();
             } else {
                 _projections = new object[] { projection };
             }

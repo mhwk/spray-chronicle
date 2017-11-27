@@ -8,20 +8,20 @@ namespace SprayChronicle.CommandHandling
 {
     public abstract class OverloadCommandHandler<T> : CommandHandler<T> where T : IEventSourcable<T>
     {
-        static readonly IMessageHandlingStrategy _handlers = new OverloadHandlingStrategy<OverloadCommandHandler<T>>();
+        private static readonly IMessageHandlingStrategy Handlers = new OverloadHandlingStrategy<OverloadCommandHandler<T>>(new ContextTypeLocator<T>());
 
         protected OverloadCommandHandler(IEventSourcingRepository<T> repository) : base(repository)
         {}
 
         public override bool Handles(object command)
         {
-            return _handlers.AcceptsMessage(this, command);
+            return Handlers.AcceptsMessage(this, new InstanceMessage(command));
         }
 
         public override void Handle(object command)
         {
             try {
-                _handlers.ProcessMessage(this, command);
+                Handlers.ProcessMessage(this, new InstanceMessage(command));
             } catch (TargetInvocationException error) {
                 ExceptionDispatchInfo.Capture(error.InnerException).Throw();
             } catch (UnhandledMessageException error) {
