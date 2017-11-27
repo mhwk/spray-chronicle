@@ -4,17 +4,18 @@ using Autofac;
 using Autofac.Core;
 using Microsoft.Extensions.Logging;
 using SprayChronicle.EventHandling;
+using SprayChronicle.MessageHandling;
 using SprayChronicle.QueryHandling;
 
 namespace SprayChronicle.Testing
 {
     public class ProjectionQueryFixture<TModule> : IPopulateEpoch, IPopulate, IExecute where TModule : IModule, new()
     {
-        readonly IContainer _container;
+        private readonly IContainer _container;
 
-        List<DateTime> _epochs = new List<DateTime>();
+        private List<DateTime> _epochs = new List<DateTime>();
 
-        protected LogLevel _logLevel = LogLevel.Information;
+        protected const LogLevel LogLevel = Microsoft.Extensions.Logging.LogLevel.Information;
 
         public ProjectionQueryFixture(Action<ContainerBuilder> configure)
         {
@@ -25,7 +26,7 @@ namespace SprayChronicle.Testing
             builder.RegisterModule<SprayChronicle.Projecting.ProjectingModule>();
             builder.RegisterModule<SprayChronicle.QueryHandling.QueryHandlingModule>();
             builder.RegisterModule<TModule>();
-            builder.Register<ILoggerFactory>(c => new LoggerFactory().AddConsole(_logLevel)).SingleInstance();
+            builder.Register<ILoggerFactory>(c => new LoggerFactory().AddConsole(LogLevel)).SingleInstance();
             builder.Register<TestStream>(c => new TestStream()).SingleInstance();
             builder.Register<IBuildStreams>(c => new TestStreamFactory(c.Resolve<TestStream>())).SingleInstance();
             configure(builder);
@@ -43,9 +44,9 @@ namespace SprayChronicle.Testing
         {
             for (var i = 0; i < messages.Length; i++) {
                 if (_epochs.Count > i) {
-                    _container.Resolve<TestStream>().Publish(messages[i], _epochs[i]);
+                    _container.Resolve<TestStream>().Publish(new InstanceMessage(messages[i]), _epochs[i]);
                 } else {
-                    _container.Resolve<TestStream>().Publish(messages[i], DateTime.Now);
+                    _container.Resolve<TestStream>().Publish(new InstanceMessage(messages[i]), DateTime.Now);
                 }
             }
             return this;

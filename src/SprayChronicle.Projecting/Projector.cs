@@ -6,7 +6,7 @@ namespace SprayChronicle.Projecting
 {
     public abstract class Projector<T> : IHandleEvent
     {
-        readonly IStatefulRepository<T> _repository;
+        protected readonly IStatefulRepository<T> _repository;
 
         public Projector(IStatefulRepository<T> repository)
         {

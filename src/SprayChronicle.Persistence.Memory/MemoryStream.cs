@@ -1,5 +1,6 @@
 using System;
 using SprayChronicle.EventHandling;
+using SprayChronicle.MessageHandling;
 
 namespace SprayChronicle.Persistence.Memory
 {
@@ -12,7 +13,7 @@ namespace SprayChronicle.Persistence.Memory
             _eventStore = eventStore;
         }
 
-        public void Subscribe(Action<object,DateTime> callback)
+        public void Subscribe(Action<IMessage,DateTime> callback)
         {
             _eventStore.OnEventAppeared += domainMessage => callback(
                 domainMessage.Payload,

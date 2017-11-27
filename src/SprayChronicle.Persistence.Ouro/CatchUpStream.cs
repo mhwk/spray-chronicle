@@ -36,7 +36,7 @@ namespace SprayChronicle.Persistence.Ouro
             _tenant = tenant;
         }
 
-        public void Subscribe(Action<object,DateTime> callback)
+        public void Subscribe(Action<IMessage,DateTime> callback)
         {
             _eventStore.SubscribeToStreamFrom(
                 _streamName,
@@ -49,7 +49,7 @@ namespace SprayChronicle.Persistence.Ouro
             );
         }
 
-        private void OnEventAppeared(EventStoreCatchUpSubscription subscription, ResolvedEvent resolvedEvent, Action<object,DateTime> callback)
+        private void OnEventAppeared(EventStoreCatchUpSubscription subscription, ResolvedEvent resolvedEvent, Action<IMessage,DateTime> callback)
         {
             var metadata = JsonConvert.DeserializeObject<Metadata>(Encoding.UTF8.GetString(resolvedEvent.Event.Metadata));
             if (metadata.Tenant != _tenant) {

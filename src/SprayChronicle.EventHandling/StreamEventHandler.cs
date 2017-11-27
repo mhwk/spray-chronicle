@@ -34,7 +34,7 @@ namespace SprayChronicle.EventHandling
         public void Listen()
         {
             _stream.Subscribe((@event, occurrence) => {
-                if ( ! Handlers.AcceptsMessage(_eventHandler, new InstanceMessage(@event), occurrence)) {
+                if ( ! Handlers.AcceptsMessage(_eventHandler, @event, occurrence)) {
                     _logger.LogDebug(
                         "{0}: skipping",
                         @event.GetType().Name
@@ -45,7 +45,7 @@ namespace SprayChronicle.EventHandling
                 var stopwatch = new Stopwatch();
                 stopwatch.Start();
 
-                Handlers.ProcessMessage(_eventHandler, new InstanceMessage(@event), occurrence);
+                Handlers.ProcessMessage(_eventHandler, @event, occurrence);
 
                 stopwatch.Stop();
                 _logger.LogInformation(
