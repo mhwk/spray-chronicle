@@ -26,7 +26,6 @@ namespace SprayChronicle.MessageHandling
         {
             _messageToMethod.Add(method.GetParameters().Select(parameter => parameter.ParameterType).ToArray(), method);
             if ( ! _nameToMessage.ContainsKey(method.GetParameters().First().ParameterType.Name)) {
-                Console.WriteLine("---" + method.GetParameters().First().ParameterType.Name);
                 _nameToMessage.Add(method.GetParameters().First().ParameterType.Name, method.GetParameters().First().ParameterType);
             }
         }
