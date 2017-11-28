@@ -123,11 +123,11 @@ namespace SprayChronicle.Persistence.Ouro
         {
             return new EventData(
                 Guid.NewGuid(),
-                domainMessage.Payload.GetType().Name,
+                domainMessage.Payload.Type,
                 true,
-                Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(domainMessage.Payload)),
+                Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(domainMessage.Payload.Instance())),
                 Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(new Metadata(
-                    domainMessage.Payload.GetType(),
+                    domainMessage.Payload.Instance().GetType(),
                     _tenant
                 )))
             );
