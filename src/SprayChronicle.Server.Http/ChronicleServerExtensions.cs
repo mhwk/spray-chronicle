@@ -5,6 +5,7 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 
 namespace SprayChronicle.Server.Http
 {
@@ -19,18 +20,18 @@ namespace SprayChronicle.Server.Http
             return server;
         }
 
-        public static void ConfigureAutofac(ContainerBuilder builder)
+        private static void ConfigureAutofac(ContainerBuilder builder)
         {
             builder.RegisterChronicleHttp();
         }
 
-        public static void ConfigureService(IServiceCollection services)
+        private static void ConfigureService(IServiceCollection services)
         {
             services.AddCors();
             services.AddRouting();
         }
 
-        public static void BuildApplication(IApplicationBuilder app)
+        private static void BuildApplication(IApplicationBuilder app)
         {
             app.UseCors(policy => policy
                 .AllowAnyHeader()
@@ -41,7 +42,7 @@ namespace SprayChronicle.Server.Http
             app.UseChronicleRouting();
         }
 
-        public static void BuildWebHost(IWebHostBuilder webHost)
+        private static void BuildWebHost(IWebHostBuilder webHost)
         {
             webHost.UseKestrel();
             webHost.UseUrls("http://0.0.0.0:5000/");
