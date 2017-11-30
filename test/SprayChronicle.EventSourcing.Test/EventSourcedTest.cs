@@ -16,8 +16,8 @@ namespace SprayChronicle.EventSourcing.Test
             Basket
                 .PickUp(new BasketId("foo"))
                 .Diff()
-                .Select(domainMessage => domainMessage.Payload)
-                .ShouldAllBeEquivalentTo(new [] {new InstanceMessage(new BasketPickedUp("foo"))});
+                .Select(domainMessage => domainMessage.Payload())
+                .ShouldAllBeEquivalentTo(new [] {new BasketPickedUp("foo")});
         }
 
         [Fact]
@@ -27,10 +27,10 @@ namespace SprayChronicle.EventSourcing.Test
                 .PickUp(new BasketId("foo"))
                 .AddProduct(new ProductId("bar"))
                 .Diff()
-                .Select(domainMessage => domainMessage.Payload)
-                .ShouldAllBeEquivalentTo(new [] {
-                    new InstanceMessage(new BasketPickedUp("foo")),
-                    new InstanceMessage(new ProductAddedToBasket("foo", "bar"))
+                .Select(domainMessage => domainMessage.Payload())
+                .ShouldAllBeEquivalentTo(new object[] {
+                    new BasketPickedUp("foo"),
+                    new ProductAddedToBasket("foo", "bar")
                 });
         }
 
@@ -53,7 +53,7 @@ namespace SprayChronicle.EventSourcing.Test
                 new DomainMessage(
                     0,
                     new DateTime(),
-                    new InstanceMessage(new BasketPickedUp("foo"))
+                    new BasketPickedUp("foo")
                 )
             });
             aggregate
@@ -71,12 +71,12 @@ namespace SprayChronicle.EventSourcing.Test
                 new DomainMessage(
                     0,
                     new DateTime(),
-                    new InstanceMessage(new BasketPickedUp("foo"))
+                    new BasketPickedUp("foo")
                 ),
                 new DomainMessage(
                     1,
                     new DateTime(),
-                    new InstanceMessage(new UnknownBasketEvent())
+                    new UnknownBasketEvent()
                 ),
             });
         }
@@ -88,12 +88,12 @@ namespace SprayChronicle.EventSourcing.Test
                 new DomainMessage(
                     0,
                     new DateTime(),
-                    new InstanceMessage(new BasketPickedUp("foo"))
+                    new BasketPickedUp("foo")
                 ),
                 new DomainMessage(
                     1,
                     new DateTime(),
-                    new InstanceMessage(new UnknownBasketEvent())
+                    new UnknownBasketEvent()
                 ),
             });
             aggregate

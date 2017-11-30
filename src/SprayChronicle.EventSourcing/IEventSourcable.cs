@@ -6,6 +6,6 @@ namespace SprayChronicle.EventSourcing
     {
         string Identity();
 
-        IEnumerable<DomainMessage> Diff();
+        IEnumerable<IDomainMessage> Diff();
     }
 }

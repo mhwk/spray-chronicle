@@ -3,6 +3,7 @@ using SprayChronicle.CommandHandling;
 using SprayChronicle.Example.Application;
 using SprayChronicle.Example.Domain;
 using SprayChronicle.Testing;
+using Xunit;
 
 namespace SprayChronicle.Example.Test.Application.Command
 {
@@ -12,7 +13,7 @@ namespace SprayChronicle.Example.Test.Application.Command
         {
             return new object[] {
                 new PickUpBasket("basketId"), 
-                new AddProductToBasket("basketId", "productId"), 
+                new AddProductToBasket("basketId", "productId"),
             };
         }
         
@@ -27,9 +28,17 @@ namespace SprayChronicle.Example.Test.Application.Command
         protected override object[] Expect()
         {
             return new object[] {
+                new BasketPickedUp("basketId"), 
+                new ProductAddedToBasket("basketId", "productId"), 
                 new BasketCheckedOut("basketId", "orderId", new [] {"productId"}),
                 new OrderGenerated("orderId", new [] {"productId"}), 
             };
+        }
+
+        [Fact]
+        public override void Scenario()
+        {
+            base.Scenario();
         }
     }
 }

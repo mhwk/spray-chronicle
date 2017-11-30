@@ -1,32 +1,60 @@
 using System.Collections.Generic;
+using System.Linq;
 using SprayChronicle.EventSourcing;
 
 namespace SprayChronicle.Testing
 {
     public class TestStore : IEventStore
     {
-        private readonly List<DomainMessage> _history = new List<DomainMessage>();
+        private readonly IEventStore _child;
+        
+        private readonly List<IDomainMessage> _past = new List<IDomainMessage>();
 
-        private readonly List<DomainMessage> _future = new List<DomainMessage>();
+        private readonly List<IDomainMessage> _future = new List<IDomainMessage>();
 
-        public void Append<T>(string identity, IEnumerable<DomainMessage> domainMesages)
+        private bool _recording = false;
+
+        public TestStore(IEventStore child)
         {
-            _future.AddRange(domainMesages);
+            _child = child;
         }
 
-        public IEnumerable<DomainMessage> Load<T>(string identity)
+        public void Append<T>(string identity, IEnumerable<IDomainMessage> domainMessages)
         {
-            return _history.ToArray();
+            var range = domainMessages as IDomainMessage[] ?? domainMessages.ToArray();
+            
+            if ( ! _recording) {
+                _past.AddRange(range);
+            } else {
+                _future.AddRange(range);
+            }
+            
+            _child.Append<T>(identity, range);
         }
 
-        public void History(IEnumerable<DomainMessage> domainMessages)
+        public IEnumerable<IDomainMessage> Load<T>(string identity)
         {
-            _history.AddRange(domainMessages);
+            return _child.Load<T>(identity);
         }
 
-        public IEnumerable<DomainMessage> Future()
+        public IEnumerable<IDomainMessage> Past()
         {
-            return _future.ToArray();
+            return _past.ToArray();
+        }
+
+        public IEnumerable<IDomainMessage> Future()
+        {
+            return _past.ToArray();
+        }
+
+        public IEnumerable<IDomainMessage> Chronicle()
+        {
+            return _past.Union(_future).ToArray();
+        }
+
+        public void Record()
+        {
+            _recording = true;
         }
     }
 }

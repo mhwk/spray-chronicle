@@ -35,9 +35,11 @@ namespace SprayChronicle.Persistence.Ouro
             _tenant = tenant;
         }
 
-        public void Append<T>(string identity, IEnumerable<DomainMessage> domainMessages)
+        public void Append<T>(string identity, IEnumerable<IDomainMessage> domainMessages)
         {
-            if ( ! domainMessages.Any()) {
+            var enumerable = domainMessages as DomainMessage[] ?? domainMessages.ToArray();
+            
+            if ( ! enumerable.Any()) {
                 return;
             }
             
@@ -47,8 +49,8 @@ namespace SprayChronicle.Persistence.Ouro
 
                 _eventStore.AppendToStreamAsync(
                     Stream<T>(identity),
-                    domainMessages.First().Sequence - 1,
-                    domainMessages.Select(dm => BuildEventData(dm)),
+                    enumerable.First().Sequence - 1,
+                    enumerable.Select(BuildEventData),
                     _credentials
                 ).Wait();
 
@@ -62,7 +64,7 @@ namespace SprayChronicle.Persistence.Ouro
             }
         }
 
-        public IEnumerable<DomainMessage> Load<T>(string identity)
+        public IEnumerable<IDomainMessage> Load<T>(string identity)
         {
             var stream = Stream<T>(identity);
             var stopwatch = new Stopwatch();
@@ -77,7 +79,7 @@ namespace SprayChronicle.Persistence.Ouro
                     var metadata = JsonConvert.DeserializeObject<Metadata>(Encoding.UTF8.GetString(resolvedEvent.Event.Metadata));
 
                     if (metadata.Tenant == _tenant) {
-                        yield return BuildDomainMessage(metadata, resolvedEvent);
+                        yield return new OuroMessage(resolvedEvent);
                     }
 
                     current++;
@@ -119,48 +121,44 @@ namespace SprayChronicle.Persistence.Ouro
             );
         }
 
-        private EventData BuildEventData(DomainMessage domainMessage)
+        private EventData BuildEventData(IDomainMessage domainMessage)
         {
             return new EventData(
                 Guid.NewGuid(),
-                domainMessage.Payload.Type,
+                domainMessage.Name,
                 true,
-                Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(domainMessage.Payload.Instance())),
+                Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(domainMessage.Payload())),
                 Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(new Metadata(
-                    domainMessage.Payload.Instance().GetType(),
+                    domainMessage.Payload().GetType(),
                     _tenant
                 )))
             );
         }
-
-        private static DomainMessage BuildDomainMessage(Metadata metadata, ResolvedEvent resolvedEvent)
-        {
-            return new DomainMessage(
-                resolvedEvent.Event.EventNumber,
-                resolvedEvent.Event.Created,
-                new OuroMessage(resolvedEvent)
-            );
-        }
     }
 
-    internal class OuroMessage : IMessage
+    internal class OuroMessage : IDomainMessage
     {
         private readonly ResolvedEvent _resolvedEvent;
-        public string Type => _resolvedEvent.Event.EventType;
+        
+        public string Name => _resolvedEvent.Event.EventType;
+        
+        public long Sequence => this._resolvedEvent.Event.EventNumber;
+        
+        public DateTime Epoch => _resolvedEvent.Event.Created;
 
         public OuroMessage(ResolvedEvent resolvedEvent)
         {
             _resolvedEvent = resolvedEvent;
         }
 
-        public object Instance()
+        public object Payload()
         {
             return JsonConvert.DeserializeObject(
                 Encoding.UTF8.GetString(_resolvedEvent.Event.Data)
             );
         }
 
-        public object Instance(Type type)
+        public object Payload(Type type)
         {
             return JsonConvert.DeserializeObject(
                 Encoding.UTF8.GetString(_resolvedEvent.Event.Data),

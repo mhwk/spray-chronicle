@@ -19,6 +19,7 @@ namespace SprayChronicle.Testing
         public CommandValidator(IContainer container, Action action)
         {
             _container = container;
+            _container.Resolve<TestStore>().Record();
             try {
                 action();
             } catch (Exception error) {
@@ -28,13 +29,13 @@ namespace SprayChronicle.Testing
 
 		public override IValidate<Task> Expect()
         {
-            _container.Resolve<TestStore>().Future().Should().BeEmpty();
+            _container.Resolve<TestStore>().Chronicle().Should().BeEmpty();
             return this;
         }
 
 		public override IValidate<Task> Expect(int count)
         {
-            _container.Resolve<TestStore>().Future().Should().HaveCount(count);
+            _container.Resolve<TestStore>().Chronicle().Should().HaveCount(count);
             return this;
         }
 
@@ -43,7 +44,7 @@ namespace SprayChronicle.Testing
 		    Expect(results.Select(r => r.GetType()).ToArray());
 		    
 		    var expect = results;
-		    var actual = _container.Resolve<TestStore>().Future().Select(dm => dm.Payload.Instance()).ToArray();
+		    var actual = _container.Resolve<TestStore>().Chronicle().Select(dm => dm.Payload()).ToArray();
 		    
 		    actual.ShouldAllBeEquivalentTo(
                 results,
@@ -56,8 +57,8 @@ namespace SprayChronicle.Testing
 
 		public override IValidate<Task> Expect(params Type[] types)
 		{
-		    var expect = types.Select(type => type.AssemblyQualifiedName);
-		    var actual = _container.Resolve<TestStore>().Future().Select(dm => dm.Payload.Instance().GetType().AssemblyQualifiedName);
+		    var expect = types.Select(type => type.FullName).ToArray();
+		    var actual = _container.Resolve<TestStore>().Chronicle().Select(dm => dm.Payload().GetType().FullName).ToArray();
 		    
 		    actual.ShouldAllBeEquivalentTo(
 		        expect,

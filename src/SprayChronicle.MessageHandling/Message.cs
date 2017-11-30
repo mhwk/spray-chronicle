@@ -1,22 +1,15 @@
-using System;
-using SprayChronicle.MessageHandling;
+﻿using System;
 
-namespace SprayChronicle.EventSourcing
+namespace SprayChronicle.MessageHandling
 {
-    public sealed class DomainMessage : IDomainMessage
+    public sealed class Message : IMessage
     {
-        public long Sequence { get; }
-        
-        public DateTime Epoch { get; }
-        
         public string Name { get; }
-        
-        private readonly object _payload;
 
-        public DomainMessage(long sequence, DateTime epoch, object payload)
+        private readonly object _payload;
+        
+        public Message(object payload)
         {
-            Sequence = sequence;
-            Epoch = epoch;
             Name = payload.GetType().Name;
             _payload = payload;
         }

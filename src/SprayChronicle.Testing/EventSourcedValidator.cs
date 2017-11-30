@@ -12,7 +12,7 @@ namespace SprayChronicle.Testing
     {
         private readonly IContainer _container;
 
-        private readonly DomainMessage[] _messages;
+        private readonly IDomainMessage[] _messages;
         
         private readonly Exception _error;
         
@@ -24,7 +24,7 @@ namespace SprayChronicle.Testing
                 _messages = callback()?.Diff().ToArray();
             } catch (Exception error) {
                 _error = error;
-                _messages = new DomainMessage[] {};
+                _messages = new IDomainMessage[] {};
             }
         }
 
@@ -45,7 +45,7 @@ namespace SprayChronicle.Testing
 		    Expect(results.Select(r => r.GetType()).ToArray());
 		    
 		    var expect = results;
-		    var actual = _messages.Select(dm => dm.Payload.Instance()).ToArray();
+		    var actual = _messages.Select(dm => dm.Payload()).ToArray();
 		    
 		    actual.ShouldAllBeEquivalentTo(
                 results,
@@ -58,8 +58,8 @@ namespace SprayChronicle.Testing
 
 		public override IValidate<TSourced> Expect(params Type[] types)
 		{
-		    var expect = types.Select(type => type.AssemblyQualifiedName);
-		    var actual = _messages.Select(dm => dm.Payload.Instance().GetType().AssemblyQualifiedName);
+		    var expect = types.Select(type => type.FullName).ToArray();
+		    var actual = _messages.Select(dm => dm.Payload().GetType().FullName).ToArray();
 		    
 		    actual.ShouldAllBeEquivalentTo(
 		        expect,

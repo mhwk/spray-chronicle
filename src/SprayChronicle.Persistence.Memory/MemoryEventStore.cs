@@ -7,13 +7,13 @@ namespace SprayChronicle.Persistence.Memory
 {
     public class MemoryEventStore : IEventStore
     {
-        private readonly Dictionary<string,List<DomainMessage>> _streams = new Dictionary<string,List<DomainMessage>>();
+        private readonly Dictionary<string,List<IDomainMessage>> _streams = new Dictionary<string,List<IDomainMessage>>();
 
-        public delegate void EventAppearedHandler(DomainMessage domainMessage);
+        public delegate void EventAppearedHandler(IDomainMessage domainMessage);
 
         public event EventAppearedHandler OnEventAppeared;
 
-        public void Append<T>(string identity, IEnumerable<DomainMessage> domainMessages)
+        public void Append<T>(string identity, IEnumerable<IDomainMessage> domainMessages)
         {
             CheckConcurrency(identity, domainMessages);
 
@@ -23,20 +23,20 @@ namespace SprayChronicle.Persistence.Memory
             }
         }
 
-        public IEnumerable<DomainMessage> Load<T>(string identity)
+        public IEnumerable<IDomainMessage> Load<T>(string identity)
         {
             return Stream(identity);
         }
 
-        private List<DomainMessage> Stream(string identity)
+        private List<IDomainMessage> Stream(string identity)
         {
             if ( ! _streams.ContainsKey(identity)) {
-                _streams.Add(identity, new List<DomainMessage>());
+                _streams.Add(identity, new List<IDomainMessage>());
             }
             return _streams[identity];
         }
 
-        private void CheckConcurrency(string identity, IEnumerable<DomainMessage> domainMessages)
+        private void CheckConcurrency(string identity, IEnumerable<IDomainMessage> domainMessages)
         {
             if (!domainMessages.Any()) {
                 return;

@@ -15,12 +15,12 @@ namespace SprayChronicle.QueryHandling
 
         public bool Executes(object query)
         {
-            return Handlers.AcceptsMessage(this, new InstanceMessage(query));
+            return Handlers.AcceptsMessage(this, query.ToMessage());
         }
 
         public object Execute(object query)
         {
-            return Handlers.ProcessMessage(this, new InstanceMessage(query));
+            return Handlers.ProcessMessage(this, query.ToMessage());
         }
     }
 }

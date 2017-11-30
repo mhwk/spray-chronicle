@@ -1,9 +1,9 @@
 using System;
 using SprayChronicle.CommandHandling;
 using SprayChronicle.EventHandling;
-using SprayChronicle.Example.Application;
+using SprayChronicle.Example.Domain;
 
-namespace SprayChronicle.Example.Domain.Effect
+namespace SprayChronicle.Example.Application.Effect
 {
     public class OrderReceptor : IHandleEvent<BasketCheckedOut>
     {
@@ -19,7 +19,7 @@ namespace SprayChronicle.Example.Domain.Effect
             _dispatcher.Dispatch(new GenerateOrder(
                 message.OrderId,
                 message.ProductIds
-            ));
+            )).Wait();
         }
     }
 }

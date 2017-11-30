@@ -15,13 +15,13 @@ namespace SprayChronicle.CommandHandling
 
         public override bool Handles(object command)
         {
-            return Handlers.AcceptsMessage(this, new InstanceMessage(command));
+            return Handlers.AcceptsMessage(this, command.ToMessage());
         }
 
         public override void Handle(object command)
         {
             try {
-                Handlers.ProcessMessage(this, new InstanceMessage(command));
+                Handlers.ProcessMessage(this, command.ToMessage());
             } catch (TargetInvocationException error) {
                 ExceptionDispatchInfo.Capture(error.InnerException).Throw();
             } catch (UnhandledMessageException error) {

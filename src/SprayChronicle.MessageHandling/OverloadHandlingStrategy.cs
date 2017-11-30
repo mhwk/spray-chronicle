@@ -48,7 +48,7 @@ namespace SprayChronicle.MessageHandling
             if ( ! methods.Any()) {
                 throw new UnhandledMessageException(string.Format(
                     "Message {0} not handled by {1} ({2})",
-                    message.Type,
+                    message.Name,
                     typeof(T),
                     null == subject ? "null" : subject.GetType().ToString()
                 ));
@@ -61,7 +61,7 @@ namespace SprayChronicle.MessageHandling
             if (methods.Any() && ! stateMethods.Any()) {
                 throw new UnexpectedStateException(string.Format(
                     "Message {0} not handled by state {1} ({2})",
-                    message.Type,
+                    message.Name,
                     typeof(T),
                     null == subject ? "null" : subject.GetType().ToString()
                 ));
@@ -80,19 +80,19 @@ namespace SprayChronicle.MessageHandling
 
         private Type[] BuildArgumentTypes(IMessage message, params object[] arguments)
         {
-            if ( ! _nameToMessage.ContainsKey(message.Type)) {
+            if ( ! _nameToMessage.ContainsKey(message.Name)) {
                 return null;
             }
             
             var args = new List<Type> { };
-            args.Add(_nameToMessage[message.Type]);
+            args.Add(_nameToMessage[message.Name]);
             args.AddRange(arguments.Select(a => a.GetType()).ToArray());
             return args.ToArray();
         }
 
         private object MessageToPayload(IMessage message)
         {
-            if (!_nameToMessage.ContainsKey(message.Type)) {
+            if (!_nameToMessage.ContainsKey(message.Name)) {
                 throw new UnhandledMessageException(string.Format(
                     "Message {0} not handled by {1} ({2})",
                     message.GetType(),
@@ -101,7 +101,7 @@ namespace SprayChronicle.MessageHandling
                 ));
             }
 
-            return message.Instance(_nameToMessage[message.Type]);
+            return message.Payload(_nameToMessage[message.Name]);
         }
     }
 }

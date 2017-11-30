@@ -23,7 +23,7 @@ namespace SprayChronicle.Example.Domain.Model
             ));
         }
 
-        static Order On(OrderGenerated message)
+        private static Order On(OrderGenerated message)
         {
             return new Order(
                 new OrderId(message.OrderId),

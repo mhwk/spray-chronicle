@@ -37,7 +37,7 @@ namespace SprayChronicle.EventHandling
                 if ( ! Handlers.AcceptsMessage(_eventHandler, @event, occurrence)) {
                     _logger.LogDebug(
                         "{0}: skipping",
-                        @event.Type
+                        @event.Name
                     );
                     return;
                 }
@@ -50,7 +50,7 @@ namespace SprayChronicle.EventHandling
                 stopwatch.Stop();
                 _logger.LogInformation(
                     "{0}: {1}ms",
-                    @event.Type,
+                    @event.Name,
                     stopwatch.ElapsedMilliseconds
                 );
             });

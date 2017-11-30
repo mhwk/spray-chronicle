@@ -53,9 +53,9 @@ namespace SprayChronicle.Testing
         {
             for (var i = 0; i < messages.Length; i++) {
                 if (_epochs.Count > i) {
-                    Container.Resolve<TestStream>().Publish(new InstanceMessage(messages[i]), _epochs[i]);
+                    Container.Resolve<TestStream>().Publish(messages[i].ToMessage(), _epochs[i]);
                 } else {
-                    Container.Resolve<TestStream>().Publish(new InstanceMessage(messages[i]), DateTime.Now);
+                    Container.Resolve<TestStream>().Publish(messages[i].ToMessage(), DateTime.Now);
                 }
             }
             return this;

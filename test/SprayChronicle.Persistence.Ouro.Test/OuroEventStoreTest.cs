@@ -32,7 +32,7 @@ namespace SprayChronicle.Persistence.Ouro.Test
         {
             var persister = new OuroEventStore(_logger.Object, _eventStore.Object, new UserCredentials("username", "password"), "Tenant");
             Action append = () => persister.Append<ExampleAggregate>("", new[] {
-                new DomainMessage(0, new DateTime(), new InstanceMessage(new object{}))
+                new DomainMessage(0, new DateTime(), new object{}.ToMessage())
             });
             append.ShouldThrow<InvalidStreamException>();
         }
@@ -42,7 +42,7 @@ namespace SprayChronicle.Persistence.Ouro.Test
         {
             var persister = new OuroEventStore(_logger.Object, _eventStore.Object, new UserCredentials("username", "password"), "Tenant");
             Action append = () => persister.Append<ExampleAggregate>("@", new[] {
-                new DomainMessage(0, new DateTime(), new InstanceMessage(new object{}))
+                new DomainMessage(0, new DateTime(), new object{}.ToMessage())
             });
             append.ShouldThrow<InvalidStreamException>();
         }

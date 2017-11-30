@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using SprayChronicle.CommandHandling;
 using SprayChronicle.EventHandling;
 using SprayChronicle.EventSourcing;
-using SprayChronicle.MessageHandling;
 using SprayChronicle.Persistence.Memory;
 using SprayChronicle.Projecting;
 using SprayChronicle.QueryHandling;
@@ -26,8 +25,9 @@ namespace SprayChronicle.Testing
                 builder.RegisterModule<MemoryModule>();
                 builder.RegisterModule<ProjectingModule>();
                 builder.RegisterModule<QueryHandlingModule>();
+                builder.Register<ILoggerFactory>(c => new LoggerFactory().AddConsole(LogLevel)).SingleInstance();
                 builder
-                    .Register<TestStore>(c => new TestStore())
+                    .Register(c => new TestStore(c.Resolve<MemoryEventStore>()))
                     .AsSelf()
                     .As<IEventStore>()
                     .SingleInstance();
@@ -52,7 +52,7 @@ namespace SprayChronicle.Testing
 
         public override IValidate<Task> When(Func<IDispatchCommand,Task> callback)
         {
-            return new CommandValidator(Container, () => callback(Container.Resolve<LoggingDispatcher>()));
+            return new CommandValidator(Container, () => callback(Container.Resolve<LoggingDispatcher>()).Wait());
         }
     }
 }

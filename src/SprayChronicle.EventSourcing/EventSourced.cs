@@ -9,25 +9,25 @@ namespace SprayChronicle.EventSourcing
     {
         private long _sequence = -1;
 
-        private readonly List<DomainMessage> _queue = new List<DomainMessage>();
+        private readonly List<IDomainMessage> _queue = new List<IDomainMessage>();
 
         private static readonly IMessageHandlingStrategy Router = new OverloadHandlingStrategy<T>(new ContextTypeLocator<T>());
 
         public abstract string Identity();
 
-        public IEnumerable<DomainMessage> Diff()
+        public IEnumerable<IDomainMessage> Diff()
         {
             var diff = _queue.ToArray();
             _queue.Clear();
             return diff;
         }
 
-        public static T Patch(IEnumerable<DomainMessage> messages)
+        public static T Patch(IEnumerable<IDomainMessage> messages)
         {
             var sourcable = default(IEventSourcable<T>);
             foreach (var message in messages) {
-                if (Router.AcceptsMessage(sourcable, message.Payload)) {
-                    sourcable = (EventSourced<T>) Router.ProcessMessage(sourcable, message.Payload);
+                if (Router.AcceptsMessage(sourcable, message)) {
+                    sourcable = (EventSourced<T>) Router.ProcessMessage(sourcable, message);
                 }
                 if (null == sourcable) {
                     continue;
@@ -42,12 +42,12 @@ namespace SprayChronicle.EventSourcing
             var domainMessage = new DomainMessage(
                 ((EventSourced<T>) sourcable)?._sequence + 1 ?? 0,
                 new DateTime(),
-                new InstanceMessage(payload)
+                payload
             );
 
             var updated = sourcable;
-            if (Router.AcceptsMessage(sourcable, domainMessage.Payload)) {
-                updated = (IEventSourcable<T>) Router.ProcessMessage(sourcable, domainMessage.Payload);
+            if (Router.AcceptsMessage(sourcable, domainMessage)) {
+                updated = (IEventSourcable<T>) Router.ProcessMessage(sourcable, domainMessage);
             }
             
             if (updated != sourcable && null != sourcable) {

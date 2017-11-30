@@ -5,7 +5,6 @@ using FluentAssertions;
 using Moq;
 using SprayChronicle.Example.Domain;
 using SprayChronicle.Example.Domain.Model;
-using SprayChronicle.MessageHandling;
 using Xunit;
 
 namespace SprayChronicle.EventSourcing.Test
@@ -23,7 +22,7 @@ namespace SprayChronicle.EventSourcing.Test
             
             _persistence.Verify(p => p.Append<Basket>(
                 It.Is<string>(i => i == "foo"),
-                It.Is<IEnumerable<DomainMessage>>(i => IsEqual(i.Select(dm => dm.Payload), new object[] { new InstanceMessage(new BasketPickedUp("foo")),  })
+                It.Is<IEnumerable<IDomainMessage>>(i => IsEqual(i.Select(dm => dm.Payload()), new object[] { new BasketPickedUp("foo"),  })
             )));
         }
 
@@ -32,7 +31,7 @@ namespace SprayChronicle.EventSourcing.Test
         {
             _persistence.Setup(p => p
                 .Load<Basket>(It.Is<string>(i => i == "foo")))
-                .Returns(new DomainMessage[] { new DomainMessage(0, new DateTime(), new InstanceMessage(new BasketPickedUp("foo"))) });
+                .Returns(new DomainMessage[] { new DomainMessage(0, new DateTime(), new BasketPickedUp("foo")) });
                 
             new EventSourcedRepository<Basket>(_persistence.Object).Load("foo").Should().BeAssignableTo<PickedUpBasket>();
         }
@@ -42,7 +41,7 @@ namespace SprayChronicle.EventSourcing.Test
         {
             _persistence.Setup(p => p
                 .Load<Basket>(It.Is<string>(i => i == "foo")))
-                .Returns(new DomainMessage[] { new DomainMessage(0, new DateTime(), new InstanceMessage(new object {})) });
+                .Returns(new DomainMessage[] { new DomainMessage(0, new DateTime(), new object {}) });
             new EventSourcedRepository<Basket>(_persistence.Object).Load("foo").Should().BeNull();
         }
 
@@ -51,7 +50,7 @@ namespace SprayChronicle.EventSourcing.Test
         {
             _persistence.Setup(p => p
                 .Load<Basket>(It.Is<string>(i => i == "foo")))
-                .Returns(new DomainMessage[] { new DomainMessage(0, new DateTime(), new InstanceMessage(new object {})) });
+                .Returns(new DomainMessage[] { new DomainMessage(0, new DateTime(), new object {}) });
             Action action = () => new EventSourcedRepository<Basket>(_persistence.Object).Load<Basket>("foo");
             action.ShouldThrow<InvalidStateException>();
         }
@@ -61,7 +60,7 @@ namespace SprayChronicle.EventSourcing.Test
         {
             _persistence.Setup(p => p
                 .Load<Basket>(It.Is<string>(i => i == "foo")))
-                .Returns(new DomainMessage[] { new DomainMessage(0, new DateTime(), new InstanceMessage(new object {})) });
+                .Returns(new DomainMessage[] { new DomainMessage(0, new DateTime(), new object {}) });
             new EventSourcedRepository<Basket>(_persistence.Object).LoadOrDefault<Basket>("foo").Should().BeNull();
         }
 

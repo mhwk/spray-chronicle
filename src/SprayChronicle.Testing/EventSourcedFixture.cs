@@ -26,8 +26,9 @@ namespace SprayChronicle.Testing
             : base(builder => {
                 builder.RegisterModule<CommandHandlingModule>();
                 builder.RegisterModule<MemoryModule>();
+                builder.Register<ILoggerFactory>(c => new LoggerFactory().AddConsole(LogLevel)).SingleInstance();
                 builder
-                    .Register(c => new TestStore())
+                    .Register(c => new TestStore(c.Resolve<MemoryEventStore>()))
                     .AsSelf()
                     .As<IEventStore>()
                     .SingleInstance();
@@ -41,7 +42,7 @@ namespace SprayChronicle.Testing
             _sourced = EventSourced<TSourced>.Patch(messages.Select(payload => new DomainMessage(
                 ++_sequence,
                 new DateTime(),
-                new InstanceMessage(payload)
+                payload
             )).ToArray());
 
             return this;

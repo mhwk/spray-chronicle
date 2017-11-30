@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using JsonDiffPatchDotNet;
 using Newtonsoft.Json;
 
@@ -8,20 +10,32 @@ namespace SprayChronicle.Testing
     {
         private static readonly JsonDiffPatch _diff = new JsonDiffPatch();
         
+        protected string Diff(IEnumerable<Type> left, IEnumerable<Type> right)
+        {
+            return Escape(string.Format(
+                "{0}\nis not equal to\n{1}",
+                JsonConvert.SerializeObject(left.Select(l => l.FullName).ToArray(), Formatting.Indented),
+                right.GetType().FullName,
+                JsonConvert.SerializeObject(right.Select(r => r.FullName).ToArray(), Formatting.Indented)
+            ));
+        }
+        
         protected string Diff(object left, object right)
         {
-//            var diff = _diff.Diff(
-//                JsonConvert.SerializeObject(left, Formatting.Indented),
-//                JsonConvert.SerializeObject(right, Formatting.Indented)
-//            );
-            var diff = string.Format(
-                "{0}\nis not equal to\n{1}",
+            return Escape(string.Format(
+                "{0} {1}\nis not equal to\n{2} {3}",
+                left.GetType().FullName,
                 JsonConvert.SerializeObject(left, Formatting.Indented),
+                right.GetType().FullName,
                 JsonConvert.SerializeObject(right, Formatting.Indented)
-            );
-            diff = diff?.Replace("{", "{{");
-            diff = diff?.Replace("}", "}}");
-            return diff;
+            ));
+        }
+        
+        private static string Escape(string str)
+        {
+            str = str?.Replace("{", "{{");
+            str = str?.Replace("}", "}}");
+            return str;
         }
 
         public abstract IValidate<T> Expect();

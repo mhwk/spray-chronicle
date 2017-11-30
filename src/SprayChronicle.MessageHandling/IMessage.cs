@@ -4,10 +4,10 @@ namespace SprayChronicle.MessageHandling
 {
     public interface IMessage
     {
-        string Type { get; }
+        string Name { get; }
 
-        object Instance();
+        object Payload();
 
-        object Instance(Type type);
+        object Payload(Type type);
     }
 }
