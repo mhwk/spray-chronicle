@@ -1,7 +1,11 @@
+using System;
+
 namespace SprayChronicle.Testing
 {
-    public interface IExecute
+    public interface IExecute<TExecute,TValidate>
+        where TExecute : class
+        where TValidate : class
     {
-		IValidate When(object message);
+		IValidate<TValidate> When(Func<TExecute,TValidate> callback);
     }
 }

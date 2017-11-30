@@ -1,12 +1,14 @@
-using Xunit;
+using System.Threading.Tasks;
 using SprayChronicle.Example.Application;
 using SprayChronicle.Example.Application.Model;
 using SprayChronicle.Example.Domain;
+using SprayChronicle.QueryHandling;
 using SprayChronicle.Testing;
+using Xunit;
 
-namespace SprayChronicle.Example.Test.Projection
+namespace SprayChronicle.Example.Test.Application.Query
 {
-    public class ItCanFindNumberOfProductsForBasketId : ProjectionQueryTestCase<Module>
+    public class FindNumberOfProductsForBasketId : QueryTestCase<Module>
     {
         protected override object[] Given()
         {
@@ -16,9 +18,9 @@ namespace SprayChronicle.Example.Test.Projection
             };
         }
 
-        protected override object When()
+        protected override Task<object> When(IProcessQueries processor)
         {
-            return new NumberOfProductsForBasketId("basketId");
+            return processor.Process(new Example.Application.NumberOfProductsForBasketId("basketId"));
         }
 
         protected override object[] Expect()

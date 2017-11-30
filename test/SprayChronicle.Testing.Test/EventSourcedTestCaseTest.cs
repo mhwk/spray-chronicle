@@ -1,27 +1,28 @@
 using SprayChronicle.Example.Application;
 using SprayChronicle.Example.Domain;
 using SprayChronicle.Example;
+using SprayChronicle.Example.Domain.Model;
 
 namespace SprayChronicle.Testing.Test
 {
-    public class EventSourcedTestCaseTest : EventSourcedTestCase<Module>
+    public class EventSourcedTestCaseTest : EventSourcedTestCase<Module,Basket>
     {
         protected override object[] Given()
         {
             return new object[] {
-                new BasketPickedUp("foo")
+                new BasketPickedUp("basketId")
             };
         }
 
-        protected override object When()
+        protected override Basket When(Basket basket)
         {
-            return new AddProductToBasket("foo", "bar");
+            return (basket as PickedUpBasket)?.AddProduct(new ProductId("productId"));
         }
 
         protected override object[] Expect()
         {
             return new object[] {
-                new ProductAddedToBasket("foo", "bar")
+                new ProductAddedToBasket("basketId", "productId")
             };
         }
     }

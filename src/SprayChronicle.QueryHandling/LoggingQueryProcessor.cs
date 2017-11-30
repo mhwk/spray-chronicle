@@ -1,14 +1,15 @@
 using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
 namespace SprayChronicle.QueryHandling
 {
     public class LoggingQueryProcessor : IProcessQueries
     {
-        readonly ILogger<IProcessQueries> _logger;
+        private readonly ILogger<IProcessQueries> _logger;
 
-        readonly IProcessQueries _innerProcessor;
+        private readonly IProcessQueries _innerProcessor;
 
         public LoggingQueryProcessor(ILogger<IProcessQueries> logger, IProcessQueries innerProcessor)
         {
@@ -16,13 +17,13 @@ namespace SprayChronicle.QueryHandling
             _innerProcessor = innerProcessor;
         }
 
-        public object Process(object query)
+        public async Task<object> Process(object query)
         {
             var stopwatch = new Stopwatch();
             stopwatch.Start();
 
             try {
-                return _innerProcessor.Process(query);
+                return await _innerProcessor.Process(query);
             } catch (Exception) {
                 throw;
             } finally {

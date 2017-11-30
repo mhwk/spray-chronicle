@@ -1,10 +1,11 @@
 using SprayChronicle.Testing;
 using SprayChronicle.Example.Application;
 using SprayChronicle.Example.Domain;
+using SprayChronicle.Example.Domain.Model;
 
 namespace SprayChronicle.Example.Test.Domain
 {
-    public sealed class ItCanCheckOutFilledBasket : EventSourcedTestCase<Module>
+    public sealed class RemoveAnAddedProductFromBasket : EventSourcedTestCase<Module,Basket>
     {
         protected override object[] Given()
         {
@@ -14,16 +15,15 @@ namespace SprayChronicle.Example.Test.Domain
             };
         }
 
-        protected override object When()
+        protected override Basket When(Basket basket)
         {
-            return new CheckOutBasket("basketId", "orderId");
+            return (basket as PickedUpBasket)?.RemoveProduct(new ProductId("productId"));
         }
 
         protected override object[] Expect()
         {
             return new object[] {
-                new BasketCheckedOut("basketId", "orderId", new string[] {"productId"}),
-                // new OrderGenerated("orderId", new string[] {"productId"})
+                new ProductRemovedFromBasket("basketId", "productId")
             };
         }
     }

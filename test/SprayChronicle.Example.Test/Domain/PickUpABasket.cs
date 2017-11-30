@@ -2,15 +2,16 @@ using System;
 using SprayChronicle.Testing;
 using SprayChronicle.Example.Application;
 using SprayChronicle.Example.Domain;
+using SprayChronicle.Example.Domain.Model;
 using Xunit;
 
 namespace SprayChronicle.Example.Test.Domain
 {
-    public sealed class ItCanPickUpABasket : EventSourcedTestCase<Module>
+    public sealed class PickUpABasket : EventSourcedTestCase<Module,Basket>
     {
-        protected override object When()
+        protected override Basket When(Basket basket)
         {
-            return new PickUpBasket("basketId");
+            return Basket.PickUp(new BasketId("basketId"));
         }
 
         protected override object[] Expect()

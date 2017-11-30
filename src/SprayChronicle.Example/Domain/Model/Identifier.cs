@@ -1,3 +1,4 @@
+using FluentAssertions;
 
 namespace SprayChronicle.Example.Domain.Model
 {

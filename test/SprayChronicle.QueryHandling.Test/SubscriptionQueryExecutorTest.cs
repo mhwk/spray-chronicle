@@ -5,17 +5,17 @@ namespace SprayChronicle.QueryHandling.Test
 {
     public class SubscriptionQueryExecutorTest
     {
-        Mock<IExecuteQueries> Executor = new Mock<IExecuteQueries>();
+        private readonly Mock<IExecuteQueries> _executor = new Mock<IExecuteQueries>();
 
         [Fact]
         public void ItFailsIfNoProcessorProcessesQuery()
         {
-            Executor.Setup(qp => qp.Executes(It.IsAny<object>())).Returns(false);
+            _executor.Setup(qp => qp.Executes(It.IsAny<object>())).Returns(false);
 
             var query = new {};
             var processor = new SubscriptionQueryProcessor();
-            processor.AddExecutors(Executor.Object);
-            Assert.Throws<UnhandledQueryException>(() => processor.Process(query));
+            processor.AddExecutors(_executor.Object);
+            Assert.Throws<UnhandledQueryException>(() => processor.Process(query).Wait());
         }
 
         [Fact]
@@ -24,14 +24,14 @@ namespace SprayChronicle.QueryHandling.Test
             var query = new {};
             var result = new {};
 
-            Executor.Setup(qp => qp.Executes(It.IsAny<object>())).Returns(true);
-            Executor.Setup(qp => qp.Execute(It.IsAny<object>())).Returns(result);
+            _executor.Setup(qp => qp.Executes(It.IsAny<object>())).Returns(true);
+            _executor.Setup(qp => qp.Execute(It.IsAny<object>())).Returns(result);
 
             var processor = new SubscriptionQueryProcessor();
-            processor.AddExecutors(Executor.Object);
-            Assert.Equal(result, processor.Process(query));
+            processor.AddExecutors(_executor.Object);
+            Assert.Equal(result, processor.Process(query).Result);
 
-            Executor.Verify(qp => qp.Execute(It.Is<object>(o => o.Equals(query))));
+            _executor.Verify(qp => qp.Execute(It.Is<object>(o => o.Equals(query))));
         }
     }
 }

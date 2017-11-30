@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace SprayChronicle.QueryHandling
 {
@@ -17,21 +18,21 @@ namespace SprayChronicle.QueryHandling
             _executors.AddRange(executors);
         }
 
-        public object Process(object query)
+        public async Task<object> Process(object query)
         {
-            var processor = _executors
-                .Where(p => p.Executes(query))
-                .FirstOrDefault();
+            return await Task.Run(() => {
+                var processor = _executors.FirstOrDefault(p => p.Executes(query));
             
-            if (null == processor) {
-                throw new UnhandledQueryException(string.Format(
-                    "Query {0} not handled by one of the executors {1}",
-                    query.GetType(),
-                    string.Join(", ", _executors.Select(p => p.GetType().ToString()).ToArray())
-                ));
-            }
+                if (null == processor) {
+                    throw new UnhandledQueryException(string.Format(
+                        "Query {0} not handled by one of the executors {1}",
+                        query.GetType(),
+                        string.Join(", ", _executors.Select(p => p.GetType().ToString()).ToArray())
+                    ));
+                }
 
-            return processor.Execute(query);
+                return processor.Execute(query);
+            });
         }
     }
 }

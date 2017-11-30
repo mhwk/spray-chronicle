@@ -29,13 +29,6 @@ namespace SprayChronicle.CommandHandling
                 ))
                 .AsSelf()
                 .SingleInstance();
-            
-            builder
-                .Register<ThreadedDispatcher>(c => new ThreadedDispatcher(
-                    c.Resolve<ErrorSuppressingDispatcher>()
-                ))
-                .AsSelf()
-                .SingleInstance();
         }
 
         private static void RegisterCommandHandlers(IComponentContext context, SubscriptionDispatcher dispatcher)

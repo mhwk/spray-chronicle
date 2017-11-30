@@ -11,7 +11,7 @@ namespace SprayChronicle.CommandHandling
             _internalDispatcher = internalDispatcher;
         }
 
-        public async void Dispatch(object command)
+        public async Task Dispatch(object command)
         {
             await Task.Run(() => _internalDispatcher.Dispatch(command));
         }

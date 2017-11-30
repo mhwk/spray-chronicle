@@ -3,11 +3,11 @@ using SprayChronicle.EventSourcing;
 
 namespace SprayChronicle.Testing
 {
-    public class EventSourcedTestStore : IEventStore
+    public class TestStore : IEventStore
     {
-        readonly List<DomainMessage> _history = new List<DomainMessage>();
+        private readonly List<DomainMessage> _history = new List<DomainMessage>();
 
-        readonly List<DomainMessage> _future = new List<DomainMessage>();
+        private readonly List<DomainMessage> _future = new List<DomainMessage>();
 
         public void Append<T>(string identity, IEnumerable<DomainMessage> domainMesages)
         {

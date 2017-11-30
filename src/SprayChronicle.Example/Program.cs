@@ -9,8 +9,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Autofac.Extensions.DependencyInjection;
 using SprayChronicle.EventHandling;
-using SprayChronicle.Persistence.Mongo;
-using SprayChronicle.Persistence.Ouro;
 using SprayChronicle.Server;
 using SprayChronicle.Server.Http;
 

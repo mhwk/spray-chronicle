@@ -2,20 +2,20 @@ using System;
 
 namespace SprayChronicle.Testing
 {
-    public interface IValidate
+    public interface IValidate<T>
     {
-		IValidate Expect();
+		IValidate<T> Expect();
 
-		IValidate Expect(int count);
+		IValidate<T> Expect(int count);
 
-		IValidate Expect(params object[] results);
+		IValidate<T> Expect(params object[] results);
 
-		IValidate Expect(params Type[] types);
+		IValidate<T> Expect(params Type[] types);
 
-		IValidate ExpectNoException();
+		IValidate<T> ExpectNoException();
 
-		IValidate ExpectException(Type type);
+		IValidate<T> ExpectException(Type type);
 
-		IValidate ExpectException(string message);
+		IValidate<T> ExpectException(string message);
     }
 }

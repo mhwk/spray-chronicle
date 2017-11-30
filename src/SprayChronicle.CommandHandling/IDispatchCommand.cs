@@ -1,7 +1,9 @@
+using System.Threading.Tasks;
+
 namespace SprayChronicle.CommandHandling
 {
     public interface IDispatchCommand
     {
-        void Dispatch(object command);
+        Task Dispatch(object command);
     }
 }

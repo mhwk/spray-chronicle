@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Autofac;
 using SprayChronicle.EventSourcing;
 using FluentAssertions;
@@ -8,44 +10,40 @@ using Newtonsoft.Json;
 
 namespace SprayChronicle.Testing
 {
-    public class EventSourcedValidator<TSourced> : Validator<TSourced> where TSourced : EventSourced<TSourced>
+    public class CommandValidator : Validator<Task>
     {
         private readonly IContainer _container;
-
-        private readonly DomainMessage[] _messages;
         
         private readonly Exception _error;
         
-        public EventSourcedValidator(IContainer container, Func<TSourced> callback)
+        public CommandValidator(IContainer container, Action action)
         {
             _container = container;
-            
             try {
-                _messages = callback()?.Diff().ToArray();
+                action();
             } catch (Exception error) {
                 _error = error;
-                _messages = new DomainMessage[] {};
             }
         }
 
-		public override IValidate<TSourced> Expect()
+		public override IValidate<Task> Expect()
         {
-            _messages.Should().BeEmpty();
+            _container.Resolve<TestStore>().Future().Should().BeEmpty();
             return this;
         }
 
-		public override IValidate<TSourced> Expect(int count)
+		public override IValidate<Task> Expect(int count)
         {
-            _messages.Should().HaveCount(count);
+            _container.Resolve<TestStore>().Future().Should().HaveCount(count);
             return this;
         }
 
-		public override IValidate<TSourced> Expect(params object[] results)
+		public override IValidate<Task> Expect(params object[] results)
 		{
 		    Expect(results.Select(r => r.GetType()).ToArray());
 		    
 		    var expect = results;
-		    var actual = _messages.Select(dm => dm.Payload.Instance()).ToArray();
+		    var actual = _container.Resolve<TestStore>().Future().Select(dm => dm.Payload.Instance()).ToArray();
 		    
 		    actual.ShouldAllBeEquivalentTo(
                 results,
@@ -56,10 +54,10 @@ namespace SprayChronicle.Testing
             return this;
         }
 
-		public override IValidate<TSourced> Expect(params Type[] types)
+		public override IValidate<Task> Expect(params Type[] types)
 		{
 		    var expect = types.Select(type => type.AssemblyQualifiedName);
-		    var actual = _messages.Select(dm => dm.Payload.Instance().GetType().AssemblyQualifiedName);
+		    var actual = _container.Resolve<TestStore>().Future().Select(dm => dm.Payload.Instance().GetType().AssemblyQualifiedName);
 		    
 		    actual.ShouldAllBeEquivalentTo(
 		        expect,
@@ -70,13 +68,13 @@ namespace SprayChronicle.Testing
             return this;
         }
 
-		public override IValidate<TSourced> ExpectNoException()
+		public override IValidate<Task> ExpectNoException()
         {
             _error.Should().BeNull(_error?.ToString());
             return this;
         }
 
-		public override IValidate<TSourced> ExpectException(Type type)
+		public override IValidate<Task> ExpectException(Type type)
         {
             if (null == type) {
                 ExpectNoException();
@@ -86,7 +84,7 @@ namespace SprayChronicle.Testing
             return this;
         }
 
-		public override IValidate<TSourced> ExpectException(string message)
+		public override IValidate<Task> ExpectException(string message)
         {
             _error.Message.Should().BeEquivalentTo(message);
             return this;

@@ -13,42 +13,32 @@ using SprayChronicle.QueryHandling;
 
 namespace SprayChronicle.Testing
 {
-    public class EventSourcedFixture<TModule> : IPopulate, IExecute where TModule : IModule, new()
+    public class EventSourcedFixture<TModule,TSourced> : Fixture<TModule,TSourced,TSourced> where TModule : IModule, new() where TSourced : EventSourced<TSourced>
     {
-        private readonly IContainer _container;
-
         private long _sequence = -1;
 
-        protected LogLevel _logLevel = LogLevel.Information;
+        private TSourced _sourced;
 
         public EventSourcedFixture(): this(builder => {})
         {}
 
         public EventSourcedFixture(Action<ContainerBuilder> configure)
+            : base(builder => {
+                builder.RegisterModule<CommandHandlingModule>();
+                builder.RegisterModule<MemoryModule>();
+                builder
+                    .Register(c => new TestStore())
+                    .AsSelf()
+                    .As<IEventStore>()
+                    .SingleInstance();
+                configure(builder);
+            })
         {
-            var builder = new ContainerBuilder();
-            builder.RegisterModule<TModule>();
-            builder.RegisterModule<CommandHandlingModule>();
-            builder.RegisterModule<SyncEventHandlingModule>();
-            builder.RegisterModule<MemoryModule>();
-            builder.RegisterModule<ProjectingModule>();
-            builder.RegisterModule<QueryHandlingModule>();
-
-            builder.Register<ILoggerFactory>(c => new LoggerFactory().AddConsole(_logLevel));
-            builder
-                .Register<EventSourcedTestStore>(c => new EventSourcedTestStore())
-                .AsSelf()
-                .As<IEventStore>()
-                .SingleInstance();
-
-            configure(builder);
-            _container = builder.Build();
-            _container.Resolve<IManageStreamHandlers>().Manage();
         }
 
-		public IExecute Given(params object[] messages)
+		public override IExecute<TSourced,TSourced> Given(params object[] messages)
         {
-            _container.Resolve<EventSourcedTestStore>().History(messages.Select(payload => new DomainMessage(
+            _sourced = EventSourced<TSourced>.Patch(messages.Select(payload => new DomainMessage(
                 ++_sequence,
                 new DateTime(),
                 new InstanceMessage(payload)
@@ -57,17 +47,9 @@ namespace SprayChronicle.Testing
             return this;
         }
 
-		public IValidate When(object message)
+		public override IValidate<TSourced> When(Func<TSourced,TSourced> callback)
         {
-            Exception e = null;
-            try {
-                _container.Resolve<LoggingDispatcher>().Dispatch(message);
-            } catch (UnhandledCommandException error) {
-                e = error.InnerException;
-            } catch (Exception error) {
-                e = error;
-            }
-            return new EventSourcedValidator(e, _container.Resolve<EventSourcedTestStore>().Future());
+            return new EventSourcedValidator<TSourced>(Container, () => callback(_sourced));
         }
     }
 }

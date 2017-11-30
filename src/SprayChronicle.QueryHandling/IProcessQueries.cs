@@ -1,7 +1,9 @@
+using System.Threading.Tasks;
+
 namespace SprayChronicle.QueryHandling
 {
     public interface IProcessQueries
     {
-        object Process(object query);
+        Task<object> Process(object query);
     }
 }

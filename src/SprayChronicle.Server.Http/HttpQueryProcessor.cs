@@ -12,22 +12,22 @@ namespace SprayChronicle.Server.Http
 {
     public class HttpQueryProcessor
     {
-        readonly ILogger<HttpQueryProcessor> _logger;
+        private readonly ILogger<HttpQueryProcessor> _logger;
 
-        readonly IValidator _validator;
+        private readonly IValidator _validator;
 
-        readonly IProcessQueries _dispatcher;
+        private readonly IProcessQueries _dispatcher;
 
-        readonly Type _type;
+        private readonly Type _type;
 
-        readonly string _contentType;
+        private readonly string _contentType;
 
-        readonly JsonSerializerSettings _serializerSettings = new JsonSerializerSettings {
+        private readonly JsonSerializerSettings _serializerSettings = new JsonSerializerSettings {
             ContractResolver = new CamelCasePropertyNamesContractResolver(),
             Converters = new List<JsonConverter>() { new ISO8601DateConverter() }
         };
-        
-        static readonly RequestToMessageConverter converter = new RequestToMessageConverter();
+
+        private static readonly RequestToMessageConverter Converter = new RequestToMessageConverter();
 
         public HttpQueryProcessor(
             ILogger<HttpQueryProcessor> logger,
@@ -46,12 +46,12 @@ namespace SprayChronicle.Server.Http
         public async Task Process(HttpRequest request, HttpResponse response, RouteData routeData)
         {
             try {
-                var payload = await converter.Convert(request, routeData, _type);
+                var payload = await Converter.Convert(request, routeData, _type);
 
                 _validator.Validate(payload);
 
                 _logger.LogDebug("Processing {0} {1}", _type, JsonConvert.SerializeObject(payload));
-                var result = _dispatcher.Process(payload);
+                var result = await _dispatcher.Process(payload);
                 response.ContentType = _contentType;
                 response.StatusCode = 200;
                 if (_contentType == "application/json") {
@@ -79,13 +79,6 @@ namespace SprayChronicle.Server.Http
                 await response.WriteAsync(JsonConvert.SerializeObject(new {
                     Error = error.Message
                 }, _serializerSettings));
-//            } catch (UnauthorizedException error) {
-//                _logger.LogInformation(error.ToString());
-//                response.ContentType = "application/json";
-//                response.StatusCode = 401;
-//                await response.WriteAsync(JsonConvert.SerializeObject(new {
-//                    Error = error.Message
-//                }, _serializerSettings));
             } catch (Exception error) {
                 _logger.LogCritical(error.ToString());
                 response.ContentType = "application/json";

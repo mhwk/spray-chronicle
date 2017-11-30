@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 
 namespace SprayChronicle.CommandHandling
 {
@@ -11,13 +12,15 @@ namespace SprayChronicle.CommandHandling
             _internalDispatcher = internalDispatcher;
         }
 
-        public void Dispatch(object command)
+        public async Task Dispatch(object command)
         {
-            try {
-                _internalDispatcher.Dispatch(command);
-            } catch (Exception) {
-                // ignored
-            }
+            await Task.Run(async () => {
+                try {
+                    await _internalDispatcher.Dispatch(command);
+                } catch (Exception) {
+                    // ignored
+                }
+            });
         }
     }
 }

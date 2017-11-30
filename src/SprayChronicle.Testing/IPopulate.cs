@@ -1,7 +1,9 @@
 namespace SprayChronicle.Testing
 {
-    public interface IPopulate
+    public interface IPopulate<TExecute,TValidate>
+        where TExecute : class
+        where TValidate : class
     {
-		IExecute Given(params object[] messages);
+		IExecute<TExecute,TValidate> Given(params object[] messages);
     }
 }

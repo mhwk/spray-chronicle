@@ -5,7 +5,7 @@ using SprayChronicle.MessageHandling;
 
 namespace SprayChronicle.Testing
 {
-    public class TestStream : IStream
+    public sealed class TestStream : IStream
     {
         private readonly List<Action<IMessage,DateTime>> _callbacks = new List<Action<IMessage,DateTime>>();
 

@@ -1,12 +1,11 @@
 using System;
 using SprayChronicle.Testing;
-using SprayChronicle.Example.Application;
 using SprayChronicle.Example.Domain;
 using SprayChronicle.Example.Domain.Model;
 
 namespace SprayChronicle.Example.Test.Domain
 {
-    public sealed class ItCanNotRemoveProductifNotInBasket : EventSourcedTestCase<Module>
+    public sealed class RemoveAProductNotInBasket : EventSourcedTestCase<Module,Basket>
     {
         protected override object[] Given()
         {
@@ -15,9 +14,9 @@ namespace SprayChronicle.Example.Test.Domain
             };
         }
 
-        protected override object When()
+        protected override Basket When(Basket basket)
         {
-            return new RemoveProductFromBasket("basketId", "productId");
+            return (basket as PickedUpBasket).RemoveProduct(new ProductId("productId"));
         }
 
         protected override Type ExpectException()

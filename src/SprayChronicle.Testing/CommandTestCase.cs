@@ -1,26 +1,23 @@
-using System;
+﻿using System;
+using System.Threading.Tasks;
+using Xunit;
 using Autofac;
 using Autofac.Core;
-using Xunit;
+using SprayChronicle.CommandHandling;
 
 namespace SprayChronicle.Testing
 {
-    public abstract class ProjectionQueryTestCase<TModule> where TModule : IModule, new()
+    public abstract class CommandTestCase<TModule> where TModule : IModule, new()
     {
         protected virtual void Configure(ContainerBuilder builder)
         {}
-
-        protected virtual DateTime[] Epoch()
-        {
-            return new DateTime[] {};
-        }
 
         protected virtual object[] Given()
         {
             return new object[] {};
         }
 
-        protected abstract object When();
+        protected abstract Task When(IDispatchCommand dispatcher);
 
         protected virtual object[] Expect()
         {
@@ -35,10 +32,9 @@ namespace SprayChronicle.Testing
         [Fact]
         public virtual void Scenario()
         {
-            new ProjectionQueryFixture<TModule>(Configure)
-                .Epoch(Epoch())
+            new CommandFixture<TModule>(Configure)
                 .Given(Given())
-                .When(When())
+                .When(When)
                 .ExpectException(ExpectException())
                 .Expect(Expect());
         }

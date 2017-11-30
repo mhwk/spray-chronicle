@@ -53,7 +53,7 @@ namespace SprayChronicle.Server.Http
                     _validator.Validate(payload);
 
                     _logger.LogDebug("Dispatching {0} {1}", _type, JsonConvert.SerializeObject(payload));
-                    _dispatcher.Dispatch(payload);
+                    await _dispatcher.Dispatch(payload);
                     response.StatusCode = 200;
                     await response.WriteAsync(JsonConvert.SerializeObject(new {
                         Success = true
@@ -79,13 +79,6 @@ namespace SprayChronicle.Server.Http
                         Success = false,
                         Error = error.Message
                     }, _serializerSettings));
-//                } catch (UnauthorizedException error) {
-//                    _logger.LogWarning(error.ToString());
-//                    response.StatusCode = 401;
-//                    await response.WriteAsync(JsonConvert.SerializeObject(new {
-//                        Success = false,
-//                        Error = error.Message
-//                    }, _serializerSettings));
                 } catch (InvalidRequestException error) {
                     _logger.LogWarning(error.ToString());
                     response.StatusCode = 400;

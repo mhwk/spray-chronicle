@@ -1,10 +1,10 @@
 using SprayChronicle.Testing;
-using SprayChronicle.Example.Application;
 using SprayChronicle.Example.Domain;
+using SprayChronicle.Example.Domain.Model;
 
 namespace SprayChronicle.Example.Test.Domain
 {
-    public sealed class ItCanAddProductToBasket : EventSourcedTestCase<Module>
+    public sealed class AddAProductToPickedUpBasket : EventSourcedTestCase<Module,Basket>
     {
         protected override object[] Given()
         {
@@ -13,9 +13,9 @@ namespace SprayChronicle.Example.Test.Domain
             };
         }
 
-        protected override object When()
+        protected override Basket When(Basket basket)
         {
-            return new AddProductToBasket("basketId", "productId");
+            return (basket as PickedUpBasket)?.AddProduct(new ProductId("productId"));
         }
 
         protected override object[] Expect()

@@ -1,34 +1,34 @@
 using Xunit;
-using SprayChronicle.Example.Application;
 using SprayChronicle.Example.Domain;
 using SprayChronicle.Example;
+using SprayChronicle.Example.Domain.Model;
 
 namespace SprayChronicle.Testing.Test
 {
     public class EventSourcedFixtureTest
     {
-        private EventSourcedFixture<Module> Fixture()
+        private EventSourcedFixture<Module,Basket> Fixture()
         {
-            return new EventSourcedFixture<Module>();
+            return new EventSourcedFixture<Module,Basket>();
         }
 
         [Fact]
         public void ItCanTestInitialWhen()
         {
             Fixture()
-                .When(new PickUpBasket("foo"))
+                .When(basket => Basket.PickUp(new BasketId("basketId")))
                 .ExpectNoException()
-                .Expect(new BasketPickedUp("foo"));
+                .Expect(new BasketPickedUp("basketId"));
         }
 
         [Fact]
         public void ItCanTestWhenAfterHistory()
         {
             Fixture()
-                .Given(new BasketPickedUp("foo"))
-                .When(new AddProductToBasket("foo", "bar"))
+                .Given(new BasketPickedUp("basketId"))
+                .When(basket => (basket as PickedUpBasket)?.AddProduct(new ProductId("productId")))
                 .ExpectNoException()
-                .Expect(new ProductAddedToBasket("foo", "bar"));
+                .Expect(new ProductAddedToBasket("basketId", "productId"));
         }
     }
 }

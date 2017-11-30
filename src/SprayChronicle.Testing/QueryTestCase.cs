@@ -1,22 +1,28 @@
 using System;
-using Xunit;
+using System.Threading.Tasks;
 using Autofac;
 using Autofac.Core;
-using SprayChronicle.EventSourcing;
+using SprayChronicle.QueryHandling;
+using Xunit;
 
 namespace SprayChronicle.Testing
 {
-    public abstract class EventSourcedTestCase<TModule,TSourced> where TModule : IModule, new() where TSourced : EventSourced<TSourced>
+    public abstract class QueryTestCase<TModule> where TModule : IModule, new()
     {
         protected virtual void Configure(ContainerBuilder builder)
         {}
+
+        protected virtual DateTime[] Epoch()
+        {
+            return new DateTime[] {};
+        }
 
         protected virtual object[] Given()
         {
             return new object[] {};
         }
 
-        protected abstract TSourced When(TSourced sourced);
+        protected abstract Task<object> When(IProcessQueries processor);
 
         protected virtual object[] Expect()
         {
@@ -31,7 +37,8 @@ namespace SprayChronicle.Testing
         [Fact]
         public virtual void Scenario()
         {
-            new EventSourcedFixture<TModule,TSourced>(Configure)
+            new QueryFixture<TModule>(Configure)
+                .Epoch(Epoch())
                 .Given(Given())
                 .When(When)
                 .ExpectException(ExpectException())

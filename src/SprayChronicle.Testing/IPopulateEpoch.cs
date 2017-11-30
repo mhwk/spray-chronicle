@@ -2,8 +2,10 @@ using System;
 
 namespace SprayChronicle.Testing
 {
-    public interface IPopulateEpoch
+    public interface IPopulateEpoch<TExecute,TValidate>
+        where TExecute : class
+        where TValidate : class
     {
-		IPopulate Epoch(params DateTime[] epochs);
+		IPopulate<TExecute,TValidate> Epoch(params DateTime[] epochs);
     }
 }
