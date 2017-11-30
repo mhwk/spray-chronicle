@@ -5,7 +5,7 @@ using Xunit;
 
 namespace SprayChronicle.CommandHandling.Test
 {
-    public class SubscriptionCommandBusTest
+    public class SubscriptionCommandDispatcherTest
     {
         private readonly Mock<IHandleCommand> _commandHandler = new Mock<IHandleCommand>();
 
@@ -13,7 +13,7 @@ namespace SprayChronicle.CommandHandling.Test
         public void ItFailsIfNoSubscriptions()
         {
             var commandBus = new SubscriptionDispatcher();
-            Action a = () => commandBus.Dispatch(new Command());
+            Action a = () => commandBus.Dispatch(new Command()).Wait();
             a.ShouldThrow<UnhandledCommandException>();
         }
 
@@ -25,7 +25,7 @@ namespace SprayChronicle.CommandHandling.Test
             var commandBus = new SubscriptionDispatcher();
             commandBus.Subscribe(_commandHandler.Object);
 
-            Action a = () => commandBus.Dispatch(new Command());
+            Action a = () => commandBus.Dispatch(new Command()).Wait();
             a.ShouldThrow<UnhandledCommandException>();
         }
 
@@ -37,7 +37,7 @@ namespace SprayChronicle.CommandHandling.Test
             var commandBus = new SubscriptionDispatcher();
             commandBus.Subscribe(_commandHandler.Object);
 
-            commandBus.Dispatch(new Command());
+            commandBus.Dispatch(new Command()).Wait();
         }
 
         private class Command

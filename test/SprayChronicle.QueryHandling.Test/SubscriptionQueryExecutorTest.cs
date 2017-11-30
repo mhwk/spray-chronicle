@@ -1,5 +1,7 @@
+using System;
 using Xunit;
 using Moq;
+using FluentAssertions;
 
 namespace SprayChronicle.QueryHandling.Test
 {
@@ -15,7 +17,8 @@ namespace SprayChronicle.QueryHandling.Test
             var query = new {};
             var processor = new SubscriptionQueryProcessor();
             processor.AddExecutors(_executor.Object);
-            Assert.Throws<UnhandledQueryException>(() => processor.Process(query).Wait());
+            Action action = () => processor.Process(query).Wait();
+            action.ShouldThrow<UnhandledQueryException>();
         }
 
         [Fact]
