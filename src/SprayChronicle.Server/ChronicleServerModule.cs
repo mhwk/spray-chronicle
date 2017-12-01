@@ -20,8 +20,12 @@ namespace SprayChronicle.Server
                     var provider = e.Context.Resolve<IServiceProvider>();
                     var lifetime = e.Instance as ApplicationLifetime;
 
-                    lifetime.ApplicationStarted.Register(() => { if (null != server.OnStartup) { server.OnStartup(provider); } });
-                    lifetime.ApplicationStopping.Register(() => { if (null != server.OnShutdown) { server.OnShutdown(provider); } });
+                    lifetime.ApplicationStarted.Register(() => {
+                        server.OnStartup?.Invoke(provider);
+                    });
+                    lifetime.ApplicationStopping.Register(() => {
+                        server.OnShutdown?.Invoke(provider);
+                    });
                 })
                 .SingleInstance();
         }

@@ -11,12 +11,23 @@ namespace SprayChronicle.Server
     public static class ChronicleLogging
     {
         private static Stopwatch _started;
-        
-        public static void OnStartup(IServiceProvider services)
+
+        public static void Subscribe(ChronicleServer server)
+        {
+            server.OnStartup          += OnStartup;
+            server.OnShutdown         += OnShutdown;
+            server.OnApplicationBuild += OnApplicationBuild;
+            server.OnAutofacConfigure += OnAutofacConfigure;
+            server.OnServiceConfigure += OnServiceConfigure;
+            server.OnWebHostBuild     += OnWebHostBuild;
+        }
+
+        private static void OnStartup(IServiceProvider services)
         {
             _started = Stopwatch.StartNew();
             
             LoggerFrom(services).LogInformation(
+                "\n" +
                 "                   @@@@@@#                                               ,@@@@@@\n" +
                 "                 @@@@@@@@@@&                                           /@@@@@@@@@@\n" +
                 "               /@@@@@@@@@@@@@                                         @@@@@@@@@@@@@/\n" +
@@ -64,33 +75,41 @@ namespace SprayChronicle.Server
                 "                                         ..  &@@& (@@@  //\n" +
                 "\n" +
                 "                                           SprayChronicle\n" +
-                "                                                MHWK"
+                "                                                MHWK\n" +
+                "\n"
             );
         }
 
-        public static void OnShutdown(IServiceProvider services)
+        private static void OnShutdown(IServiceProvider services)
         {
             LoggerFrom(services).LogInformation("Shutting down after {0}ms", _started.ElapsedMilliseconds);
         }
 
-        public static void OnApplicationBuild(IApplicationBuilder services)
+        private static void OnApplicationBuild(IApplicationBuilder services)
         {
             
         }
 
-        public static void OnAutofacConfigure(ContainerBuilder builder)
+        private static void OnAutofacConfigure(ContainerBuilder builder)
         {
             
         }
 
-        public static void OnServiceConfigure(IServiceCollection services)
+        private static void OnServiceConfigure(IServiceCollection services)
         {
             
         }
 
-        public static void OnWebHostBuild(IWebHostBuilder webhost)
+        private static void OnWebHostBuild(IWebHostBuilder webhost)
         {
-            
+            switch (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")) {
+                default:
+                    webhost.ConfigureLogging(configure => configure.SetMinimumLevel(LogLevel.Information));
+                    break;
+                case "Development":
+                    webhost.ConfigureLogging(configure => configure.SetMinimumLevel(LogLevel.Debug));
+                    break;
+            }
         }
 
         private static ILogger<ChronicleServer> LoggerFrom(IServiceProvider services)

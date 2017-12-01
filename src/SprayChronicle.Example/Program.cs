@@ -9,7 +9,6 @@ namespace SprayChronicle.Example
         public static void Main(string[] args)
         {
             new ChronicleServer()
-                .WithLifetimeInfo()
                 .WithEventHandling()
                 .WithHttp()
 //                .WithOuroPersistence()

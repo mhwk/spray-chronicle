@@ -1,15 +1,8 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
-using Autofac.Extensions.DependencyInjection;
 using Autofac;
 
 namespace SprayChronicle.Server
@@ -18,15 +11,14 @@ namespace SprayChronicle.Server
     {
         public void Run()
         {
+            ChronicleLogging.Subscribe(this);
+            
             var webHost = WebHost.CreateDefaultBuilder()
                 .ConfigureServices(services => services.AddSingleton<IStartup>(new Startup(this)))
-                .ConfigureServices(services => services.AddSingleton<ChronicleServer>(this))
-                .ConfigureLogging(logging => logging.SetMinimumLevel(LogLevel.Debug))
+                .ConfigureServices(services => services.AddSingleton(this))
                 .UseStartup<Startup>();
-            
-            if (null != OnWebHostBuild) {
-                OnWebHostBuild(webHost);
-            }
+
+            OnWebHostBuild?.Invoke(webHost);
 
             webHost.Build().Run();
         }
