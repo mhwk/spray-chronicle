@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using SprayChronicle.Example.Domain;
 using SprayChronicle.Example;
@@ -13,20 +14,20 @@ namespace SprayChronicle.Testing.Test
         }
 
         [Fact]
-        public void ItCanTestInitialWhen()
+        public async Task ItCanTestInitialWhen()
         {
-            Fixture()
-                .When(basket => Basket.PickUp(new BasketId("basketId")))
+            (await Fixture()
+                .When(basket => Basket.PickUp(new BasketId("basketId"))))
                 .ExpectNoException()
                 .Expect(new BasketPickedUp("basketId"));
         }
 
         [Fact]
-        public void ItCanTestWhenAfterHistory()
+        public async Task ItCanTestWhenAfterHistory()
         {
-            Fixture()
+            (await Fixture()
                 .Given(new BasketPickedUp("basketId"))
-                .When(basket => (basket as PickedUpBasket)?.AddProduct(new ProductId("productId")))
+                .When(basket => (basket as PickedUpBasket)?.AddProduct(new ProductId("productId"))))
                 .ExpectNoException()
                 .Expect(new ProductAddedToBasket("basketId", "productId"));
         }

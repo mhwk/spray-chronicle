@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Autofac;
 using Autofac.Core;
 using Microsoft.Extensions.Logging;
@@ -48,9 +49,9 @@ namespace SprayChronicle.Testing
             return this;
         }
 
-		public override IValidate<TSourced> When(Func<TSourced,TSourced> callback)
+		public override async Task<IValidate> When(Func<TSourced,TSourced> callback)
         {
-            return new EventSourcedValidator<TSourced>(Container, () => callback(_sourced));
+            return await EventSourcedValidator.Run(Container, () => callback(_sourced));
         }
     }
 }

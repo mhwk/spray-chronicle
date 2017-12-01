@@ -30,11 +30,11 @@ namespace SprayChronicle.Testing
         }
 
         [Fact]
-        public virtual void Scenario()
+        public virtual async Task Scenario()
         {
-            new CommandFixture<TModule>(Configure)
+             (await new CommandFixture<TModule>(Configure)
                 .Given(Given())
-                .When(When)
+                .When(When))
                 .ExpectException(ExpectException())
                 .Expect(Expect());
         }

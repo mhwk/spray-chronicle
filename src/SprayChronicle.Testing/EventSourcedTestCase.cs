@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Xunit;
 using Autofac;
 using Autofac.Core;
@@ -29,11 +30,11 @@ namespace SprayChronicle.Testing
         }
 
         [Fact]
-        public virtual void Scenario()
+        public virtual async Task Scenario()
         {
-            new EventSourcedFixture<TModule,TSourced>(Configure)
+            (await new EventSourcedFixture<TModule,TSourced>(Configure)
                 .Given(Given())
-                .When(When)
+                .When(When))
                 .ExpectException(ExpectException())
                 .Expect(Expect());
         }

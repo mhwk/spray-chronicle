@@ -28,15 +28,17 @@ namespace SprayChronicle.Example.Test.Application.Command
         protected override object[] Expect()
         {
             return new object[] {
+                new BasketPickedUp("basketId"), 
+                new ProductAddedToBasket("basketId", "productId"), 
                 new BasketCheckedOut("basketId", "orderId", new [] {"productId"}),
                 new OrderGenerated("orderId", new [] {"productId"}), 
             };
         }
 
         [Fact]
-        public override void Scenario()
+        public override async Task Scenario()
         {
-            base.Scenario();
+            await base.Scenario();
         }
     }
 }

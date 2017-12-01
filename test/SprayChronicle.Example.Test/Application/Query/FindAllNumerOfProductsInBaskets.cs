@@ -32,9 +32,9 @@ namespace SprayChronicle.Example.Test.Application.Query
         }
 
         [Fact]
-        public override void Scenario()
+        public override async Task Scenario()
         {
-            base.Scenario();
+            await base.Scenario();
         }
     }
 }

@@ -35,12 +35,12 @@ namespace SprayChronicle.Testing
         }
 
         [Fact]
-        public virtual void Scenario()
+        public virtual async Task Scenario()
         {
-            new QueryFixture<TModule>(Configure)
+            (await new QueryFixture<TModule>(Configure)
                 .Epoch(Epoch())
                 .Given(Given())
-                .When(When)
+                .When(When))
                 .ExpectException(ExpectException())
                 .Expect(Expect());
         }

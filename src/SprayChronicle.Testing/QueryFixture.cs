@@ -61,9 +61,9 @@ namespace SprayChronicle.Testing
             return this;
         }
 
-        public override IValidate<Task<object>> When(Func<IProcessQueries,Task<object>> callback)
+        public override async Task<IValidate> When(Func<IProcessQueries,Task<object>> callback)
         {
-            return new QueryValidator(Container, () => callback(Container.Resolve<LoggingQueryProcessor>()));
+            return await QueryValidator.Run(Container, () => callback(Container.Resolve<LoggingQueryProcessor>()));
         }
     }
 }

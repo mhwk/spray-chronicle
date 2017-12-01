@@ -50,9 +50,9 @@ namespace SprayChronicle.Testing
             return this;
         }
 
-        public override IValidate<Task> When(Func<IDispatchCommand,Task> callback)
+        public override async Task<IValidate> When(Func<IDispatchCommand,Task> callback)
         {
-            return new CommandValidator(Container, () => callback(Container.Resolve<LoggingDispatcher>()).Wait());
+            return await CommandValidator.Run(Container, () => callback(Container.Resolve<LoggingDispatcher>()));
         }
     }
 }

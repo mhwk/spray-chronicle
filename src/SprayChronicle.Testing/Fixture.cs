@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Autofac;
 using Autofac.Core;
 using Microsoft.Extensions.Logging;
@@ -34,7 +35,7 @@ namespace SprayChronicle.Testing
         }
 
         public abstract IExecute<TExecute,TValidate> Given(params object[] messages);
-        
-        public abstract IValidate<TValidate> When(Func<TExecute,TValidate> callback);
+
+        public abstract Task<IValidate> When(Func<TExecute, TValidate> callback);
     }
 }

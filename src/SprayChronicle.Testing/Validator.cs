@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace SprayChronicle.Testing
 {
-    public abstract class Validator<T> : IValidate<T>
+    public abstract class Validator : IValidate
     {
         private static readonly JsonDiffPatch _diff = new JsonDiffPatch();
         
@@ -23,14 +23,25 @@ namespace SprayChronicle.Testing
         protected string Diff(object left, object right)
         {
             return Escape(string.Format(
-                "{0} {1}\nis not equal to\n{2} {3}",
-                left.GetType().FullName,
-                JsonConvert.SerializeObject(left, Formatting.Indented),
-                right.GetType().FullName,
-                JsonConvert.SerializeObject(right, Formatting.Indented)
+                "\n{0}\nis not equal to\n{1}\n",
+                Render(left),
+                Render(right)
             ));
         }
-        
+
+        private static string Render(object obj)
+        {
+            if (obj is IEnumerable<object> objs) {
+                return string.Join(",\n", objs.Select(Render));
+            }
+            
+            return string.Format(
+                "{0} {1}",
+                obj.GetType().FullName,
+                JsonConvert.SerializeObject(obj, Formatting.Indented)
+            );
+        }
+
         private static string Escape(string str)
         {
             str = str?.Replace("{", "{{");
@@ -38,12 +49,12 @@ namespace SprayChronicle.Testing
             return str;
         }
 
-        public abstract IValidate<T> Expect();
-        public abstract IValidate<T> Expect(int count);
-        public abstract IValidate<T> Expect(params object[] results);
-        public abstract IValidate<T> Expect(params Type[] types);
-        public abstract IValidate<T> ExpectNoException();
-        public abstract IValidate<T> ExpectException(Type type);
-        public abstract IValidate<T> ExpectException(string message);
+        public abstract IValidate Expect();
+        public abstract IValidate Expect(int count);
+        public abstract IValidate Expect(params object[] results);
+        public abstract IValidate Expect(params Type[] types);
+        public abstract IValidate ExpectNoException();
+        public abstract IValidate ExpectException(Type type);
+        public abstract IValidate ExpectException(string message);
     }
 }

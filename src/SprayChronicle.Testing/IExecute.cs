@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 
 namespace SprayChronicle.Testing
 {
@@ -6,6 +7,6 @@ namespace SprayChronicle.Testing
         where TExecute : class
         where TValidate : class
     {
-		IValidate<TValidate> When(Func<TExecute,TValidate> callback);
+        Task<IValidate> When(Func<TExecute,TValidate> callback);
     }
 }

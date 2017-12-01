@@ -10,39 +10,55 @@ using Newtonsoft.Json;
 
 namespace SprayChronicle.Testing
 {
-    public class CommandValidator : Validator<Task>
+    public class CommandValidator : Validator
     {
         private readonly IContainer _container;
         
         private readonly Exception _error;
         
-        public CommandValidator(IContainer container, Action action)
+        private CommandValidator(IContainer container)
         {
             _container = container;
-            _container.Resolve<TestStore>().Record();
-            try {
-                action();
-            } catch (Exception error) {
-                _error = error;
-            }
+        }
+        
+        private CommandValidator(IContainer container, Exception error)
+        {
+            _container = container;
+            _error = error;
         }
 
-		public override IValidate<Task> Expect()
+        public static async Task<CommandValidator> Run(IContainer container, Func<Task> callback)
+        {
+            container.Resolve<TestStore>().Record();
+            
+            try {
+                await callback();
+            } catch (Exception error) {
+                return new CommandValidator(
+                    container,
+                    error
+                );
+            }
+            
+            return new CommandValidator(
+                container
+            );
+        }
+
+		public override IValidate Expect()
         {
             _container.Resolve<TestStore>().Chronicle().Should().BeEmpty();
             return this;
         }
 
-		public override IValidate<Task> Expect(int count)
+		public override IValidate Expect(int count)
         {
             _container.Resolve<TestStore>().Chronicle().Should().HaveCount(count);
             return this;
         }
 
-		public override IValidate<Task> Expect(params object[] results)
+		public override IValidate Expect(params object[] results)
 		{
-		    Expect(results.Select(r => r.GetType()).ToArray());
-		    
 		    var expect = results;
 		    var actual = _container.Resolve<TestStore>().Chronicle().Select(dm => dm.Payload()).ToArray();
 		    
@@ -55,7 +71,7 @@ namespace SprayChronicle.Testing
             return this;
         }
 
-		public override IValidate<Task> Expect(params Type[] types)
+		public override IValidate Expect(params Type[] types)
 		{
 		    var expect = types.Select(type => type.FullName).ToArray();
 		    var actual = _container.Resolve<TestStore>().Chronicle().Select(dm => dm.Payload().GetType().FullName).ToArray();
@@ -69,13 +85,13 @@ namespace SprayChronicle.Testing
             return this;
         }
 
-		public override IValidate<Task> ExpectNoException()
+		public override IValidate ExpectNoException()
         {
             _error.Should().BeNull(_error?.ToString());
             return this;
         }
 
-		public override IValidate<Task> ExpectException(Type type)
+		public override IValidate ExpectException(Type type)
         {
             if (null == type) {
                 ExpectNoException();
@@ -85,7 +101,7 @@ namespace SprayChronicle.Testing
             return this;
         }
 
-		public override IValidate<Task> ExpectException(string message)
+		public override IValidate ExpectException(string message)
         {
             _error.Message.Should().BeEquivalentTo(message);
             return this;

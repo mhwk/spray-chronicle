@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using SprayChronicle.Testing;
 using SprayChronicle.Example.Application;
 using SprayChronicle.Example.Domain;
@@ -22,9 +23,9 @@ namespace SprayChronicle.Example.Test.Domain
         }
 
         [Fact]
-        public override void Scenario()
+        public override async Task Scenario()
         {
-            base.Scenario();
+            await base.Scenario();
         }
     }
 }

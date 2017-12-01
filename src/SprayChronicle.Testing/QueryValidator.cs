@@ -7,44 +7,60 @@ using FluentAssertions;
 
 namespace SprayChronicle.Testing
 {
-    public class QueryValidator : Validator<Task<object>>
+    public class QueryValidator : Validator
     {
         private readonly IContainer _container;
+
+        private readonly object[] _result;
         
         private readonly Exception _error;
 
-        private readonly object[] _projections;
-
-        public QueryValidator(IContainer container, Func<Task<object>> action)
+        private QueryValidator(IContainer container, Exception error)
         {
             _container = container;
-            
-            try {
-                var result = action().Result;
-                if (result is IEnumerable<object>) {
-                    _projections = (result as IEnumerable<object>).ToArray();
-                } else {
-                    _projections = new [] { result };
-                }
-            } catch (Exception error) {
-                _error = error;
-                _projections = new object[] { };
+            _result = new object[] { };
+            _error = error;
+        }
+
+        private QueryValidator(IContainer container, object result)
+        {
+            _container = container;
+
+            if (result is IEnumerable<object> iterable) {
+                _result = iterable.ToArray();
+            } else {
+                _result = new [] { result };
             }
         }
 
-		public override IValidate<Task<object>> Expect()
+        public static async Task<QueryValidator> Run<T>(IContainer container, Func<Task<T>> callback)
         {
-            _projections.Should().BeEmpty(Diff(_projections, null));
+            try {
+                return new QueryValidator(
+                    container,
+                    await callback()
+                );
+            } catch (Exception error) {
+                return new QueryValidator(
+                    container,
+                    error
+                );
+            }
+        }
+
+        public override IValidate Expect()
+        {
+            _result.Should().BeEmpty(Diff(_result, null));
             return this;
         }
 
-		public override IValidate<Task<object>> Expect(int count)
+		public override IValidate Expect(int count)
         {
-            _projections.Should().HaveCount(count);
+            _result.Should().HaveCount(count);
             return this;
         }
 
-		public override IValidate<Task<object>> Expect(params object[] results)
+		public override IValidate Expect(params object[] results)
 		{
 		    if (null == results) {
 		        return Expect();
@@ -52,28 +68,28 @@ namespace SprayChronicle.Testing
 		    
 		    Expect(results.Select(r => r.GetType()).ToArray());
             
-            _projections.ShouldAllBeEquivalentTo(results, Diff(_projections, results));
+            _result.ShouldAllBeEquivalentTo(results, Diff(_result, results));
 		    
             return this;
         }
 
-		public override IValidate<Task<object>> Expect(params Type[] types)
+		public override IValidate Expect(params Type[] types)
 		{
 		    var expect = types.Select(t => t.AssemblyQualifiedName).ToArray();
-		    var actual = _projections.Select(p => p.GetType().AssemblyQualifiedName).ToArray();
+		    var actual = _result.Select(p => p.GetType().AssemblyQualifiedName).ToArray();
 		    
 		    actual.ShouldAllBeEquivalentTo(expect, Diff(expect, actual));
 		    
             return this;
         }
 
-		public override IValidate<Task<object>> ExpectNoException()
+		public override IValidate ExpectNoException()
         {
             _error.Should().BeNull(_error?.ToString());
             return this;
         }
 
-		public override IValidate<Task<object>> ExpectException(Type type)
+		public override IValidate ExpectException(Type type)
         {
             if (null == type) {
                 return ExpectNoException();
@@ -83,7 +99,7 @@ namespace SprayChronicle.Testing
             return this;
         }
 
-		public override IValidate<Task<object>> ExpectException(string message)
+		public override IValidate ExpectException(string message)
         {
             _error.Message.Should().BeEquivalentTo(message);
             return this;
