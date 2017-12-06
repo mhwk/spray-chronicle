@@ -6,9 +6,9 @@ namespace SprayChronicle.Persistence.Mongo
 {
     public sealed class MongoRepositoryFactory : IBuildStatefulRepositories
     {
-        readonly IMongoDatabase _database;
+        private readonly IMongoDatabase _database;
 
-        readonly ILoggerFactory _loggerFactory;
+        private readonly ILoggerFactory _loggerFactory;
 
         public MongoRepositoryFactory(
             IMongoDatabase database,
@@ -19,6 +19,7 @@ namespace SprayChronicle.Persistence.Mongo
         }
 
         public IStatefulRepository<T> Build<T>()
+            where T : class
         {
             return new BufferedStateRepository<T>(
                 _loggerFactory.CreateLogger<T>(),
@@ -27,6 +28,7 @@ namespace SprayChronicle.Persistence.Mongo
         }
 
         public IStatefulRepository<T> Build<T>(string reference)
+            where T : class
         {
             return new BufferedStateRepository<T>(
                 _loggerFactory.CreateLogger<T>(),

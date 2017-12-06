@@ -7,5 +7,10 @@ namespace SprayChronicle.Example.Domain.Model
         public CheckedOutBasket(BasketId basketId, ImmutableList<ProductId> productsInBasket)
             : base(basketId, productsInBasket)
         {}
+        
+        public CheckedOutBasket CheckOut(OrderId orderId)
+        {
+            return this;
+        }
     }
 }

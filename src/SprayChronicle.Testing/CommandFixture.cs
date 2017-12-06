@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Autofac;
 using Autofac.Core;
@@ -8,12 +7,11 @@ using SprayChronicle.CommandHandling;
 using SprayChronicle.EventHandling;
 using SprayChronicle.EventSourcing;
 using SprayChronicle.Persistence.Memory;
-using SprayChronicle.Projecting;
 using SprayChronicle.QueryHandling;
 
 namespace SprayChronicle.Testing
 {
-    public sealed class CommandFixture<TModule> : Fixture<TModule,IDispatchCommand,Task> where TModule : IModule, new()
+    public sealed class CommandFixture<TModule> : Fixture<TModule,IDispatchCommands,Task> where TModule : IModule, new()
     {
         public CommandFixture(): this(builder => {})
         {}
@@ -23,7 +21,6 @@ namespace SprayChronicle.Testing
                 builder.RegisterModule<CommandHandlingModule>();
                 builder.RegisterModule<SyncEventHandlingModule>();
                 builder.RegisterModule<MemoryModule>();
-                builder.RegisterModule<ProjectingModule>();
                 builder.RegisterModule<QueryHandlingModule>();
                 builder.Register<ILoggerFactory>(c => new LoggerFactory().AddConsole(LogLevel)).SingleInstance();
                 builder
@@ -41,7 +38,7 @@ namespace SprayChronicle.Testing
             Container.Resolve<IManageStreamHandlers>().Manage();
         }
 
-		public override IExecute<IDispatchCommand,Task> Given(params object[] messages)
+		public override IExecute<IDispatchCommands,Task> Given(params object[] messages)
 		{
 		    foreach (var message in messages) {
 		        Container.Resolve<ErrorSuppressingDispatcher>().Dispatch(message).Wait();
@@ -50,7 +47,7 @@ namespace SprayChronicle.Testing
             return this;
         }
 
-        public override async Task<IValidate> When(Func<IDispatchCommand,Task> callback)
+        public override async Task<IValidate> When(Func<IDispatchCommands,Task> callback)
         {
             return await CommandValidator.Run(Container, () => callback(Container.Resolve<LoggingDispatcher>()));
         }

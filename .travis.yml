@@ -11,7 +11,6 @@ env:
   - PACKAGE=SprayChronicle.Persistence.Memory
   - PACKAGE=SprayChronicle.Persistence.Mongo
   - PACKAGE=SprayChronicle.Persistence.Ouro
-  - PACKAGE=SprayChronicle.Projecting
   - PACKAGE=SprayChronicle.QueryHandling
   - PACKAGE=SprayChronicle.Server
   - PACKAGE=SprayChronicle.Server.Http

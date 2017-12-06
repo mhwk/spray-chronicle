@@ -1,6 +1,6 @@
 using System;
 
-namespace SprayChronicle.Projecting
+namespace SprayChronicle.QueryHandling
 {
     public class ProjectionException : Exception
     {

@@ -11,12 +11,12 @@ namespace SprayChronicle.Server.Http
 
         private readonly IValidator _validator;
 
-        private readonly IDispatchCommand _dispatcher;
+        private readonly IDispatchCommands _dispatcher;
 
         public HttpCommandRouteMapper(
             ILogger<HttpCommandDispatcher> logger,
             IValidator validator,
-            IDispatchCommand dispatcher)
+            IDispatchCommands dispatcher)
         {
             _logger = logger;
             _validator = validator;

@@ -24,8 +24,6 @@ namespace SprayChronicle.QueryHandling
 
             try {
                 return await _innerProcessor.Process(query);
-            } catch (Exception) {
-                throw;
             } finally {
                 stopwatch.Stop();
                 _logger.LogInformation("[{0}] {1}ms", query.GetType(), stopwatch.ElapsedMilliseconds);

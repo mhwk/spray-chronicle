@@ -1,6 +1,8 @@
+using System;
+
 namespace SprayChronicle.EventSourcing
 {
-    public class EventSourcedRepository<T> : IEventSourcingRepository<T> where T : EventSourced<T>
+    public sealed class EventSourcedRepository<T> : IEventSourcingRepository<T> where T : EventSourced<T>
     {
         private readonly IEventStore _persistence;
 
@@ -60,6 +62,26 @@ namespace SprayChronicle.EventSourcing
                 ));
             }
             return (TChild) sourced;
+        }
+        
+        public void Start<TResult>(Func<TResult> callback) where TResult : T
+        {
+            Save<TResult>(callback());
+        }
+
+        public void Continue<TResult>(string identity, Func<TResult,TResult> callback) where TResult : T
+        {
+            Save<TResult>(callback(Load<TResult>(identity)));
+        }
+
+        public void Continue<TInit,TResult>(string identity, Func<TInit,TResult> callback) where TInit : T where TResult : T
+        {
+            Save<TResult>(callback(Load<TInit>(identity)));
+        }
+
+        public void Continue<TInit,TResult>(Func<TInit> load, Func<TInit,TResult> callback) where TInit : T where TResult : T
+        {
+            Save<TResult>(callback(load()));
         }
     }
 }

@@ -12,7 +12,6 @@
     <ProjectReference Include="../SprayChronicle.Server/SprayChronicle.Server.csproj" />
     <ProjectReference Include="../SprayChronicle.CommandHandling/SprayChronicle.CommandHandling.csproj" />
     <ProjectReference Include="../SprayChronicle.Persistence.Memory/SprayChronicle.Persistence.Memory.csproj" />
-    <ProjectReference Include="../SprayChronicle.Projecting/SprayChronicle.Projecting.csproj" />
     <ProjectReference Include="../SprayChronicle.QueryHandling/SprayChronicle.QueryHandling.csproj" />
   </ItemGroup>
   <ItemGroup>

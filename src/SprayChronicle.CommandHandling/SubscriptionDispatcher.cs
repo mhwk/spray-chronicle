@@ -4,18 +4,18 @@ using System.Threading.Tasks;
 
 namespace SprayChronicle.CommandHandling
 {
-    public sealed class SubscriptionDispatcher : IDispatchCommand
+    public sealed class SubscriptionDispatcher : IDispatchCommands
     {
-        private readonly List<IHandleCommand> _handlers = new List<IHandleCommand>();
+        private readonly List<IHandleCommands> _handlers = new List<IHandleCommands>();
 
-        public void Subscribe(IEnumerable<IHandleCommand> handlers)
+        public void Subscribe(IEnumerable<IHandleCommands> handlers)
         {
             foreach (var handler in handlers) {
                 Subscribe(handler);
             }
         }
 
-        public void Subscribe(IHandleCommand handler)
+        public void Subscribe(IHandleCommands handler)
         {
             _handlers.Add(handler);
         }

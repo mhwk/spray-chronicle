@@ -9,7 +9,6 @@
     <ProjectReference Include="../SprayChronicle.Persistence.Memory/SprayChronicle.Persistence.Memory.csproj" />
     <ProjectReference Include="../SprayChronicle.Persistence.Mongo/SprayChronicle.Persistence.Mongo.csproj" />
     <ProjectReference Include="../SprayChronicle.Persistence.Ouro/SprayChronicle.Persistence.Ouro.csproj" />
-    <ProjectReference Include="../SprayChronicle.Projecting/SprayChronicle.Projecting.csproj" />
     <ProjectReference Include="../SprayChronicle.QueryHandling/SprayChronicle.QueryHandling.csproj" />
     <ProjectReference Include="../SprayChronicle.Server/SprayChronicle.Server.csproj" />
     <ProjectReference Include="../SprayChronicle.Server.Http/SprayChronicle.Server.Http.csproj" />
@@ -21,8 +20,5 @@
     <PackageReference Include="MongoDB.Driver" Version="2.4.4" />
     <PackageReference Include="MongoDB.Bson" Version="2.4.4" />
     <PackageReference Include="System.Collections.Immutable" Version="1.4.0" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Domain\Effect" />
   </ItemGroup>
 </Project>

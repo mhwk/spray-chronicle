@@ -1,7 +1,7 @@
 using MongoDB.Bson.Serialization.Attributes;
 using SprayChronicle.Persistence.Memory;
 
-namespace SprayChronicle.Example.Application.Model
+namespace SprayChronicle.Example.Domain.State
 {
     public sealed class PickedUpBasketsPerDay
     {

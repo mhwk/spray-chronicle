@@ -17,7 +17,7 @@ namespace SprayChronicle.Testing
             return new object[] {};
         }
 
-        protected abstract Task When(IDispatchCommand dispatcher);
+        protected abstract Task When(IDispatchCommands dispatcher);
 
         protected virtual object[] Expect()
         {

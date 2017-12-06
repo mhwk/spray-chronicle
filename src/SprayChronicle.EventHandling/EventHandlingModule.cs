@@ -26,7 +26,7 @@ namespace SprayChronicle.EventHandling
                 .ForEach(manager.Add);
         }
 
-        public sealed class CatchUp<THandler> : Autofac.Module where THandler : IHandleEvent
+        public sealed class CatchUp<THandler> : Autofac.Module where THandler : IHandleEvents
         {
             private readonly string _stream;
 
@@ -42,7 +42,7 @@ namespace SprayChronicle.EventHandling
                     .SingleInstance();
                 
                 builder
-                    .Register(c => new StreamEventHandler<THandler>(
+                    .Register(c => new StreamHandler<THandler>(
                         c.Resolve<ILoggerFactory>().CreateLogger<THandler>(),
                         c.Resolve<IBuildStreams>().CatchUp(_stream),
                         c.Resolve<THandler>()
@@ -53,7 +53,7 @@ namespace SprayChronicle.EventHandling
             }
         }
 
-        public sealed class Persistent<THandler> : Module where THandler : IHandleEvent
+        public sealed class Persistent<THandler> : Module where THandler : IHandleEvents
         {
             private readonly string _stream;
 
@@ -76,7 +76,7 @@ namespace SprayChronicle.EventHandling
                     .SingleInstance();
                     
                 builder
-                    .Register(c => new StreamEventHandler<THandler>(
+                    .Register(c => new StreamHandler<THandler>(
                         c.Resolve<ILoggerFactory>().CreateLogger<THandler>(),
                         c.Resolve<IBuildStreams>().Persistent(
                             _stream,

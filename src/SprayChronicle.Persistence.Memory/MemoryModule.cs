@@ -1,7 +1,6 @@
 using Autofac;
 using Microsoft.Extensions.Logging;
 using SprayChronicle.EventHandling;
-using SprayChronicle.Projecting;
 using SprayChronicle.EventSourcing;
 using SprayChronicle.QueryHandling;
 

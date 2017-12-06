@@ -1,6 +1,7 @@
 using System.Linq;
 using Autofac;
 using Microsoft.Extensions.Logging;
+using SprayChronicle.EventHandling;
 using SprayChronicle.EventSourcing;
 
 namespace SprayChronicle.CommandHandling
@@ -34,14 +35,28 @@ namespace SprayChronicle.CommandHandling
         private static void RegisterCommandHandlers(IComponentContext context, SubscriptionDispatcher dispatcher)
         {
             context.ComponentRegistry.Registrations
-                .Where(r => r.Activator.LimitType.IsAssignableTo<IHandleCommand>())
-                .Select(r => context.Resolve(r.Activator.LimitType) as IHandleCommand)
+                .Where(r => r.Activator.LimitType.IsAssignableTo<IHandleCommands>())
+                .Select(r => context.Resolve(r.Activator.LimitType) as IHandleCommands)
                 .ToList()
                 .ForEach(dispatcher.Subscribe);
         }
 
-        public class OverloadHandler<THandler,TSourced> : Module where THandler : OverloadCommandHandler<TSourced> where TSourced : EventSourced<TSourced>
+        public class CommandHandler<TSourced,THandler> : Module
+            where TSourced : EventSourced<TSourced>
+            where THandler : IHandleCommands, IHandleEvents
         {
+            private readonly string _stream;
+            
+            public CommandHandler()
+            {
+                _stream = null;
+            }
+
+            public CommandHandler(string stream)
+            {
+                _stream = stream;
+            }
+
             protected override void Load(ContainerBuilder builder)
             {
                 builder
@@ -53,9 +68,13 @@ namespace SprayChronicle.CommandHandling
                 builder
                     .RegisterType<THandler>()
                     .PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies)
-                    .As<IHandleCommand>()
+                    .As<IHandleCommands>()
                     .AsSelf()
                     .SingleInstance();
+
+                if (null != _stream) {
+                    builder.RegisterEventHandler<THandler>(_stream);
+                }
             }
         }
     }

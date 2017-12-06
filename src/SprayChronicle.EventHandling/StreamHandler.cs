@@ -6,24 +6,23 @@ using SprayChronicle.MessageHandling;
 
 namespace SprayChronicle.EventHandling
 {
-    public sealed class StreamEventHandler<T> : IHandleStream where T: IHandleEvent
+    public sealed class StreamHandler<T> : IHandleStream
+        where T : IHandleEvents
     {
         private readonly ILogger<T> _logger;
 
         private readonly IStream _stream;
 
-        private readonly IHandleEvent _eventHandler;
+        private readonly IHandleEvents _eventsHandler;
 
-        private static readonly IMessageHandlingStrategy Handlers = new OverloadHandlingStrategy<T>(new ContextTypeLocator<T>());
-
-        public StreamEventHandler(
+        public StreamHandler(
             ILogger<T> logger,
             IStream stream,
-            IHandleEvent eventHandler)
+            IHandleEvents eventsHandler)
         {
             _logger = logger;
             _stream = stream;
-            _eventHandler = eventHandler;
+            _eventsHandler = eventsHandler;
         }
 
         public async Task ListenAsync()
@@ -33,8 +32,8 @@ namespace SprayChronicle.EventHandling
 
         public void Listen()
         {
-            _stream.Subscribe((@event, occurrence) => {
-                if ( ! Handlers.AcceptsMessage(_eventHandler, @event, occurrence)) {
+            _stream.Subscribe((@event, at) => {
+                if ( ! _eventsHandler.Processes(@event, at)) {
                     _logger.LogDebug(
                         "{0}: skipping",
                         @event.Name
@@ -45,7 +44,7 @@ namespace SprayChronicle.EventHandling
                 var stopwatch = new Stopwatch();
                 stopwatch.Start();
 
-                Handlers.ProcessMessage(_eventHandler, @event, occurrence);
+                _eventsHandler.Process(@event, at);
 
                 stopwatch.Stop();
                 _logger.LogInformation(

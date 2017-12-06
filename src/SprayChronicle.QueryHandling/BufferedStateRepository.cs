@@ -9,21 +9,21 @@ using Microsoft.Extensions.Logging;
 
 namespace SprayChronicle.QueryHandling
 {
-    public class BufferedStateRepository<T> : IStatefulRepository<T>
+    public sealed class BufferedStateRepository<T> : StatefulRepository<T> where T : class
     {
-        readonly ILogger<T> _logger;
+        private readonly ILogger<T> _logger;
 
-        readonly IStatefulRepository<T> _repository;
+        private readonly IStatefulRepository<T> _repository;
 
-        readonly int _limit;
+        private readonly int _limit;
 
-        readonly ConcurrentDictionary<string,T> _saves;
+        private readonly ConcurrentDictionary<string,T> _saves;
 
-        readonly ConcurrentDictionary<string,bool> _removes;
+        private readonly ConcurrentDictionary<string,bool> _removes;
 
-        Timer _timer;
+        private Timer _timer;
 
-        bool _flushing = false;
+        private bool _flushing = false;
 
         public BufferedStateRepository(ILogger<T> logger, IStatefulRepository<T> repository) : this(logger, repository, 10000)
         {
@@ -38,12 +38,12 @@ namespace SprayChronicle.QueryHandling
             _removes = new ConcurrentDictionary<string,bool>();
         }
 
-        public string Identity(T obj)
+        public override string Identity(T obj)
         {
             return _repository.Identity(obj);
         }
 
-        public T Load(string identity)
+        public override T Load(string identity)
         {
             if (!_saves.ContainsKey(identity)) {
                 T obj = _repository.Load(identity);
@@ -55,22 +55,22 @@ namespace SprayChronicle.QueryHandling
             return _saves[identity];
         }
 
-        public T Load(Func<IQueryable<T>,T> callback)
+        public override T Load(Func<IQueryable<T>,T> callback)
         {
-            T obj = callback(_saves.Values.AsQueryable());
+            var obj = callback(_saves.Values.AsQueryable());
             if (null != obj) {
                 return obj;
             }
             return _repository.Load(callback);
         }
 
-        public IEnumerable<T> Load(Func<IQueryable<T>,IEnumerable<T>> callback)
+        public override IEnumerable<T> Load(Func<IQueryable<T>,IEnumerable<T>> callback)
         {
             return callback(_saves.Values.AsQueryable())
                 .Concat(_repository.Load(callback));
         }
 
-        public PagedResult<T> Load(Func<IQueryable<T>,IEnumerable<T>> callback, int page, int perPage)
+        public override PagedResult<T> Load(Func<IQueryable<T>,IEnumerable<T>> callback, int page, int perPage)
         {
             var results = callback(_saves.Values.AsQueryable())
                 .Concat(_repository.Load(callback));
@@ -84,64 +84,61 @@ namespace SprayChronicle.QueryHandling
         }
 
         
-        public void Save(T obj)
+        public override void Save(T obj)
         {
-            string identity = Identity(obj);
+            var identity = Identity(obj);
 
             if (_saves.ContainsKey(identity)) {
-                T removed;
-                _saves.TryRemove(identity, out removed);
+                _saves.TryRemove(identity, out _);
             }
             
             _saves.TryAdd(identity, obj);
             
             if (_removes.ContainsKey(identity)) {
-                bool removed;
-                _removes.TryRemove(identity, out removed);
+                _removes.TryRemove(identity, out _);
             }
 
             Flush();
         }
 
-        public void Save(T[] objs)
+        public override void Save(T[] objs)
         {
-            foreach (T obj in objs) {
+            foreach (var obj in objs) {
                 Save(obj);
             }
         }
 
-        public void Remove(string identity)
+        public override void Remove(string identity)
         {
             _removes.TryAdd(identity, true);
 
             if (_saves.ContainsKey(identity)) {
-                T removed;
-                _saves.TryRemove(identity, out removed);
+                _saves.TryRemove(identity, out _);
             }
 
             Flush();
         }
 
-        public void Remove(string[] identities)
+        public override void Remove(string[] identities)
         {
-            foreach (string identity in identities) {
+            foreach (var identity in identities) {
                 Remove(identity);
             }
         }
 
-        public void Remove(T obj)
+        public override void Remove(T obj)
         {
             Remove(Identity(obj));
         }
 
-        public void Remove(T[] objs)
+        public override void Remove(T[] objs)
         {
-            foreach (T obj in objs) {
+            foreach (var obj in objs) {
                 Remove(obj);
             }
         }
 
-        void Flush()
+        private void Flush()
         {
             StopFlushTimer();
 
@@ -156,7 +153,7 @@ namespace SprayChronicle.QueryHandling
             }
         }
 
-        void DoFlush()
+        private void DoFlush()
         {
             _flushing = true;
             
@@ -169,18 +166,18 @@ namespace SprayChronicle.QueryHandling
             _flushing = false;
         }
 
-        async Task DoFlushAsync()
+        private async Task DoFlushAsync()
         {
             await Task.Run(() => DoFlush());
         }
 
-        void DoFlushSaves()
+        private void DoFlushSaves()
         {
             if (_saves.Count == 0) {
                 return;
             }
 
-            Stopwatch stopwatch = new Stopwatch();
+            var stopwatch = new Stopwatch();
             stopwatch.Start();
         
             _repository.Save(_saves.Values.ToArray());
@@ -194,13 +191,13 @@ namespace SprayChronicle.QueryHandling
             );
         }
 
-        void DoFlushRemoves()
+        private void DoFlushRemoves()
         {
             if (_removes.Count == 0) {
                 return;
             }
             
-            Stopwatch stopwatch = new Stopwatch();
+            var stopwatch = new Stopwatch();
             stopwatch.Start();
         
             _repository.Remove(_removes.Keys.ToArray());
@@ -214,9 +211,9 @@ namespace SprayChronicle.QueryHandling
             );
         }
 
-        public void Clear()
+        public override void Clear()
         {
-            Stopwatch stopwatch = new Stopwatch();
+            var stopwatch = new Stopwatch();
             stopwatch.Start();
 
             _repository.Clear();
@@ -227,21 +224,21 @@ namespace SprayChronicle.QueryHandling
             _logger.LogInformation("[{0}::CLEAR] {1}ms", typeof(T).Name, stopwatch.ElapsedMilliseconds);
         }
 
-        void StartFlushTimer()
+        private void StartFlushTimer()
         {
             StopFlushTimer();
             _timer = new Timer(_ => DoFlush(), null, 100, Timeout.Infinite);
         }
 
-        void StopFlushTimer()
+        private void StopFlushTimer()
         {
-            if (null != _timer) {
-                _timer.Dispose();
-                _timer = null;
-            }
+            if (null == _timer) return;
+            
+            _timer.Dispose();
+            _timer = null;
         }
 
-        double PerSecond(long ms, long count)
+        private static double PerSecond(long ms, long count)
         {
             if (ms == 0) {
                 return double.PositiveInfinity;

@@ -1,7 +1,7 @@
 using SprayChronicle.Persistence.Memory;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace SprayChronicle.Example.Application.Model
+namespace SprayChronicle.Example.Domain.State
 {
     public class NumberOfProductsInBasket
     {

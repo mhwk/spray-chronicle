@@ -17,7 +17,7 @@ namespace SprayChronicle.Example.Test.Application.Command
             };
         }
         
-        protected override Task When(IDispatchCommand dispatcher)
+        protected override Task When(IDispatchCommands dispatcher)
         {
             return dispatcher.Dispatch(new CheckOutBasket(
                 "basketId",

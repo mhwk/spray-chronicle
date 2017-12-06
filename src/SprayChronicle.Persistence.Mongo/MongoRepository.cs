@@ -7,11 +7,11 @@ using SprayChronicle.QueryHandling;
 
 namespace SprayChronicle.Persistence.Mongo
 {
-    public class MongoRepository<T> : IStatefulRepository<T>
+    public class MongoRepository<T> : StatefulRepository<T> where T : class
     {
-        readonly IMongoDatabase _database;
+        private readonly IMongoDatabase _database;
 
-        readonly string _name;
+        private readonly string _name;
 
         public MongoRepository(IMongoDatabase database) : this(database, typeof(T).Name)
         {}
@@ -22,12 +22,12 @@ namespace SprayChronicle.Persistence.Mongo
             _name = name;
         }
 
-        public string Identity(T obj)
+        public override string Identity(T obj)
         {
             return (string) obj.ToBsonDocument().GetElement("_id").Value;
         }
 
-        public T Load(string identity)
+        public override T Load(string identity)
         {
             return _database
                 .GetCollection<T>(_name)
@@ -35,17 +35,17 @@ namespace SprayChronicle.Persistence.Mongo
                 .FirstOrDefault();
         }
 
-        public T Load(Func<IQueryable<T>,T> callback)
+        public override T Load(Func<IQueryable<T>,T> callback)
         {
             return callback(_database.GetCollection<T>(_name).AsQueryable());
         }
 
-        public IEnumerable<T> Load(Func<IQueryable<T>,IEnumerable<T>> callback)
+        public override IEnumerable<T> Load(Func<IQueryable<T>,IEnumerable<T>> callback)
         {
             return callback(_database.GetCollection<T>(_name).AsQueryable());
         }
 
-        public PagedResult<T> Load(Func<IQueryable<T>,IEnumerable<T>> callback, int page, int perPage)
+        public override PagedResult<T> Load(Func<IQueryable<T>,IEnumerable<T>> callback, int page, int perPage)
         {
             var results = callback(_database.GetCollection<T>(_name).AsQueryable()); 
             return new PagedResult<T>(
@@ -56,7 +56,7 @@ namespace SprayChronicle.Persistence.Mongo
             );
         }
 
-        public void Save(T obj)
+        public override void Save(T obj)
         {
             _database.GetCollection<T>(_name).FindOneAndReplace(
                 Builders<T>.Filter.Eq("_id", Identity(obj)),
@@ -68,7 +68,7 @@ namespace SprayChronicle.Persistence.Mongo
             );
         }
 
-        public void Save(T[] objs)
+        public override void Save(T[] objs)
         {
             var models = new WriteModel<T>[objs.Length];
             
@@ -81,27 +81,27 @@ namespace SprayChronicle.Persistence.Mongo
             _database.GetCollection<T>(_name).BulkWrite(models, new BulkWriteOptions() { IsOrdered = false, BypassDocumentValidation = true });
         }
 
-        public void Remove(string identity)
+        public override void Remove(string identity)
         {
             Remove(new string[1] {identity});
         }
 
-        public void Remove(string[] identities)
+        public override void Remove(string[] identities)
         {
             _database.GetCollection<T>(_name).DeleteMany(Builders<T>.Filter.In("_id", new BsonArray(identities)));
         }
 
-        public void Remove(T obj)
+        public override void Remove(T obj)
         {
             Remove(Identity(obj));
         }
 
-        public void Remove(T[] objs)
+        public override void Remove(T[] objs)
         {
-            Remove(objs.Select(obj => Identity(obj)).ToArray());
+            Remove(objs.Select(Identity).ToArray());
         }
 
-        public void Clear()
+        public override void Clear()
         {
             _database.DropCollection(_name);
         }

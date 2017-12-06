@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace SprayChronicle.QueryHandling
 {
-    public interface IStatefulRepository<T>
+    public interface IStatefulRepository<T> where T : class
     {
         string Identity(T obj);
 
@@ -29,5 +29,9 @@ namespace SprayChronicle.QueryHandling
         void Remove(T[] objs);
 
         void Clear();
+
+        void Start(Func<T> callback);
+
+        void With(string id, Func<T, T> callback);
     }
 }

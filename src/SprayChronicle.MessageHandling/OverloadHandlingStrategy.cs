@@ -22,6 +22,16 @@ namespace SprayChronicle.MessageHandling
                 .ForEach(AddMethod);
         }
 
+        public OverloadHandlingStrategy(ILocateTypes locator, string methodName)
+        {
+            locator.LocateTypesWithParent<T>()
+                .SelectMany(type => type.GetMethods(BindingFlags))
+                .Where(method => method.GetParameters().Length > 0)
+                .Where(method => method.Name == methodName)
+                .ToList()
+                .ForEach(AddMethod);
+        }
+
         private void AddMethod(MethodInfo method)
         {
             _messageToMethod.Add(method.GetParameters().Select(parameter => parameter.ParameterType).ToArray(), method);

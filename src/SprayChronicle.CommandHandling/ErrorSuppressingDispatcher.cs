@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace SprayChronicle.CommandHandling
 {
-    public class ErrorSuppressingDispatcher : IDispatchCommand
+    public class ErrorSuppressingDispatcher : IDispatchCommands
     {
         private readonly LoggingDispatcher _internalDispatcher;
 

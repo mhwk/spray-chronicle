@@ -2,8 +2,8 @@ namespace SprayChronicle.QueryHandling
 {
     public interface IBuildStatefulRepositories
     {
-        IStatefulRepository<T> Build<T>();
+        IStatefulRepository<TState> Build<TState>() where TState : class;
         
-        IStatefulRepository<T> Build<T>(string reference);
+        IStatefulRepository<TState> Build<TState>(string reference) where TState : class;
     }
 }

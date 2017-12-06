@@ -6,10 +6,8 @@ using Autofac.Core;
 using Microsoft.Extensions.Logging;
 using SprayChronicle.CommandHandling;
 using SprayChronicle.EventHandling;
-using SprayChronicle.EventSourcing;
 using SprayChronicle.MessageHandling;
 using SprayChronicle.Persistence.Memory;
-using SprayChronicle.Projecting;
 using SprayChronicle.QueryHandling;
 
 namespace SprayChronicle.Testing
@@ -24,7 +22,6 @@ namespace SprayChronicle.Testing
                 builder.RegisterModule<CommandHandlingModule>();
                 builder.RegisterModule<SyncEventHandlingModule>();
                 builder.RegisterModule<MemoryModule>();
-                builder.RegisterModule<ProjectingModule>();
                 builder.RegisterModule<QueryHandlingModule>();
                 builder.Register<ILoggerFactory>(c => new LoggerFactory().AddConsole(LogLevel)).SingleInstance();
                 builder.Register<TestStream>(c => new TestStream()).SingleInstance();

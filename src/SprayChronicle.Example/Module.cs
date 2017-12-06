@@ -1,11 +1,9 @@
 using Autofac;
 using SprayChronicle.CommandHandling;
-using SprayChronicle.EventHandling;
-using SprayChronicle.Projecting;
-using SprayChronicle.Example.Application.Effect;
-using SprayChronicle.Example.Application.Model;
 using SprayChronicle.Example.Application.Service;
 using SprayChronicle.Example.Domain.Model;
+using SprayChronicle.Example.Domain.State;
+using SprayChronicle.QueryHandling;
 
 namespace SprayChronicle.Example
 {
@@ -13,12 +11,11 @@ namespace SprayChronicle.Example
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterModule<CommandHandlingModule.OverloadHandler<BasketHandler,Basket>>();
-            builder.RegisterModule<CommandHandlingModule.OverloadHandler<OrderHandler,Order>>();
+            builder.RegisterCommandHandler<Basket, BasketCommandHandler>("$ce-SprayChronicle");
+            builder.RegisterCommandHandler<Order, OrderCommandHandler>("$ce-SprayChronicle");
             
-            builder.RegisterModule(new ProjectingModule.ProjectionWithQuery<NumberOfProductsInBasket,NumberOfProductsInBasketProjector,NumberOfProductsInBasketExecutor>("$ce-SprayChronicle"));
-            builder.RegisterModule(new ProjectingModule.ProjectionWithQuery<PickedUpBasketsPerDay,PickedUpBasketsPerDayProjector,PickedUpBasketsPerDayExecutor>("$ce-SprayChronicle"));
-            builder.RegisterModule(new EventHandlingModule.Persistent<OrderReceptor>("$ce-SprayChronicle"));
+            builder.RegisterQueryHandler<NumberOfProductsInBasket, NumberOfProductsInBasketQueryHandler>("$ce-SprayChronicle");
+            builder.RegisterQueryHandler<PickedUpBasketsPerDay, PickedUpBasketsPerDayQueryHandler>("$ce-SprayChronicle");
         }
     }
 }

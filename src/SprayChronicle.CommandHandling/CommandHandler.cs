@@ -1,42 +1,74 @@
 using System;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
+using SprayChronicle.EventHandling;
 using SprayChronicle.EventSourcing;
 using SprayChronicle.MessageHandling;
 
 namespace SprayChronicle.CommandHandling
 {
-    public abstract class CommandHandler<T> : IHandleCommand where T : IEventSourcable<T>
+    public abstract class CommandHandler<T> : IHandleCommands, IHandleEvents
+        where T : IEventSourcable<T>
     {
-        protected readonly IEventSourcingRepository<T> _repository;
+        private readonly IEventSourcingRepository<T> _repository;
+        private readonly IMessageHandlingStrategy _commandHandlers;
+        private readonly IMessageHandlingStrategy _eventHandlers;
 
         protected CommandHandler(IEventSourcingRepository<T> repository)
+            : this(
+                repository,
+                new OverloadHandlingStrategy<CommandHandler<T>>(new ContextTypeLocator<T>(), "Handle"),
+                new OverloadHandlingStrategy<CommandHandler<T>>(new ContextTypeLocator<T>(), "Process")
+            )
+        {
+        }
+
+        protected CommandHandler(
+            IEventSourcingRepository<T> repository,
+            IMessageHandlingStrategy commandHandlers,
+            IMessageHandlingStrategy eventHandlers)
         {
             _repository = repository;
-        }
-        
-        public abstract bool Handles(object command);
-        
-        public abstract void Handle(object command);
-
-        protected void Start<TResult>(Func<TResult> callback) where TResult : T
-        {
-            _repository.Save<TResult>(callback());
+            _commandHandlers = commandHandlers;
+            _eventHandlers = eventHandlers;
         }
 
-        protected void Continue<TResult>(string identity, Func<TResult,TResult> callback) where TResult : T
+        protected IEventSourcingRepository<T> Repository()
         {
-            _repository.Save<TResult>(callback(_repository.Load<TResult>(identity)));
+            return _repository;
         }
 
-        protected void Continue<TInit,TResult>(string identity, Func<TInit,TResult> callback) where TInit : T where TResult : T
+        public bool Handles(object command)
         {
-            _repository.Save<TResult>(callback(_repository.Load<TInit>(identity)));
+            return _commandHandlers.AcceptsMessage(this, command.ToMessage());
         }
 
-        protected void Continue<TInit,TResult>(Func<TInit> load, Func<TInit,TResult> callback) where TInit : T where TResult : T
+        public void Handle(object command)
         {
-            _repository.Save<TResult>(callback(load()));
+            try {
+                _commandHandlers.ProcessMessage(this, command.ToMessage());
+            } catch (TargetInvocationException error) {
+                ExceptionDispatchInfo.Capture(error.InnerException).Throw();
+            } catch (UnhandledMessageException error) {
+                throw new UnhandledCommandException(
+                    string.Format(
+                        "Command {0} not handled by {1}",
+                        command.GetType(),
+                        GetType()
+                    ),
+                    error
+                );
+            }
+        }
+
+        public bool Processes(object @event, DateTime at)
+        {
+            return _eventHandlers.AcceptsMessage(this, @event.ToMessage(), at);
+        }
+
+        public void Process(object @event, DateTime at)
+        {
+            _eventHandlers.ProcessMessage(this, @event.ToMessage(), at);
         }
     }
 }

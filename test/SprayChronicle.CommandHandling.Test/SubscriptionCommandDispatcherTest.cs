@@ -7,7 +7,7 @@ namespace SprayChronicle.CommandHandling.Test
 {
     public class SubscriptionCommandDispatcherTest
     {
-        private readonly Mock<IHandleCommand> _commandHandler = new Mock<IHandleCommand>();
+        private readonly Mock<IHandleCommands> _commandHandler = new Mock<IHandleCommands>();
 
         [Fact]
         public void ItFailsIfNoSubscriptions()

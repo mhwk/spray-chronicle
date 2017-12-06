@@ -2,8 +2,6 @@ using System;
 using Autofac;
 using MongoDB.Driver;
 using Microsoft.Extensions.Logging;
-using SprayChronicle.Projecting;
-using SprayChronicle.Server;
 using SprayChronicle.QueryHandling;
 
 namespace SprayChronicle.Persistence.Mongo

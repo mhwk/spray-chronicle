@@ -1,7 +1,6 @@
 using System.Threading.Tasks;
-using SprayChronicle.Example.Application;
-using SprayChronicle.Example.Application.Model;
 using SprayChronicle.Example.Domain;
+using SprayChronicle.Example.Domain.State;
 using SprayChronicle.QueryHandling;
 using SprayChronicle.Testing;
 

@@ -7,17 +7,17 @@ using SprayChronicle.QueryHandling;
 
 namespace SprayChronicle.Persistence.Memory
 {
-    public class MemoryRepository<T> : IStatefulRepository<T>
+    public class MemoryRepository<T> : StatefulRepository<T> where T : class
     {
-        readonly FieldInfo _identifier;
+        private readonly FieldInfo _identifier;
 
-        readonly Dictionary<string,T> _data = new Dictionary<string,T>();
+        private readonly Dictionary<string,T> _data = new Dictionary<string,T>();
 
         public MemoryRepository()
         {
-            _identifier = typeof(T).GetTypeInfo().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.Public)
-                .Where(f => null != f.GetCustomAttribute<IdentifierAttribute>())
-                .FirstOrDefault();
+            _identifier = typeof(T).GetTypeInfo()
+                .GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.Public)
+                .FirstOrDefault(f => null != f.GetCustomAttribute<IdentifierAttribute>());
             
             if (null == _identifier) {
                 throw new Exception(string.Format(
@@ -27,12 +27,12 @@ namespace SprayChronicle.Persistence.Memory
             }
         }
 
-        public string Identity(T obj)
+        public override string Identity(T obj)
         {
             return (string) _identifier.GetValue(obj);
         }
 
-        public T Load(string identity)
+        public override T Load(string identity)
         {
             if ( ! _data.ContainsKey(identity)) {
                 return default(T);
@@ -40,17 +40,17 @@ namespace SprayChronicle.Persistence.Memory
             return _data[identity];
         }
 
-        public T Load(Func<IQueryable<T>,T> callback)
+        public override T Load(Func<IQueryable<T>,T> callback)
         {
             return callback(_data.Values.AsQueryable());
         }
 
-        public IEnumerable<T> Load(Func<IQueryable<T>,IEnumerable<T>> callback)
+        public override IEnumerable<T> Load(Func<IQueryable<T>,IEnumerable<T>> callback)
         {
             return callback(_data.Values.AsQueryable()).ToImmutableArray();
         }
 
-        public PagedResult<T> Load(Func<IQueryable<T>,IEnumerable<T>> callback, int page, int perPage)
+        public override PagedResult<T> Load(Func<IQueryable<T>,IEnumerable<T>> callback, int page, int perPage)
         {
             var results = callback(_data.Values.AsQueryable()); 
             return new PagedResult<T>(
@@ -61,7 +61,7 @@ namespace SprayChronicle.Persistence.Memory
             );
         }
 
-        public void Save(T obj)
+        public override void Save(T obj)
         {
             if (_data.ContainsKey(Identity(obj))) {
                 _data.Remove(Identity(obj));
@@ -69,40 +69,40 @@ namespace SprayChronicle.Persistence.Memory
             _data.Add(Identity(obj), obj);
         }
 
-        public void Save(T[] objs)
+        public override void Save(T[] objs)
         {
             foreach (var obj in objs) {
                 Save(obj);
             }
         }
 
-        public void Remove(string identity)
+        public override void Remove(string identity)
         {
             if (_data.ContainsKey(identity)) {
                 _data.Remove(identity);
             }
         }
 
-        public void Remove(string[] identities)
+        public override void Remove(string[] identities)
         {
             foreach (var identity in identities) {
                 Remove(identity);
             }
         }
 
-        public void Remove(T obj)
+        public override void Remove(T obj)
         {
             Remove(Identity(obj));
         }
 
-        public void Remove(T[] objs)
+        public override void Remove(T[] objs)
         {
             foreach (var obj in objs) {
                 Remove(obj);
             }
         }
 
-        public void Clear()
+        public override void Clear()
         {
             _data.Clear();
         }

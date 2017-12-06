@@ -1,6 +1,6 @@
 namespace SprayChronicle.CommandHandling
 {
-    public interface IHandleCommand
+    public interface IHandleCommands
     {
         bool Handles(object command);
 

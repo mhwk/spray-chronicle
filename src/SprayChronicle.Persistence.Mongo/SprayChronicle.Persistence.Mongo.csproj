@@ -8,8 +8,8 @@
     <IsPackable>true</IsPackable>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="../SprayChronicle.Projecting/SprayChronicle.Projecting.csproj" />
     <ProjectReference Include="../SprayChronicle.Server/SprayChronicle.Server.csproj" />
+    <ProjectReference Include="../SprayChronicle.QueryHandling/SprayChronicle.QueryHandling.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Autofac" Version="4.6.2" />

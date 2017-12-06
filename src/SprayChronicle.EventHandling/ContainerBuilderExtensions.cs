@@ -9,5 +9,12 @@ namespace SprayChronicle.EventHandling
             builder.RegisterModule<AsyncEventHandlingModule>();
             return builder;
         }
+        
+        public static ContainerBuilder RegisterEventHandler<THandler>(this ContainerBuilder builder, string stream)
+            where THandler : IHandleEvents
+        {
+            builder.RegisterModule(new EventHandlingModule.Persistent<THandler>(stream));
+            return builder;
+        }
     }
 }

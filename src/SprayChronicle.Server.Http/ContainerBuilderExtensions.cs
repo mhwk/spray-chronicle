@@ -1,9 +1,7 @@
 using Autofac;
-using Autofac.Core;
 using SprayChronicle.CommandHandling;
 using SprayChronicle.EventHandling;
 using SprayChronicle.Persistence.Memory;
-using SprayChronicle.Projecting;
 using SprayChronicle.QueryHandling;
 
 namespace SprayChronicle.Server.Http
@@ -16,7 +14,6 @@ namespace SprayChronicle.Server.Http
             builder.RegisterMemoryPersistence();
             builder.RegisterCommandHandling();
             builder.RegisterEventHandling();
-            builder.RegisterProjecting();
             builder.RegisterQueryHandling();
         }
     }

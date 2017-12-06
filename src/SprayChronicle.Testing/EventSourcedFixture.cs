@@ -5,12 +5,8 @@ using Autofac;
 using Autofac.Core;
 using Microsoft.Extensions.Logging;
 using SprayChronicle.CommandHandling;
-using SprayChronicle.EventHandling;
 using SprayChronicle.EventSourcing;
-using SprayChronicle.MessageHandling;
 using SprayChronicle.Persistence.Memory;
-using SprayChronicle.Projecting;
-using SprayChronicle.QueryHandling;
 
 namespace SprayChronicle.Testing
 {

@@ -2,10 +2,11 @@ using System;
 using System.Globalization;
 using System.Threading.Tasks;
 using SprayChronicle.Example.Application;
-using SprayChronicle.Example.Application.Model;
 using SprayChronicle.Example.Domain;
+using SprayChronicle.Example.Domain.State;
 using SprayChronicle.QueryHandling;
 using SprayChronicle.Testing;
+using Xunit;
 
 namespace SprayChronicle.Example.Test.Application.Query
 {
@@ -39,6 +40,12 @@ namespace SprayChronicle.Example.Test.Application.Query
             return new object[] {
                 new PickedUpBasketsPerDay("2016-01-01", 2)
             };
+        }
+
+        [Fact]
+        public override async Task Scenario()
+        {
+            await base.Scenario();
         }
     }
 }

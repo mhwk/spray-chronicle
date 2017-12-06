@@ -5,13 +5,13 @@ using Microsoft.Extensions.Logging;
 
 namespace SprayChronicle.CommandHandling
 {
-    public class LoggingDispatcher : IDispatchCommand
+    public class LoggingDispatcher : IDispatchCommands
     {
         private readonly ILogger<LoggingDispatcher> _logger;
 
-        private readonly IDispatchCommand _internalDispatcher;
+        private readonly IDispatchCommands _internalDispatcher;
 
-        public LoggingDispatcher(ILogger<LoggingDispatcher> logger, IDispatchCommand internalDispatcher)
+        public LoggingDispatcher(ILogger<LoggingDispatcher> logger, IDispatchCommands internalDispatcher)
         {
             _logger = logger;
             _internalDispatcher = internalDispatcher;
