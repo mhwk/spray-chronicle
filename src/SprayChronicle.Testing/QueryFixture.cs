@@ -1,22 +1,18 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Autofac;
 using Autofac.Core;
 using Microsoft.Extensions.Logging;
 using SprayChronicle.CommandHandling;
 using SprayChronicle.EventHandling;
-using SprayChronicle.MessageHandling;
 using SprayChronicle.Persistence.Memory;
 using SprayChronicle.QueryHandling;
 
 namespace SprayChronicle.Testing
 {
-    public class QueryFixture<TModule> : Fixture<TModule,IProcessQueries,Task<object>>, IPopulateEpoch<IProcessQueries,Task<object>>
+    public class QueryFixture<TModule> : Fixture<TModule,TestStream,Task,IProcessQueries,Task<object>>
         where TModule : IModule, new()
     {
-        private readonly List<DateTime> _epochs = new List<DateTime>();
-
         public QueryFixture(Action<ContainerBuilder> configure)
             : base(builder => {
                 builder.RegisterModule<CommandHandlingModule>();
@@ -40,25 +36,13 @@ namespace SprayChronicle.Testing
             Container.Resolve<IManageStreamHandlers>().Manage();
         }
 
-        public IPopulate<IProcessQueries,Task<object>> Epoch(params DateTime[] epochs)
+        public override async Task<IExecute<IProcessQueries, Task<object>>> Given(Func<TestStream, Task> callback)
         {
-            _epochs.AddRange(epochs);
+            await callback(Container.Resolve<TestStream>());
             return this;
         }
 
-        public override IExecute<IProcessQueries,Task<object>> Given(params object[] messages)
-        {
-            for (var i = 0; i < messages.Length; i++) {
-                if (_epochs.Count > i) {
-                    Container.Resolve<TestStream>().Publish(messages[i].ToMessage(), _epochs[i]);
-                } else {
-                    Container.Resolve<TestStream>().Publish(messages[i].ToMessage(), DateTime.Now);
-                }
-            }
-            return this;
-        }
-
-        public override async Task<IValidate> When(Func<IProcessQueries,Task<object>> callback)
+        public override async Task<IValidate> When(Func<IProcessQueries, Task<object>> callback)
         {
             return await QueryValidator.Run(Container, () => callback(Container.Resolve<LoggingQueryProcessor>()));
         }

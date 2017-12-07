@@ -7,9 +7,9 @@ using System.Linq;
 
 namespace SprayChronicle.Example.Application.Service
 {
-    public sealed class OrderCommandHandler : CommandHandler<Order>
+    public sealed class HandleOrder : CommandHandler<Order>
     {
-        public OrderCommandHandler(IEventSourcingRepository<Order> repository) : base(repository)
+        public HandleOrder(IEventSourcingRepository<Order> repository) : base(repository)
         {
         }
 

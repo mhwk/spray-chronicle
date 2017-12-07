@@ -9,12 +9,12 @@ namespace SprayChronicle.Example.Test.Application.Query
 {
     public class FindNumberOfProductsForBasketId : QueryTestCase<Module>
     {
-        protected override object[] Given()
+        protected override Task Given(TestStream stream)
         {
-            return new object[] {
+            return stream.Publish(
                 new BasketPickedUp("basketId"),
                 new ProductAddedToBasket("basketId", "productId")
-            };
+            );
         }
 
         protected override Task<object> When(IProcessQueries processor)

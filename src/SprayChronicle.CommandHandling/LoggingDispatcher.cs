@@ -17,33 +17,35 @@ namespace SprayChronicle.CommandHandling
             _internalDispatcher = internalDispatcher;
         }
 
-        public async Task Dispatch(object command)
+        public async Task Dispatch(params object[] commands)
         {
             await Task.Run(async () => {
-                try {
-                    _logger.LogDebug("Dispatching: " + command.GetType());
+                foreach (var command in commands) {
+                    try {
+                        _logger.LogDebug("Dispatching: " + command.GetType());
 
-                    var stopwatch = new Stopwatch();
-                    stopwatch.Start();
+                        var stopwatch = new Stopwatch();
+                        stopwatch.Start();
 
-                    await _internalDispatcher.Dispatch(command);
+                        await _internalDispatcher.Dispatch(command);
 
-                    stopwatch.Stop();
-                    _logger.LogInformation("{0}: {1}ms", command.GetType().ToString(), stopwatch.ElapsedMilliseconds);
-                } catch (UnhandledCommandException error) {
-                    _logger.LogWarning(string.Format(
-                        "Command {0} not handled: {1}",
-                        command.GetType().ToString(),
-                        error.ToString()
-                    ));
-                    throw;
-                } catch (Exception error) {
-                    _logger.LogDebug(string.Format(
-                        "Command {0} triggered domain exception: {1}",
-                        command.GetType().ToString(),
-                        error.ToString()
-                    ));
-                    throw;
+                        stopwatch.Stop();
+                        _logger.LogInformation("{0}: {1}ms", command.GetType().ToString(), stopwatch.ElapsedMilliseconds);
+                    } catch (UnhandledCommandException error) {
+                        _logger.LogWarning(string.Format(
+                            "Command {0} not handled: {1}",
+                            command.GetType().ToString(),
+                            error.ToString()
+                        ));
+                        throw;
+                    } catch (Exception error) {
+                        _logger.LogDebug(string.Format(
+                            "Command {0} triggered domain exception: {1}",
+                            command.GetType().ToString(),
+                            error.ToString()
+                        ));
+                        throw;
+                    }
                 }
             });
         }

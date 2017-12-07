@@ -17,26 +17,26 @@ namespace SprayChronicle.CommandHandling.Test
         [Fact]
         public void ItWontAcceptCommand()
         {
-            new BasketCommandHandler(Repository.Object).Handles(new DoNotAcceptCommand()).Should().BeFalse();
+            new HandleBasket(Repository.Object).Handles(new DoNotAcceptCommand()).Should().BeFalse();
         }
 
         [Fact]
         public void ItDoesAcceptCommand()
         {
-            new BasketCommandHandler(Repository.Object).Handles(new PickUpBasket("foo")).Should().BeTrue();
+            new HandleBasket(Repository.Object).Handles(new PickUpBasket("foo")).Should().BeTrue();
         }
 
         [Fact]
         public void ItFailsOnUnsupportedCommand()
         {
-            Action a = () => new BasketCommandHandler(Repository.Object).Handle(new DoNotAcceptCommand());
+            Action a = () => new HandleBasket(Repository.Object).Handle(new DoNotAcceptCommand());
             a.ShouldThrow<UnhandledCommandException>();
         }
 
         [Fact]
         public void ItAcceptsSupportedCommand()
         {
-            new BasketCommandHandler(Repository.Object).Handle(new PickUpBasket("foo"));
+            new HandleBasket(Repository.Object).Handle(new PickUpBasket("foo"));
             Repository.Verify(repository => repository.Start(It.IsAny<Func<Basket>>()));
         }
         

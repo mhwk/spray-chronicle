@@ -11,7 +11,7 @@ using SprayChronicle.QueryHandling;
 
 namespace SprayChronicle.Testing
 {
-    public sealed class CommandFixture<TModule> : Fixture<TModule,IDispatchCommands,Task> where TModule : IModule, new()
+    public sealed class CommandFixture<TModule> : Fixture<TModule,IDispatchCommands,Task,IDispatchCommands,Task> where TModule : IModule, new()
     {
         public CommandFixture(): this(builder => {})
         {}
@@ -38,12 +38,10 @@ namespace SprayChronicle.Testing
             Container.Resolve<IManageStreamHandlers>().Manage();
         }
 
-		public override IExecute<IDispatchCommands,Task> Given(params object[] messages)
-		{
-		    foreach (var message in messages) {
-		        Container.Resolve<ErrorSuppressingDispatcher>().Dispatch(message).Wait();
-		    }
-
+        public override async Task<IExecute<IDispatchCommands, Task>> Given(Func<IDispatchCommands, Task> callback)
+        {
+            await callback(Container.Resolve<ErrorSuppressingDispatcher>());
+            
             return this;
         }
 

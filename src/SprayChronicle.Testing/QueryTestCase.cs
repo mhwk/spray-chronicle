@@ -7,20 +7,13 @@ using Xunit;
 
 namespace SprayChronicle.Testing
 {
-    public abstract class QueryTestCase<TModule> where TModule : IModule, new()
+    public abstract class QueryTestCase<TModule>
+        where TModule : IModule, new()
     {
         protected virtual void Configure(ContainerBuilder builder)
         {}
 
-        protected virtual DateTime[] Epoch()
-        {
-            return new DateTime[] {};
-        }
-
-        protected virtual object[] Given()
-        {
-            return new object[] {};
-        }
+        protected abstract Task Given(TestStream stream);
 
         protected abstract Task<object> When(IProcessQueries processor);
 
@@ -37,9 +30,8 @@ namespace SprayChronicle.Testing
         [Fact]
         public virtual async Task Scenario()
         {
-            (await new QueryFixture<TModule>(Configure)
-                .Epoch(Epoch())
-                .Given(Given())
+            (await (await new QueryFixture<TModule>(Configure)
+                .Given(Given))
                 .When(When))
                 .ExpectException(ExpectException())
                 .Expect(Expect());

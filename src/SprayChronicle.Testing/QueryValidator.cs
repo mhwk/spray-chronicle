@@ -66,9 +66,8 @@ namespace SprayChronicle.Testing
 		        return Expect();
 		    }
 		    
-		    Expect(results.Select(r => r.GetType()).ToArray());
-            
             _result.ShouldAllBeEquivalentTo(results, Diff(_result, results));
+//		    Render(_result).ShouldBeEquivalentTo(Render(results));
 		    
             return this;
         }

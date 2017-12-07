@@ -12,9 +12,9 @@ namespace SprayChronicle.Testing
         protected virtual void Configure(ContainerBuilder builder)
         {}
 
-        protected virtual object[] Given()
+        protected virtual Task Given(IDispatchCommands dispatcher)
         {
-            return new object[] {};
+            return Task.CompletedTask;
         }
 
         protected abstract Task When(IDispatchCommands dispatcher);
@@ -32,8 +32,8 @@ namespace SprayChronicle.Testing
         [Fact]
         public virtual async Task Scenario()
         {
-             (await new CommandFixture<TModule>(Configure)
-                .Given(Given())
+             (await (await new CommandFixture<TModule>(Configure)
+                .Given(Given))
                 .When(When))
                 .ExpectException(ExpectException())
                 .Expect(Expect());

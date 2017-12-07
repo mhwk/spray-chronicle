@@ -12,9 +12,9 @@ namespace SprayChronicle.Testing
         protected virtual void Configure(ContainerBuilder builder)
         {}
 
-        protected virtual object[] Given()
+        protected virtual TSourced Given(TSourced sourced)
         {
-            return new object[] {};
+            return sourced;
         }
 
         protected abstract TSourced When(TSourced sourced);
@@ -32,8 +32,8 @@ namespace SprayChronicle.Testing
         [Fact]
         public virtual async Task Scenario()
         {
-            (await new EventSourcedFixture<TModule,TSourced>(Configure)
-                .Given(Given())
+            (await (await new EventSourcedFixture<TModule,TSourced>(Configure)
+                .Given(Given))
                 .When(When))
                 .ExpectException(ExpectException())
                 .Expect(Expect());

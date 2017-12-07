@@ -12,7 +12,7 @@ namespace SprayChronicle.Testing
 
         private readonly List<IDomainMessage> _future = new List<IDomainMessage>();
 
-        private bool _recording = false;
+        private bool _present = false;
 
         public TestStore(IEventStore child)
         {
@@ -23,7 +23,7 @@ namespace SprayChronicle.Testing
         {
             var range = domainMessages as IDomainMessage[] ?? domainMessages.ToArray();
             
-            if ( ! _recording) {
+            if ( ! _present) {
                 _past.AddRange(range);
             } else {
                 _future.AddRange(range);
@@ -44,7 +44,7 @@ namespace SprayChronicle.Testing
 
         public IEnumerable<IDomainMessage> Future()
         {
-            return _past.ToArray();
+            return _future.ToArray();
         }
 
         public IEnumerable<IDomainMessage> Chronicle()
@@ -52,9 +52,9 @@ namespace SprayChronicle.Testing
             return _past.Union(_future).ToArray();
         }
 
-        public void Record()
+        public void Present()
         {
-            _recording = true;
+            _present = true;
         }
     }
 }

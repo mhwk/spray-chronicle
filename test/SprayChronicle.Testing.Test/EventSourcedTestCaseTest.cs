@@ -1,4 +1,3 @@
-using SprayChronicle.Example.Application;
 using SprayChronicle.Example.Domain;
 using SprayChronicle.Example;
 using SprayChronicle.Example.Domain.Model;
@@ -7,11 +6,9 @@ namespace SprayChronicle.Testing.Test
 {
     public class EventSourcedTestCaseTest : EventSourcedTestCase<Module,Basket>
     {
-        protected override object[] Given()
+        protected override Basket Given(Basket basket)
         {
-            return new object[] {
-                new BasketPickedUp("basketId")
-            };
+            return Basket.PickUp(new BasketId("basketId"));
         }
 
         protected override Basket When(Basket basket)

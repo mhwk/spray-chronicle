@@ -4,6 +4,6 @@ namespace SprayChronicle.CommandHandling
 {
     public interface IDispatchCommands
     {
-        Task Dispatch(object command);
+        Task Dispatch(params object[] commands);
     }
 }

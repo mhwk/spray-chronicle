@@ -6,15 +6,15 @@ using SprayChronicle.Example.Domain.State;
 
 namespace SprayChronicle.Example.Application.Service
 {
-    public class PickedUpBasketsPerDayQueryHandler : QueryHandler<PickedUpBasketsPerDay>
+    public class QueryPickedUpBasketsPerDay : QueryHandler<PickedUpBasketsPerDay>
     {
-        public PickedUpBasketsPerDayQueryHandler(IStatefulRepository<PickedUpBasketsPerDay> repository)
+        public QueryPickedUpBasketsPerDay(IStatefulRepository<PickedUpBasketsPerDay> repository)
             : base(repository)
         {}
         
         private PickedUpBasketsPerDay FindOrCreate(DateTime epoch)
         {
-            return Repository().Load(q => q.FirstOrDefault(i => i.Day == epoch.ToString("yyyy-MM-dd")))
+            return Execute(new PickedUpBasketsOnDay(epoch.ToString("yyyy-MM-dd")))
                 ?? new PickedUpBasketsPerDay(epoch.ToString("yyyy-MM-dd"));
         }
 

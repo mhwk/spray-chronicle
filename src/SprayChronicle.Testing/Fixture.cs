@@ -6,8 +6,10 @@ using Microsoft.Extensions.Logging;
 
 namespace SprayChronicle.Testing
 {
-    public abstract class Fixture<TModule,TExecute,TValidate> : IPopulate<TExecute,TValidate>, IExecute<TExecute,TValidate>
+    public abstract class Fixture<TModule,TPopulate,TPopulateResult,TExecute,TValidate> : IPopulate<TPopulate,TPopulateResult,TExecute,TValidate>, IExecute<TExecute,TValidate>
         where TModule : IModule, new()
+        where TPopulate : class
+        where TPopulateResult : class
         where TExecute : class
         where TValidate : class
     {
@@ -34,7 +36,7 @@ namespace SprayChronicle.Testing
         {
         }
 
-        public abstract IExecute<TExecute,TValidate> Given(params object[] messages);
+        public abstract Task<IExecute<TExecute, TValidate>> Given(Func<TPopulate, TPopulateResult> callback);
 
         public abstract Task<IValidate> When(Func<TExecute, TValidate> callback);
     }

@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Autofac;
-using SprayChronicle.EventSourcing;
 using FluentAssertions;
-using JsonDiffPatchDotNet;
-using Newtonsoft.Json;
 
 namespace SprayChronicle.Testing
 {
@@ -29,7 +25,7 @@ namespace SprayChronicle.Testing
 
         public static async Task<CommandValidator> Run(IContainer container, Func<Task> callback)
         {
-            container.Resolve<TestStore>().Record();
+            container.Resolve<TestStore>().Present();
             
             try {
                 await callback();
@@ -47,20 +43,22 @@ namespace SprayChronicle.Testing
 
 		public override IValidate Expect()
         {
-            _container.Resolve<TestStore>().Chronicle().Should().BeEmpty();
+            _container.Resolve<TestStore>().Future().Should().BeEmpty();
             return this;
         }
 
 		public override IValidate Expect(int count)
         {
-            _container.Resolve<TestStore>().Chronicle().Should().HaveCount(count);
+            _container.Resolve<TestStore>().Future().Should().HaveCount(count);
             return this;
         }
 
 		public override IValidate Expect(params object[] results)
 		{
+		    Expect(results.Select(r => r.GetType()).ToArray());
+		    
 		    var expect = results;
-		    var actual = _container.Resolve<TestStore>().Chronicle().Select(dm => dm.Payload()).ToArray();
+		    var actual = _container.Resolve<TestStore>().Future().Select(dm => dm.Payload()).ToArray();
 		    
 		    actual.ShouldAllBeEquivalentTo(
                 results,
@@ -74,7 +72,7 @@ namespace SprayChronicle.Testing
 		public override IValidate Expect(params Type[] types)
 		{
 		    var expect = types.Select(type => type.FullName).ToArray();
-		    var actual = _container.Resolve<TestStore>().Chronicle().Select(dm => dm.Payload().GetType().FullName).ToArray();
+		    var actual = _container.Resolve<TestStore>().Future().Select(dm => dm.Payload().GetType().FullName).ToArray();
 		    
 		    actual.ShouldAllBeEquivalentTo(
 		        expect,

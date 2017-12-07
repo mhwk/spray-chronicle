@@ -29,7 +29,7 @@ namespace SprayChronicle.Testing
             ));
         }
 
-        private static string Render(object obj)
+        protected static string Render(object obj)
         {
             if (obj is IEnumerable<object> objs) {
                 return string.Join(",\n", objs.Select(Render));
@@ -42,7 +42,7 @@ namespace SprayChronicle.Testing
             );
         }
 
-        private static string Escape(string str)
+        protected static string Escape(string str)
         {
             str = str?.Replace("{", "{{");
             str = str?.Replace("}", "}}");

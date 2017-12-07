@@ -7,11 +7,9 @@ namespace SprayChronicle.Example.Test.Domain
 {
     public sealed class RemoveAProductNotInBasket : EventSourcedTestCase<Module,Basket>
     {
-        protected override object[] Given()
+        protected override Basket Given(Basket basket)
         {
-            return new object[] {
-                new BasketPickedUp("basketId")
-            };
+            return Basket.PickUp(new BasketId("basketId"));
         }
 
         protected override Basket When(Basket basket)

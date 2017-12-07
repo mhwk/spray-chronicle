@@ -6,9 +6,9 @@ using SprayChronicle.Example.Domain.State;
 
 namespace SprayChronicle.Example.Application.Service
 {
-    public sealed class NumberOfProductsInBasketQueryHandler : QueryHandler<NumberOfProductsInBasket>
+    public sealed class QueryNumberOfProductsInBasket : QueryHandler<NumberOfProductsInBasket>
     {
-        public NumberOfProductsInBasketQueryHandler(IStatefulRepository<NumberOfProductsInBasket> repository): base(repository)
+        public QueryNumberOfProductsInBasket(IStatefulRepository<NumberOfProductsInBasket> repository): base(repository)
         {}
         
         private void Process(BasketPickedUp @event, DateTime at)

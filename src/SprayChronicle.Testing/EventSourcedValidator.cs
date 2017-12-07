@@ -34,7 +34,7 @@ namespace SprayChronicle.Testing
             where TSourced : EventSourced<TSourced>
         {
             return await Task.Run(() => {
-                container.Resolve<TestStore>().Record();
+                container.Resolve<TestStore>().Present();
                 
                 try {
                     return new EventSourcedValidator(

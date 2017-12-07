@@ -12,13 +12,15 @@ namespace SprayChronicle.CommandHandling
             _internalDispatcher = internalDispatcher;
         }
 
-        public async Task Dispatch(object command)
+        public async Task Dispatch(params object[] commands)
         {
             await Task.Run(async () => {
-                try {
-                    await _internalDispatcher.Dispatch(command);
-                } catch (Exception) {
-                    // ignored
+                foreach (var command in commands) {
+                    try {
+                        await _internalDispatcher.Dispatch(command);
+                    } catch (Exception) {
+                        // ignored
+                    }
                 }
             });
         }

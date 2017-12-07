@@ -4,9 +4,9 @@ using SprayChronicle.Example.Domain.Model;
 
 namespace SprayChronicle.Example.Application.Service
 {
-    public sealed class BasketCommandHandler : CommandHandler<Basket>
+    public sealed class HandleBasket : CommandHandler<Basket>
     {
-        public BasketCommandHandler(IEventSourcingRepository<Basket> repository): base(repository)
+        public HandleBasket(IEventSourcingRepository<Basket> repository): base(repository)
         {}
         
         private void Handle(PickUpBasket command)

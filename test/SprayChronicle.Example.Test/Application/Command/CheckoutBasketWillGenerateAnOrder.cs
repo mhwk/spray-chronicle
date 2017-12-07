@@ -9,27 +9,24 @@ namespace SprayChronicle.Example.Test.Application.Command
 {
     public class CheckoutBasketWillGenerateAnOrder : CommandTestCase<Module>
     {
-        protected override object[] Given()
+        protected override Task Given(IDispatchCommands dispatcher)
         {
-            return new object[] {
-                new PickUpBasket("basketId"), 
-                new AddProductToBasket("basketId", "productId"),
-            };
+            return dispatcher.Dispatch(
+                new PickUpBasket("basketId"),
+                new AddProductToBasket("basketId", "productId")
+            );
         }
         
         protected override Task When(IDispatchCommands dispatcher)
         {
-            return dispatcher.Dispatch(new CheckOutBasket(
-                "basketId",
-                "orderId"
-            ));
+            return dispatcher.Dispatch(
+                new CheckOutBasket("basketId", "orderId")
+            );
         }
 
         protected override object[] Expect()
         {
             return new object[] {
-                new BasketPickedUp("basketId"), 
-                new ProductAddedToBasket("basketId", "productId"), 
                 new BasketCheckedOut("basketId", "orderId", new [] {"productId"}),
                 new OrderGenerated("orderId", new [] {"productId"}), 
             };

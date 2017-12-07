@@ -1,10 +1,9 @@
 using System;
-using SprayChronicle.EventHandling;
 using SprayChronicle.MessageHandling;
 
 namespace SprayChronicle.QueryHandling
 {
-    public abstract class QueryHandler<T> : IExecuteQueries, IHandleEvents
+    public abstract class QueryHandler<T> : IHandleQueries
         where T : class
     {
         private readonly IStatefulRepository<T> _repository;

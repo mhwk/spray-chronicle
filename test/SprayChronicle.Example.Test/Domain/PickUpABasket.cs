@@ -1,7 +1,5 @@
-using System;
 using System.Threading.Tasks;
 using SprayChronicle.Testing;
-using SprayChronicle.Example.Application;
 using SprayChronicle.Example.Domain;
 using SprayChronicle.Example.Domain.Model;
 using Xunit;
