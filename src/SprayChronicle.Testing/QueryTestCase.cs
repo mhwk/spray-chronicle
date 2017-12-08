@@ -17,24 +17,12 @@ namespace SprayChronicle.Testing
 
         protected abstract Task<object> When(IProcessQueries processor);
 
-        protected virtual object[] Expect()
-        {
-            return new object[] {};
-        }
-
-        protected virtual Type ExpectException()
-        {
-            return null;
-        }
+        protected abstract void Then(IValidate validate);
 
         [Fact]
         public virtual async Task Scenario()
         {
-            (await (await new QueryFixture<TModule>(Configure)
-                .Given(Given))
-                .When(When))
-                .ExpectException(ExpectException())
-                .Expect(Expect());
+            Then(await (await new QueryFixture<TModule>(Configure).Given(Given)).When(When));
         }
     }
 }

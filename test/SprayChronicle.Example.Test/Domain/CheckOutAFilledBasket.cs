@@ -18,11 +18,11 @@ namespace SprayChronicle.Example.Test.Domain
             return (basket as PickedUpBasket)?.CheckOut(new OrderId("orderId"));
         }
 
-        protected override object[] Expect()
+        protected override void Then(IValidate validator)
         {
-            return new object[] {
-                new BasketCheckedOut("basketId", "orderId", new [] {"productId"}),
-            };
+            validator.Expect(
+                new BasketCheckedOut("basketId", "orderId", new [] {"productId"})
+            );
         }
     }
 }

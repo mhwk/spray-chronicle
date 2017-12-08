@@ -8,16 +8,21 @@ namespace SprayChronicle.Example.Test.Domain
 {
     public sealed class PickUpABasket : EventSourcedTestCase<Module,Basket>
     {
+        protected override Basket Given(Basket sourced)
+        {
+            return null;
+        }
+
         protected override Basket When(Basket basket)
         {
             return Basket.PickUp(new BasketId("basketId"));
         }
 
-        protected override object[] Expect()
+        protected override void Then(IValidate validator)
         {
-            return new object[] {
+            validator.Expect(
                 new BasketPickedUp("basketId")
-            };
+            );
         }
 
         [Fact]

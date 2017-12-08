@@ -1,6 +1,4 @@
-using System;
 using SprayChronicle.Testing;
-using SprayChronicle.Example.Domain;
 using SprayChronicle.Example.Domain.Model;
 
 namespace SprayChronicle.Example.Test.Domain
@@ -17,9 +15,9 @@ namespace SprayChronicle.Example.Test.Domain
             return (basket as PickedUpBasket).RemoveProduct(new ProductId("productId"));
         }
 
-        protected override Type ExpectException()
+        protected override void Then(IValidate validator)
         {
-            return typeof(ProductNotInBasketException);
+            validator.ExpectException(typeof(ProductNotInBasketException));
         }
     }
 }

@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using Xunit;
 using Autofac;
@@ -12,31 +11,16 @@ namespace SprayChronicle.Testing
         protected virtual void Configure(ContainerBuilder builder)
         {}
 
-        protected virtual TSourced Given(TSourced sourced)
-        {
-            return sourced;
-        }
+        protected abstract TSourced Given(TSourced sourced);
 
         protected abstract TSourced When(TSourced sourced);
 
-        protected virtual object[] Expect()
-        {
-            return new object[] {};
-        }
-
-        protected virtual Type ExpectException()
-        {
-            return null;
-        }
+        protected abstract void Then(IValidate validator);
 
         [Fact]
         public virtual async Task Scenario()
         {
-            (await (await new EventSourcedFixture<TModule,TSourced>(Configure)
-                .Given(Given))
-                .When(When))
-                .ExpectException(ExpectException())
-                .Expect(Expect());
+            Then(await (await new EventSourcedFixture<TModule,TSourced>(Configure).Given(Given)).When(When));
         }
     }
 }

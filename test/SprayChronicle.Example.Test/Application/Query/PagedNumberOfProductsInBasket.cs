@@ -21,16 +21,16 @@ namespace SprayChronicle.Example.Test.Application.Query
             return processor.Process(new Example.Application.PagedNumberOfProductsInBasket(2, 1));
         }
 
-        protected override object[] Expect()
+        protected override void Then(IValidate validate)
         {
-            return new object[] {
+            validate.Expect(
                 new PagedResult<NumberOfProductsInBasket>(
                     new [] {new NumberOfProductsInBasket("basketId2", 0)},
                     2,
                     1,
                     2
                 )
-            };
+            );
         }
     }
 }

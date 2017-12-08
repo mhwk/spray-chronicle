@@ -22,11 +22,11 @@ namespace SprayChronicle.Example.Test.Application.Query
             return processor.Process(new Example.Application.NumberOfProductsForBasketId("basketId"));
         }
 
-        protected override object[] Expect()
+        protected override void Then(IValidate validator)
         {
-            return new object[] {
+            validator.Expect(
                 new NumberOfProductsInBasket("basketId", 1)
-            };
+            );
         }
 
         [Fact]

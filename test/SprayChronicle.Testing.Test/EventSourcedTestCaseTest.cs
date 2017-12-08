@@ -16,11 +16,11 @@ namespace SprayChronicle.Testing.Test
             return (basket as PickedUpBasket)?.AddProduct(new ProductId("productId"));
         }
 
-        protected override object[] Expect()
+        protected override void Then(IValidate validator)
         {
-            return new object[] {
+            validator.Expect(
                 new ProductAddedToBasket("basketId", "productId")
-            };
+            );
         }
     }
 }

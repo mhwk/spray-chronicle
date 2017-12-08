@@ -32,11 +32,11 @@ namespace SprayChronicle.Example.Test.Application.Query
             );
         }
 
-        protected override object[] Expect()
+        protected override void Then(IValidate validator)
         {
-            return new object[] {
+            validator.Expect(
                 new PickedUpBasketsPerDay("2016-01-01", 2)
-            };
+            );
         }
 
         [Fact]

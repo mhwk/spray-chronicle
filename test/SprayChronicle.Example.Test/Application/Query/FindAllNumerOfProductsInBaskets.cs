@@ -27,12 +27,12 @@ namespace SprayChronicle.Example.Test.Application.Query
             );
         }
 
-        protected override object[] Expect()
+        protected override void Then(IValidate validator)
         {
-            return new object[] {
+            validator.Expect(
                 new NumberOfProductsInBasket("basketId1", 0),
-                new NumberOfProductsInBasket("basketId2", 0),
-            };
+                new NumberOfProductsInBasket("basketId2", 0)
+            );
         }
 
         [Fact]
