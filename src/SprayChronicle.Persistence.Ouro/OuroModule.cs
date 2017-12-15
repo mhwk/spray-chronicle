@@ -48,10 +48,9 @@ namespace SprayChronicle.Persistence.Ouro
 
         IEventStoreConnection InitEventStore(IComponentContext container)
         {
-            if ("" != (Environment.GetEnvironmentVariable("EVENTSTORE_CLUSTER_DNS") ?? "")) {
-                return InitEventStoreCluster(container);
-            }
-            return InitEventStoreSingle(container);
+            return "" != (Environment.GetEnvironmentVariable("EVENTSTORE_CLUSTER_DNS") ?? "")
+                ? InitEventStoreCluster(container)
+                : InitEventStoreSingle(container);
         }
 
         IEventStoreConnection InitEventStoreSingle(IComponentContext container)

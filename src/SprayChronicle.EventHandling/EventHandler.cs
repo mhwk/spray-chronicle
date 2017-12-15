@@ -3,11 +3,13 @@ using SprayChronicle.MessageHandling;
 
 namespace SprayChronicle.EventHandling
 {
-    public abstract class EventHandler : IHandleEvents
+    public abstract class EventHandler<T> : IHandleEvents
+        where T : class
     {
         private readonly IMessageHandlingStrategy _eventHandlers;
         
         protected EventHandler()
+            : this(new OverloadHandlingStrategy<T>(new ContextTypeLocator<T>(), "Process"))
         {
         }
         

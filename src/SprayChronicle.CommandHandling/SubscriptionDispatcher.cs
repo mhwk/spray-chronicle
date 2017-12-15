@@ -22,23 +22,21 @@ namespace SprayChronicle.CommandHandling
 
         public async Task Dispatch(params object[] commands)
         {
-            await Task.Run(() => {
-                foreach (var command in commands) {
-                    var handler = _handlers.FirstOrDefault(h => h.Handles(command));
-            
-                    if (null == handler) {
-                        throw new UnhandledCommandException(
-                            string.Format(
-                                "Command {0} could not be handled by one of the following handlers: {1}",
-                                command.GetType(),
-                                string.Join(", ", _handlers.Select(h => h.GetType().Name))
-                            )
-                        );
-                    }
+            foreach (var command in commands) {
+                var handler = _handlers.FirstOrDefault(h => h.Handles(command));
 
-                    handler.Handle(command);
+                if (null == handler) {
+                    throw new UnhandledCommandException(
+                        string.Format(
+                            "Command {0} could not be handled by one of the following handlers: {1}",
+                            command.GetType(),
+                            string.Join(", ", _handlers.Select(h => h.GetType().Name))
+                        )
+                    );
                 }
-            });
+
+                await Task.Run(() => handler.Handle(command));
+            }
         }
     }
 }
