@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Autofac;
-using FluentAssertions;
+using Shouldly;
 
 namespace SprayChronicle.Testing
 {
-    public class QueryValidator : Validator
+    public class QueryValidator : IValidate
     {
         private readonly IContainer _container;
 
@@ -48,59 +48,67 @@ namespace SprayChronicle.Testing
             }
         }
 
-        public override IValidate Expect()
+        public IValidate Expect()
         {
-            _result.Should().BeEmpty(Diff(_result, null));
+            _result.ShouldBeNull();
+            
             return this;
         }
 
-		public override IValidate Expect(int count)
+		public IValidate Expect(int count)
         {
-            _result.Should().HaveCount(count);
+            _result.Length.ShouldBe(count);
+            
             return this;
         }
 
-		public override IValidate Expect(params object[] results)
+		public IValidate Expect(params object[] expectation)
 		{
-		    if (null == results) {
+		    if (null == expectation) {
 		        return Expect();
 		    }
-		    
-            _result.ShouldAllBeEquivalentTo(results, Diff(_result, results));
-//		    Render(_result).ShouldBeEquivalentTo(Render(results));
+
+		    _result.ShouldBeDeepEqualTo(expectation);
 		    
             return this;
         }
 
-		public override IValidate Expect(params Type[] types)
+		public IValidate Expect(params Type[] expectation)
 		{
-		    var expect = types.Select(t => t.AssemblyQualifiedName).ToArray();
-		    var actual = _result.Select(p => p.GetType().AssemblyQualifiedName).ToArray();
-		    
-		    actual.ShouldAllBeEquivalentTo(expect, Diff(expect, actual));
+		    _result
+		        .Select(p => p.GetType().AssemblyQualifiedName)
+		        .ToArray()
+		        .ShouldBeDeepEqualTo(
+		            expectation
+		                .Select(t => t.AssemblyQualifiedName)
+		                .ToArray()
+		        );
 		    
             return this;
         }
 
-		public override IValidate ExpectNoException()
+		public IValidate ExpectNoException()
         {
-            _error.Should().BeNull(_error?.ToString());
+            _error.ShouldBeNull(_error?.ToString());
+            
             return this;
         }
 
-		public override IValidate ExpectException(Type type)
+		public IValidate ExpectException(Type type)
         {
             if (null == type) {
                 return ExpectNoException();
             }
             
-            _error.Should().BeOfType(type, _error?.ToString());
+            _error.ShouldBeOfType(type, _error?.ToString());
+            
             return this;
         }
 
-		public override IValidate ExpectException(string message)
+		public IValidate ExpectException(string message)
         {
-            _error.Message.Should().BeEquivalentTo(message);
+            _error.Message.ShouldBe(message);
+            
             return this;
         }
     }

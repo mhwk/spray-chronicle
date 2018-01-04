@@ -8,9 +8,9 @@ namespace SprayChronicle.Testing
 
 		IValidate Expect(int count);
 
-		IValidate Expect(params object[] results);
+		IValidate Expect(params object[] expectation);
 
-		IValidate Expect(params Type[] types);
+		IValidate Expect(params Type[] expectation);
 
 		IValidate ExpectNoException();
 

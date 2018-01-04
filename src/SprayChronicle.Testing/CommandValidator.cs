@@ -2,11 +2,11 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Autofac;
-using FluentAssertions;
+using Shouldly;
 
 namespace SprayChronicle.Testing
 {
-    public class CommandValidator : Validator
+    public class CommandValidator : IValidate
     {
         private readonly IContainer _container;
         
@@ -41,67 +41,71 @@ namespace SprayChronicle.Testing
             );
         }
 
-		public override IValidate Expect()
+		public IValidate Expect()
         {
-            _container.Resolve<TestStore>().Future().Should().BeEmpty();
-            return this;
-        }
-
-		public override IValidate Expect(int count)
-        {
-            _container.Resolve<TestStore>().Future().Should().HaveCount(count);
-            return this;
-        }
-
-		public override IValidate Expect(params object[] results)
-		{
-		    Expect(results.Select(r => r.GetType()).ToArray());
-		    
-		    var expect = results;
-		    var actual = _container.Resolve<TestStore>().Future().Select(dm => dm.Payload()).ToArray();
-		    
-		    actual.ShouldAllBeEquivalentTo(
-                results,
-                options => options.WithStrictOrdering().RespectingRuntimeTypes(),
-                Diff(expect, actual)
-            );
+            _container
+                .Resolve<TestStore>()
+                .Future()
+                .ShouldBeEmpty();
             
             return this;
         }
 
-		public override IValidate Expect(params Type[] types)
-		{
-		    var expect = types.Select(type => type.FullName).ToArray();
-		    var actual = _container.Resolve<TestStore>().Future().Select(dm => dm.Payload().GetType().FullName).ToArray();
-		    
-		    actual.ShouldAllBeEquivalentTo(
-		        expect,
-                options => options.WithStrictOrdering().RespectingRuntimeTypes(),
-                Diff(expect, actual)
-            );
+		public IValidate Expect(int count)
+        {
+            _container
+                .Resolve<TestStore>()
+                .Future()
+                .Count()
+                .ShouldBe(count);
             
             return this;
         }
 
-		public override IValidate ExpectNoException()
+        public IValidate Expect(params object[] expectation)
         {
-            _error.Should().BeNull(_error?.ToString());
+            _container
+                .Resolve<TestStore>()
+                .Future()
+                .Select(dm => dm.Payload())
+                .ToArray()
+                .ShouldBeDeepEqualTo(expectation);
+            
             return this;
         }
 
-		public override IValidate ExpectException(Type type)
+		public IValidate Expect(params Type[] expectation)
+		{
+		    _container
+		        .Resolve<TestStore>()
+		        .Future()
+		        .Select(dm => dm.Payload().GetType().FullName)
+		        .ToArray()
+		        .ShouldBeDeepEqualTo(expectation);
+            
+            return this;
+        }
+
+		public IValidate ExpectNoException()
+        {
+            _error.ShouldBeNull(_error?.ToString());
+            
+            return this;
+        }
+
+		public IValidate ExpectException(Type type)
         {
             if (null == type) {
                 ExpectNoException();
             } else {
-                _error.Should().BeOfType(type, _error?.ToString());
+                _error.ShouldBeOfType(type, _error?.ToString());
             }
             return this;
         }
 
-		public override IValidate ExpectException(string message)
+		public IValidate ExpectException(string message)
         {
-            _error.Message.Should().BeEquivalentTo(message);
+            _error.Message.ShouldBe(message);
             return this;
         }
     }
