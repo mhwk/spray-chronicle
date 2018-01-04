@@ -15,9 +15,11 @@ namespace SprayChronicle.CommandHandling
             }
         }
 
-        public void Subscribe(IHandleCommands handler)
+        public SubscriptionDispatcher Subscribe(IHandleCommands handler)
         {
             _handlers.Add(handler);
+
+            return this;
         }
 
         public async Task Dispatch(params object[] commands)

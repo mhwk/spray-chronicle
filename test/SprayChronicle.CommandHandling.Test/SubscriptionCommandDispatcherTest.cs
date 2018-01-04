@@ -1,43 +1,43 @@
-using System;
-using FluentAssertions;
-using Moq;
+using System.Threading.Tasks;
+using NSubstitute;
+using Shouldly;
 using Xunit;
 
 namespace SprayChronicle.CommandHandling.Test
 {
     public class SubscriptionCommandDispatcherTest
     {
-        private readonly Mock<IHandleCommands> _commandHandler = new Mock<IHandleCommands>();
+        private readonly IHandleCommands _commandHandler = Substitute.For<IHandleCommands>();
 
         [Fact]
-        public void ItFailsIfNoSubscriptions()
+        public async Task ItFailsIfNoSubscriptions()
         {
-            var commandBus = new SubscriptionDispatcher();
-            Action a = () => commandBus.Dispatch(new Command()).Wait();
-            a.ShouldThrow<UnhandledCommandException>();
+            await Should.ThrowAsync<UnhandledCommandException>(
+                async () => await new SubscriptionDispatcher()
+                    .Dispatch(new Command())
+            );
         }
 
         [Fact]
-        public void ItFailsIfNotAccepted()
+        public async Task ItFailsIfNotAccepted()
         {
-            _commandHandler.Setup(commandHandler => commandHandler.Handles(It.IsAny<object>())).Returns(false);
+            _commandHandler.Handles(Arg.Any<object>()).Returns(false);
 
-            var commandBus = new SubscriptionDispatcher();
-            commandBus.Subscribe(_commandHandler.Object);
-
-            Action a = () => commandBus.Dispatch(new Command()).Wait();
-            a.ShouldThrow<UnhandledCommandException>();
+            await Should.ThrowAsync<UnhandledCommandException>(
+                async () => await new SubscriptionDispatcher()
+                    .Subscribe(_commandHandler)
+                    .Dispatch(new Command())
+            );
         }
 
         [Fact]
-        public void ItDispatchesTohandler()
+        public async Task ItDispatchesToHandler()
         {
-            _commandHandler.Setup(commandHandler => commandHandler.Handles(It.IsAny<object>())).Returns(true);
+            _commandHandler.Handles(Arg.Any<object>()).Returns(true);
 
-            var commandBus = new SubscriptionDispatcher();
-            commandBus.Subscribe(_commandHandler.Object);
-
-            commandBus.Dispatch(new Command()).Wait();
+            await new SubscriptionDispatcher()
+                .Subscribe(_commandHandler)
+                .Dispatch(new Command());
         }
 
         private class Command

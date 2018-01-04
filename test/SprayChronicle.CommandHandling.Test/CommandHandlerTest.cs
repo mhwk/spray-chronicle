@@ -1,6 +1,5 @@
 using System;
-using FluentAssertions;
-using Moq;
+using Shouldly;
 using NSubstitute;
 using SprayChronicle.EventSourcing;
 using SprayChronicle.Example.Application;
@@ -12,42 +11,44 @@ namespace SprayChronicle.CommandHandling.Test
 {
     public class CommandHandlerTest
     {
-        public Mock<IEventSourcingRepository<Basket>> Repository = new Mock<IEventSourcingRepository<Basket>>();
+        private readonly IEventSourcingRepository<Basket> _repository = Substitute.For<IEventSourcingRepository<Basket>>();
 
         [Fact]
         public void ItWontAcceptCommand()
         {
-            new HandleBasket(Repository.Object).Handles(new DoNotAcceptCommand()).Should().BeFalse();
+            new HandleBasket(_repository)
+                .Handles(new DoNotAcceptCommand())
+                .ShouldBeFalse();
         }
 
         [Fact]
         public void ItDoesAcceptCommand()
         {
-            new HandleBasket(Repository.Object).Handles(new PickUpBasket("foo")).Should().BeTrue();
+            new HandleBasket(_repository)
+                .Handles(new PickUpBasket("foo"))
+                .ShouldBeTrue();
         }
 
         [Fact]
         public void ItFailsOnUnsupportedCommand()
         {
-            Action a = () => new HandleBasket(Repository.Object).Handle(new DoNotAcceptCommand());
-            a.ShouldThrow<UnhandledCommandException>();
+            Should.Throw<UnhandledCommandException>(
+                () => new HandleBasket(_repository)
+                    .Handle(new DoNotAcceptCommand())
+            );
         }
 
         [Fact]
         public void ItAcceptsSupportedCommand()
         {
-            new HandleBasket(Repository.Object).Handle(new PickUpBasket("foo"));
-            Repository.Verify(repository => repository.Start(It.IsAny<Func<Basket>>()));
+            new HandleBasket(_repository)
+                .Handle(new PickUpBasket("foo"));
+            
+            _repository
+                .Received()
+                .Start(Arg.Any<Func<Basket>>());
         }
         
-//        [Fact]
-//        public void ItThrowsDomainException()
-//        {
-//            Repository.Setup(r => r.Load<PickedUpBasket>(It.IsAny<string>())).Returns(new PickedUpBasket(new BasketId("foo"), ImmutableList.Create<ProductId>()));
-//            Action a = () => new BasketCommandHandler(Repository.Object).Handle(new RemoveProductFromBasket("foo", "bar"));
-//            a.ShouldThrow<ProductNotInBasketException>();
-//        }
-
         private class DoNotAcceptCommand
         {}
     }

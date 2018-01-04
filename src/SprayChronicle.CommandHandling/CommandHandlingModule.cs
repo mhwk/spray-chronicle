@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using Autofac;
 using Autofac.Core;
@@ -41,7 +40,7 @@ namespace SprayChronicle.CommandHandling
                 .Where(r => r.Activator.LimitType.IsAssignableTo<IHandleCommands>())
                 .Select(r => context.Resolve(r.Activator.LimitType) as IHandleCommands)
                 .ToList()
-                .ForEach(dispatcher.Subscribe);
+                .ForEach(handler => dispatcher.Subscribe(handler));
         }
 
         public class CommandHandler<TSourced,THandler> : Module
