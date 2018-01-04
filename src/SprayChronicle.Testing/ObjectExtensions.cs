@@ -13,7 +13,7 @@ namespace SprayChronicle.Testing
     {
         public static object ShouldBeDeepEqualTo(this object actual, object expectation)
         {
-            Render(actual).ShouldBeSameAs(Render(expectation), Diff(actual, expectation));
+            Render(actual).ShouldBe(Render(expectation), Diff(actual, expectation));
             
             return actual;
         }
