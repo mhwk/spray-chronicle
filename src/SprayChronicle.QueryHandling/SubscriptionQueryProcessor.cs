@@ -6,7 +6,7 @@ namespace SprayChronicle.QueryHandling
 {
     public class SubscriptionQueryProcessor : IProcessQueries
     {
-        readonly List<IExecuteQueries> _executors = new List<IExecuteQueries>();
+        private readonly List<IExecuteQueries> _executors = new List<IExecuteQueries>();
 
         public void AddExecutors(params IExecuteQueries[] executors)
         {

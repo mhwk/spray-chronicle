@@ -1,7 +1,8 @@
+using System;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using Autofac;
-using SprayChronicle.Server;
+using Autofac.Core;
 
 namespace SprayChronicle.EventHandling
 {
@@ -59,20 +60,32 @@ namespace SprayChronicle.EventHandling
 
             private readonly string _category;
 
-            public Persistent(string stream, string category)
+            private readonly Func<IComponentRegistry,bool> _condition;
+
+            public Persistent(string stream, string category, Func<IComponentRegistry,bool> condition)
             {
                 _stream = stream;
                 _category = category;
+                _condition = condition;
             }
+
+            public Persistent(string stream, string category)
+                : this(stream, category, reg => true)
+            {}
 
             public Persistent(string stream)
                 : this(stream, typeof(THandler).FullName)
+            {}
+
+            public Persistent(string stream, Func<IComponentRegistry,bool> condition)
+                : this(stream, typeof(THandler).FullName, condition)
             {}
 
             protected override void Load(ContainerBuilder builder)
             {
                 builder
                     .RegisterType<THandler>()
+                    .OnlyIf(reg => _condition(reg))
                     .SingleInstance();
                     
                 builder
@@ -86,6 +99,7 @@ namespace SprayChronicle.EventHandling
                     ))
                     .As<IHandleStream>()
                     .AsSelf()
+                    .OnlyIf(reg => _condition(reg))
                     .SingleInstance();
             }
         }

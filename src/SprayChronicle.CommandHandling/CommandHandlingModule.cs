@@ -1,5 +1,7 @@
+using System;
 using System.Linq;
 using Autofac;
+using Autofac.Core;
 using Microsoft.Extensions.Logging;
 using SprayChronicle.EventHandling;
 using SprayChronicle.EventSourcing;
@@ -11,9 +13,10 @@ namespace SprayChronicle.CommandHandling
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .Register<SubscriptionDispatcher>(c => new SubscriptionDispatcher())
+                .RegisterType<SubscriptionDispatcher>()
                 .AsSelf()
-                .OnActivating(e => RegisterCommandHandlers(e.Context, e.Instance as SubscriptionDispatcher))
+                .As<IDispatchCommands>()
+                .OnActivating(e => RegisterCommandHandlers(e.Context, e.Instance))
                 .SingleInstance();
             
             builder
@@ -72,8 +75,18 @@ namespace SprayChronicle.CommandHandling
                     .AsSelf()
                     .SingleInstance();
 
+                
                 if (null != _stream) {
-                    builder.RegisterEventHandler<THandler>(_stream);
+                    builder.RegisterEventHandler<THandler>(
+                        _stream,
+                        reg => {
+                            if (reg.IsRegistered(new TypedService(typeof(SubscriptionDispatcher)))) {
+                                Console.WriteLine("Subscription dispatcher registered");
+                            } else {
+                                Console.WriteLine("Subscription dispatcher NOT registered");
+                            }
+                            return reg.IsRegistered(new TypedService(typeof(SubscriptionDispatcher)));
+                        });
                 }
             }
         }

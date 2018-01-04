@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Autofac;
 using Autofac.Core;
 using Microsoft.Extensions.Logging;
-using SprayChronicle.CommandHandling;
 using SprayChronicle.EventSourcing;
 using SprayChronicle.Persistence.Memory;
 
@@ -20,7 +19,6 @@ namespace SprayChronicle.Testing
 
         public EventSourcedFixture(Action<ContainerBuilder> configure)
             : base(builder => {
-                builder.RegisterModule<CommandHandlingModule>();
                 builder.RegisterModule<MemoryModule>();
                 builder.Register<ILoggerFactory>(c => new LoggerFactory().AddConsole(LogLevel)).SingleInstance();
                 builder
@@ -28,6 +26,7 @@ namespace SprayChronicle.Testing
                     .AsSelf()
                     .As<IEventStore>()
                     .SingleInstance();
+                builder.RegisterModule<TModule>();
                 configure(builder);
             })
         {

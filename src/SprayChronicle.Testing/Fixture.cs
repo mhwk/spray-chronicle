@@ -24,7 +24,6 @@ namespace SprayChronicle.Testing
         {
             var builder = new ContainerBuilder();
             
-            builder.RegisterModule<TModule>();
             builder.Register<ILoggerFactory>(c => new LoggerFactory().AddConsole(LogLevel));
             configure(builder);
 

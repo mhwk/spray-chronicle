@@ -1,7 +1,7 @@
 using System;
-using System.Collections.Immutable;
 using FluentAssertions;
 using Moq;
+using NSubstitute;
 using SprayChronicle.EventSourcing;
 using SprayChronicle.Example.Application;
 using SprayChronicle.Example.Application.Service;
@@ -10,7 +10,7 @@ using Xunit;
 
 namespace SprayChronicle.CommandHandling.Test
 {
-    public class OverloadCommandHandlerTest
+    public class CommandHandlerTest
     {
         public Mock<IEventSourcingRepository<Basket>> Repository = new Mock<IEventSourcingRepository<Basket>>();
 

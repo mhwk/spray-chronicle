@@ -1,5 +1,7 @@
+using System;
 using Autofac;
 using System.Linq;
+using Autofac.Core;
 using Microsoft.Extensions.Logging;
 using SprayChronicle.EventHandling;
 
@@ -10,8 +12,10 @@ namespace SprayChronicle.QueryHandling
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .Register<SubscriptionQueryProcessor>(c => new SubscriptionQueryProcessor())
+                .RegisterType<SubscriptionQueryProcessor>()
                 .OnActivating(e => RegisterQueryExecutors(e.Context, e.Instance as SubscriptionQueryProcessor))
+                .AsSelf()
+                .As<IProcessQueries>()
                 .SingleInstance();
             
             builder
@@ -64,6 +68,7 @@ namespace SprayChronicle.QueryHandling
                     ))
                     .As<IHandleStream>()
                     .AsSelf()
+                    .OnlyIf(reg => reg.IsRegistered(new TypedService(typeof(IProcessQueries))))
                     .SingleInstance();
                 
                 builder
