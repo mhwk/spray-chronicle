@@ -79,14 +79,8 @@ namespace SprayChronicle.CommandHandling
                 if (null != _stream) {
                     builder.RegisterEventHandler<THandler>(
                         _stream,
-                        reg => {
-                            if (reg.IsRegistered(new TypedService(typeof(SubscriptionDispatcher)))) {
-                                Console.WriteLine("Subscription dispatcher registered");
-                            } else {
-                                Console.WriteLine("Subscription dispatcher NOT registered");
-                            }
-                            return reg.IsRegistered(new TypedService(typeof(SubscriptionDispatcher)));
-                        });
+                        reg => reg.IsRegistered(new TypedService(typeof(SubscriptionDispatcher)))
+                    );
                 }
             }
         }
