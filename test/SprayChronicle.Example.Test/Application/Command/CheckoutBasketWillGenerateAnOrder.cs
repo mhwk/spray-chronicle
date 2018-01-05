@@ -28,7 +28,7 @@ namespace SprayChronicle.Example.Test.Application.Command
         {
             validator.Expect(
                 new BasketCheckedOut("basketId", "orderId", new [] {"productId"})
-                //new OrderGenerated("orderId", new [] {"productId"})
+//                new OrderGenerated("orderId", new [] {"productId"})
             );
         }
 

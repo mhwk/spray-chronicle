@@ -49,7 +49,7 @@ namespace SprayChronicle.Persistence.Mongo
         {
             var results = callback(_database.GetCollection<T>(_name).AsQueryable()); 
             return new PagedResult<T>(
-                results.Skip((page - 1) * perPage).Take(perPage),
+                results.Skip((page - 1) * perPage).Take(perPage).ToArray(),
                 page,
                 perPage,
                 results.Count()

@@ -76,7 +76,7 @@ namespace SprayChronicle.QueryHandling
                 .Concat(_repository.Load(callback));
 
             return new PagedResult<T>(
-                results.Skip((page - 1) * perPage).Take(perPage),
+                results.Skip((page - 1) * perPage).Take(perPage).ToArray(),
                 page,
                 perPage,
                 results.Count()

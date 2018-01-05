@@ -67,7 +67,7 @@ namespace SprayChronicle.EventSourcing.Test
         [Fact]
         public void ItDoesNotPatchGracefully()
         {
-            var aggregate = (PickedUpBasket) Basket.Patch(new DomainMessage[] {
+            var aggregate = (PickedUpBasket) Basket.Patch(new [] {
                 new DomainMessage(
                     0,
                     new DateTime(),

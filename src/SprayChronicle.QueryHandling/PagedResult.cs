@@ -4,7 +4,7 @@ namespace SprayChronicle.QueryHandling
 {
     public sealed class PagedResult<T>
     {
-            public readonly IEnumerable<T> Items;
+            public readonly T[] Items;
 
             public readonly int Page;
 
@@ -12,7 +12,7 @@ namespace SprayChronicle.QueryHandling
 
             public readonly int Total;
 
-            public PagedResult(IEnumerable<T> items, int page, int perPage, int total)
+            public PagedResult(T[] items, int page, int perPage, int total)
             {
                 Items = items;
                 Page = page;

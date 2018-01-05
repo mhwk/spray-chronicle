@@ -54,7 +54,7 @@ namespace SprayChronicle.Persistence.Memory
         {
             var results = callback(_data.Values.AsQueryable()); 
             return new PagedResult<T>(
-                results.Skip((page - 1) * perPage).Take(perPage).ToImmutableArray(),
+                results.Skip((page - 1) * perPage).Take(perPage).ToImmutableArray().ToArray(),
                 page,
                 perPage,
                 results.Count()

@@ -13,14 +13,16 @@ namespace SprayChronicle.Testing
     {
         public static object ShouldBeDeepEqualTo(this object actual, object expectation)
         {
-            Render(actual).ShouldBe(Render(expectation), Diff(actual, expectation));
+            Render(expectation)
+                .Equals(Render(actual))
+                .ShouldBeTrue(Diff(actual, expectation));
             
             return actual;
         }
         
         private static string Diff(object left, object right)
         {
-            var stringBuilder = new StringBuilder();
+            var stringBuilder = new StringBuilder().AppendLine();
             var diffBuilder = new InlineDiffBuilder(new Differ());
             var diff = diffBuilder.BuildDiffModel(Render(left), Render(right));
 
@@ -51,15 +53,9 @@ namespace SprayChronicle.Testing
 
         private static string Render(object obj)
         {
-            if (obj is IEnumerable<object> objs) {
-                return string.Join(",\n", objs.Select(Render));
-            }
-            
-            return string.Format(
-                "{0} {1}",
-                obj.GetType().FullName,
-                JsonConvert.SerializeObject(obj, Formatting.Indented)
-            );
+            return JsonConvert.SerializeObject(obj, Formatting.Indented, new JsonSerializerSettings {
+                TypeNameHandling = TypeNameHandling.All
+            });
         }
     }
 }
