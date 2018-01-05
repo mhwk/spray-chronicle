@@ -27,8 +27,8 @@ namespace SprayChronicle.Example.Test.Application.Command
         protected override void Then(IValidate validator)
         {
             validator.Expect(
-                new BasketCheckedOut("basketId", "orderId", new [] {"productId"})
-//                new OrderGenerated("orderId", new [] {"productId"})
+                new BasketCheckedOut("basketId", "orderId", new [] {"productId"}),
+                new OrderGenerated("orderId", new [] {"productId"})
             );
         }
 

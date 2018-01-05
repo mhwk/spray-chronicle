@@ -85,7 +85,7 @@ namespace SprayChronicle.EventHandling
             {
                 builder
                     .RegisterType<THandler>()
-                    .OnlyIf(reg => _condition(reg))
+                    .OnlyIf(reg => _condition(reg) && ! reg.IsRegistered(new TypedService(typeof(THandler))))
                     .SingleInstance();
                     
                 builder

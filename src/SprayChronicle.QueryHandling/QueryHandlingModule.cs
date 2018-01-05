@@ -75,6 +75,7 @@ namespace SprayChronicle.QueryHandling
                     .RegisterType<THandler>()
                     .As<IExecuteQueries>()
                     .As<IHandleEvents>()
+                    .PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies)
                     .AsSelf()
                     .SingleInstance();
             }
