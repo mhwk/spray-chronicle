@@ -80,7 +80,7 @@ namespace SprayChronicle.Server.Http
                     Error = error.Message
                 }, _serializerSettings));
             } catch (Exception error) {
-                _logger.LogCritical(error.ToString());
+                _logger.LogCritical(error);
                 response.ContentType = "application/json";
                 response.StatusCode = 500;
                 await response.WriteAsync(JsonConvert.SerializeObject(new {

@@ -1,9 +1,9 @@
 using System.Linq;
 using Autofac;
 using Autofac.Core;
-using Microsoft.Extensions.Logging;
 using SprayChronicle.EventHandling;
 using SprayChronicle.EventSourcing;
+using SprayChronicle.Server;
 
 namespace SprayChronicle.CommandHandling
 {
@@ -19,19 +19,22 @@ namespace SprayChronicle.CommandHandling
                 .SingleInstance();
             
             builder
-                .Register<LoggingDispatcher>(c => new LoggingDispatcher(
-                    c.Resolve<ILoggerFactory>().CreateLogger<LoggingDispatcher>(),
+                .Register(c => new LoggingDispatcher(
+                    c.Resolve<ILoggerFactory>().Create<IDispatchCommands>(),
+                    c.Resolve<IMeasure>(),
                     c.Resolve<SubscriptionDispatcher>()
                 ))
                 .AsSelf()
                 .SingleInstance();
             
             builder
-                .Register<ErrorSuppressingDispatcher>(c => new ErrorSuppressingDispatcher(
+                .Register(c => new ErrorSuppressingDispatcher(
                     c.Resolve<LoggingDispatcher>()
                 ))
                 .AsSelf()
                 .SingleInstance();
+
+            builder.Register<IMeasure>(c => new MeasureMilliseconds());
         }
 
         private static void RegisterCommandHandlers(IComponentContext context, SubscriptionDispatcher dispatcher)

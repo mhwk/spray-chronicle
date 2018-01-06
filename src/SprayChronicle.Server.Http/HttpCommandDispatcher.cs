@@ -4,9 +4,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using SprayChronicle.CommandHandling;
 using SprayChronicle.EventSourcing;
@@ -59,35 +57,35 @@ namespace SprayChronicle.Server.Http
                         Success = true
                     }, _serializerSettings));
                 } catch (UnhandledCommandException error) {
-                    _logger.LogWarning(error.ToString());
+                    _logger.LogWarning(error);
                     response.StatusCode = 404;
                     await response.WriteAsync(JsonConvert.SerializeObject(new {
                         Success = false,
                         Error = error.Message
                     }, _serializerSettings));
                 } catch (ConcurrencyException error) {
-                    _logger.LogWarning(error.ToString());
+                    _logger.LogWarning(error);
                     response.StatusCode = 409;
                     await response.WriteAsync(JsonConvert.SerializeObject(new {
                         Success = false,
                         Error = error.Message
                     }, _serializerSettings));
                 } catch (InvalidStateException error) {
-                    _logger.LogWarning(error.ToString());
+                    _logger.LogWarning(error);
                     response.StatusCode = 428;
                     await response.WriteAsync(JsonConvert.SerializeObject(new {
                         Success = false,
                         Error = error.Message
                     }, _serializerSettings));
                 } catch (InvalidRequestException error) {
-                    _logger.LogWarning(error.ToString());
+                    _logger.LogWarning(error);
                     response.StatusCode = 400;
                     await response.WriteAsync(JsonConvert.SerializeObject(new {
                         Success = false,
                         Error = error.Message
                     }, _serializerSettings));
                 } catch (Exception error) {
-                    _logger.LogCritical(error.ToString());
+                    _logger.LogCritical(error);
                     response.StatusCode = 500;
                     await response.WriteAsync(JsonConvert.SerializeObject(new {
                         Success = false,

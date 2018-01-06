@@ -112,9 +112,9 @@ namespace SprayChronicle.Server
             }
         }
 
-        private static ILogger<ChronicleServer> LoggerFrom(IServiceProvider services)
+        private static Microsoft.Extensions.Logging.ILogger<ChronicleServer> LoggerFrom(IServiceProvider services)
         {
-            var factory = services.GetService(typeof(ILoggerFactory)) as ILoggerFactory;
+            var factory = services.GetService(typeof(Microsoft.Extensions.Logging.ILoggerFactory)) as Microsoft.Extensions.Logging.ILoggerFactory;
             return factory.CreateLogger<ChronicleServer>();
         }
     }

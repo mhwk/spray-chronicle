@@ -5,18 +5,18 @@ namespace SprayChronicle.CommandHandling
 {
     public class ErrorSuppressingDispatcher : IDispatchCommands
     {
-        private readonly LoggingDispatcher _internalDispatcher;
+        private readonly IDispatchCommands _child;
 
-        public ErrorSuppressingDispatcher(LoggingDispatcher internalDispatcher)
+        public ErrorSuppressingDispatcher(IDispatchCommands child)
         {
-            _internalDispatcher = internalDispatcher;
+            _child = child;
         }
 
         public async Task Dispatch(params object[] commands)
         {
             foreach (var command in commands) {
                 try {
-                    await _internalDispatcher.Dispatch(command);
+                    await _child.Dispatch(command);
                 } catch (Exception) {
                     // ignored
                 }
