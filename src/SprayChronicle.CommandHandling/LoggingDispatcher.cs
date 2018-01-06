@@ -24,27 +24,27 @@ namespace SprayChronicle.CommandHandling
             foreach (var command in commands) {
                 var measure = _measure.Start();
                 
-                _logger.LogDebug("{0}: Dispatching...", command.GetType());
-                
+                _logger.LogDebug("{0}: Dispatching...", command.GetType().Name);
+
                 try {
                     await _child.Dispatch(command);
                 } catch (UnhandledCommandException error) {
                     _logger.LogWarning(
                         error,
                         "{0}: Not handled",
-                        command.GetType()
+                        command.GetType().Name
                     );
                     throw;
                 } catch (Exception error) {
                     _logger.LogDebug(
                         error,
                         "{0}: Domain exception",
-                        command.GetType()
+                        command.GetType().Name
                     );
                     throw;
+                } finally {
+                    _logger.LogInformation("{0}: {1}", command.GetType().Name, measure);
                 }
-                
-                _logger.LogInformation("{0}: {1}", command.GetType(), measure);
             }
         }
     }

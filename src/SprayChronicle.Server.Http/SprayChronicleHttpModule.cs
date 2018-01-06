@@ -20,7 +20,7 @@ namespace SprayChronicle.Server.Http
                 .Register<HttpQueryRouteMapper>(c => new HttpQueryRouteMapper(
                     c.Resolve<ILoggerFactory>().Create<HttpQueryProcessor>(),
                     c.Resolve<IValidator>(),
-                    c.Resolve<SubscriptionQueryProcessor>()
+                    c.Resolve<SubscriptionProcessor>()
                 ))
                 .SingleInstance();
             

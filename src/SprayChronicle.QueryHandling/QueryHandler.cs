@@ -3,14 +3,10 @@ using SprayChronicle.MessageHandling;
 
 namespace SprayChronicle.QueryHandling
 {
-    public abstract class QueryHandler<T> : IHandleQueries
+    public abstract class QueryHandler<T> : QueryExecutor<T>, IHandleQueries
         where T : class
     {
-        private readonly IStatefulRepository<T> _repository;
-        
-        private readonly IMessageHandlingStrategy _queryExecutors;
-        
-        private readonly IMessageHandlingStrategy _eventProjectors;
+        private readonly IMessageHandlingStrategy _projectors;
 
         protected QueryHandler(IStatefulRepository<T> repository)
             : this(
@@ -21,36 +17,23 @@ namespace SprayChronicle.QueryHandling
         {
         }
         
-        protected QueryHandler(IStatefulRepository<T> repository, IMessageHandlingStrategy queryExecutors, IMessageHandlingStrategy eventProjectors)
+        protected QueryHandler(
+            IStatefulRepository<T> repository,
+            IMessageHandlingStrategy executors,
+            IMessageHandlingStrategy projectors)
+            : base(repository, executors)
         {
-            _repository = repository;
-            _queryExecutors = queryExecutors;
-            _eventProjectors = eventProjectors;
-        }
-
-        protected IStatefulRepository<T> Repository()
-        {
-            return _repository;
-        }
-
-        public bool Executes(object query)
-        {
-            return _queryExecutors.AcceptsMessage(this, query.ToMessage());
-        }
-
-        public object Execute(object query)
-        {
-            return _queryExecutors.ProcessMessage(this, query.ToMessage());
+            _projectors = projectors;
         }
 
         public bool Processes(object @event, DateTime at)
         {
-            return _eventProjectors.AcceptsMessage(this, @event.ToMessage(), at);
+            return _projectors.AcceptsMessage(this, @event.ToMessage(), at);
         }
 
         public void Process(object @event, DateTime at)
         {
-            _eventProjectors.ProcessMessage(this, @event.ToMessage(), at);
+            _projectors.ProcessMessage(this, @event.ToMessage(), at);
         }
     }
 }

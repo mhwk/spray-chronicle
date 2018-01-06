@@ -32,10 +32,10 @@ namespace SprayChronicle.CommandHandling.Test
 
             _logger
                 .Received()
-                .LogDebug("{0}: Dispatching...", command.GetType());
+                .LogDebug("{0}: Dispatching...", "Object");
             _logger
                 .Received()
-                .LogInformation("{0}: {1}", command.GetType(), _measure);
+                .LogInformation("{0}: {1}", "Object", _measure);
         }
         
         [Fact]
@@ -58,10 +58,13 @@ namespace SprayChronicle.CommandHandling.Test
 
             _logger
                 .Received()
-                .LogDebug("{0}: Dispatching...", command.GetType());
+                .LogDebug("{0}: Dispatching...", "Object");
             _logger
                 .Received()
-                .LogWarning(error, "{0}: Not handled", command.GetType());
+                .LogWarning(error, "{0}: Not handled", "Object");
+            _logger
+                .Received()
+                .LogInformation("{0}: {1}", "Object", _measure);
         }
         
         [Fact]
@@ -84,10 +87,13 @@ namespace SprayChronicle.CommandHandling.Test
 
             _logger
                 .Received()
-                .LogDebug("{0}: Dispatching...", command.GetType());
+                .LogDebug("{0}: Dispatching...", "Object");
             _logger
                 .Received()
-                .LogDebug(error, "{0}: Domain exception", command.GetType());
+                .LogDebug(error, "{0}: Domain exception", "Object");
+            _logger
+                .Received()
+                .LogInformation("{0}: {1}", "Object", _measure);
         }
     }
 }

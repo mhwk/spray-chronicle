@@ -11,7 +11,7 @@ namespace SprayChronicle.Server
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .Register(c => new MicrosoftLoggerFactory(c.Resolve<Microsoft.Extensions.Logging.ILoggerFactory>()))
+                .Register<ILoggerFactory>(c => new MicrosoftLoggerFactory(c.Resolve<Microsoft.Extensions.Logging.ILoggerFactory>()))
                 .SingleInstance();
             
             builder

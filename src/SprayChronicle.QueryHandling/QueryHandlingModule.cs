@@ -2,8 +2,8 @@ using System;
 using Autofac;
 using System.Linq;
 using Autofac.Core;
-using Microsoft.Extensions.Logging;
 using SprayChronicle.EventHandling;
+using SprayChronicle.Server;
 
 namespace SprayChronicle.QueryHandling
 {
@@ -12,27 +12,28 @@ namespace SprayChronicle.QueryHandling
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .RegisterType<SubscriptionQueryProcessor>()
-                .OnActivating(e => RegisterQueryExecutors(e.Context, e.Instance as SubscriptionQueryProcessor))
+                .RegisterType<SubscriptionProcessor>()
+                .OnActivating(e => RegisterQueryExecutors(e.Context, e.Instance as SubscriptionProcessor))
                 .AsSelf()
                 .As<IProcessQueries>()
                 .SingleInstance();
             
             builder
-                .Register<LoggingQueryProcessor>(c => new LoggingQueryProcessor(
-                    c.Resolve<ILoggerFactory>().CreateLogger<IProcessQueries>(),
-                    c.Resolve<SubscriptionQueryProcessor>()
+                .Register<LoggingProcessor>(c => new LoggingProcessor(
+                    c.Resolve<ILoggerFactory>().Create<IProcessQueries>(),
+                    new MeasureMilliseconds(),
+                    c.Resolve<SubscriptionProcessor>()
                 ))
                 .SingleInstance();
         }
 
-        private static void RegisterQueryExecutors(IComponentContext context, SubscriptionQueryProcessor processor)
+        private static void RegisterQueryExecutors(IComponentContext context, SubscriptionProcessor processor)
         {
             context.ComponentRegistry.Registrations
                 .Where(r => r.Activator.LimitType.IsAssignableTo<IExecuteQueries>())
                 .Select(r => context.Resolve(r.Activator.LimitType) as IExecuteQueries)
                 .ToList()
-                .ForEach(h => processor.AddExecutors(h));
+                .ForEach(h => processor.Subscribe(h));
         }
         
         public sealed class QueryHandler<TState,THandler> : Autofac.Module
@@ -62,7 +63,8 @@ namespace SprayChronicle.QueryHandling
                 
                 builder
                     .Register(c => new StreamHandler<THandler>(
-                        c.Resolve<ILoggerFactory>().CreateLogger<THandler>(),
+                        c.Resolve<ILoggerFactory>().Create<THandler>(),
+                        new MeasureMilliseconds(),
                         c.Resolve<IBuildStreams>().CatchUp(_stream),
                         c.Resolve<THandler>()
                     ))

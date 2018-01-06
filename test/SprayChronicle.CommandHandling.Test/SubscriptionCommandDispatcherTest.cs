@@ -14,7 +14,7 @@ namespace SprayChronicle.CommandHandling.Test
         {
             await Should.ThrowAsync<UnhandledCommandException>(
                 async () => await new SubscriptionDispatcher()
-                    .Dispatch(new Command())
+                    .Dispatch(new object())
             );
         }
 
@@ -26,7 +26,7 @@ namespace SprayChronicle.CommandHandling.Test
             await Should.ThrowAsync<UnhandledCommandException>(
                 async () => await new SubscriptionDispatcher()
                     .Subscribe(_commandHandler)
-                    .Dispatch(new Command())
+                    .Dispatch(new object())
             );
         }
 
@@ -37,10 +37,7 @@ namespace SprayChronicle.CommandHandling.Test
 
             await new SubscriptionDispatcher()
                 .Subscribe(_commandHandler)
-                .Dispatch(new Command());
+                .Dispatch(new object());
         }
-
-        private class Command
-        {}
     }
 }

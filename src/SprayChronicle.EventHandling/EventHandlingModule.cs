@@ -1,8 +1,8 @@
 using System;
 using System.Linq;
-using Microsoft.Extensions.Logging;
 using Autofac;
 using Autofac.Core;
+using SprayChronicle.Server;
 
 namespace SprayChronicle.EventHandling
 {
@@ -44,7 +44,8 @@ namespace SprayChronicle.EventHandling
                 
                 builder
                     .Register(c => new StreamHandler<THandler>(
-                        c.Resolve<ILoggerFactory>().CreateLogger<THandler>(),
+                        c.Resolve<ILoggerFactory>().Create<THandler>(),
+                        new MeasureMilliseconds(),
                         c.Resolve<IBuildStreams>().CatchUp(_stream),
                         c.Resolve<THandler>()
                     ))
@@ -90,7 +91,8 @@ namespace SprayChronicle.EventHandling
                     
                 builder
                     .Register(c => new StreamHandler<THandler>(
-                        c.Resolve<ILoggerFactory>().CreateLogger<THandler>(),
+                        c.Resolve<ILoggerFactory>().Create<THandler>(),
+                        new MeasureMilliseconds(),
                         c.Resolve<IBuildStreams>().Persistent(
                             _stream,
                             _category

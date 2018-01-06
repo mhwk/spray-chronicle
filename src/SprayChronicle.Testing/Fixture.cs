@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Autofac;
 using Autofac.Core;
 using Microsoft.Extensions.Logging;
+using SprayChronicle.Server;
 
 namespace SprayChronicle.Testing
 {
@@ -13,8 +14,6 @@ namespace SprayChronicle.Testing
         where TExecute : class
         where TValidate : class
     {
-        public static LogLevel LogLevel = Microsoft.Extensions.Logging.LogLevel.Information;
-        
         protected readonly IContainer Container;
 
         protected Fixture(): this(builder => {})
@@ -23,8 +22,12 @@ namespace SprayChronicle.Testing
         protected Fixture(Action<ContainerBuilder> configure)
         {
             var builder = new ContainerBuilder();
+
+            builder
+                .Register<Microsoft.Extensions.Logging.ILoggerFactory>(c => new LoggerFactory().AddConsole(LogLevel.Debug))
+                .SingleInstance();
             
-            builder.Register<ILoggerFactory>(c => new LoggerFactory().AddConsole(LogLevel));
+            builder.RegisterModule<ChronicleServerModule>();
             configure(builder);
 
             Container = builder.Build();

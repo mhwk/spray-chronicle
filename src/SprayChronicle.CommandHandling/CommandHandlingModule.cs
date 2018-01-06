@@ -21,7 +21,7 @@ namespace SprayChronicle.CommandHandling
             builder
                 .Register(c => new LoggingDispatcher(
                     c.Resolve<ILoggerFactory>().Create<IDispatchCommands>(),
-                    c.Resolve<IMeasure>(),
+                    new MeasureMilliseconds(),
                     c.Resolve<SubscriptionDispatcher>()
                 ))
                 .AsSelf()
@@ -33,8 +33,6 @@ namespace SprayChronicle.CommandHandling
                 ))
                 .AsSelf()
                 .SingleInstance();
-
-            builder.Register<IMeasure>(c => new MeasureMilliseconds());
         }
 
         private static void RegisterCommandHandlers(IComponentContext context, SubscriptionDispatcher dispatcher)

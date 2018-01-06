@@ -1,8 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using SprayChronicle.MessageHandling;
+using SprayChronicle.Server;
 
 namespace SprayChronicle.EventHandling
 {
@@ -10,19 +9,23 @@ namespace SprayChronicle.EventHandling
         where T : IHandleEvents
     {
         private readonly ILogger<T> _logger;
+        
+        private readonly IMeasure _measure;
 
         private readonly IStream _stream;
 
-        private readonly IHandleEvents _eventsHandler;
+        private readonly IHandleEvents _handler;
 
         public StreamHandler(
             ILogger<T> logger,
+            IMeasure measure,
             IStream stream,
-            IHandleEvents eventsHandler)
+            IHandleEvents handler)
         {
             _logger = logger;
+            _measure = measure;
             _stream = stream;
-            _eventsHandler = eventsHandler;
+            _handler = handler;
         }
 
         public async Task ListenAsync()
@@ -32,25 +35,23 @@ namespace SprayChronicle.EventHandling
 
         public void Listen()
         {
-            _stream.Subscribe((@event, at) => {
-                if ( ! _eventsHandler.Processes(@event, at)) {
+            _stream.Subscribe((message, at) => {
+                if ( ! _handler.Processes(message, at)) {
                     _logger.LogDebug(
-                        "{0}: skipping",
-                        @event.Name
+                        "{0}: Skipping...",
+                        message.Name
                     );
                     return;
                 }
 
-                var stopwatch = new Stopwatch();
-                stopwatch.Start();
+                var measurement = _measure.Start();
 
-                _eventsHandler.Process(@event, at);
+                _handler.Process(message, at);
 
-                stopwatch.Stop();
                 _logger.LogInformation(
-                    "{0}: {1}ms",
-                    @event.Name,
-                    stopwatch.ElapsedMilliseconds
+                    "{0}: {1}",
+                    message.Name,
+                    measurement.Stop()
                 );
             });
         }

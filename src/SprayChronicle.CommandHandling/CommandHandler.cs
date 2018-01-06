@@ -11,7 +11,9 @@ namespace SprayChronicle.CommandHandling
         where T : IEventSourcable<T>
     {
         private readonly IEventSourcingRepository<T> _repository;
+        
         private readonly IMessageHandlingStrategy _commandHandlers;
+        
         private readonly IMessageHandlingStrategy _eventHandlers;
 
         protected CommandHandler(IEventSourcingRepository<T> repository)

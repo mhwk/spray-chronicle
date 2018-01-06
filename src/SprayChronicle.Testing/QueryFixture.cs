@@ -18,7 +18,6 @@ namespace SprayChronicle.Testing
                 builder.RegisterModule<SyncEventHandlingModule>();
                 builder.RegisterModule<MemoryModule>();
                 builder.RegisterModule<QueryHandlingModule>();
-                builder.Register<ILoggerFactory>(c => new LoggerFactory().AddConsole(LogLevel)).SingleInstance();
                 builder.Register<TestStream>(c => new TestStream()).SingleInstance();
                 builder.Register<IBuildStreams>(c => new TestStreamFactory(c.Resolve<TestStream>())).SingleInstance();
                 builder.RegisterModule<TModule>();
@@ -44,7 +43,7 @@ namespace SprayChronicle.Testing
 
         public override async Task<IValidate> When(Func<IProcessQueries, Task<object>> callback)
         {
-            return await QueryValidator.Run(Container, () => callback(Container.Resolve<LoggingQueryProcessor>()));
+            return await QueryValidator.Run(Container, () => callback(Container.Resolve<LoggingProcessor>()));
         }
     }
 }

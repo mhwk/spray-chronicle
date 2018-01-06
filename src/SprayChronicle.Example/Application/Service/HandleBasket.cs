@@ -7,14 +7,11 @@ namespace SprayChronicle.Example.Application.Service
 {
     public sealed class HandleBasket : CommandHandler<Basket>
     {
-        public ErrorSuppressingDispatcher dispatcher { get; set; }
-        
         public HandleBasket(IEventSourcingRepository<Basket> repository): base(repository)
         {}
         
         private void Handle(PickUpBasket command)
         {
-            Console.WriteLine(null == dispatcher);
             Repository().Start(
                 () => Basket.PickUp(new BasketId(command.BasketId))
             );

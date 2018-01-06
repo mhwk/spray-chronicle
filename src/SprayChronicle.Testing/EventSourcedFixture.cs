@@ -20,7 +20,6 @@ namespace SprayChronicle.Testing
         public EventSourcedFixture(Action<ContainerBuilder> configure)
             : base(builder => {
                 builder.RegisterModule<MemoryModule>();
-                builder.Register<ILoggerFactory>(c => new LoggerFactory().AddConsole(LogLevel)).SingleInstance();
                 builder
                     .Register(c => new TestStore(c.Resolve<MemoryEventStore>()))
                     .AsSelf()
