@@ -42,11 +42,8 @@ namespace SprayChronicle.Testing
         }
 
 		public IValidate Expect()
-        {
-            _container
-                .Resolve<TestStore>()
-                .Future()
-                .ShouldBeEmpty();
+		{
+		    Expect(new object[] { });
             
             return this;
         }

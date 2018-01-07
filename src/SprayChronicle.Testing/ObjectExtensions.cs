@@ -6,6 +6,7 @@ using DiffPlex.DiffBuilder;
 using DiffPlex.DiffBuilder.Model;
 using Newtonsoft.Json;
 using Shouldly;
+using Xunit;
 
 namespace SprayChronicle.Testing
 {
@@ -13,18 +14,20 @@ namespace SprayChronicle.Testing
     {
         public static object ShouldBeDeepEqualTo(this object actual, object expectation)
         {
-            Render(expectation)
-                .Equals(Render(actual))
-                .ShouldBeTrue(Diff(actual, expectation));
+            Assert.True(Render(expectation).Equals(Render(actual)), Diff(expectation, actual));
             
             return actual;
         }
         
         private static string Diff(object left, object right)
         {
-            var stringBuilder = new StringBuilder().AppendLine();
             var diffBuilder = new InlineDiffBuilder(new Differ());
             var diff = diffBuilder.BuildDiffModel(Render(left), Render(right));
+            var stringBuilder = new StringBuilder()
+                .AppendLine()
+                .AppendLine("- expected")
+                .AppendLine("+ actual")
+                .AppendLine();
 
             foreach (var line in diff.Lines) {
                 switch (line.Type) {

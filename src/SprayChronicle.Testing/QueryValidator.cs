@@ -50,7 +50,7 @@ namespace SprayChronicle.Testing
 
         public IValidate Expect()
         {
-            _result.ShouldBeNull();
+            Expect(new object[] { });
             
             return this;
         }
