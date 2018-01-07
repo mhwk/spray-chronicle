@@ -25,11 +25,11 @@ namespace SprayChronicle.Testing.Test
         [Fact]
         public async Task ItCanTestWhenAfterHistory()
         {
-//            (await (await Fixture()
-//                .Given(new BasketPickedUp("basketId")))
-//                .When(basket => (basket as PickedUpBasket)?.AddProduct(new ProductId("productId"))))
-//                .ExpectNoException()
-//                .Expect(new ProductAddedToBasket("basketId", "productId"));
+            (await (await Fixture()
+                .Given(basket => Basket.PickUp(new BasketId("basketId"))))
+                .When(basket => (basket as PickedUpBasket)?.AddProduct(new ProductId("productId"))))
+                .ExpectNoException()
+                .Expect(new ProductAddedToBasket("basketId", "productId"));
         }
     }
 }

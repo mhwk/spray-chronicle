@@ -23,7 +23,7 @@ namespace SprayChronicle.Testing
             return Epochs(epochs.Select(epoch => {
                 if (!DateTime.TryParseExact(epoch, "yyyy-MM-ddTHH:mm:sszzz", CultureInfo.InvariantCulture, DateTimeStyles.None, out var result)) {
                     throw new FormatException(string.Format(
-                        "Could not convert {0} into a valid date",
+                        "Could not convert {0} into a valid yyyy-MM-ddTHH:mm:sszzz date",
                         epoch
                     ));
                 }
