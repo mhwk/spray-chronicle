@@ -11,8 +11,6 @@ namespace SprayChronicle.Testing
     public class QueryFixture<TModule> : Fixture<TModule,TestStream,Task,IProcessQueries,Task<object>>
         where TModule : IModule, new()
     {
-        protected readonly EpochGenerator Epochs;
-        
         public QueryFixture(Action<ContainerBuilder> configure)
             : base(builder => {
                 builder.RegisterModule<SyncEventHandlingModule>();
@@ -25,7 +23,6 @@ namespace SprayChronicle.Testing
                 configure(builder);
             })
         {
-            Epochs = Container.Resolve<EpochGenerator>();
         }
         
         public QueryFixture(): this(builder => { })
