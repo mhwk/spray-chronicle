@@ -2,8 +2,6 @@ using System;
 using System.Threading.Tasks;
 using Autofac;
 using Autofac.Core;
-using Microsoft.Extensions.Logging;
-using SprayChronicle.CommandHandling;
 using SprayChronicle.EventHandling;
 using SprayChronicle.Persistence.Memory;
 using SprayChronicle.QueryHandling;
@@ -13,17 +11,21 @@ namespace SprayChronicle.Testing
     public class QueryFixture<TModule> : Fixture<TModule,TestStream,Task,IProcessQueries,Task<object>>
         where TModule : IModule, new()
     {
+        protected readonly EpochGenerator Epochs;
+        
         public QueryFixture(Action<ContainerBuilder> configure)
             : base(builder => {
                 builder.RegisterModule<SyncEventHandlingModule>();
                 builder.RegisterModule<MemoryModule>();
                 builder.RegisterModule<QueryHandlingModule>();
-                builder.Register<TestStream>(c => new TestStream()).SingleInstance();
+                builder.Register(c => new EpochGenerator()).SingleInstance();
+                builder.Register(c => new TestStream(c.Resolve<EpochGenerator>())).SingleInstance();
                 builder.Register<IBuildStreams>(c => new TestStreamFactory(c.Resolve<TestStream>())).SingleInstance();
                 builder.RegisterModule<TModule>();
                 configure(builder);
             })
         {
+            Epochs = Container.Resolve<EpochGenerator>();
         }
         
         public QueryFixture(): this(builder => { })
@@ -37,7 +39,8 @@ namespace SprayChronicle.Testing
 
         public override async Task<IExecute<IProcessQueries, Task<object>>> Given(Func<TestStream, Task> callback)
         {
-            await callback(Container.Resolve<TestStream>());
+            var stream = Container.Resolve<TestStream>();
+            await callback(stream);
             return this;
         }
 

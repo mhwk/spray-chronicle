@@ -1,7 +1,5 @@
 using System;
-using System.Linq;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Threading.Tasks;
 using SprayChronicle.MessageHandling;
 
@@ -9,26 +7,31 @@ namespace SprayChronicle.Testing
 {
     public sealed class TestStream : ITestableStream
     {
-        private readonly List<DateTime> _epochs = new List<DateTime>();
         private readonly List<Action<IMessage,DateTime>> _callbacks = new List<Action<IMessage,DateTime>>();
+        
+        private readonly EpochGenerator _epochs;
+
+        public TestStream(EpochGenerator epochs)
+        {
+            _epochs = epochs;
+        }
 
         public ITestableStream Epochs(params DateTime[] epochs)
         {
-            _epochs.AddRange(epochs);
+            foreach (var dateTime in epochs) {
+                _epochs.Add(dateTime);
+            }
+            
             return this;
         }
 
         public ITestableStream Epochs(params string[] epochs)
         {
-            return Epochs(epochs.Select(epoch => {
-                if (!DateTime.TryParseExact(epoch, "yyyy-MM-ddTHH:mm:sszzz", CultureInfo.InvariantCulture, DateTimeStyles.None, out var result)) {
-                    throw new FormatException(string.Format(
-                        "Could not convert {0} into a valid yyyy-MM-ddTHH:mm:sszzz date",
-                        epoch
-                    ));
-                }
-                return result;
-            }).ToArray());
+            foreach (var dateTime in epochs) {
+                _epochs.Add(dateTime);
+            }
+
+            return this;
         }
 
         public Task Publish(params object[] messages)
@@ -36,11 +39,8 @@ namespace SprayChronicle.Testing
             var i = 0;
 
             foreach (var message in messages) {
-                if (i >= _epochs.Count) {
-                    _epochs.Add(DateTime.Now);
-                }
-                
-                _callbacks.ForEach(callback => callback(message.ToMessage(), _epochs[i]));
+                var index = i;
+                _callbacks.ForEach(callback => callback(message.ToMessage(), _epochs[index]));
 
                 i++;
             }

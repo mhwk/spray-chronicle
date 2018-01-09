@@ -14,6 +14,7 @@ namespace SprayChronicle.Example.Application.Service
         
         private PickedUpBasketsPerDay FindOrCreate(DateTime epoch)
         {
+            Console.WriteLine(epoch.ToString("yyyy-MM-dd"));
             return Execute(new PickedUpBasketsOnDay(epoch.ToString("yyyy-MM-dd")))
                 ?? new PickedUpBasketsPerDay(epoch.ToString("yyyy-MM-dd"));
         }
