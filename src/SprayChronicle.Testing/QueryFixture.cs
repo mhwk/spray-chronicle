@@ -16,7 +16,6 @@ namespace SprayChronicle.Testing
                 builder.RegisterModule<SyncEventHandlingModule>();
                 builder.RegisterModule<MemoryModule>();
                 builder.RegisterModule<QueryHandlingModule>();
-                builder.Register(c => new EpochGenerator()).SingleInstance();
                 builder.Register(c => new TestStream(c.Resolve<EpochGenerator>())).SingleInstance();
                 builder.Register<IBuildStreams>(c => new TestStreamFactory(c.Resolve<TestStream>())).SingleInstance();
                 builder.RegisterModule<TModule>();

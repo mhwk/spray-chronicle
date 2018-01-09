@@ -24,9 +24,10 @@ namespace SprayChronicle.Testing
             var builder = new ContainerBuilder();
 
             builder
-                .Register<Microsoft.Extensions.Logging.ILoggerFactory>(c => new LoggerFactory().AddConsole(LogLevel.Debug))
+                .Register(c => new LoggerFactory().AddConsole(LogLevel.Debug))
                 .SingleInstance();
             
+            builder.Register(c => new EpochGenerator()).SingleInstance();
             builder.RegisterModule<ChronicleServerModule>();
             configure(builder);
 

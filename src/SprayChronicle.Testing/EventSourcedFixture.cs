@@ -2,7 +2,6 @@ using System;
 using System.Threading.Tasks;
 using Autofac;
 using Autofac.Core;
-using Microsoft.Extensions.Logging;
 using SprayChronicle.EventSourcing;
 using SprayChronicle.Persistence.Memory;
 
@@ -21,7 +20,10 @@ namespace SprayChronicle.Testing
             : base(builder => {
                 builder.RegisterModule<MemoryModule>();
                 builder
-                    .Register(c => new TestStore(c.Resolve<MemoryEventStore>()))
+                    .Register(c => new TestStore(
+                        c.Resolve<MemoryEventStore>(),
+                        c.Resolve<EpochGenerator>()
+                    ))
                     .AsSelf()
                     .As<IEventStore>()
                     .SingleInstance();

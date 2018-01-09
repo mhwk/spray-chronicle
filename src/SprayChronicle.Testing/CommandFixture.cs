@@ -2,12 +2,10 @@
 using System.Threading.Tasks;
 using Autofac;
 using Autofac.Core;
-using Microsoft.Extensions.Logging;
 using SprayChronicle.CommandHandling;
 using SprayChronicle.EventHandling;
 using SprayChronicle.EventSourcing;
 using SprayChronicle.Persistence.Memory;
-using SprayChronicle.QueryHandling;
 
 namespace SprayChronicle.Testing
 {
@@ -22,7 +20,10 @@ namespace SprayChronicle.Testing
                 builder.RegisterModule<SyncEventHandlingModule>();
                 builder.RegisterModule<MemoryModule>();
                 builder
-                    .Register(c => new TestStore(c.Resolve<MemoryEventStore>()))
+                    .Register(c => new TestStore(
+                        c.Resolve<MemoryEventStore>(),
+                        c.Resolve<EpochGenerator>()
+                    ))
                     .AsSelf()
                     .As<IEventStore>()
                     .SingleInstance();

@@ -41,6 +41,11 @@ namespace SprayChronicle.Testing
             );
         }
 
+        public DateTime Epoch(int index)
+        {
+            return _container.Resolve<EpochGenerator>()[index];
+        }
+
 		public IValidate Expect()
 		{
 		    Expect(new object[] { });

@@ -14,16 +14,12 @@ namespace SprayChronicle.Testing
         private readonly object[] _result;
         
         private readonly Exception _error;
-        
-        public readonly EpochGenerator Epochs;
 
         private QueryValidator(IContainer container, Exception error)
         {
             _container = container;
             _result = new object[] { };
             _error = error;
-            
-            Epochs = container.Resolve<EpochGenerator>();
         }
 
         private QueryValidator(IContainer container, object result)
@@ -50,6 +46,11 @@ namespace SprayChronicle.Testing
                     error
                 );
             }
+        }
+
+        public DateTime Epoch(int index)
+        {
+            return _container.Resolve<EpochGenerator>()[index];
         }
 
         public IValidate Expect()

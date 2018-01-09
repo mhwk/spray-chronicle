@@ -4,6 +4,8 @@ namespace SprayChronicle.Testing
 {
     public interface IValidate
     {
+	    DateTime Epoch(int index);
+	    
 		IValidate Expect();
 
 		IValidate Expect(int count);
