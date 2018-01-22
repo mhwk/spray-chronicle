@@ -3,7 +3,6 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 
@@ -147,7 +146,7 @@ namespace SprayChronicle.QueryHandling
             }
 
             if (_saves.Count + _removes.Count >= _limit) {
-                DoFlushAsync().Wait();
+                DoFlush();
             } else {
                 StartFlushTimer();
             }
@@ -164,11 +163,6 @@ namespace SprayChronicle.QueryHandling
             _removes.Clear();
 
             _flushing = false;
-        }
-
-        private async Task DoFlushAsync()
-        {
-            await Task.Run(() => DoFlush());
         }
 
         private void DoFlushSaves()
