@@ -24,11 +24,7 @@ namespace SprayChronicle.QueryHandling
 
         private bool _flushing = false;
 
-        public BufferedStateRepository(ILogger<T> logger, IStatefulRepository<T> repository) : this(logger, repository, 10000)
-        {
-        }
-
-        public BufferedStateRepository(ILogger<T> logger, IStatefulRepository<T> repository, int limit)
+        public BufferedStateRepository(ILogger<T> logger, IStatefulRepository<T> repository, int limit = 10000)
         {
             _logger = logger;
             _repository = repository;
@@ -85,6 +81,7 @@ namespace SprayChronicle.QueryHandling
         
         public override void Save(T obj)
         {
+            WaitUntilNotFlushing();
             var identity = Identity(obj);
 
             if (_saves.ContainsKey(identity)) {
@@ -109,6 +106,7 @@ namespace SprayChronicle.QueryHandling
 
         public override void Remove(string identity)
         {
+            WaitUntilNotFlushing();
             _removes.TryAdd(identity, true);
 
             if (_saves.ContainsKey(identity)) {
@@ -221,7 +219,7 @@ namespace SprayChronicle.QueryHandling
         private void StartFlushTimer()
         {
             StopFlushTimer();
-            _timer = new Timer(_ => DoFlush(), null, 100, Timeout.Infinite);
+            _timer = new Timer(_ => DoFlush(), null, 250, Timeout.Infinite);
         }
 
         private void StopFlushTimer()
@@ -239,6 +237,14 @@ namespace SprayChronicle.QueryHandling
             }
 
             return (1000 / ms) * count;
+        }
+
+        private void WaitUntilNotFlushing()
+        {
+            while (_flushing) {
+                _logger.LogDebug("Flushing, waiting for release....");
+                Thread.Sleep(TimeSpan.FromMilliseconds(10));
+            }
         }
     }
 }
