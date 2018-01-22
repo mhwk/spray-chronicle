@@ -30,7 +30,9 @@ namespace SprayChronicle.EventHandling
 
         public async Task ListenAsync()
         {
-            await Task.Factory.StartNew(Listen, TaskCreationOptions.LongRunning);
+            Task.Factory.StartNew(Listen, TaskCreationOptions.LongRunning);
+            
+            await Task.CompletedTask;
         }
 
         public void Listen()
