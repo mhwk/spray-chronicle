@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using SprayChronicle.Server;
 
@@ -28,11 +29,16 @@ namespace SprayChronicle.EventHandling
             _handler = handler;
         }
 
-        public async Task ListenAsync()
+        public Task ListenAsync()
         {
-            Task.Factory.StartNew(Listen, TaskCreationOptions.LongRunning);
+            Task.Factory.StartNew(
+                Listen,
+                CancellationToken.None,
+                TaskCreationOptions.LongRunning,
+                TaskScheduler.Default
+            ).ConfigureAwait(false);
             
-            await Task.CompletedTask;
+            return Task.CompletedTask;
         }
 
         public void Listen()
