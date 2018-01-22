@@ -37,7 +37,7 @@ namespace SprayChronicle.CommandHandling
                     );
                 }
 
-                await Task.Run(() => handler.Handle(command));
+                await Task.Run(() => handler.Handle(command)).ConfigureAwait(false);
             }
         }
     }

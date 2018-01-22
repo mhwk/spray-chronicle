@@ -27,7 +27,7 @@ namespace SprayChronicle.QueryHandling
                 ));
             }
             
-            return await Task.Run(() => processor.Execute(query));
+            return await Task.Run(() => processor.Execute(query)).ConfigureAwait(false);
         }
     }
 }
