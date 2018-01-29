@@ -57,7 +57,12 @@ namespace SprayChronicle.Persistence.Mongo
 
         static string DatabaseName()
         {
-            return Environment.GetEnvironmentVariable("MONGODB_DB") ?? Guid.NewGuid().ToString();
+            return Environment.GetEnvironmentVariable("MONGODB_DB") ?? GenerateRandomDatabaseName();
+        }
+
+        private static string GenerateRandomDatabaseName()
+        {
+            return $"{DateTime.Now.ToUniversalTime():yyyy_MM_dd_HH_mm_ss_ffffff}_{Guid.NewGuid().ToString("N").Substring(0, 6)}";
         }
     }
 }
