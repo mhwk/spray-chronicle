@@ -1,4 +1,5 @@
 using System;
+using App.Metrics.Health;
 using Autofac;
 using Microsoft.Extensions.Logging;
 using EventStore.ClientAPI;
@@ -13,18 +14,18 @@ namespace SprayChronicle.Persistence.Ouro
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .Register<IEventStoreConnection>(c => InitEventStore(c))
+                .Register(c => InitEventStore(c))
                 .SingleInstance();
             
             builder
-                .Register<UserCredentials>(c => new UserCredentials(
+                .Register(c => new UserCredentials(
                     Environment.GetEnvironmentVariable("EVENTSTORE_USERNAME") ?? "admin",
                     Environment.GetEnvironmentVariable("EVENTSTORE_PASSWORD") ?? "changeit"
                 ))
                 .SingleInstance();
             
             builder
-                .Register<IEventStore>(c => new OuroEventStore(
+                .Register(c => new OuroEventStore(
                     c.Resolve<ILoggerFactory>().CreateLogger<IEventStore>(),
                     c.Resolve<IEventStoreConnection>(),
                     c.Resolve<UserCredentials>(),
@@ -36,13 +37,19 @@ namespace SprayChronicle.Persistence.Ouro
             
             builder
                 .Register<OuroStreamFactory>(c => new OuroStreamFactory(
-                    c.Resolve<ILoggerFactory>().CreateLogger<IEventStore>(),
-                    c.Resolve<IEventStoreConnection>(),
-                    c.Resolve<UserCredentials>(),
-                    Environment.GetEnvironmentVariable("EVENTSTORE_TENANT")
+                                c.Resolve<ILoggerFactory>().CreateLogger<IEventStore>(),
+                                c.Resolve<IEventStoreConnection>(),
+                                c.Resolve<UserCredentials>(),
+                                Environment.GetEnvironmentVariable("EVENTSTORE_TENANT")
                 ))
                 .AsSelf()
                 .As<IBuildStreams>()
+                .SingleInstance();
+            
+            builder
+                .Register(c => new OuroHealthCheck("Ouro connection"))
+                .AsSelf()
+                .As<HealthCheck>()
                 .SingleInstance();
         }
 

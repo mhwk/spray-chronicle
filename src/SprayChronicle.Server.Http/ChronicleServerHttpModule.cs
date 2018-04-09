@@ -4,12 +4,12 @@ using SprayChronicle.QueryHandling;
 
 namespace SprayChronicle.Server.Http
 {
-    public class SprayChronicleHttpModule : Module
+    public class ChronicleServerHttpModule : Module
     {
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .Register<HttpCommandRouteMapper>(c => new HttpCommandRouteMapper(
+                .Register(c => new HttpCommandRouteMapper(
                     c.Resolve<ILoggerFactory>().Create<HttpCommandDispatcher>(),
                     c.Resolve<IValidator>(),
                     c.Resolve<SubscriptionDispatcher>()
@@ -17,7 +17,7 @@ namespace SprayChronicle.Server.Http
                 .SingleInstance();
 
             builder
-                .Register<HttpQueryRouteMapper>(c => new HttpQueryRouteMapper(
+                .Register(c => new HttpQueryRouteMapper(
                     c.Resolve<ILoggerFactory>().Create<HttpQueryProcessor>(),
                     c.Resolve<IValidator>(),
                     c.Resolve<SubscriptionProcessor>()

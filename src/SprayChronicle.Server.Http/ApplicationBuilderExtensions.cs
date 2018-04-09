@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 
@@ -14,22 +13,16 @@ namespace SprayChronicle.Server.Http
             var queryMapper = (HttpQueryRouteMapper)app.ApplicationServices.GetService(typeof(HttpQueryRouteMapper));
 
             if (null == commandMapper) {
-                throw new NullReferenceException(string.Format("No command mapper registered - is module properly loaded?"));
+                throw new NullReferenceException("HttpCommandRouteMapper not found in services - is ChronicleServerHttpModule registered to Autofac?");
             }
             if (null == queryMapper) {
-                throw new NullReferenceException(string.Format("No query mapper registered - is module properly loaded?"));
+                throw new NullReferenceException("HttpQueryRouteMapper not found in services - is ChronicleServerHttpModule registered to Autofac?");
             }
 
             var builder = new RouteBuilder(app);
+            
             commandMapper.Map(builder);
             queryMapper.Map(builder);
-
-            builder.MapGet("_health", async context => {
-                using (var writer = new StreamWriter(context.Response.Body)) {
-                    context.Response.StatusCode = 200;
-                    await writer.WriteAsync("");
-                }
-            });
             
             app.UseRouter(builder.Build());
         }

@@ -4,12 +4,14 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Autofac;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.Extensions.CommandLineUtils;
 
 namespace SprayChronicle.Server
 {
     public sealed class ChronicleServer
     {
-        public void Run()
+        public void Run(params string[] args)
         {
             ChronicleLogging.Subscribe(this);
             
@@ -20,7 +22,14 @@ namespace SprayChronicle.Server
 
             OnWebHostBuild?.Invoke(webHost);
 
-            webHost.Build().Run();
+            var host = webHost.Build();
+            var cli = host.Services.GetService<CommandLineApplication>();
+
+            cli.OnExecute(() => {
+                host.Run();
+                return 0;
+            });
+            cli.Execute(args);
         }
 
         public delegate void StartupArgs(IServiceProvider services);

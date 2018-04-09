@@ -10,7 +10,7 @@ namespace SprayChronicle.Server.Http
     {
         public static void RegisterChronicleHttp(this ContainerBuilder builder)
         {
-            builder.RegisterModule<SprayChronicleHttpModule>();
+            builder.RegisterModule<ChronicleServerHttpModule>();
             builder.RegisterMemoryPersistence();
             builder.RegisterCommandHandling();
             builder.RegisterEventHandling();

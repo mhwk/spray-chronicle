@@ -1,5 +1,7 @@
 ﻿using SprayChronicle.EventHandling;
+using SprayChronicle.Persistence.Ouro;
 using SprayChronicle.Server;
+using SprayChronicle.Server.HealthChecks;
 using SprayChronicle.Server.Http;
 
 namespace SprayChronicle.Example
@@ -11,10 +13,11 @@ namespace SprayChronicle.Example
             new ChronicleServer()
                 .WithEventHandling()
                 .WithHttp()
+                .WithHealthChecks()
 //                .WithOuroPersistence()
 //                .WithMongoPersistence()
                 .WithModule<Module>()
-                .Run();
+                .Run(args);
         }
     }
 }
