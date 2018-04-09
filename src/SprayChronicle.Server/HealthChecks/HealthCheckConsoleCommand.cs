@@ -8,12 +8,12 @@ namespace SprayChronicle.Server.HealthChecks
     {
         public string Name => "health";
         
-        public string Description => "Check health of running instance";
+        public string Description => "Check health of local running instance";
 
         public Func<Task<int>> Execute => async () =>
         {
             var client = new HttpClient();
-            var response = await client.GetAsync("http://0.0.0.0/_health");
+            var response = await client.GetAsync("http://127.0.0.1:5000/_health");
 
             return response.IsSuccessStatusCode ? 0 : 1;
         };
