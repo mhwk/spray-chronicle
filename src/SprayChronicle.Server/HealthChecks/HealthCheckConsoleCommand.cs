@@ -15,6 +15,8 @@ namespace SprayChronicle.Server.HealthChecks
             var client = new HttpClient();
             var response = await client.GetAsync("http://127.0.0.1:5000/_health");
 
+            Console.WriteLine(await response.Content.ReadAsStringAsync());
+
             return response.IsSuccessStatusCode ? 0 : 1;
         };
     }

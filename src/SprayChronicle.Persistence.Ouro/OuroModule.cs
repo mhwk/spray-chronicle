@@ -36,31 +36,31 @@ namespace SprayChronicle.Persistence.Ouro
                 .SingleInstance();
             
             builder
-                .Register<OuroStreamFactory>(c => new OuroStreamFactory(
-                                c.Resolve<ILoggerFactory>().CreateLogger<IEventStore>(),
-                                c.Resolve<IEventStoreConnection>(),
-                                c.Resolve<UserCredentials>(),
-                                Environment.GetEnvironmentVariable("EVENTSTORE_TENANT")
+                .Register(c => new OuroStreamFactory(
+                    c.Resolve<ILoggerFactory>().CreateLogger<IEventStore>(),
+                    c.Resolve<IEventStoreConnection>(),
+                    c.Resolve<UserCredentials>(),
+                    Environment.GetEnvironmentVariable("EVENTSTORE_TENANT")
                 ))
                 .AsSelf()
                 .As<IBuildStreams>()
                 .SingleInstance();
             
             builder
-                .Register(c => new OuroHealthCheck("Ouro connection"))
+                .Register(c => new OuroHealthCheck(c.Resolve<IEventStoreConnection>()))
                 .AsSelf()
                 .As<HealthCheck>()
                 .SingleInstance();
         }
 
-        IEventStoreConnection InitEventStore(IComponentContext container)
+        private static IEventStoreConnection InitEventStore(IComponentContext container)
         {
             return "" != (Environment.GetEnvironmentVariable("EVENTSTORE_CLUSTER_DNS") ?? "")
                 ? InitEventStoreCluster(container)
                 : InitEventStoreSingle(container);
         }
 
-        IEventStoreConnection InitEventStoreSingle(IComponentContext container)
+        private static IEventStoreConnection InitEventStoreSingle(IComponentContext container)
 		{
             var uri = string.Format(
                 "tcp://{0}:{1}@{2}:{3}",
@@ -69,7 +69,7 @@ namespace SprayChronicle.Persistence.Ouro
                 Environment.GetEnvironmentVariable("EVENTSTORE_HOST") ?? "127.0.0.1",
                 Environment.GetEnvironmentVariable("EVENTSTORE_PORT") ?? "1113"
             );
-			IEventStoreConnection connection = EventStoreConnection.Create (
+			var connection = EventStoreConnection.Create (
 				ConnectionSettings.Create()
                     .WithConnectionTimeoutOf(TimeSpan.FromSeconds(5))
                     .KeepReconnecting()
@@ -78,18 +78,18 @@ namespace SprayChronicle.Persistence.Ouro
                     .Build(),
 				new Uri (uri)
 			);
+		    
 			connection.ConnectAsync().Wait();
-
             container.Resolve<ILoggerFactory>().CreateLogger<IEventStoreConnection>().LogInformation("Connected to eventstore on {0}!", uri);
-            
+
 			return connection;
 		}
 
-        IEventStoreConnection InitEventStoreCluster(IComponentContext container)
+        private static IEventStoreConnection InitEventStoreCluster(IComponentContext container)
         {
             var logger = container.Resolve<ILoggerFactory>().CreateLogger<IEventStoreConnection>();
             
-			IEventStoreConnection connection = EventStoreConnection.Create (
+			var connection = EventStoreConnection.Create (
                 ConnectionSettings.Create()
                     .KeepReconnecting()
                     .PerformOnAnyNode()
