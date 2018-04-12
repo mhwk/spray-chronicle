@@ -24,8 +24,8 @@ namespace SprayChronicle.Example.Test.Application.Query
         protected override void Then(IValidate validate)
         {
             validate.Expect(
-                new PagedResult<NumberOfProductsInBasket>(
-                    new [] {new NumberOfProductsInBasket("basketId2", 0)},
+                new PagedResult<ProductInBasket>(
+                    new [] {new ProductInBasket("basketId2", 0)},
                     2,
                     1,
                     2

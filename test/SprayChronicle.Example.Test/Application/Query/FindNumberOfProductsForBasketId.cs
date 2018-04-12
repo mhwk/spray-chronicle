@@ -25,7 +25,7 @@ namespace SprayChronicle.Example.Test.Application.Query
         protected override void Then(IValidate validator)
         {
             validator.Expect(
-                new NumberOfProductsInBasket("basketId", 1)
+                new ProductInBasket("basketId", 1)
             );
         }
 

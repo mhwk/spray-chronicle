@@ -2,16 +2,21 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace SprayChronicle.MessageHandling
 {
-    public sealed class OverloadHandlingStrategy<T> : IMessageHandlingStrategy
+    public sealed class OverloadHandlingStrategy<T> : IMessageHandlingStrategy<T> where T : class
     {
         private const BindingFlags BindingFlags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.DeclaredOnly;
 
         private readonly MethodsForTypeDictionary _messageToMethod = new MethodsForTypeDictionary();
         
         private readonly Dictionary<string,Type> _nameToMessage = new Dictionary<string,Type>();
+        
+        public OverloadHandlingStrategy(string methodName) : this(new ContextTypeLocator<T>(), methodName)
+        {
+        }
         
         public OverloadHandlingStrategy(ILocateTypes locator)
         {
@@ -38,80 +43,60 @@ namespace SprayChronicle.MessageHandling
             if ( ! _nameToMessage.ContainsKey(method.GetParameters().First().ParameterType.Name)) {
                 _nameToMessage.Add(method.GetParameters().First().ParameterType.Name, method.GetParameters().First().ParameterType);
             }
+            
+            MessageHandlingMetadata.Append<T>(
+                method.GetParameters().First().ParameterType.Name,
+                method.GetParameters().First().ParameterType,
+                method
+            );
         }
 
-        public bool AcceptsMessage(object subject, IMessage message, params object[] arguments)
-        {
-            var argumentTypes = BuildArgumentTypes(message, arguments);
-            var methods = _messageToMethod.MethodsForTypes(argumentTypes);
-
-            return null == subject
-                ? methods.Any(method => method.IsStatic)
-                : methods.Any(method => ! method.IsStatic && method.DeclaringType.IsInstanceOfType(subject));
-        }
-
-        public object ProcessMessage(object subject, IMessage message, params object[] arguments)
+        public Task Tell(T subject, IMessage message, params object[] arguments)
         {
             var builtArguments = BuildArguments(message, arguments);
+
+            ResolveMethod(subject, builtArguments).Invoke(this, builtArguments);
+
+            return Task.CompletedTask;
+        }
+
+        public Task<TResult> Ask<TResult>(T subject, IMessage message, params object[] arguments) where TResult : class
+        {
+            var builtArguments = BuildArguments(message, arguments);
+            
+            return Task.FromResult(ResolveMethod(subject, builtArguments).Invoke(subject, builtArguments) as TResult);
+        }
+
+        private MethodInfo ResolveMethod(T subject, params object[] builtArguments)
+        {
             var methods = _messageToMethod.MethodsFor(builtArguments);
             
             if ( ! methods.Any()) {
-                throw new UnhandledMessageException(string.Format(
-                    "Message {0} not handled by {1} ({2})",
-                    message.Name,
-                    typeof(T),
-                    null == subject ? "null" : subject.GetType().ToString()
-                ));
+                throw new UnhandledMessageException(
+                    $"[{typeof(T)}] No handler methods found with args {string.Join(", ", builtArguments.Select(a => a.GetType()))}"
+                );
             }
             
             var stateMethods = null == subject
-                ? _messageToMethod.MethodsFor(builtArguments).Where(method => method.IsStatic)
-                : _messageToMethod.MethodsFor(builtArguments).Where(method => ! method.IsStatic && method.DeclaringType.IsInstanceOfType(subject));
+                ? _messageToMethod.MethodsFor(builtArguments).Where(method => method.IsStatic).ToList()
+                : _messageToMethod.MethodsFor(builtArguments).Where(method => ! method.IsStatic && method.DeclaringType.IsInstanceOfType(subject)).ToList();
 
             if (methods.Any() && ! stateMethods.Any()) {
-                throw new UnexpectedStateException(string.Format(
-                    "Message {0} not handled by state {1} ({2})",
-                    message.Name,
-                    typeof(T),
-                    null == subject ? "null" : subject.GetType().ToString()
-                ));
+                throw new UnexpectedStateException(
+                    $"[{typeof(T)}] No handler methods found for state {(null == subject ? "null" : subject.GetType().ToString())} with args {string.Join(", ", builtArguments.Select(a => a.GetType()))}"
+                );
             }
 
-            return stateMethods.First().Invoke(subject, builtArguments);
+            return stateMethods.First();
         }
 
-        private object[] BuildArguments(IMessage message, params object[] arguments)
+        private static object[] BuildArguments(IMessage message, params object[] arguments)
         {
-            var args = new List<object> { };
-            args.Add(MessageToPayload(message));
-            args.AddRange(arguments);
-            return args.ToArray();
-        }
-
-        private Type[] BuildArgumentTypes(IMessage message, params object[] arguments)
-        {
-            if ( ! _nameToMessage.ContainsKey(message.Name)) {
-                return null;
-            }
+            var args = new List<object> {message.Payload()};
             
-            var args = new List<Type> { };
-            args.Add(_nameToMessage[message.Name]);
-            args.AddRange(arguments.Select(a => a.GetType()).ToArray());
+            args.AddRange(arguments);
+            
             return args.ToArray();
-        }
-
-        private object MessageToPayload(IMessage message)
-        {
-            if (!_nameToMessage.ContainsKey(message.Name)) {
-                throw new UnhandledMessageException(string.Format(
-                    "Message {0} not handled by {1} ({2})",
-                    message.GetType(),
-                    typeof(T),
-                    string.Join(", ", _nameToMessage.Keys)
-                ));
-            }
-
-            return message.Payload(_nameToMessage[message.Name]);
         }
     }
 }

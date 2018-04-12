@@ -46,7 +46,7 @@ namespace SprayChronicle.CommandHandling
 
         public class CommandHandler<TSourced,THandler> : Module
             where TSourced : EventSourced<TSourced>
-            where THandler : IHandleCommands, IHandleEvents
+            where THandler : IHandleCommands, IProcessEvents
         {
             private readonly string _stream;
             

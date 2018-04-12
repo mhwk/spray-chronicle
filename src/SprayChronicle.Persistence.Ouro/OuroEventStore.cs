@@ -133,37 +133,8 @@ namespace SprayChronicle.Persistence.Ouro
                     _tenant
                 )))
             );
-        }
-    }
-
-    internal class OuroMessage : IDomainMessage
-    {
-        private readonly ResolvedEvent _resolvedEvent;
-        
-        public string Name => _resolvedEvent.Event.EventType;
-        
-        public long Sequence => this._resolvedEvent.Event.EventNumber;
-        
-        public DateTime Epoch => _resolvedEvent.Event.Created;
-
-        public OuroMessage(ResolvedEvent resolvedEvent)
-        {
-            _resolvedEvent = resolvedEvent;
-        }
-
-        public object Payload()
-        {
-            return JsonConvert.DeserializeObject(
-                Encoding.UTF8.GetString(_resolvedEvent.Event.Data)
-            );
-        }
-
-        public object Payload(Type type)
-        {
-            return JsonConvert.DeserializeObject(
-                Encoding.UTF8.GetString(_resolvedEvent.Event.Data),
-                type
-            );
+            
+            
         }
     }
 }

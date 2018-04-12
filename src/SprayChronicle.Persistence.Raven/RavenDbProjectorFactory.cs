@@ -1,24 +1,20 @@
-using System;
-using Microsoft.Extensions.Logging;
-using SprayChronicle.EventHandling;
+﻿using System;
 using SprayChronicle.QueryHandling;
 
-namespace SprayChronicle.Persistence.Memory
+namespace SprayChronicle.Persistence.Raven
 {
-    public class MemoryProjectorFactory : IBuildProjectors
+    public class RavenDbProjectorFactory : IBuildProjectors
     {
-        private readonly IBuildStatefulRepositories _repositoryFactory;
+        private readonly RavenDbRepositoryFactory _repositoryFactory;
 
-        public MemoryProjectorFactory(
-            ILoggerFactory loggerFactory,
-            IBuildStatefulRepositories repositoryFactory)
+        public RavenDbProjectorFactory(RavenDbRepositoryFactory repositoryFactory)
         {
             _repositoryFactory = repositoryFactory;
         }
 
         public TProjector Build<TProjection,TProjector>()
+            where TProjector : QueryHandler<TProjection>
             where TProjection : class
-            where TProjector : QueryHandler<TProjector>
         {
             return (TProjector) Activator.CreateInstance(
                 typeof(TProjector),
@@ -27,8 +23,8 @@ namespace SprayChronicle.Persistence.Memory
         }
 
         public TProjector Build<TProjection,TProjector>(string projectionReference)
+            where TProjector : QueryHandler<TProjection>
             where TProjection : class
-            where TProjector : QueryHandler<TProjector>
         {
             return (TProjector) Activator.CreateInstance(
                 typeof(TProjector),
@@ -37,8 +33,8 @@ namespace SprayChronicle.Persistence.Memory
         }
 
         public TProjector Build<TProjection,TProjector>(IStatefulRepository<TProjection> repository)
+            where TProjector : QueryHandler<TProjection>
             where TProjection : class
-            where TProjector : QueryHandler<TProjector>
         {
             return (TProjector) Activator.CreateInstance(
                 typeof(TProjector),

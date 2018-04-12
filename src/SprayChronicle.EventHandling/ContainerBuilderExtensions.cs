@@ -13,14 +13,14 @@ namespace SprayChronicle.EventHandling
         }
         
         public static ContainerBuilder RegisterEventHandler<THandler>(this ContainerBuilder builder, string stream)
-            where THandler : IHandleEvents
+            where THandler : IProcessEvents
         {
             builder.RegisterModule(new EventHandlingModule.Persistent<THandler>(stream));
             return builder;
         }
         
         public static ContainerBuilder RegisterEventHandler<THandler>(this ContainerBuilder builder, string stream, Func<IComponentRegistry,bool> condition)
-            where THandler : IHandleEvents
+            where THandler : IProcessEvents
         {
             builder.RegisterModule(new EventHandlingModule.Persistent<THandler>(stream, condition));
             return builder;

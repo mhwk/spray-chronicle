@@ -7,11 +7,11 @@
     <ProjectReference Include="../SprayChronicle.EventHandling/SprayChronicle.EventHandling.csproj" />
     <ProjectReference Include="../SprayChronicle.EventSourcing/SprayChronicle.EventSourcing.csproj" />
     <ProjectReference Include="../SprayChronicle.Persistence.Memory/SprayChronicle.Persistence.Memory.csproj" />
-    <ProjectReference Include="../SprayChronicle.Persistence.Mongo/SprayChronicle.Persistence.Mongo.csproj" />
     <ProjectReference Include="../SprayChronicle.Persistence.Ouro/SprayChronicle.Persistence.Ouro.csproj" />
     <ProjectReference Include="../SprayChronicle.QueryHandling/SprayChronicle.QueryHandling.csproj" />
     <ProjectReference Include="../SprayChronicle.Server/SprayChronicle.Server.csproj" />
     <ProjectReference Include="../SprayChronicle.Server.Http/SprayChronicle.Server.Http.csproj" />
+    <ProjectReference Include="..\SprayChronicle.Persistence.Raven\SprayChronicle.Persistence.Raven.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Autofac" Version="4.6.2" />

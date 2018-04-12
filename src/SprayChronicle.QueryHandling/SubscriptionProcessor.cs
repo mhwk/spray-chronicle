@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using SprayChronicle.MessageHandling;
 
 namespace SprayChronicle.QueryHandling
 {
@@ -17,17 +18,17 @@ namespace SprayChronicle.QueryHandling
 
         public async Task<object> Process(object query)
         {
-            var processor = _executors.FirstOrDefault(p => p.Executes(query));
+            var executor = _executors.FirstOrDefault(e => MessageHandlingMetadata.Accepts(e.GetType(), query.GetType()));
             
-            if (null == processor) {
+            if (null == executor) {
                 throw new UnhandledQueryException(string.Format(
                     "Query {0} not handled by one of the executors {1}",
                     query.GetType(),
                     string.Join(", ", _executors.Select(p => p.GetType().ToString()).ToArray())
                 ));
             }
-            
-            return await Task.Run(() => processor.Execute(query)).ConfigureAwait(false);
+
+            return await executor.Execute(query);
         }
     }
 }

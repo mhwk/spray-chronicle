@@ -1,31 +1,25 @@
 ﻿using System;
+using System.Threading.Tasks;
 using SprayChronicle.MessageHandling;
 
 namespace SprayChronicle.EventHandling
 {
-    public abstract class EventHandler<T> : IHandleEvents
-        where T : class
+    public abstract class EventHandler<T> : IProcessEvents where T : EventHandler<T>
     {
-        private readonly IMessageHandlingStrategy _eventHandlers;
-        
-        protected EventHandler()
-            : this(new OverloadHandlingStrategy<T>(new ContextTypeLocator<T>(), "Process"))
+        private readonly IMessageHandlingStrategy<T> _eventHandlers;
+    
+        protected EventHandler() : this(new OverloadHandlingStrategy<T>("Process"))
         {
         }
-        
-        protected EventHandler(IMessageHandlingStrategy eventHandlers)
+    
+        protected EventHandler(IMessageHandlingStrategy<T> eventHandlers)
         {
             _eventHandlers = eventHandlers;
         }
-
-        public bool Processes(object @event, DateTime at)
+    
+        public async Task Process(object @event, DateTime at)
         {
-            return _eventHandlers.AcceptsMessage(this, @event.ToMessage(), at);
-        }
-
-        public void Process(object @event, DateTime at)
-        {
-            _eventHandlers.ProcessMessage(this, @event.ToMessage(), at);
+            await _eventHandlers.Tell(this as T, @event.ToMessage(), at);
         }
     }
 }

@@ -6,7 +6,5 @@ namespace SprayChronicle.EventSourcing
     public interface IDomainMessage : IMessage
     {
         long Sequence { get; }
-
-        DateTime Epoch { get; }
     }
 }

@@ -1,9 +1,9 @@
+using System.Threading.Tasks;
+
 namespace SprayChronicle.CommandHandling
 {
     public interface IHandleCommands
     {
-        bool Handles(object command);
-
-        void Handle(object command);
+        Task Handle(object command);
     }
 }

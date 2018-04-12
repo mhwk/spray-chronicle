@@ -13,13 +13,13 @@ namespace SprayChronicle.QueryHandling
         {
             builder
                 .RegisterType<SubscriptionProcessor>()
-                .OnActivating(e => RegisterQueryExecutors(e.Context, e.Instance as SubscriptionProcessor))
+                .OnActivating(e => RegisterQueryExecutors(e.Context, e.Instance))
                 .AsSelf()
                 .As<IProcessQueries>()
                 .SingleInstance();
             
             builder
-                .Register<LoggingProcessor>(c => new LoggingProcessor(
+                .Register(c => new LoggingProcessor(
                     c.Resolve<ILoggerFactory>().Create<IProcessQueries>(),
                     new MeasureMilliseconds(),
                     c.Resolve<SubscriptionProcessor>()
@@ -36,9 +36,9 @@ namespace SprayChronicle.QueryHandling
                 .ForEach(h => processor.Subscribe(h));
         }
         
-        public sealed class QueryHandler<TState,THandler> : Autofac.Module
+        public sealed class QueryHandler<TState,THandler> : Module
             where TState : class
-            where THandler : QueryHandler<TState>
+            where THandler : QueryHandler<THandler>
         {
             private readonly string _reference;
 
@@ -61,22 +61,22 @@ namespace SprayChronicle.QueryHandling
                     .As<IStatefulRepository<TState>>()
                     .SingleInstance();
                 
-                builder
-                    .Register(c => new StreamHandler<THandler>(
-                        c.Resolve<ILoggerFactory>().Create<THandler>(),
-                        new MeasureMilliseconds(),
-                        c.Resolve<IBuildStreams>().CatchUp(_stream),
-                        c.Resolve<THandler>()
-                    ))
-                    .As<IHandleStream>()
-                    .AsSelf()
-                    .OnlyIf(reg => reg.IsRegistered(new TypedService(typeof(IProcessQueries))))
-                    .SingleInstance();
+//                builder
+//                    .Register(c => new StreamHandler<THandler>(
+//                        c.Resolve<ILoggerFactory>().Create<THandler>(),
+//                        new MeasureMilliseconds(),
+//                        c.Resolve<IBuildStreams>().CatchUp(_stream),
+//                        c.Resolve<THandler>()
+//                    ))
+//                    .As<IHandleStream>()
+//                    .AsSelf()
+//                    .OnlyIf(reg => reg.IsRegistered(new TypedService(typeof(IProcessQueries))))
+//                    .SingleInstance();
                 
                 builder
                     .RegisterType<THandler>()
                     .As<IExecuteQueries>()
-                    .As<IHandleEvents>()
+                    .As<IProcessEvents>()
                     .PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies)
                     .AsSelf()
                     .SingleInstance();

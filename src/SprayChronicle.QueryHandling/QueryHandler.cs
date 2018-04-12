@@ -1,39 +1,32 @@
 using System;
+using System.Threading.Tasks;
 using SprayChronicle.MessageHandling;
 
 namespace SprayChronicle.QueryHandling
 {
-    public abstract class QueryHandler<T> : QueryExecutor<T>, IHandleQueries
-        where T : class
+    public abstract class QueryHandler<T> : QueryExecutor<T>, IHandleQueries where T : QueryHandler<T>
     {
-        private readonly IMessageHandlingStrategy _projectors;
+        private readonly IMessageHandlingStrategy<T> _projectors;
 
-        protected QueryHandler(IStatefulRepository<T> repository)
+        protected QueryHandler()
             : this(
-                repository,
-                new OverloadHandlingStrategy<QueryHandler<T>>(new ContextTypeLocator<T>(), "Execute"),
-                new OverloadHandlingStrategy<QueryHandler<T>>(new ContextTypeLocator<T>(), "Process")
+                new OverloadHandlingStrategy<T>("Execute"),
+                new OverloadHandlingStrategy<T>("Process")
             )
         {
         }
         
         protected QueryHandler(
-            IStatefulRepository<T> repository,
-            IMessageHandlingStrategy executors,
-            IMessageHandlingStrategy projectors)
-            : base(repository, executors)
+            IMessageHandlingStrategy<T> executors,
+            IMessageHandlingStrategy<T> projectors)
+            : base(executors)
         {
             _projectors = projectors;
         }
 
-        public bool Processes(object @event, DateTime at)
+        public async Task Process(object @event, DateTime at)
         {
-            return _projectors.AcceptsMessage(this, @event.ToMessage(), at);
-        }
-
-        public void Process(object @event, DateTime at)
-        {
-            _projectors.ProcessMessage(this, @event.ToMessage(), at);
+            await _projectors.Tell(this as T, @event.ToMessage(), at);
         }
     }
 }

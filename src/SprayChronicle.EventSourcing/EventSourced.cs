@@ -1,16 +1,17 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using SprayChronicle.MessageHandling;
 
 namespace SprayChronicle.EventSourcing
 {
-    public abstract class EventSourced<T> : IEventSourcable<T> where T : IEventSourcable<T>
+    public abstract class EventSourced<T> : IEventSourcable<T> where T : class, IEventSourcable<T>
     {
         private long _sequence = -1;
 
         private readonly List<IDomainMessage> _queue = new List<IDomainMessage>();
 
-        private static readonly IMessageHandlingStrategy Router = new OverloadHandlingStrategy<T>(new ContextTypeLocator<T>());
+        private static readonly IMessageHandlingStrategy<T> Strategy = new OverloadHandlingStrategy<T>(new ContextTypeLocator<T>());
 
         public abstract string Identity();
 
@@ -21,16 +22,16 @@ namespace SprayChronicle.EventSourcing
             return diff;
         }
 
-        public static T Patch(IEnumerable<IDomainMessage> messages)
+        public static async Task<T> Patch(IEnumerable<IDomainMessage> messages)
         {
             var sourcable = default(IEventSourcable<T>);
             foreach (var message in messages) {
-                if (Router.AcceptsMessage(sourcable, message)) {
-                    sourcable = (EventSourced<T>) Router.ProcessMessage(sourcable, message);
-                }
+                sourcable = await Strategy.Ask<EventSourced<T>>(sourcable as T, message);
+                
                 if (null == sourcable) {
                     continue;
                 }
+                
                 ((EventSourced<T>)sourcable)._sequence = message.Sequence;
             }
             return (T) sourcable;
@@ -44,10 +45,7 @@ namespace SprayChronicle.EventSourcing
                 payload
             );
 
-            var updated = sourcable;
-            if (Router.AcceptsMessage(sourcable, domainMessage)) {
-                updated = (IEventSourcable<T>) Router.ProcessMessage(sourcable, domainMessage);
-            }
+            var updated = (IEventSourcable<T>) Strategy.Tell(sourcable as T, domainMessage);
             
             if (updated != sourcable && null != sourcable) {
                 ((EventSourced<T>)updated)._queue.AddRange(((EventSourced<T>)sourcable)._queue);

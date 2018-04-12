@@ -11,7 +11,7 @@ namespace SprayChronicle.EventHandling
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .Register<IManageStreamHandlers>(c => CreateManager())
+                .Register(c => CreateManager())
                 .OnActivating(e => RegisterStreamHandlers(e.Context, e.Instance))
                 .SingleInstance();
         }
@@ -27,7 +27,7 @@ namespace SprayChronicle.EventHandling
                 .ForEach(manager.Add);
         }
 
-        public sealed class CatchUp<THandler> : Autofac.Module where THandler : IHandleEvents
+        public sealed class CatchUp<THandler> : Module where THandler : IProcessEvents
         {
             private readonly string _stream;
 
@@ -42,20 +42,20 @@ namespace SprayChronicle.EventHandling
                     .RegisterType<THandler>()
                     .SingleInstance();
                 
-                builder
-                    .Register(c => new StreamHandler<THandler>(
-                        c.Resolve<ILoggerFactory>().Create<THandler>(),
-                        new MeasureMilliseconds(),
-                        c.Resolve<IBuildStreams>().CatchUp(_stream),
-                        c.Resolve<THandler>()
-                    ))
-                    .As<IHandleStream>()
-                    .AsSelf()
-                    .SingleInstance();
+//                builder
+//                    .Register(c => new StreamHandler<THandler>(
+//                        c.Resolve<ILoggerFactory>().Create<THandler>(),
+//                        new MeasureMilliseconds(),
+//                        c.Resolve<IBuildStreams>().CatchUp(_stream),
+//                        c.Resolve<THandler>()
+//                    ))
+//                    .As<IHandleStream>()
+//                    .AsSelf()
+//                    .SingleInstance();
             }
         }
 
-        public sealed class Persistent<THandler> : Module where THandler : IHandleEvents
+        public sealed class Persistent<THandler> : Module where THandler : IProcessEvents
         {
             private readonly string _stream;
 
@@ -89,20 +89,20 @@ namespace SprayChronicle.EventHandling
                     .OnlyIf(reg => _condition(reg) && ! reg.IsRegistered(new TypedService(typeof(THandler))))
                     .SingleInstance();
                     
-                builder
-                    .Register(c => new StreamHandler<THandler>(
-                        c.Resolve<ILoggerFactory>().Create<THandler>(),
-                        new MeasureMilliseconds(),
-                        c.Resolve<IBuildStreams>().Persistent(
-                            _stream,
-                            _category
-                        ),
-                        c.Resolve<THandler>()
-                    ))
-                    .As<IHandleStream>()
-                    .AsSelf()
-                    .OnlyIf(reg => _condition(reg))
-                    .SingleInstance();
+//                builder
+//                    .Register(c => new StreamHandler<THandler>(
+//                        c.Resolve<ILoggerFactory>().Create<THandler>(),
+//                        new MeasureMilliseconds(),
+//                        c.Resolve<IBuildStreams>().Persistent(
+//                            _stream,
+//                            _category
+//                        ),
+//                        c.Resolve<THandler>()
+//                    ))
+//                    .As<IHandleStream>()
+//                    .AsSelf()
+//                    .OnlyIf(reg => _condition(reg))
+//                    .SingleInstance();
             }
         }
     }

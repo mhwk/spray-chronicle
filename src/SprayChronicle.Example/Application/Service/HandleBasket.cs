@@ -1,44 +1,40 @@
 using System;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting.Internal;
 using SprayChronicle.CommandHandling;
 using SprayChronicle.EventSourcing;
 using SprayChronicle.Example.Domain.Model;
 
 namespace SprayChronicle.Example.Application.Service
 {
-    public sealed class HandleBasket : CommandHandler<Basket>
+    public sealed class HandleBasket : CommandHandler<HandleBasket, Basket>
     {
         public HandleBasket(IEventSourcingRepository<Basket> repository): base(repository)
-        {}
+        {
+        }
         
-        private void Handle(PickUpBasket command)
+        private async Task Handle(PickUpBasket command)
         {
-            Repository().Start(
-                () => Basket.PickUp(new BasketId(command.BasketId))
-            );
+            await For(command.BasketId)
+                .Do(() => Basket.PickUp(command.BasketId));
         }
 
-        private void Handle(AddProductToBasket command)
+        private async Task Handle(AddProductToBasket command)
         {
-            Repository().Continue<PickedUpBasket>(
-                command.BasketId,
-                basket => basket.AddProduct(new ProductId(command.ProductId))
-            );
+            await For<PickedUpBasket>(command.BasketId)
+                .Do(basket => basket.AddProduct(command.ProductId));
         }
 
-        private void Handle(RemoveProductFromBasket command)
+        private async Task Handle(RemoveProductFromBasket command)
         {
-            Repository().Continue<PickedUpBasket>(
-                command.BasketId,
-                basket => basket.RemoveProduct(new ProductId(command.ProductId))
-            );
+            await For<PickedUpBasket>(command.BasketId)
+                .Do(basket => basket.RemoveProduct(command.ProductId));
         }
 
-        private void Handle(CheckOutBasket command)
+        private async Task Handle(CheckOutBasket command)
         {
-            Repository().Continue<PickedUpBasket,CheckedOutBasket>(
-                command.BasketId,
-                basket => basket.CheckOut(new OrderId(command.OrderId))
-            );
+            await For<PickedUpBasket>(command.BasketId)
+                .Do(basket => basket.CheckOut(command.OrderId));
         }
     }
 }

@@ -14,7 +14,7 @@ namespace SprayChronicle.Example
             builder.RegisterCommandHandler<Basket, HandleBasket>("$ce-SprayChronicle");
             builder.RegisterCommandHandler<Order, HandleOrder>("$ce-SprayChronicle");
             
-            builder.RegisterQueryHandler<NumberOfProductsInBasket, QueryNumberOfProductsInBasket>("$ce-SprayChronicle");
+            builder.RegisterQueryHandler<QueryBasketWithProducts.BasketWithProducts, QueryBasketWithProducts>("$ce-SprayChronicle");
             builder.RegisterQueryHandler<PickedUpBasketsPerDay, QueryPickedUpBasketsPerDay>("$ce-SprayChronicle");
         }
     }

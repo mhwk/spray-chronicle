@@ -1,37 +1,24 @@
+using System.Threading.Tasks;
 using SprayChronicle.MessageHandling;
 
 namespace SprayChronicle.QueryHandling
 {
-    public abstract class QueryExecutor<T> : IExecuteQueries where T : class
+    public abstract class QueryExecutor<T> : IExecuteQueries where T : QueryExecutor<T>
     {
-        private readonly IStatefulRepository<T> _repository;
+        private readonly IMessageHandlingStrategy<T> _executors;
 
-        private readonly IMessageHandlingStrategy _executors;
-
-        protected QueryExecutor(IStatefulRepository<T> repository)
-            : this(repository, new OverloadHandlingStrategy<QueryExecutor<T>>(new ContextTypeLocator<T>()))
+        protected QueryExecutor() : this(new OverloadHandlingStrategy<T>("Execute"))
         {
         }
 
-        protected QueryExecutor(IStatefulRepository<T> repository, IMessageHandlingStrategy executors)
+        protected QueryExecutor(IMessageHandlingStrategy<T> executors)
         {
-            _repository = repository;
             _executors = executors;
         }
 
-        protected IStatefulRepository<T> Repository()
+        public async Task<object> Execute(object query)
         {
-            return _repository;
-        }
-
-        public bool Executes(object query)
-        {
-            return _executors.AcceptsMessage(this, query.ToMessage());
-        }
-
-        public object Execute(object query)
-        {
-            return _executors.ProcessMessage(this, query.ToMessage());
+            return await _executors.Ask<object>(this as T, query.ToMessage());
         }
     }
 }

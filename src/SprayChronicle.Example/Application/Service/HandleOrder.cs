@@ -4,26 +4,28 @@ using SprayChronicle.EventSourcing;
 using SprayChronicle.Example.Domain;
 using SprayChronicle.Example.Domain.Model;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace SprayChronicle.Example.Application.Service
 {
-    public sealed class HandleOrder : CommandHandler<Order>
+    public sealed class HandleOrder : CommandHandler<HandleOrder,Order>
     {
         public HandleOrder(IEventSourcingRepository<Order> repository) : base(repository)
         {
         }
 
-        private void Handle(GenerateOrder command)
+        private async Task Handle(GenerateOrder command)
         {
-            Repository().Start(() => Order.Generate(
-                new OrderId(command.OrderId),
-                command.ProductIds.Select(id => new ProductId(id)).ToArray()
-            ));
+            await For(command.OrderId)
+                .Do(() => Order.Generate(
+                    command.OrderId,
+                    command.ProductIds.Cast<ProductId>().ToArray()
+                ));
         }
         
-        private void Process(BasketCheckedOut message, DateTime epoch)
+        private async Task Process(BasketCheckedOut message, DateTime epoch)
         {
-            Handle(new GenerateOrder(
+            await Handle(new GenerateOrder(
                 message.OrderId,
                 message.ProductIds
             ));

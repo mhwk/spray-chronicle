@@ -14,7 +14,7 @@ namespace SprayChronicle.CommandHandling
 
         public static ContainerBuilder RegisterCommandHandler<TSourced,THandler>(this ContainerBuilder builder)
             where TSourced : EventSourced<TSourced>
-            where THandler : IHandleCommands, IHandleEvents
+            where THandler : IHandleCommands, IProcessEvents
         {
             builder.RegisterModule(new CommandHandlingModule.CommandHandler<TSourced,THandler>());
             return builder;
@@ -22,7 +22,7 @@ namespace SprayChronicle.CommandHandling
 
         public static ContainerBuilder RegisterCommandHandler<TSourced,THandler>(this ContainerBuilder builder, string stream)
             where TSourced : EventSourced<TSourced>
-            where THandler : IHandleCommands, IHandleEvents
+            where THandler : IHandleCommands, IProcessEvents
         {
             builder.RegisterModule(new CommandHandlingModule.CommandHandler<TSourced,THandler>(stream));
             return builder;

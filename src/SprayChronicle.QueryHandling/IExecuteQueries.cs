@@ -1,9 +1,9 @@
+using System.Threading.Tasks;
+
 namespace SprayChronicle.QueryHandling
 {
     public interface IExecuteQueries
     {
-        bool Executes(object query);
-
-        object Execute(object query);
+        Task<object> Execute(object query);
     }
 }

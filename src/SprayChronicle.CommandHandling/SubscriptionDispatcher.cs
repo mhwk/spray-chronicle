@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using SprayChronicle.MessageHandling;
 
 namespace SprayChronicle.CommandHandling
 {
@@ -25,7 +26,7 @@ namespace SprayChronicle.CommandHandling
         public async Task Dispatch(params object[] commands)
         {
             foreach (var command in commands) {
-                var handler = _handlers.FirstOrDefault(h => h.Handles(command));
+                var handler = _handlers.FirstOrDefault(e => MessageHandlingMetadata.Accepts(e.GetType(), command.GetType()));
 
                 if (null == handler) {
                     throw new UnhandledCommandException(
@@ -37,7 +38,7 @@ namespace SprayChronicle.CommandHandling
                     );
                 }
 
-                await Task.Run(() => handler.Handle(command)).ConfigureAwait(false);
+                await handler.Handle(command);
             }
         }
     }

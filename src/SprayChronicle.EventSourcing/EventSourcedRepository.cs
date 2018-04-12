@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 
 namespace SprayChronicle.EventSourcing
 {
@@ -11,7 +12,7 @@ namespace SprayChronicle.EventSourcing
             _persistence = persistence;
         }
 
-        public void Save(T subject)
+        public async Task Save(T subject)
         {
             if (null == subject.Identity() || "" == subject.Identity()) {
                 throw new UnknownStreamException("No identity found after apply of events");
@@ -19,7 +20,7 @@ namespace SprayChronicle.EventSourcing
             _persistence.Append<T>(subject.Identity(), subject.Diff());
         }
 
-        public void Save<TChild>(T sourced) where TChild : T
+        public async Task Save<TChild>(T sourced) where TChild : T
         {
             if ( ! (sourced is TChild)) {
                 throw new InvalidStateException(string.Format(
@@ -28,17 +29,17 @@ namespace SprayChronicle.EventSourcing
                     sourced.GetType()
                 ));
             }
-            Save(sourced);
+            await Save(sourced);
         }
 
-        public T Load(string identity)
+        public async Task<T> Load(string identity)
         {
-            return EventSourced<T>.Patch(_persistence.Load<T>(identity));
+            return await EventSourced<T>.Patch(_persistence.Load<T>(identity));
         }
 
-        public TChild LoadOrDefault<TChild>(string identity) where TChild : T
+        public async Task<TChild> LoadOrDefault<TChild>(string identity) where TChild : T
         {
-            var sourced = Load(identity);
+            var sourced = await Load(identity);
             if (null == sourced) {
                 return null;
             }
@@ -52,9 +53,9 @@ namespace SprayChronicle.EventSourcing
             return (TChild) sourced;
         }
 
-        public TChild Load<TChild>(string identity) where TChild : T
+        public async Task<TChild> Load<TChild>(string identity) where TChild : T
         {
-            var sourced = LoadOrDefault<TChild>(identity);
+            var sourced = await LoadOrDefault<TChild>(identity);
             if (null == sourced) {
                 throw new InvalidStateException(string.Format(
                     "Expected state {0}, but got null",
@@ -62,26 +63,6 @@ namespace SprayChronicle.EventSourcing
                 ));
             }
             return (TChild) sourced;
-        }
-        
-        public void Start<TResult>(Func<TResult> callback) where TResult : T
-        {
-            Save<TResult>(callback());
-        }
-
-        public void Continue<TResult>(string identity, Func<TResult,TResult> callback) where TResult : T
-        {
-            Save<TResult>(callback(Load<TResult>(identity)));
-        }
-
-        public void Continue<TInit,TResult>(string identity, Func<TInit,TResult> callback) where TInit : T where TResult : T
-        {
-            Save<TResult>(callback(Load<TInit>(identity)));
-        }
-
-        public void Continue<TInit,TResult>(Func<TInit> load, Func<TInit,TResult> callback) where TInit : T where TResult : T
-        {
-            Save<TResult>(callback(load()));
         }
     }
 }
