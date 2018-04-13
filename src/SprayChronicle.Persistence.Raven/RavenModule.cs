@@ -7,31 +7,10 @@ using SprayChronicle.Server;
 
 namespace SprayChronicle.Persistence.Raven
 {
-    public class RavenDbModule : Autofac.Module
+    public class RavenModule : Autofac.Module
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder
-                .Register(
-                    c => new RavenDbRepositoryFactory(
-                        c.Resolve<IDocumentStore>(),
-                        c.Resolve<Microsoft.Extensions.Logging.ILoggerFactory>()
-                    )
-                )
-                .AsSelf()
-                .As<IBuildStatefulRepositories>()
-                .SingleInstance();
-            
-            builder
-                .Register(
-                    c => new RavenDbProjectorFactory(
-                        c.Resolve<RavenDbRepositoryFactory>()
-                    )
-                )
-                .AsSelf()
-                .As<IBuildProjectors>()
-                .SingleInstance();
-            
             builder
                 .Register(c => c.Resolve<ILoggerFactory>().Create<IDocumentStore>())
                 .SingleInstance();

@@ -10,26 +10,26 @@ namespace SprayChronicle.Persistence.Mongo
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder
-                .Register<MongoRepositoryFactory>(
-                    c => new MongoRepositoryFactory(
-                        c.Resolve<IMongoDatabase>(),
-                        c.Resolve<ILoggerFactory>()
-                    )
-                )
-                .AsSelf()
-                .As<IBuildStatefulRepositories>()
-                .SingleInstance();
+//            builder
+//                .Register<MongoRepositoryFactory>(
+//                    c => new MongoRepositoryFactory(
+//                        c.Resolve<IMongoDatabase>(),
+//                        c.Resolve<ILoggerFactory>()
+//                    )
+//                )
+//                .AsSelf()
+//                .As<IBuildStatefulRepositories>()
+//                .SingleInstance();
             
-            builder
-                .Register<MongoProjectorFactory>(
-                    c => new MongoProjectorFactory(
-                        c.Resolve<MongoRepositoryFactory>()
-                    )
-                )
-                .AsSelf()
-                .As<IBuildProjectors>()
-                .SingleInstance();
+//            builder
+//                .Register<MongoProjectorFactory>(
+//                    c => new MongoProjectorFactory(
+//                        c.Resolve<MongoRepositoryFactory>()
+//                    )
+//                )
+//                .AsSelf()
+//                .As<IBuildProjectors>()
+//                .SingleInstance();
             
             builder
                 .Register<ILogger<IMongoDatabase>>(c => c.Resolve<ILoggerFactory>().CreateLogger<IMongoDatabase>())

@@ -1,9 +1,15 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace SprayChronicle.EventHandling
 {
     public interface IEventProcessor
     {
-        Task Process();
+        
+    }
+    
+    public interface IEventProcessor<in T> : IEventProcessor
+    {
+        Task Process(T payload, DateTime epoch);
     }
 }

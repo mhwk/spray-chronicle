@@ -9,7 +9,7 @@ namespace SprayChronicle.QueryHandling.Test
 {
     public class SubscriptionExecutorTest
     {
-        private readonly IExecuteQueries _executor = Substitute.For<IExecuteQueries>();
+        private readonly IQueryExecutor _executor = Substitute.For<IQueryExecutor>();
 
         [Fact]
         public async Task ItFailsIfNoProcessorProcessesQuery()
@@ -21,9 +21,9 @@ namespace SprayChronicle.QueryHandling.Test
                 .Returns(false);
 
             await Should.ThrowAsync<UnhandledQueryException>(
-                () => new SubscriptionProcessor()
+                () => new SubscriptionRouter()
                     .Subscribe(_executor)
-                    .Process(query)
+                    .Route(query)
             );
         }
         [Fact]
@@ -36,9 +36,9 @@ namespace SprayChronicle.QueryHandling.Test
                 .Throws(new Exception("Projection error"));
 
             await Should.ThrowAsync<Exception>(
-                () => new SubscriptionProcessor()
+                () => new SubscriptionRouter()
                     .Subscribe(_executor)
-                    .Process(query)
+                    .Route(query)
             );
         }
 
@@ -55,9 +55,9 @@ namespace SprayChronicle.QueryHandling.Test
                 .Execute(Arg.Any<object>())
                 .Returns(result);
 
-            (await new SubscriptionProcessor()
+            (await new SubscriptionRouter()
                 .Subscribe(_executor)
-                .Process(query))
+                .Route(query))
                 .ShouldBe(result);
 
             _executor

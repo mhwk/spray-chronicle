@@ -5,25 +5,25 @@ using SprayChronicle.Server;
 
 namespace SprayChronicle.QueryHandling
 {
-    public class LoggingProcessor : IProcessQueries
+    public class LoggingRouter : IQueryRouter
     {
-        private readonly ILogger<IProcessQueries> _logger;
+        private readonly ILogger<IQueryRouter> _logger;
         
         private readonly IMeasure _measure;
 
-        private readonly IProcessQueries _child;
+        private readonly IQueryRouter _child;
 
-        public LoggingProcessor(
-            ILogger<IProcessQueries> logger,
+        public LoggingRouter(
+            ILogger<IQueryRouter> logger,
             IMeasure measure,
-            IProcessQueries child)
+            IQueryRouter child)
         {
             _logger = logger;
             _measure = measure;
             _child = child;
         }
 
-        public async Task<object> Process(object query)
+        public async Task<QueryMetadata[]> Route(object query)
         {
             var measurement = _measure.Start();
             
@@ -33,7 +33,7 @@ namespace SprayChronicle.QueryHandling
             );
 
             try {
-                return await _child.Process(query);
+                return await _child.Route(query);
             } catch (Exception error) {
                 _logger.LogError(
                     error,

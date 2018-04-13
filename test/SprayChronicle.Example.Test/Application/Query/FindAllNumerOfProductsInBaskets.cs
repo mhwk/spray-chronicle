@@ -1,7 +1,6 @@
 using System.Threading.Tasks;
 using SprayChronicle.Example.Application;
 using SprayChronicle.Example.Domain;
-using SprayChronicle.Example.Domain.State;
 using SprayChronicle.QueryHandling;
 using SprayChronicle.Testing;
 using Xunit;
@@ -18,9 +17,9 @@ namespace SprayChronicle.Example.Test.Application.Query
             );
         }
 
-        protected override Task<object> When(IProcessQueries processor)
+        protected override Task<object> When(IQueryRouter processor)
         {
-            return processor.Process(
+            return processor.Route(
                 new NumberOfProductsInBaskets()
             );
         }

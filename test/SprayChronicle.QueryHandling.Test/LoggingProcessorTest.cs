@@ -10,11 +10,11 @@ namespace SprayChronicle.QueryHandling.Test
 {
     public class LoggingProcessorTest
     {
-        private readonly ILogger<IProcessQueries> _logger = Substitute.For<ILogger<IProcessQueries>>();
+        private readonly ILogger<IQueryRouter> _logger = Substitute.For<ILogger<IQueryRouter>>();
         
         private readonly IMeasure _measure = Substitute.For<IMeasure>();
         
-        private readonly IProcessQueries _child = Substitute.For<IProcessQueries>();
+        private readonly IQueryRouter _child = Substitute.For<IQueryRouter>();
 
         [Fact]
         public async Task HappyFlow()
@@ -29,10 +29,10 @@ namespace SprayChronicle.QueryHandling.Test
                 .Stop()
                 .Returns(_measure);
 
-            _child.Process(Arg.Is(command)).Returns(result);
+            _child.Route(Arg.Is(command)).Returns(result);
             
-            (await new LoggingProcessor(_logger, _measure, _child)
-                .Process(command))
+            (await new LoggingRouter(_logger, _measure, _child)
+                .Route(command))
                 .ShouldBe(result);
 
             _logger
@@ -56,11 +56,11 @@ namespace SprayChronicle.QueryHandling.Test
                 .Stop()
                 .Returns(_measure);
 
-            _child.Process(Arg.Is(command)).Throws(error);
+            _child.Route(Arg.Is(command)).Throws(error);
             
             await Should.ThrowAsync<Exception>(
-                async () => await new LoggingProcessor(_logger, _measure, _child)
-                    .Process(command)
+                async () => await new LoggingRouter(_logger, _measure, _child)
+                    .Route(command)
             );
 
             _logger

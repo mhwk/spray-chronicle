@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using SprayChronicle.Example.Domain;
-using SprayChronicle.Example.Domain.State;
 using SprayChronicle.QueryHandling;
 using SprayChronicle.Testing;
 
@@ -16,9 +15,9 @@ namespace SprayChronicle.Example.Test.Application.Query
             );
         }
 
-        protected override Task<object> When(IProcessQueries processor)
+        protected override Task<object> When(IQueryRouter processor)
         {
-            return processor.Process(new Example.Application.PagedNumberOfProductsInBasket(2, 1));
+            return processor.Route(new Example.Application.PagedNumberOfProductsInBasket(2, 1));
         }
 
         protected override void Then(IValidate validate)

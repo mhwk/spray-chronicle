@@ -2,7 +2,7 @@
 
 namespace SprayChronicle.QueryHandling
 {
-    public interface IHandleQueries : IExecuteQueries, IProcessEvents
+    public interface IQueryPipeline : IQueryExecutor, IEventProcessor
     {
         
     }

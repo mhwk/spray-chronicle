@@ -14,9 +14,9 @@ namespace SprayChronicle.CommandHandling
     {
         private readonly IEventSourcingRepository<TSource> _repository;
         
-        private readonly IMessageHandlingStrategy<TSelf> _commandHandlers;
+        private readonly IMessageHandlingStrategy<TSelf> _handlers;
         
-        private readonly IMessageHandlingStrategy<TSelf> _eventHandlers;
+        private readonly IMessageHandlingStrategy<TSelf> _processors;
 
         protected CommandHandler(IEventSourcingRepository<TSource> repository)
             : this(
@@ -28,17 +28,17 @@ namespace SprayChronicle.CommandHandling
         }
 
         protected CommandHandler(
-            IMessageHandlingStrategy<TSelf> commandHandlers,
-            IMessageHandlingStrategy<TSelf> eventHandlers)
+            IMessageHandlingStrategy<TSelf> handlers,
+            IMessageHandlingStrategy<TSelf> processors)
         {
-            _commandHandlers = commandHandlers;
-            _eventHandlers = eventHandlers;
+            _handlers = handlers;
+            _processors = processors;
         }
 
         public async Task Handle(object command)
         {
             try {
-                await _commandHandlers.Tell(this as TSelf, command.ToMessage());
+                await _handlers.Tell(this as TSelf, command.ToMessage());
             } catch (TargetInvocationException error) {
                 ExceptionDispatchInfo.Capture(error.InnerException).Throw();
             } catch (UnhandledMessageException error) {
@@ -55,7 +55,7 @@ namespace SprayChronicle.CommandHandling
 
         public async Task Process(object @event, DateTime at)
         {
-            await _eventHandlers.Tell(this as TSelf, @event.ToMessage(), at);
+            await _processors.Tell(this as TSelf, @event.ToMessage(), at);
         }
 
         protected Scope<TSource> For(string identity)
@@ -80,14 +80,14 @@ namespace SprayChronicle.CommandHandling
                 _identity = identity;
             }
 
-            public async Task Do(Func<TSource> mutate)
+            public async Task Mutate(Func<TSource> mutate)
             {
                 await _repository.Save(
                     mutate()
                 );
             }
             
-            public async Task Do(Func<TState,TSource> mutate)
+            public async Task Mutate(Func<TState,TSource> mutate)
             {
                 await _repository.Save(
                     mutate(

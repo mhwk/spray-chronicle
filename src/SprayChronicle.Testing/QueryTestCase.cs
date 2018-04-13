@@ -15,7 +15,7 @@ namespace SprayChronicle.Testing
 
         protected abstract Task Given(TestStream stream);
 
-        protected abstract Task<object> When(IProcessQueries processor);
+        protected abstract Task<object> When(IQueryRouter processor);
 
         protected abstract void Then(IValidate validate);
 

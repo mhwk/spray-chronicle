@@ -12,28 +12,28 @@ namespace SprayChronicle.QueryHandling
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .RegisterType<SubscriptionProcessor>()
+                .RegisterType<SubscriptionRouter>()
                 .OnActivating(e => RegisterQueryExecutors(e.Context, e.Instance))
                 .AsSelf()
-                .As<IProcessQueries>()
+                .As<IQueryRouter>()
                 .SingleInstance();
             
             builder
-                .Register(c => new LoggingProcessor(
-                    c.Resolve<ILoggerFactory>().Create<IProcessQueries>(),
+                .Register(c => new LoggingRouter(
+                    c.Resolve<ILoggerFactory>().Create<IQueryRouter>(),
                     new MeasureMilliseconds(),
-                    c.Resolve<SubscriptionProcessor>()
+                    c.Resolve<SubscriptionRouter>()
                 ))
                 .SingleInstance();
         }
 
-        private static void RegisterQueryExecutors(IComponentContext context, SubscriptionProcessor processor)
+        private static void RegisterQueryExecutors(IComponentContext context, SubscriptionRouter router)
         {
             context.ComponentRegistry.Registrations
-                .Where(r => r.Activator.LimitType.IsAssignableTo<IExecuteQueries>())
-                .Select(r => context.Resolve(r.Activator.LimitType) as IExecuteQueries)
+                .Where(r => r.Activator.LimitType.IsAssignableTo<IQueryExecutor>())
+                .Select(r => context.Resolve(r.Activator.LimitType) as IQueryExecutor)
                 .ToList()
-                .ForEach(h => processor.Subscribe(h));
+                .ForEach(h => router.Subscribe(h));
         }
         
         public sealed class QueryHandler<TState,THandler> : Module
@@ -75,7 +75,7 @@ namespace SprayChronicle.QueryHandling
                 
                 builder
                     .RegisterType<THandler>()
-                    .As<IExecuteQueries>()
+                    .As<IQueryExecutor>()
                     .As<IProcessEvents>()
                     .PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies)
                     .AsSelf()

@@ -1,170 +1,60 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Threading.Tasks;
 using Raven.Client.Documents;
-using Raven.Client.Documents.Indexes;
-using Sparrow.Platform.Posix.macOS;
-using SprayChronicle.QueryHandling;
+using Raven.Client.Documents.Linq;
+using SprayChronicle.EventHandling;
+using SprayChronicle.Example.Application.State;
 using SprayChronicle.Example.Domain;
-using SprayChronicle.Example.Domain.State;
+using SprayChronicle.Persistence.Raven;
+using SprayChronicle.QueryHandling;
 
 namespace SprayChronicle.Example.Application.Service
 {
-    public sealed class QueryBasketWithProducts : IHandleQueries
+    public sealed class QueryBasketWithProducts : RavenQueryProcessor<BasketWithProducts>,
+        IEventProcessor<BasketPickedUp>,
+        IEventProcessor<ProductAddedToBasket>,
+        IEventProcessor<ProductRemovedFromBasket>,
+        IQueryExecutor<BasketById>,
+        IQueryExecutor<PickedUpPerDay>
     {
-        private readonly IDocumentStore _store;
-
-        public QueryBasketWithProducts(IDocumentStore store)
+        public async Task Process(BasketPickedUp payload, DateTime epoch)
         {
-            _store = store;
+            await For()
+                .Mutate(() => new BasketWithProducts(payload.BasketId, epoch));
+        }
+
+        public async Task Process(ProductAddedToBasket payload, DateTime epoch)
+        {
+            await For(payload.BasketId)
+                .Mutate(basket => basket.AddProductId(payload.ProductId));
+        }
+
+        public async Task Process(ProductRemovedFromBasket payload, DateTime epoch)
+        {
+            await For(payload.BasketId)
+                .Mutate(basket => basket.RemoveProductId(payload.ProductId));
         }
         
-        private void Process(BasketPickedUp @event, DateTime at)
+        public async Task<QueryMetadata> Execute(BasketById query)
         {
-            Repository().Start(() => new BasketWithProducts(@event.BasketId, at));
+            return await For()
+                .Query<QueryBasketWithProducts_BasketById>(baskets => baskets
+                    .Where(b => b.BasketId == query.BasketId, false)
+                    .FirstOrDefaultAsync());
         }
 
-        private void Process(ProductAddedToBasket @event, DateTime at)
+        public async Task<QueryMetadata> Execute(PickedUpPerDay query)
         {
-            Repository().With(@event.BasketId, basket => basket.AddProductId(@event.ProductId));
+            return await For<PickedUpBasketsPerDay>()
+                .Query<QueryBasketWithProducts_PickedUpPerDay>(baskets => baskets
+                    .Skip((query.Page - 1) * 50)
+                    .Take(50)
+                    .ToListAsync());
         }
 
-        private void Process(ProductRemovedFromBasket @event, DateTime at)
+        public void SubscribeTo(SubscriptionRouter router)
         {
-            Repository().With(@event.BasketId, basket => basket.RemoveProductId(@event.ProductId));
-        }
-
-        private object Execute(NumberOfProductsForBasketId query)
-        {
-            return Repository().Load(q => q.FirstOrDefault(item => item.BasketId == query.BasketId));
-        }
-
-        private object Execute(NumberOfProductsInBaskets query)
-        {
-            return Repository().Load(q => q);
-        }
-
-        private object Execute(PagedNumberOfProductsInBasket query)
-        {
-            return Repository().Load(q => q, query.Page, query.PerPage);
-        }
-        
-        public sealed class BasketWithProducts
-        {
-            public string BasketId { get; }
-            
-            public DateTime PickedUpAt { get; }
-
-            public readonly List<string> ProductIds = new List<string>();
-
-            public BasketWithProducts(string basketId, DateTime pickedUpAt)
-            {
-                BasketId = basketId;
-                PickedUpAt = pickedUpAt;
-            }
-
-            public BasketWithProducts AddProductId(string productId)
-            {
-                ProductIds.Add(productId);
-                return this;
-            }
-
-            public BasketWithProducts RemoveProductId(string productId)
-            {
-                ProductIds.Remove(productId);
-                return this;
-            }
-        }
-
-        public sealed class BasketWithProducts_ByBasketId : AbstractIndexCreationTask<BasketWithProducts>
-        {
-            public BasketWithProducts_ByBasketId()
-            {
-                Map = baskets =>
-                    from basket in baskets
-                    select new
-                    {
-                        basket.BasketId
-                    };
-            }
-        }
-
-        public sealed class BasketWithProducts_NumberOfProducts : AbstractIndexCreationTask<BasketWithProducts, BasketWithProducts_NumberOfProducts.Result>
-        {
-            public sealed class Result
-            {
-                public double ProductCount { get; set; }
-            }
-
-            public BasketWithProducts_NumberOfProducts()
-            {
-                Map = baskets =>
-                    from basket in baskets
-                    select new Result
-                    {
-                        ProductCount = basket.ProductIds.Count
-                    };
-            }
-        }
-
-        public sealed class BasketWithProducts_PickedUpPerDay : AbstractIndexCreationTask<BasketWithProducts, BasketWithProducts_PickedUpPerDay.Result>
-        {
-            public sealed class Result
-            {
-                public DateTime PickedUpAt { get; set; }
-                public int Count { get; set; }
-            }
-
-            public BasketWithProducts_PickedUpPerDay()
-            {
-                Map = baskets =>
-                    from basket in baskets
-                    select new Result
-                    {
-                        PickedUpAt = basket.PickedUpAt,
-                        Count = 1
-                    };
-                
-                Reduce = results =>
-                    from result in results
-                    group result by result.PickedUpAt into g
-                    select new Result
-                    {
-                        PickedUpAt = g.Key,
-                        Count = g.Sum(r => r.Count)
-                    };
-            }
-        }
-
-        public bool Executes(object query)
-        {
-            return true;
-        }
-
-        public object Execute(object query)
-        {
-            
-        }
-
-        public bool Processes(object @event, DateTime at)
-        {
-            return true;
-        }
-
-        public void Process(object @event, DateTime at)
-        {
-            switch (@event)
-            {
-                case BasketPickedUp message:
-
-                    break;
-                case ProductAddedToBasket message:
-
-                    break;
-                case ProductRemovedFromBasket message:
-
-                    break;
-            }
+            router.Subscribe(this);
         }
     }
 }

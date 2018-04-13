@@ -2,8 +2,8 @@ using System.Threading.Tasks;
 
 namespace SprayChronicle.QueryHandling
 {
-    public interface IProcessQueries
+    public interface IQueryRouter
     {
-        Task<object> Process(object query);
+        Task<QueryMetadata[]> Route(object query);
     }
 }

@@ -11,12 +11,12 @@ namespace SprayChronicle.Server.Http
 
         readonly IValidator _validator;
 
-        readonly IProcessQueries _processor;
+        readonly IQueryRouter _processor;
 
         public HttpQueryRouteMapper(
             ILogger<HttpQueryProcessor> logger,
             IValidator validator,
-            IProcessQueries processor)
+            IQueryRouter processor)
         {
             _logger = logger;
             _validator = validator;

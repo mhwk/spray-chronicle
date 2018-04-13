@@ -16,25 +16,25 @@ namespace SprayChronicle.Example.Application.Service
         private async Task Handle(PickUpBasket command)
         {
             await For(command.BasketId)
-                .Do(() => Basket.PickUp(command.BasketId));
+                .Mutate(() => Basket.PickUp(command.BasketId));
         }
 
         private async Task Handle(AddProductToBasket command)
         {
             await For<PickedUpBasket>(command.BasketId)
-                .Do(basket => basket.AddProduct(command.ProductId));
+                .Mutate(basket => basket.AddProduct(command.ProductId));
         }
 
         private async Task Handle(RemoveProductFromBasket command)
         {
             await For<PickedUpBasket>(command.BasketId)
-                .Do(basket => basket.RemoveProduct(command.ProductId));
+                .Mutate(basket => basket.RemoveProduct(command.ProductId));
         }
 
         private async Task Handle(CheckOutBasket command)
         {
             await For<PickedUpBasket>(command.BasketId)
-                .Do(basket => basket.CheckOut(command.OrderId));
+                .Mutate(basket => basket.CheckOut(command.OrderId));
         }
     }
 }
