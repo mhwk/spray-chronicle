@@ -1,5 +1,7 @@
-﻿using SprayChronicle.EventHandling;
+﻿using System.Threading.Tasks;
+using SprayChronicle.EventHandling;
 using SprayChronicle.Persistence.Ouro;
+using SprayChronicle.Persistence.Raven;
 using SprayChronicle.Server;
 using SprayChronicle.Server.HealthChecks;
 using SprayChronicle.Server.Http;
@@ -8,14 +10,17 @@ namespace SprayChronicle.Example
 {
     public sealed class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
-            new ChronicleServer()
-                .WithEventHandling()
-                .WithHttp()
+            await new ChronicleServer()
                 .WithHealthChecks()
 //                .WithOuroPersistence()
 //                .WithMongoPersistence()
+                .WithRavenPersistence()
+                .WithEventHandling()
+                .WithCommandHandling()
+                .WithQueryHandling()
+                .WithHttp()
                 .WithModule<Module>()
                 .Run(args);
         }

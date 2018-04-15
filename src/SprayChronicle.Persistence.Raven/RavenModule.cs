@@ -1,13 +1,15 @@
-﻿using System;
-using App.Metrics.Health;
+﻿using App.Metrics.Health;
 using Autofac;
 using Raven.Client.Documents;
+using SprayChronicle.EventHandling;
+using SprayChronicle.EventSourcing;
+using SprayChronicle.MessageHandling;
 using SprayChronicle.QueryHandling;
 using SprayChronicle.Server;
 
 namespace SprayChronicle.Persistence.Raven
 {
-    public class RavenModule : Autofac.Module
+    public class RavenModule : Module
     {
         protected override void Load(ContainerBuilder builder)
         {
@@ -39,7 +41,47 @@ namespace SprayChronicle.Persistence.Raven
 
         private static string DatabaseName()
         {
-            return Environment.GetEnvironmentVariable("RAVENDB_DB");
+            return ChronicleServer.Env("RAVENDB_DB");
+        }
+        
+        public sealed class QueryPipeline<TProcessor,TState> : Module
+            where TProcessor : RavenQueryProcessor<TProcessor,TState>
+            where TState : class
+        {
+            private readonly string _reference;
+
+            private readonly string _streamName;
+
+            public QueryPipeline(string stream)
+                : this(typeof(TState).Name, stream)
+            {}
+
+            public QueryPipeline(string reference, string streamName)
+            {
+                _reference = reference;
+                _streamName = streamName;
+            }
+
+            protected override void Load(ContainerBuilder builder)
+            {
+                builder
+                    .Register(c => new RavenQueryPipeline<TProcessor,TState>(
+                        c.Resolve<IEventSourceFactory<DomainMessage>>().Build(new CatchUpOptions(
+                            _streamName
+                        )),
+                        new QueryQueue(),
+                        c.Resolve<TProcessor>(),
+                        c.Resolve<IDocumentStore>()))
+                    .AsSelf()
+                    .As<IQueryPipeline>()
+                    .As<IQueryRouterSubscriber>()
+                    .SingleInstance();
+                
+                builder
+                    .RegisterType<TProcessor>()
+                    .PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies)
+                    .SingleInstance();
+            }
         }
     }
 }

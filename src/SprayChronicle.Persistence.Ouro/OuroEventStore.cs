@@ -1,15 +1,13 @@
 using System;
 using System.Text;
 using System.Linq;
-using System.Reflection;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Microsoft.Extensions.Logging;
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.SystemData;
 using Newtonsoft.Json;
 using SprayChronicle.EventSourcing;
-using SprayChronicle.MessageHandling;
+using SprayChronicle.Server;
 
 namespace SprayChronicle.Persistence.Ouro
 {
@@ -21,18 +19,14 @@ namespace SprayChronicle.Persistence.Ouro
 
         private readonly UserCredentials _credentials;
 
-        private readonly string _tenant;
-
         public OuroEventStore(
             ILogger<IEventStore> logger,
             IEventStoreConnection eventStore,
-            UserCredentials credentials,
-            string tenant)
+            UserCredentials credentials)
         {
             _logger = logger;
             _eventStore = eventStore;
             _credentials = credentials;
-            _tenant = tenant;
         }
 
         public void Append<T>(string identity, IEnumerable<IDomainMessage> domainMessages)
@@ -76,11 +70,7 @@ namespace SprayChronicle.Persistence.Ouro
             do {
                 var slice = _eventStore.ReadStreamEventsForwardAsync(stream, current, 50, false, _credentials).Result;
                 foreach (var resolvedEvent in slice.Events) {
-                    var metadata = JsonConvert.DeserializeObject<Metadata>(Encoding.UTF8.GetString(resolvedEvent.Event.Metadata));
-
-                    if (metadata.Tenant == _tenant) {
-                        yield return new OuroMessage(resolvedEvent);
-                    }
+                    yield return new OuroMessage(resolvedEvent);
 
                     current++;
                 }
@@ -91,7 +81,7 @@ namespace SprayChronicle.Persistence.Ouro
             _logger.LogDebug("[{0}::load] {1}ms", stream, stopwatch.ElapsedMilliseconds);
         }
 
-        private string Stream<T>(string identity)
+        private static string Stream<T>(string identity)
         {
             if (identity.Equals("")) {
                 throw new InvalidStreamException(string.Format(
@@ -105,18 +95,10 @@ namespace SprayChronicle.Persistence.Ouro
                     identity
                 ));
             }
-            if (null == _tenant) {
-                return string.Format(
-                    "{0}-{1}",
-                    typeof(T).Namespace.Split('.').First(),
-                    identity
-                );
-            }
 
             return string.Format(
-                "{0}-{1}-{2}",
+                "{0}-{2}",
                 typeof(T).Namespace.Split('.').First(),
-                _tenant,
                 identity
             );
         }
@@ -127,10 +109,9 @@ namespace SprayChronicle.Persistence.Ouro
                 Guid.NewGuid(),
                 domainMessage.Name,
                 true,
-                Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(domainMessage.Payload())),
+                Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(domainMessage.Payload)),
                 Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(new Metadata(
-                    domainMessage.Payload().GetType(),
-                    _tenant
+                    domainMessage.Payload.GetType()
                 )))
             );
             

@@ -9,7 +9,7 @@ using SprayChronicle.Persistence.Memory;
 
 namespace SprayChronicle.Testing
 {
-    public sealed class CommandFixture<TModule> : Fixture<TModule,IDispatchCommands,Task,IDispatchCommands,Task> where TModule : IModule, new()
+    public sealed class CommandFixture<TModule> : Fixture<TModule,ICommandRouter,Task,ICommandRouter,Task> where TModule : IModule, new()
     {
         public CommandFixture(): this(builder => {})
         {}
@@ -38,16 +38,16 @@ namespace SprayChronicle.Testing
             Container.Resolve<IManageStreamHandlers>().Manage();
         }
 
-        public override async Task<IExecute<IDispatchCommands, Task>> Given(Func<IDispatchCommands, Task> callback)
+        public override async Task<IExecute<ICommandRouter, Task>> Given(Func<ICommandRouter, Task> callback)
         {
-            await callback(Container.Resolve<ErrorSuppressingDispatcher>());
+            await callback(Container.Resolve<ErrorSuppressingRouter>());
             
             return this;
         }
 
-        public override async Task<IValidate> When(Func<IDispatchCommands,Task> callback)
+        public override async Task<IValidate> When(Func<ICommandRouter,Task> callback)
         {
-            return await CommandValidator.Run(Container, () => callback(Container.Resolve<LoggingDispatcher>()));
+            return await CommandValidator.Run(Container, () => callback(Container.Resolve<LoggingRouter>()));
         }
     }
 }

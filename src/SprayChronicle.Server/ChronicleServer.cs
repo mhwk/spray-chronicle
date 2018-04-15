@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Immutable;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -11,7 +13,9 @@ namespace SprayChronicle.Server
 {
     public sealed class ChronicleServer
     {
-        public void Run(params string[] args)
+        public static ImmutableDictionary<string, string> Variables { get; private set; } = ImmutableDictionary.Create<string,string>();
+        
+        public async Task<int> Run(params string[] args)
         {
             ChronicleLogging.Subscribe(this);
             
@@ -29,7 +33,8 @@ namespace SprayChronicle.Server
                 host.Run();
                 return 0;
             });
-            cli.Execute(args);
+
+            return await Task.Run(() => cli.Execute(args)).ConfigureAwait(false);
         }
 
         public delegate void StartupArgs(IServiceProvider services);
@@ -45,5 +50,31 @@ namespace SprayChronicle.Server
         public ConfigureServicesArgs OnServiceConfigure;
         public BuildApplicationArgs OnApplicationBuild;
         public BuildWebHostArgs OnWebHostBuild;
+
+        public static string Env(string variableName)
+        {
+            if (!Variables.ContainsKey(variableName)) {
+                var value = Environment.GetEnvironmentVariable(variableName);
+            
+                if (null == value) {
+                    throw new MissingConfigurationException($"Environment variable {variableName} not set");
+                }
+
+                Variables = Variables.Add(variableName, value);
+            }
+
+            return Variables[variableName];
+        }
+
+        public static string Env(string variableName, string defaultValue)
+        {
+            if (!Variables.ContainsKey(variableName)) {
+                var value = Environment.GetEnvironmentVariable(variableName);
+
+                Variables = Variables.Add(variableName, value ?? defaultValue);
+            }
+
+            return Variables[variableName];
+        }
     }
 }

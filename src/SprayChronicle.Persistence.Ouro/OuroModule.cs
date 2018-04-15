@@ -1,11 +1,12 @@
 using System;
 using App.Metrics.Health;
 using Autofac;
-using Microsoft.Extensions.Logging;
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.SystemData;
 using SprayChronicle.EventHandling;
 using SprayChronicle.EventSourcing;
+using SprayChronicle.MessageHandling;
+using SprayChronicle.Server;
 
 namespace SprayChronicle.Persistence.Ouro
 {
@@ -14,36 +15,35 @@ namespace SprayChronicle.Persistence.Ouro
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .Register(c => InitEventStore(c))
+                .Register(InitEventStore)
+                .As<IEventStoreConnection>()
                 .SingleInstance();
             
             builder
                 .Register(c => new UserCredentials(
-                    Environment.GetEnvironmentVariable("EVENTSTORE_USERNAME") ?? "admin",
-                    Environment.GetEnvironmentVariable("EVENTSTORE_PASSWORD") ?? "changeit"
+                    ChronicleServer.Env("EVENTSTORE_USERNAME", "admin"),
+                    ChronicleServer.Env("EVENTSTORE_PASSWORD", "changeit")
                 ))
                 .SingleInstance();
             
             builder
                 .Register(c => new OuroEventStore(
-                    c.Resolve<ILoggerFactory>().CreateLogger<IEventStore>(),
+                    c.Resolve<ILoggerFactory>().Create<IEventStore>(),
                     c.Resolve<IEventStoreConnection>(),
-                    c.Resolve<UserCredentials>(),
-                    Environment.GetEnvironmentVariable("EVENTSTORE_TENANT")
+                    c.Resolve<UserCredentials>()
                 ))
                 .AsSelf()
                 .As<IEventStore>()
                 .SingleInstance();
             
             builder
-                .Register(c => new OuroStreamFactory(
-                    c.Resolve<ILoggerFactory>().CreateLogger<IEventStore>(),
+                .Register(c => new OuroSourceFactory(
+                    c.Resolve<ILoggerFactory>().Create<IEventStore>(),
                     c.Resolve<IEventStoreConnection>(),
-                    c.Resolve<UserCredentials>(),
-                    Environment.GetEnvironmentVariable("EVENTSTORE_TENANT")
+                    c.Resolve<UserCredentials>()
                 ))
                 .AsSelf()
-                .As<IBuildStreams>()
+                .As<IEventSourceFactory<DomainMessage>>()
                 .SingleInstance();
             
             builder
@@ -55,7 +55,7 @@ namespace SprayChronicle.Persistence.Ouro
 
         private static IEventStoreConnection InitEventStore(IComponentContext container)
         {
-            return "" != (Environment.GetEnvironmentVariable("EVENTSTORE_CLUSTER_DNS") ?? "")
+            return "" != (ChronicleServer.Env("EVENTSTORE_CLUSTER_DNS") ?? "")
                 ? InitEventStoreCluster(container)
                 : InitEventStoreSingle(container);
         }
@@ -64,10 +64,10 @@ namespace SprayChronicle.Persistence.Ouro
 		{
             var uri = string.Format(
                 "tcp://{0}:{1}@{2}:{3}",
-                Environment.GetEnvironmentVariable("EVENTSTORE_USERNAME") ?? "admin",
-                Environment.GetEnvironmentVariable("EVENTSTORE_PASSWORD") ?? "changeit",
-                Environment.GetEnvironmentVariable("EVENTSTORE_HOST") ?? "127.0.0.1",
-                Environment.GetEnvironmentVariable("EVENTSTORE_PORT") ?? "1113"
+                ChronicleServer.Env("EVENTSTORE_USERNAME", "admin"),
+                ChronicleServer.Env("EVENTSTORE_PASSWORD", "changeit"),
+                ChronicleServer.Env("EVENTSTORE_HOST", "127.0.0.1"),
+                ChronicleServer.Env("EVENTSTORE_PORT", "1113")
             );
 			var connection = EventStoreConnection.Create (
 				ConnectionSettings.Create()
@@ -80,34 +80,34 @@ namespace SprayChronicle.Persistence.Ouro
 			);
 		    
 			connection.ConnectAsync().Wait();
-            container.Resolve<ILoggerFactory>().CreateLogger<IEventStoreConnection>().LogInformation("Connected to eventstore on {0}!", uri);
+            container.Resolve<ILoggerFactory>().Create<IEventStoreConnection>().LogInformation("Connected to eventstore on {0}!", uri);
 
 			return connection;
 		}
 
         private static IEventStoreConnection InitEventStoreCluster(IComponentContext container)
         {
-            var logger = container.Resolve<ILoggerFactory>().CreateLogger<IEventStoreConnection>();
+            var logger = container.Resolve<ILoggerFactory>().Create<IEventStoreConnection>();
             
 			var connection = EventStoreConnection.Create (
                 ConnectionSettings.Create()
                     .KeepReconnecting()
                     .PerformOnAnyNode()
                     .SetDefaultUserCredentials(new UserCredentials(
-                        Environment.GetEnvironmentVariable("EVENTSTORE_USERNAME") ?? "admin",
-                        Environment.GetEnvironmentVariable("EVENTSTORE_PASSWORD") ?? "changeit"
+                        ChronicleServer.Env("EVENTSTORE_USERNAME") ?? "admin",
+                        ChronicleServer.Env("EVENTSTORE_PASSWORD") ?? "changeit"
                     )),
                 ClusterSettings.Create().DiscoverClusterViaDns()
-                    .SetClusterDns(Environment.GetEnvironmentVariable("EVENTSTORE_CLUSTER_DNS") ?? "eventstore")
-                    .SetClusterGossipPort(Int32.Parse(Environment.GetEnvironmentVariable("EVENTSTORE_GOSSIP_PORT") ?? "2113"))
+                    .SetClusterDns(ChronicleServer.Env("EVENTSTORE_CLUSTER_DNS") ?? "eventstore")
+                    .SetClusterGossipPort(Int32.Parse(ChronicleServer.Env("EVENTSTORE_GOSSIP_PORT") ?? "2113"))
                     .PreferRandomNode()
 			);
 			connection.ConnectAsync().Wait();
 
             logger.LogInformation(
                 "Connected to eventstore cluster dns {0}:{1}!",
-                Environment.GetEnvironmentVariable("EVENTSTORE_CLUSTER_DNS"),
-                Environment.GetEnvironmentVariable("EVENTSTORE_GOSSIP_PORT") ?? "2113"
+                ChronicleServer.Env("EVENTSTORE_CLUSTER_DNS"),
+                ChronicleServer.Env("EVENTSTORE_GOSSIP_PORT") ?? "2113"
             );
 
 			return connection;

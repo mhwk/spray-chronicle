@@ -1,41 +1,37 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Raven.Client.Documents.Indexes;
+using Raven.Client.Documents.Linq;
+using SprayChronicle.EventHandling;
 using SprayChronicle.Persistence.Ouro;
 using SprayChronicle.QueryHandling;
 
 namespace SprayChronicle.Persistence.Raven
 {
-    public abstract class RavenQueryProcessor<TState> : IQueryProcessor
+    public abstract class RavenQueryProcessor<TProcessor,TState> : IExecute, IProcess
+        where TProcessor : RavenQueryProcessor<TProcessor,TState>
         where TState : class
     {
-        private readonly List<IQueryScope> _scopes = new List<IQueryScope>();
-
-        public RavenQueryScope<TState,TState> For()
+        protected EventProcessed<TState> Process()
         {
-            var scope = new RavenQueryScope<TState,TState>();
-            _scopes.Add(scope);
-            return scope;
+            return new EventProcessed<TState>();
         }
         
-        public RavenQueryScope<TState,TState> For(string identity)
+        protected EventProcessed<TState> Process(string identity)
         {
-            var scope = new RavenQueryScope<TState,TState>(identity);
-            _scopes.Add(scope);
-            return scope;
-        }
-        
-        public RavenQueryScope<TState,TResult> For<TResult>() where TResult : class
-        {
-            var scope = new RavenQueryScope<TState,TResult>();
-            _scopes.Add(scope);
-            return scope;
+            return new EventProcessed<TState>(identity);
         }
 
-        public IQueryScope[] Dequeue {
-            get {
-                var scopes = _scopes.ToArray();
-                _scopes.Clear();
-                return scopes;
-            }
+        protected RavenQueryExecuted<TState> Execute()
+        {
+            return new RavenQueryExecuted<TState>();
+        }
+        
+        protected RavenQueryExecuted<TState,TFilter> Execute<TFilter>()
+            where TFilter : AbstractIndexCreationTask, new()
+        {
+            return new RavenQueryExecuted<TState,TFilter>();
         }
     }
 }

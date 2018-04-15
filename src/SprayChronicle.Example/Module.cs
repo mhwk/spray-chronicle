@@ -3,7 +3,7 @@ using SprayChronicle.CommandHandling;
 using SprayChronicle.Example.Application.Service;
 using SprayChronicle.Example.Application.State;
 using SprayChronicle.Example.Domain.Model;
-using SprayChronicle.QueryHandling;
+using SprayChronicle.Persistence.Raven;
 
 namespace SprayChronicle.Example
 {
@@ -11,11 +11,10 @@ namespace SprayChronicle.Example
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterCommandHandler<Basket, HandleBasket>("$ce-SprayChronicle");
-            builder.RegisterCommandHandler<Order, HandleOrder>("$ce-SprayChronicle");
+            CommandHandlingExtensions.RegisterPipeline<Basket, HandleBasket>(builder, "$ce-SprayChronicle");
+            CommandHandlingExtensions.RegisterPipeline<Order, HandleOrder>(builder, "$ce-SprayChronicle");
             
-            builder.RegisterQueryHandler<BasketWithProducts, QueryBasketWithProducts>("$ce-SprayChronicle");
-            builder.RegisterQueryHandler<PickedUpBasketsPerDay, QueryPickedUpBasketsPerDay>("$ce-SprayChronicle");
+            RavenExtensions.RegisterPipeline<QueryBasketWithProducts,BasketWithProducts>(builder, "$ce-SprayChronicle");
         }
     }
 }

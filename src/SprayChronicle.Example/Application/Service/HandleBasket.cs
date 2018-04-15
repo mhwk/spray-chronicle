@@ -1,39 +1,37 @@
-using System;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting.Internal;
 using SprayChronicle.CommandHandling;
 using SprayChronicle.EventSourcing;
 using SprayChronicle.Example.Domain.Model;
 
 namespace SprayChronicle.Example.Application.Service
 {
-    public sealed class HandleBasket : CommandHandler<HandleBasket, Basket>
+    public sealed class HandleBasket : CommandHandler<HandleBasket, Basket>,
+        IHandle<PickUpBasket>,
+        IHandle<AddProductToBasket>,
+        IHandle<RemoveProductFromBasket>,
+        IHandle<CheckOutBasket>
     {
-        public HandleBasket(IEventSourcingRepository<Basket> repository): base(repository)
+        public async Task<CommandHandled> Handle(PickUpBasket command)
         {
-        }
-        
-        private async Task Handle(PickUpBasket command)
-        {
-            await For(command.BasketId)
+            return await Handle(command.BasketId)
                 .Mutate(() => Basket.PickUp(command.BasketId));
         }
 
-        private async Task Handle(AddProductToBasket command)
+        public async Task<CommandHandled> Handle(AddProductToBasket command)
         {
-            await For<PickedUpBasket>(command.BasketId)
+            return await Handle<PickedUpBasket>(command.BasketId)
                 .Mutate(basket => basket.AddProduct(command.ProductId));
         }
 
-        private async Task Handle(RemoveProductFromBasket command)
+        public async Task<CommandHandled> Handle(RemoveProductFromBasket command)
         {
-            await For<PickedUpBasket>(command.BasketId)
+            return await Handle<PickedUpBasket>(command.BasketId)
                 .Mutate(basket => basket.RemoveProduct(command.ProductId));
         }
 
-        private async Task Handle(CheckOutBasket command)
+        public async Task<CommandHandled> Handle(CheckOutBasket command)
         {
-            await For<PickedUpBasket>(command.BasketId)
+            return await Handle<PickedUpBasket>(command.BasketId)
                 .Mutate(basket => basket.CheckOut(command.OrderId));
         }
     }

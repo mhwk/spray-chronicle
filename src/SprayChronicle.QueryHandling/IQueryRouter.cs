@@ -4,6 +4,6 @@ namespace SprayChronicle.QueryHandling
 {
     public interface IQueryRouter
     {
-        Task<QueryMetadata[]> Route(object query);
+        Task<object> Route(object query);
     }
 }

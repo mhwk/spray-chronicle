@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using Autofac;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -78,6 +79,10 @@ namespace SprayChronicle.Server
                 "                                                MHWK\n" +
                 "\n"
             );
+
+            LoggerFrom(services).LogInformation(
+                $"Environment variables:\n{string.Join("\n", ChronicleServer.Variables.Select(kv => $"  {kv.Key}={kv.Value}"))}"
+            );
         }
 
         private static void OnShutdown(IServiceProvider services)
@@ -102,7 +107,7 @@ namespace SprayChronicle.Server
 
         private static void OnWebHostBuild(IWebHostBuilder webhost)
         {
-            switch (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")) {
+            switch (ChronicleServer.Env("ASPNETCORE_ENVIRONMENT", "Development")) {
                 default:
                     webhost.ConfigureLogging(configure => configure.SetMinimumLevel(LogLevel.Information));
                     break;

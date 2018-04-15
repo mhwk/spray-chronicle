@@ -12,50 +12,50 @@ namespace SprayChronicle.CommandHandling
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .RegisterType<SubscriptionDispatcher>()
+                .RegisterType<SubscriptionRouter>()
                 .AsSelf()
-                .As<IDispatchCommands>()
+                .As<ICommandRouter>()
                 .OnActivating(e => RegisterCommandHandlers(e.Context, e.Instance))
                 .SingleInstance();
             
             builder
-                .Register(c => new LoggingDispatcher(
-                    c.Resolve<ILoggerFactory>().Create<IDispatchCommands>(),
+                .Register(c => new LoggingRouter(
+                    c.Resolve<ILoggerFactory>().Create<ICommandRouter>(),
                     new MeasureMilliseconds(),
-                    c.Resolve<SubscriptionDispatcher>()
+                    c.Resolve<SubscriptionRouter>()
                 ))
                 .AsSelf()
                 .SingleInstance();
             
             builder
-                .Register(c => new ErrorSuppressingDispatcher(
-                    c.Resolve<LoggingDispatcher>()
+                .Register(c => new ErrorSuppressingRouter(
+                    c.Resolve<LoggingRouter>()
                 ))
                 .AsSelf()
                 .SingleInstance();
         }
 
-        private static void RegisterCommandHandlers(IComponentContext context, SubscriptionDispatcher dispatcher)
+        private static void RegisterCommandHandlers(IComponentContext context, SubscriptionRouter router)
         {
             context.ComponentRegistry.Registrations
                 .Where(r => r.Activator.LimitType.IsAssignableTo<IHandleCommands>())
                 .Select(r => context.Resolve(r.Activator.LimitType) as IHandleCommands)
                 .ToList()
-                .ForEach(handler => dispatcher.Subscribe(handler));
+                .ForEach(handler => router.Subscribe(handler));
         }
 
-        public class CommandHandler<TSourced,THandler> : Module
+        public sealed class CommandPipeline<TSourced,THandler> : Module
             where TSourced : EventSourced<TSourced>
             where THandler : IHandleCommands, IProcessEvents
         {
             private readonly string _stream;
             
-            public CommandHandler()
+            public CommandPipeline()
             {
                 _stream = null;
             }
 
-            public CommandHandler(string stream)
+            public CommandPipeline(string stream)
             {
                 _stream = stream;
             }
@@ -79,7 +79,7 @@ namespace SprayChronicle.CommandHandling
                 if (null != _stream) {
                     builder.RegisterEventHandler<THandler>(
                         _stream,
-                        reg => reg.IsRegistered(new TypedService(typeof(SubscriptionDispatcher)))
+                        reg => reg.IsRegistered(new TypedService(typeof(SubscriptionRouter)))
                     );
                 }
             }

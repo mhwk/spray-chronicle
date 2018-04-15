@@ -11,9 +11,9 @@ namespace SprayChronicle.Testing
         protected virtual void Configure(ContainerBuilder builder)
         {}
 
-        protected abstract Task Given(IDispatchCommands dispatcher);
+        protected abstract Task Given(ICommandRouter dispatcher);
 
-        protected abstract Task When(IDispatchCommands dispatcher);
+        protected abstract Task When(ICommandRouter dispatcher);
 
         protected abstract void Then(IValidate validator);
 

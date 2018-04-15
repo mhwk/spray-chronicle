@@ -8,7 +8,7 @@ namespace SprayChronicle.MessageHandling
         
         public DateTime Epoch { get; }
 
-        private readonly object _payload;
+        public object Payload { get; }
         
         public Message(object payload) : this(payload, DateTime.Now)
         {
@@ -18,12 +18,7 @@ namespace SprayChronicle.MessageHandling
         {
             Name = payload.GetType().Name;
             Epoch = epoch;
-            _payload = payload;
-        }
-
-        public object Payload()
-        {
-            return _payload;
+            Payload = payload;
         }
     }
 }

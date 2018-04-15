@@ -8,6 +8,6 @@ namespace SprayChronicle.MessageHandling
         
         DateTime Epoch { get; }
 
-        object Payload();
+        object Payload { get; }
     }
 }

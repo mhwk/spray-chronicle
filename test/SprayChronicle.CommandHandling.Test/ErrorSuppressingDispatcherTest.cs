@@ -8,14 +8,14 @@ namespace SprayChronicle.CommandHandling.Test
 {
     public class ErrorSuppressingDispatcherTest
     {
-        private readonly IDispatchCommands _child = Substitute.For<IDispatchCommands>();
+        private readonly ICommandRouter _child = Substitute.For<ICommandRouter>();
         
         [Fact]
         public async Task ItSuppressesErrors()
         {
             var command = new object();
-            _child.Dispatch(Arg.Is(command)).Throws(new Exception("Whoops"));
-            await new ErrorSuppressingDispatcher(_child).Dispatch(command);
+            _child.Route(Arg.Is(command)).Throws(new Exception("Whoops"));
+            await new ErrorSuppressingRouter(_child).Route(command);
         }
     }
 }

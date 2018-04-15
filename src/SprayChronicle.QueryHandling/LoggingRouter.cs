@@ -23,7 +23,7 @@ namespace SprayChronicle.QueryHandling
             _child = child;
         }
 
-        public async Task<QueryMetadata[]> Route(object query)
+        public async Task<object> Route(object query)
         {
             var measurement = _measure.Start();
             

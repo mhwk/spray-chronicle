@@ -10,11 +10,11 @@ namespace SprayChronicle.CommandHandling.Test
 {
     public class LoggingDispatcherTest
     {
-        private readonly ILogger<IDispatchCommands> _logger = Substitute.For<ILogger<IDispatchCommands>>();
+        private readonly ILogger<ICommandRouter> _logger = Substitute.For<ILogger<ICommandRouter>>();
         
         private readonly IMeasure _measure = Substitute.For<IMeasure>();
         
-        private readonly IDispatchCommands _child = Substitute.For<IDispatchCommands>();
+        private readonly ICommandRouter _child = Substitute.For<ICommandRouter>();
 
         [Fact]
         public async Task HappyFlow()
@@ -28,7 +28,7 @@ namespace SprayChronicle.CommandHandling.Test
                 .Stop()
                 .Returns(_measure);
             
-            await new LoggingDispatcher(_logger, _measure, _child).Dispatch(command);
+            await new LoggingRouter(_logger, _measure, _child).Route(command);
 
             _logger
                 .Received()
@@ -51,10 +51,10 @@ namespace SprayChronicle.CommandHandling.Test
                 .Stop()
                 .Returns(_measure);
             _child
-                .Dispatch(Arg.Any<object>())
+                .Route(Arg.Any<object>())
                 .Throws(error);
             
-            await Should.ThrowAsync<UnhandledCommandException>(() => new LoggingDispatcher(_logger, _measure, _child).Dispatch(command));
+            await Should.ThrowAsync<UnhandledCommandException>(() => new LoggingRouter(_logger, _measure, _child).Route(command));
 
             _logger
                 .Received()
@@ -80,10 +80,10 @@ namespace SprayChronicle.CommandHandling.Test
                 .Stop()
                 .Returns(_measure);
             _child
-                .Dispatch(Arg.Any<object>())
+                .Route(Arg.Any<object>())
                 .Throws(error);
 
-            await Should.ThrowAsync<Exception>(() => new LoggingDispatcher(_logger, _measure, _child).Dispatch(command));
+            await Should.ThrowAsync<Exception>(() => new LoggingRouter(_logger, _measure, _child).Route(command));
 
             _logger
                 .Received()

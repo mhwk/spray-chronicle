@@ -9,7 +9,7 @@ namespace SprayChronicle.QueryHandling.Test
 {
     public class SubscriptionExecutorTest
     {
-        private readonly IQueryExecutor _executor = Substitute.For<IQueryExecutor>();
+        private readonly IExecute _executor = Substitute.For<IExecute>();
 
         [Fact]
         public async Task ItFailsIfNoProcessorProcessesQuery()

@@ -5,56 +5,52 @@ using Raven.Client.Documents.Linq;
 using SprayChronicle.EventHandling;
 using SprayChronicle.Example.Application.State;
 using SprayChronicle.Example.Domain;
+using SprayChronicle.Example.Domain.Model;
 using SprayChronicle.Persistence.Raven;
 using SprayChronicle.QueryHandling;
 
 namespace SprayChronicle.Example.Application.Service
 {
-    public sealed class QueryBasketWithProducts : RavenQueryProcessor<BasketWithProducts>,
-        IEventProcessor<BasketPickedUp>,
-        IEventProcessor<ProductAddedToBasket>,
-        IEventProcessor<ProductRemovedFromBasket>,
-        IQueryExecutor<BasketById>,
-        IQueryExecutor<PickedUpPerDay>
+    public sealed class QueryBasketWithProducts : RavenQueryProcessor<QueryBasketWithProducts,BasketWithProducts>,
+        IProcess<BasketPickedUp>,
+        IProcess<ProductAddedToBasket>,
+        IProcess<ProductRemovedFromBasket>,
+        IExecute<BasketById>,
+        IExecute<PickedUpPerDay>
     {
-        public async Task Process(BasketPickedUp payload, DateTime epoch)
+        public async Task<EventProcessed> Process(BasketPickedUp payload, DateTime epoch)
         {
-            await For()
+            return await Process()
                 .Mutate(() => new BasketWithProducts(payload.BasketId, epoch));
         }
 
-        public async Task Process(ProductAddedToBasket payload, DateTime epoch)
+        public async Task<EventProcessed> Process(ProductAddedToBasket payload, DateTime epoch)
         {
-            await For(payload.BasketId)
+            return await Process(payload.BasketId)
                 .Mutate(basket => basket.AddProductId(payload.ProductId));
         }
 
-        public async Task Process(ProductRemovedFromBasket payload, DateTime epoch)
+        public async Task<EventProcessed> Process(ProductRemovedFromBasket payload, DateTime epoch)
         {
-            await For(payload.BasketId)
+            return await Process(payload.BasketId)
                 .Mutate(basket => basket.RemoveProductId(payload.ProductId));
         }
         
-        public async Task<QueryMetadata> Execute(BasketById query)
+        public async Task<QueryExecuted> Execute(BasketById query)
         {
-            return await For()
-                .Query<QueryBasketWithProducts_BasketById>(baskets => baskets
+            return await Execute<QueryBasketWithProducts_BasketById>()
+                .Query(baskets => baskets
                     .Where(b => b.BasketId == query.BasketId, false)
                     .FirstOrDefaultAsync());
         }
 
-        public async Task<QueryMetadata> Execute(PickedUpPerDay query)
+        public async Task<QueryExecuted> Execute(PickedUpPerDay query)
         {
-            return await For<PickedUpBasketsPerDay>()
-                .Query<QueryBasketWithProducts_PickedUpPerDay>(baskets => baskets
+            return await Execute<QueryBasketWithProducts_PickedUpPerDay>()
+                .Query<PickedUpBasketsPerDay>(baskets => baskets
                     .Skip((query.Page - 1) * 50)
                     .Take(50)
                     .ToListAsync());
-        }
-
-        public void SubscribeTo(SubscriptionRouter router)
-        {
-            router.Subscribe(this);
         }
     }
 }

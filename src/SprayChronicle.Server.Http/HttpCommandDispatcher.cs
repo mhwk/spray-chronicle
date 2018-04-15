@@ -17,7 +17,7 @@ namespace SprayChronicle.Server.Http
 
         private readonly IValidator _validator;
 
-        private readonly IDispatchCommands _dispatcher;
+        private readonly ICommandRouter _dispatcher;
 
         private readonly Type _type;
 
@@ -31,7 +31,7 @@ namespace SprayChronicle.Server.Http
         public HttpCommandDispatcher(
             ILogger<HttpCommandDispatcher> logger,
             IValidator validator,
-            IDispatchCommands dispatcher,
+            ICommandRouter dispatcher,
             Type type)
         {
             _logger = logger;
@@ -51,7 +51,7 @@ namespace SprayChronicle.Server.Http
                     _validator.Validate(payload);
 
                     _logger.LogDebug("Dispatching {0} {1}", _type, JsonConvert.SerializeObject(payload));
-                    await _dispatcher.Dispatch(payload);
+                    await _dispatcher.Route(payload);
                     response.StatusCode = 200;
                     await response.WriteAsync(JsonConvert.SerializeObject(new {
                         Success = true

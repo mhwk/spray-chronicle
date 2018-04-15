@@ -51,52 +51,54 @@ namespace SprayChronicle.MessageHandling
             );
         }
 
-        public Task Tell(T subject, IMessage message, params object[] arguments)
+        public Task Tell(T subject, params object[] arguments)
         {
-            var builtArguments = BuildArguments(message, arguments);
-
-            ResolveMethod(subject, builtArguments).Invoke(this, builtArguments);
+            ResolveMethod(subject, arguments).Invoke(this, arguments);
 
             return Task.CompletedTask;
         }
 
-        public Task<TResult> Ask<TResult>(T subject, IMessage message, params object[] arguments) where TResult : class
+        public Task<TResult> Ask<TResult>(T subject, params object[] arguments) where TResult : class
         {
-            var builtArguments = BuildArguments(message, arguments);
-            
-            return Task.FromResult(ResolveMethod(subject, builtArguments).Invoke(subject, builtArguments) as TResult);
+            return Task.FromResult(ResolveMethod(subject, arguments).Invoke(subject, arguments) as TResult);
         }
 
-        private MethodInfo ResolveMethod(T subject, params object[] builtArguments)
+        public void EachType(Action<Type> action)
         {
-            var methods = _messageToMethod.MethodsFor(builtArguments);
+            _nameToMessage.ToList().ForEach(kv => action(kv.Value));
+        }
+
+        public bool Resolves(T subject, params Type[] types)
+        {
+            return _messageToMethod.MethodsForTypes(types).Any();
+        }
+
+        public bool Resolves<TResult>(T subject, params Type[] types)
+        {
+            return _messageToMethod.MethodsForTypes(types).Any(m => m.ReturnType == typeof(T));
+        }
+
+        private MethodInfo ResolveMethod(T subject, params object[] arguments)
+        {
+            var methods = _messageToMethod.MethodsFor(arguments);
             
             if ( ! methods.Any()) {
                 throw new UnhandledMessageException(
-                    $"[{typeof(T)}] No handler methods found with args {string.Join(", ", builtArguments.Select(a => a.GetType()))}"
+                    $"[{typeof(T)}] No handler methods found with args {string.Join(", ", arguments.Select(a => a.GetType()))}"
                 );
             }
             
             var stateMethods = null == subject
-                ? _messageToMethod.MethodsFor(builtArguments).Where(method => method.IsStatic).ToList()
-                : _messageToMethod.MethodsFor(builtArguments).Where(method => ! method.IsStatic && method.DeclaringType.IsInstanceOfType(subject)).ToList();
+                ? _messageToMethod.MethodsFor(arguments).Where(method => method.IsStatic).ToList()
+                : _messageToMethod.MethodsFor(arguments).Where(method => ! method.IsStatic && method.DeclaringType.IsInstanceOfType(subject)).ToList();
 
             if (methods.Any() && ! stateMethods.Any()) {
                 throw new UnexpectedStateException(
-                    $"[{typeof(T)}] No handler methods found for state {(null == subject ? "null" : subject.GetType().ToString())} with args {string.Join(", ", builtArguments.Select(a => a.GetType()))}"
+                    $"[{typeof(T)}] No handler methods found for state {(null == subject ? "null" : subject.GetType().ToString())} with args {string.Join(", ", arguments.Select(a => a.GetType()))}"
                 );
             }
 
             return stateMethods.First();
-        }
-
-        private static object[] BuildArguments(IMessage message, params object[] arguments)
-        {
-            var args = new List<object> {message.Payload()};
-            
-            args.AddRange(arguments);
-            
-            return args.ToArray();
         }
     }
 }
