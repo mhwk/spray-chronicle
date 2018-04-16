@@ -100,21 +100,27 @@ namespace SprayChronicle.QueryHandling
 
         protected abstract Task<object> ApplyQuery(QueryExecuted<TSession> executed);
         
-        public void Subscribe(SubscriptionRouter subscriptionRouter)
+        public void Subscribe(IRouter<IExecute> router)
         {
-            _queryStrategy.EachType(type => subscriptionRouter.Subscribe(type, query => {
-                return Task.Run(() =>
-                {
-                    var onComplete = new TaskCompletionSource<object>();
+            router.Subscribe(_queryStrategy as IMessageHandlingStrategy<IExecute>, arguments =>
+            {
+                var onComplete = new TaskCompletionSource<object>();
 
-                    _queries.Post(new QueryRequest(
-                        query,
-                        result => onComplete.TrySetResult(result)
-                    ));
+                _queries.Post(new QueryRequest(
+                    arguments,
+                    result => onComplete.TrySetResult(result)
+                ));
 
-                    return onComplete.Task;
-                });
-            }));
+                return onComplete.Task;
+            });
+        }
+
+        public void Subscribe(IRouter<IProcess> router)
+        {
+            router.Subscribe(_eventStrategy as IMessageHandlingStrategy<IProcess>, arguments =>
+            {
+                throw new NotImplementedException();
+            });
         }
     }
 }

@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace SprayChronicle.MessageHandling
 {
-    public abstract class TypeLocator : ILocateTypes
+    public abstract class TypeLocator : ITypeLocator
     {
         public IEnumerable<Type> LocateTypesWithAttribute<T>()
         {

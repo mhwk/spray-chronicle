@@ -1,26 +1,39 @@
 using System;
 using System.Threading.Tasks;
+using SprayChronicle.MessageHandling;
 
 namespace SprayChronicle.CommandHandling
 {
-    public class ErrorSuppressingRouter : ICommandRouter
+    public class ErrorSuppressingRouter : IRouter<IHandle>
     {
-        private readonly ICommandRouter _child;
+        private readonly IRouter<IHandle> _child;
 
-        public ErrorSuppressingRouter(ICommandRouter child)
+        public ErrorSuppressingRouter(IRouter<IHandle> child)
         {
             _child = child;
         }
 
-        public async Task Route(params object[] commands)
+        public IRouter<IHandle> Subscribe(IMessageHandlingStrategy<IHandle> strategy, HandleMessage handler)
         {
-            foreach (var command in commands) {
-                try {
-                    await _child.Route(command);
-                } catch (Exception) {
-                    // ignored
-                }
+            _child.Subscribe(strategy, handler);
+            return this;
+        }
+
+        public IRouter<IHandle> Subscribe(IRouterSubscriber<IHandle> subscriber)
+        {
+            _child.Subscribe(subscriber);
+            return this;
+        }
+
+        public async Task<object> Route(params object[] arguments)
+        {
+            try {
+                await _child.Route(arguments);
+            } catch (Exception) {
+                // ignored
             }
+
+            return null;
         }
     }
 }

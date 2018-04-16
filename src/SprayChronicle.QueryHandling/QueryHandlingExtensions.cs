@@ -1,13 +1,14 @@
 using Autofac;
+using SprayChronicle.Server;
 
 namespace SprayChronicle.QueryHandling
 {
     public static class QueryHandlingExtensions
     {
-        public static ContainerBuilder RegisterQueryHandling(this ContainerBuilder builder)
+        public static ChronicleServer WithQueryHandling(this ChronicleServer server)
         {
-            builder.RegisterModule<QueryHandlingModule>();
-            return builder;
+            server.OnAutofacConfigure += builder => builder.RegisterModule<QueryHandlingModule>();
+            return server;
         }
     }
 }

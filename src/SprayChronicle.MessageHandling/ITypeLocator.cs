@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SprayChronicle.MessageHandling
 {
-    public interface ILocateTypes
+    public interface ITypeLocator
     {
         IEnumerable<Type> LocateTypesWithAttribute<T>();
 

@@ -1,50 +1,62 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
+using SprayChronicle.MessageHandling;
 using SprayChronicle.Server;
 
 namespace SprayChronicle.CommandHandling
 {
-    public class LoggingRouter : ICommandRouter
+    public class LoggingRouter : IRouter<IHandle>
     {
-        private readonly ILogger<ICommandRouter> _logger;
+        private readonly ILogger<IRouter<IHandle>> _logger;
         
         private readonly IMeasure _measure;
 
-        private readonly ICommandRouter _child;
+        private readonly IRouter<IHandle> _child;
 
-        public LoggingRouter(ILogger<ICommandRouter> logger, IMeasure measure, ICommandRouter child)
+        public LoggingRouter(ILogger<IRouter<IHandle>> logger, IMeasure measure, IRouter<IHandle> child)
         {
             _logger = logger;
             _measure = measure;
             _child = child;
         }
 
-        public async Task Route(params object[] commands)
+        public IRouter<IHandle> Subscribe(IMessageHandlingStrategy<IHandle> strategy, HandleMessage handler)
         {
-            foreach (var command in commands) {
-                var measure = _measure.Start();
-                
-                _logger.LogDebug("{0}: Dispatching...", command.GetType().Name);
+            _child.Subscribe(strategy, handler);
+            return this;
+        }
 
-                try {
-                    await _child.Route(command);
-                } catch (UnhandledCommandException error) {
-                    _logger.LogWarning(
-                        error,
-                        "{0}: Not handled",
-                        command.GetType().Name
-                    );
-                    throw;
-                } catch (Exception error) {
-                    _logger.LogDebug(
-                        error,
-                        "{0}: Domain exception",
-                        command.GetType().Name
-                    );
-                    throw;
-                } finally {
-                    _logger.LogInformation("{0}: {1}", command.GetType().Name, measure);
-                }
+        public IRouter<IHandle> Subscribe(IRouterSubscriber<IHandle> subscriber)
+        {
+            _child.Subscribe(subscriber);
+            return this;
+        }
+
+        public async Task<object> Route(params object[] arguments)
+        {
+            var measure = _measure.Start();
+            var argList = string.Join(", ", arguments.Select(a => a.GetType().ToString()));
+            
+            _logger.LogDebug($"{argList}: Dispatching...");
+
+            try {
+                await _child.Route(arguments);
+                return null;
+            } catch (UnhandledCommandException error) {
+                _logger.LogWarning(
+                    error,
+                    $"{argList}: Not handled"
+                );
+                throw;
+            } catch (Exception error) {
+                _logger.LogDebug(
+                    error,
+                    $"{argList}: Domain exception"
+                );
+                throw;
+            } finally {
+                _logger.LogInformation($"{argList}: {measure}");
             }
         }
     }

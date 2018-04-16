@@ -1,7 +1,6 @@
 using Autofac;
 using SprayChronicle.CommandHandling;
 using SprayChronicle.QueryHandling;
-using SubscriptionRouter = SprayChronicle.CommandHandling.SubscriptionRouter;
 
 namespace SprayChronicle.Server.Http
 {
@@ -13,7 +12,7 @@ namespace SprayChronicle.Server.Http
                 .Register(c => new HttpCommandRouteMapper(
                     c.Resolve<ILoggerFactory>().Create<HttpCommandDispatcher>(),
                     c.Resolve<IValidator>(),
-                    c.Resolve<SubscriptionRouter>()
+                    c.Resolve<CommandRouter>()
                 ))
                 .SingleInstance();
 
@@ -21,7 +20,7 @@ namespace SprayChronicle.Server.Http
                 .Register(c => new HttpQueryRouteMapper(
                     c.Resolve<ILoggerFactory>().Create<HttpQueryProcessor>(),
                     c.Resolve<IValidator>(),
-                    c.Resolve<QueryHandling.SubscriptionRouter>()
+                    c.Resolve<QueryHandling.QueryRouter>()
                 ))
                 .SingleInstance();
             

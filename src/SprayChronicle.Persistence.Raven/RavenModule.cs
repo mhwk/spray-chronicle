@@ -74,7 +74,7 @@ namespace SprayChronicle.Persistence.Raven
                         c.Resolve<IDocumentStore>()))
                     .AsSelf()
                     .As<IQueryPipeline>()
-                    .As<IQueryRouterSubscriber>()
+                    .As<IRouterSubscriber<IExecute>>()
                     .SingleInstance();
                 
                 builder

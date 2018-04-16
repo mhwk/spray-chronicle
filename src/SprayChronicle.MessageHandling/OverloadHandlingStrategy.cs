@@ -18,7 +18,7 @@ namespace SprayChronicle.MessageHandling
         {
         }
         
-        public OverloadHandlingStrategy(ILocateTypes locator)
+        public OverloadHandlingStrategy(ITypeLocator locator)
         {
             locator.LocateTypesWithParent<T>()
                 .SelectMany(type => type.GetMethods(BindingFlags))
@@ -27,7 +27,7 @@ namespace SprayChronicle.MessageHandling
                 .ForEach(AddMethod);
         }
 
-        public OverloadHandlingStrategy(ILocateTypes locator, string methodName)
+        public OverloadHandlingStrategy(ITypeLocator locator, string methodName)
         {
             locator.LocateTypesWithParent<T>()
                 .SelectMany(type => type.GetMethods(BindingFlags))
@@ -43,12 +43,6 @@ namespace SprayChronicle.MessageHandling
             if ( ! _nameToMessage.ContainsKey(method.GetParameters().First().ParameterType.Name)) {
                 _nameToMessage.Add(method.GetParameters().First().ParameterType.Name, method.GetParameters().First().ParameterType);
             }
-            
-            MessageHandlingMetadata.Append<T>(
-                method.GetParameters().First().ParameterType.Name,
-                method.GetParameters().First().ParameterType,
-                method
-            );
         }
 
         public Task Tell(T subject, params object[] arguments)
@@ -63,19 +57,24 @@ namespace SprayChronicle.MessageHandling
             return Task.FromResult(ResolveMethod(subject, arguments).Invoke(subject, arguments) as TResult);
         }
 
-        public void EachType(Action<Type> action)
-        {
-            _nameToMessage.ToList().ForEach(kv => action(kv.Value));
-        }
-
-        public bool Resolves(T subject, params Type[] types)
+        public bool Resolves(params Type[] types)
         {
             return _messageToMethod.MethodsForTypes(types).Any();
         }
 
-        public bool Resolves<TResult>(T subject, params Type[] types)
+        public bool Resolves(params object[] arguments)
+        {
+            return Resolves(arguments.Select(a => a.GetType()).ToArray());
+        }
+
+        public bool Resolves<TResult>(params Type[] types)
         {
             return _messageToMethod.MethodsForTypes(types).Any(m => m.ReturnType == typeof(T));
+        }
+
+        public bool Resolves<TResult>(params object[] arguments)
+        {
+            return Resolves<TResult>(arguments.Select(a => a.GetType()).ToArray());
         }
 
         private MethodInfo ResolveMethod(T subject, params object[] arguments)

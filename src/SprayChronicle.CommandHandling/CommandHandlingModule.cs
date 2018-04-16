@@ -3,6 +3,7 @@ using Autofac;
 using Autofac.Core;
 using SprayChronicle.EventHandling;
 using SprayChronicle.EventSourcing;
+using SprayChronicle.MessageHandling;
 using SprayChronicle.Server;
 
 namespace SprayChronicle.CommandHandling
@@ -12,19 +13,19 @@ namespace SprayChronicle.CommandHandling
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .RegisterType<SubscriptionRouter>()
+                .RegisterType<CommandRouter>()
                 .AsSelf()
-                .As<ICommandRouter>()
                 .OnActivating(e => RegisterCommandHandlers(e.Context, e.Instance))
                 .SingleInstance();
             
             builder
                 .Register(c => new LoggingRouter(
-                    c.Resolve<ILoggerFactory>().Create<ICommandRouter>(),
+                    c.Resolve<ILoggerFactory>().Create<IRouter<IHandle>>(),
                     new MeasureMilliseconds(),
-                    c.Resolve<SubscriptionRouter>()
+                    c.Resolve<CommandRouter>()
                 ))
                 .AsSelf()
+                .As<IRouter<IHandle>>()
                 .SingleInstance();
             
             builder
@@ -35,11 +36,11 @@ namespace SprayChronicle.CommandHandling
                 .SingleInstance();
         }
 
-        private static void RegisterCommandHandlers(IComponentContext context, SubscriptionRouter router)
+        private static void RegisterCommandHandlers(IComponentContext context, CommandRouter router)
         {
             context.ComponentRegistry.Registrations
-                .Where(r => r.Activator.LimitType.IsAssignableTo<IHandleCommands>())
-                .Select(r => context.Resolve(r.Activator.LimitType) as IHandleCommands)
+                .Where(r => r.Activator.LimitType.IsAssignableTo<IRouterSubscriber<IHandle>>())
+                .Select(r => context.Resolve(r.Activator.LimitType) as IRouterSubscriber<IHandle>)
                 .ToList()
                 .ForEach(handler => router.Subscribe(handler));
         }
@@ -79,7 +80,7 @@ namespace SprayChronicle.CommandHandling
                 if (null != _stream) {
                     builder.RegisterEventHandler<THandler>(
                         _stream,
-                        reg => reg.IsRegistered(new TypedService(typeof(SubscriptionRouter)))
+                        reg => reg.IsRegistered(new TypedService(typeof(CommandRouter)))
                     );
                 }
             }

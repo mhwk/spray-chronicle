@@ -21,7 +21,7 @@ namespace SprayChronicle.QueryHandling.Test
                 .Returns(false);
 
             await Should.ThrowAsync<UnhandledQueryException>(
-                () => new SubscriptionRouter()
+                () => new QueryRouter()
                     .Subscribe(_executor)
                     .Route(query)
             );
@@ -36,7 +36,7 @@ namespace SprayChronicle.QueryHandling.Test
                 .Throws(new Exception("Projection error"));
 
             await Should.ThrowAsync<Exception>(
-                () => new SubscriptionRouter()
+                () => new QueryRouter()
                     .Subscribe(_executor)
                     .Route(query)
             );
@@ -55,7 +55,7 @@ namespace SprayChronicle.QueryHandling.Test
                 .Execute(Arg.Any<object>())
                 .Returns(result);
 
-            (await new SubscriptionRouter()
+            (await new QueryRouter()
                 .Subscribe(_executor)
                 .Route(query))
                 .ShouldBe(result);

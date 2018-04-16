@@ -13,7 +13,7 @@ namespace SprayChronicle.CommandHandling.Test
         public async Task ItFailsIfNoSubscriptions()
         {
             await Should.ThrowAsync<UnhandledCommandException>(
-                async () => await new SubscriptionRouter()
+                async () => await new CommandRouter()
                     .Route(new object())
             );
         }
@@ -24,7 +24,7 @@ namespace SprayChronicle.CommandHandling.Test
             _commandHandler.Handles(Arg.Any<object>()).Returns(false);
 
             await Should.ThrowAsync<UnhandledCommandException>(
-                async () => await new SubscriptionRouter()
+                async () => await new CommandRouter()
                     .Subscribe(_commandHandler)
                     .Route(new object())
             );
@@ -35,7 +35,7 @@ namespace SprayChronicle.CommandHandling.Test
         {
             _commandHandler.Handles(Arg.Any<object>()).Returns(true);
 
-            await new SubscriptionRouter()
+            await new CommandRouter()
                 .Subscribe(_commandHandler)
                 .Route(new object());
         }

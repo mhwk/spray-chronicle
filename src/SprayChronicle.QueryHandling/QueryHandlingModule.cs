@@ -1,5 +1,6 @@
 using Autofac;
 using System.Linq;
+using SprayChronicle.MessageHandling;
 using SprayChronicle.Server;
 
 namespace SprayChronicle.QueryHandling
@@ -9,26 +10,26 @@ namespace SprayChronicle.QueryHandling
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .RegisterType<SubscriptionRouter>()
+                .RegisterType<QueryRouter>()
                 .OnActivating(e => SubscribeRoutables(e.Context, e.Instance))
                 .SingleInstance();
             
             builder
                 .Register(c => new LoggingRouter(
-                    c.Resolve<ILoggerFactory>().Create<IQueryRouter>(),
+                    c.Resolve<ILoggerFactory>().Create<IRouter<IExecute>>(),
                     new MeasureMilliseconds(),
-                    c.Resolve<SubscriptionRouter>()
+                    c.Resolve<QueryRouter>()
                 ))
                 .AsSelf()
-                .As<IQueryRouter>()
+                .As<IRouter<IExecute>>()
                 .SingleInstance();
         }
 
-        private static void SubscribeRoutables(IComponentContext context, SubscriptionRouter router)
+        private static void SubscribeRoutables(IComponentContext context, QueryRouter router)
         {
             context.ComponentRegistry.Registrations
-                .Where(s => s.Activator.LimitType.IsAssignableTo<IQueryRouterSubscriber>())
-                .Select(s => context.Resolve(s.Activator.LimitType) as IQueryRouterSubscriber)
+                .Where(s => s.Activator.LimitType.IsAssignableTo<IRouterSubscriber<IExecute>>())
+                .Select(s => context.Resolve(s.Activator.LimitType) as IRouterSubscriber<IExecute>)
                 .ToList()
                 .ForEach(s => router.Subscribe(s));
         }
