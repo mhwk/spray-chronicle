@@ -6,6 +6,7 @@ using SprayChronicle.Example.Domain.Model;
 using System.Linq;
 using System.Threading.Tasks;
 using SprayChronicle.EventHandling;
+using Processed = SprayChronicle.EventHandling.Processed;
 
 namespace SprayChronicle.Example.Application.Service
 {
@@ -13,21 +14,22 @@ namespace SprayChronicle.Example.Application.Service
         IHandle<GenerateOrder>,
         IProcess<BasketCheckedOut>
     {
-        public async Task<CommandHandled> Handle(GenerateOrder command)
+        public async Task<Handled> Handle(GenerateOrder command)
         {
-            return await Handle(command.OrderId)
+            return await Handle()
                 .Mutate(() => Order.Generate(
                     command.OrderId,
                     command.ProductIds.Cast<ProductId>().ToArray()
                 ));
         }
         
-        public async Task<EventProcessed> Process(BasketCheckedOut message, DateTime epoch)
+        public async Task<Processed> Process(BasketCheckedOut message, DateTime epoch)
         {
-            return await Dispatch(new GenerateOrder(
-                message.OrderId,
-                message.ProductIds
-            ));
+            return await Process()
+                .Dispatch(new GenerateOrder(
+                    message.OrderId,
+                    message.ProductIds
+                ));
         }
     }
 }

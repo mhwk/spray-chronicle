@@ -2,7 +2,7 @@ using SprayChronicle.MessageHandling;
 
 namespace SprayChronicle.CommandHandling
 {
-    public sealed class CommandRouter : OneToOneRouter<IHandle>
+    public sealed class CommandRouter : MessagingStrategyRouter<IHandle>
     {
         
     }

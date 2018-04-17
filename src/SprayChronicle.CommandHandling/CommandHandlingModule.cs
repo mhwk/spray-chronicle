@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Threading.Tasks.Dataflow;
 using Autofac;
 using Autofac.Core;
 using SprayChronicle.EventHandling;
@@ -20,12 +21,11 @@ namespace SprayChronicle.CommandHandling
             
             builder
                 .Register(c => new LoggingRouter(
-                    c.Resolve<ILoggerFactory>().Create<IRouter<IHandle>>(),
+                    c.Resolve<ILoggerFactory>().Create<IHandle>(),
                     new MeasureMilliseconds(),
                     c.Resolve<CommandRouter>()
                 ))
                 .AsSelf()
-                .As<IRouter<IHandle>>()
                 .SingleInstance();
             
             builder
@@ -39,26 +39,26 @@ namespace SprayChronicle.CommandHandling
         private static void RegisterCommandHandlers(IComponentContext context, CommandRouter router)
         {
             context.ComponentRegistry.Registrations
-                .Where(r => r.Activator.LimitType.IsAssignableTo<IRouterSubscriber<IHandle>>())
-                .Select(r => context.Resolve(r.Activator.LimitType) as IRouterSubscriber<IHandle>)
+                .Where(r => r.Activator.LimitType.IsAssignableTo<IMessagingStrategyRouterSubscriber<IHandle>>())
+                .Select(r => context.Resolve(r.Activator.LimitType) as IMessagingStrategyRouterSubscriber<IHandle>)
                 .ToList()
                 .ForEach(handler => router.Subscribe(handler));
         }
 
-        public sealed class CommandPipeline<TSourced,THandler> : Module
+        public sealed class CommandPipeline<THandler,TSourced> : Module
+            where THandler : class, IHandle, IProcess
             where TSourced : EventSourced<TSourced>
-            where THandler : IHandleCommands, IProcessEvents
         {
-            private readonly string _stream;
+            private readonly string _streamName;
             
             public CommandPipeline()
             {
-                _stream = null;
+                _streamName = null;
             }
 
-            public CommandPipeline(string stream)
+            public CommandPipeline(string streamName)
             {
-                _stream = stream;
+                _streamName = streamName;
             }
 
             protected override void Load(ContainerBuilder builder)
@@ -72,16 +72,31 @@ namespace SprayChronicle.CommandHandling
                 builder
                     .RegisterType<THandler>()
                     .PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies)
-                    .As<IHandleCommands>()
                     .AsSelf()
                     .SingleInstance();
 
+                builder
+                    .Register(c => new HandlingPipeline<THandler, TSourced>(
+                        c.Resolve<IEventSourcingRepository<TSourced>>(),
+                        c.Resolve<THandler>()
+                    ))
+                    .AsSelf()
+                    .As<IPipeline>()
+                    .As<IMessagingStrategyRouterSubscriber<IHandle>>()
+                    .SingleInstance();
+
                 
-                if (null != _stream) {
-                    builder.RegisterEventHandler<THandler>(
-                        _stream,
-                        reg => reg.IsRegistered(new TypedService(typeof(CommandRouter)))
-                    );
+                if (null != _streamName) {
+                    builder
+                        .Register(c => new ProcessingPipeline<THandler>(
+                            c.Resolve<IEventSourceFactory<DomainMessage>>().Build(new CatchUpOptions(
+                                _streamName
+                            )),
+                            c.Resolve<LoggingRouter>(),
+                            c.Resolve<THandler>()))
+                        .AsSelf()
+                        .As<IPipeline>()
+                        .SingleInstance();
                 }
             }
         }

@@ -10,6 +10,6 @@ namespace SprayChronicle.EventHandling
     
     public interface IProcess<in T> : IProcess
     {
-        Task<EventProcessed> Process(T payload, DateTime epoch);
+        Task<Processed> Process(T payload, DateTime epoch);
     }
 }

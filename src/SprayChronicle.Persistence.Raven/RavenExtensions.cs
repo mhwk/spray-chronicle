@@ -5,7 +5,7 @@ namespace SprayChronicle.Persistence.Raven
 {
     public static class RavenExtensions
     {
-        public static ContainerBuilder RegisterQueryPipeline<TProcessor,TState>(
+        public static ContainerBuilder RegisterQueryExecutor<TProcessor,TState>(
             this ContainerBuilder builder,
             string streamName)
             where TProcessor : RavenQueryProcessor<TProcessor,TState>

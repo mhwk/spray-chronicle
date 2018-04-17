@@ -9,6 +9,7 @@ using SprayChronicle.Server;
 namespace SprayChronicle.Persistence.Ouro
 {
     public sealed class PersistentSource<TSourceTarget> : OuroSource<TSourceTarget>
+        where TSourceTarget : class
     {
         private readonly ILogger<IEventStore> _logger;
 

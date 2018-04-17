@@ -1,53 +1,30 @@
-using System;
-using System.Reflection;
-using System.Runtime.ExceptionServices;
-using System.Threading.Tasks;
 using SprayChronicle.EventHandling;
 using SprayChronicle.EventSourcing;
-using SprayChronicle.MessageHandling;
 
 namespace SprayChronicle.CommandHandling
 {
-    public abstract class CommandHandler<TSelf, TSource> : IHandle, IProcess
-        where TSelf : CommandHandler<TSelf, TSource>
-        where TSource : IEventSourcable<TSource>
+    public abstract class CommandHandler<TSelf, TState> : IHandle, IProcess
+        where TSelf : CommandHandler<TSelf, TState>
+        where TState : class, IEventSourcable<TState>
     {
-        private readonly IEventSourcingRepository<TSource> _repository;
+        protected HandledFactory<TState> Handle()
+        {
+            return new HandledFactory<TState>();
+        }
         
-        private readonly IMessageHandlingStrategy<TSelf> _handlers;
-        
-        private readonly IMessageHandlingStrategy<TSelf> _processors;
-
-        protected CommandHandler(IEventSourcingRepository<TSource> repository)
-            : this(
-                new OverloadHandlingStrategy<TSelf>("Handle"),
-                new OverloadHandlingStrategy<TSelf>("Process")
-            )
+        protected HandledFactory<TState,TState> Handle(string identity)
         {
-            _repository = repository;
+            return new HandledFactory<TState,TState>(identity);
         }
 
-        protected CommandHandler(
-            IMessageHandlingStrategy<TSelf> handlers,
-            IMessageHandlingStrategy<TSelf> processors)
+        protected HandledFactory<TStart,TState> Handle<TStart>(string identity) where TStart : class
         {
-            _handlers = handlers;
-            _processors = processors;
+            return new HandledFactory<TStart,TState>(identity);
         }
 
-        protected CommandHandled<TSource,TSource> Handle(string identity)
+        protected ProcessedFactory Process()
         {
-            return new CommandHandled<TSource,TSource>(identity);
-        }
-
-        protected CommandHandled<TSource,TState> Handle<TState>(string identity) where TState : TSource
-        {
-            return new CommandHandled<TSource,TState>(identity);
-        }
-
-        protected EventProcessed Dispatch(object command)
-        {
-            throw new NotImplementedException();
+            return new ProcessedFactory();
         }
     }
 }

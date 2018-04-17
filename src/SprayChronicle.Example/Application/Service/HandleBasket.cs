@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using SprayChronicle.CommandHandling;
-using SprayChronicle.EventSourcing;
 using SprayChronicle.Example.Domain.Model;
 
 namespace SprayChronicle.Example.Application.Service
@@ -11,25 +10,25 @@ namespace SprayChronicle.Example.Application.Service
         IHandle<RemoveProductFromBasket>,
         IHandle<CheckOutBasket>
     {
-        public async Task<CommandHandled> Handle(PickUpBasket command)
+        public async Task<Handled> Handle(PickUpBasket command)
         {
-            return await Handle(command.BasketId)
+            return await Handle()
                 .Mutate(() => Basket.PickUp(command.BasketId));
         }
 
-        public async Task<CommandHandled> Handle(AddProductToBasket command)
+        public async Task<Handled> Handle(AddProductToBasket command)
         {
             return await Handle<PickedUpBasket>(command.BasketId)
                 .Mutate(basket => basket.AddProduct(command.ProductId));
         }
 
-        public async Task<CommandHandled> Handle(RemoveProductFromBasket command)
+        public async Task<Handled> Handle(RemoveProductFromBasket command)
         {
             return await Handle<PickedUpBasket>(command.BasketId)
                 .Mutate(basket => basket.RemoveProduct(command.ProductId));
         }
 
-        public async Task<CommandHandled> Handle(CheckOutBasket command)
+        public async Task<Handled> Handle(CheckOutBasket command)
         {
             return await Handle<PickedUpBasket>(command.BasketId)
                 .Mutate(basket => basket.CheckOut(command.OrderId));

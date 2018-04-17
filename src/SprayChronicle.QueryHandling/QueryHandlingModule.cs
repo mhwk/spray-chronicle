@@ -12,24 +12,24 @@ namespace SprayChronicle.QueryHandling
             builder
                 .RegisterType<QueryRouter>()
                 .OnActivating(e => SubscribeRoutables(e.Context, e.Instance))
+                .AsSelf()
                 .SingleInstance();
             
             builder
                 .Register(c => new LoggingRouter(
-                    c.Resolve<ILoggerFactory>().Create<IRouter<IExecute>>(),
+                    c.Resolve<ILoggerFactory>().Create<IExecute>(),
                     new MeasureMilliseconds(),
                     c.Resolve<QueryRouter>()
                 ))
                 .AsSelf()
-                .As<IRouter<IExecute>>()
                 .SingleInstance();
         }
 
         private static void SubscribeRoutables(IComponentContext context, QueryRouter router)
         {
             context.ComponentRegistry.Registrations
-                .Where(s => s.Activator.LimitType.IsAssignableTo<IRouterSubscriber<IExecute>>())
-                .Select(s => context.Resolve(s.Activator.LimitType) as IRouterSubscriber<IExecute>)
+                .Where(s => s.Activator.LimitType.IsAssignableTo<IMessagingStrategyRouterSubscriber<IExecute>>())
+                .Select(s => context.Resolve(s.Activator.LimitType) as IMessagingStrategyRouterSubscriber<IExecute>)
                 .ToList()
                 .ForEach(s => router.Subscribe(s));
         }

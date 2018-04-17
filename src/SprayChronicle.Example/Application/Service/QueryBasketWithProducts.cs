@@ -18,25 +18,25 @@ namespace SprayChronicle.Example.Application.Service
         IExecute<BasketById>,
         IExecute<PickedUpPerDay>
     {
-        public async Task<EventProcessed> Process(BasketPickedUp payload, DateTime epoch)
+        public async Task<Processed> Process(BasketPickedUp payload, DateTime epoch)
         {
             return await Process()
                 .Mutate(() => new BasketWithProducts(payload.BasketId, epoch));
         }
 
-        public async Task<EventProcessed> Process(ProductAddedToBasket payload, DateTime epoch)
+        public async Task<Processed> Process(ProductAddedToBasket payload, DateTime epoch)
         {
             return await Process(payload.BasketId)
                 .Mutate(basket => basket.AddProductId(payload.ProductId));
         }
 
-        public async Task<EventProcessed> Process(ProductRemovedFromBasket payload, DateTime epoch)
+        public async Task<Processed> Process(ProductRemovedFromBasket payload, DateTime epoch)
         {
             return await Process(payload.BasketId)
                 .Mutate(basket => basket.RemoveProductId(payload.ProductId));
         }
         
-        public async Task<QueryExecuted> Execute(BasketById query)
+        public async Task<Executor> Execute(BasketById query)
         {
             return await Execute<QueryBasketWithProducts_BasketById>()
                 .Query(baskets => baskets
@@ -44,7 +44,7 @@ namespace SprayChronicle.Example.Application.Service
                     .FirstOrDefaultAsync());
         }
 
-        public async Task<QueryExecuted> Execute(PickedUpPerDay query)
+        public async Task<Executor> Execute(PickedUpPerDay query)
         {
             return await Execute<QueryBasketWithProducts_PickedUpPerDay>()
                 .Query<PickedUpBasketsPerDay>(baskets => baskets

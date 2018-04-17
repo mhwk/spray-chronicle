@@ -7,7 +7,7 @@ namespace SprayChronicle.MessageHandling
 {
     public class MethodsForTypeDictionary
     {
-        private readonly Dictionary<Type[],List<MethodInfo>> _map  = new Dictionary<Type[],List<MethodInfo>>(new TypeEqualityComparer());
+        private readonly Dictionary<Type[],List<MethodInfo>> _map  = new Dictionary<Type[],List<MethodInfo>>(new CompareTypeEquality());
 
         public void Add(Type[] type, MethodInfo methodInfo)
         {

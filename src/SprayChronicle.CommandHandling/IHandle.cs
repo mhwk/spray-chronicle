@@ -10,6 +10,6 @@ namespace SprayChronicle.CommandHandling
     public interface IHandle<in TCommand>
         where TCommand : class
     {
-        Task<CommandHandled> Handle(TCommand command);
+        Task<Handled> Handle(TCommand command);
     }
 }

@@ -3,7 +3,7 @@ using SprayChronicle.MessageHandling;
 
 namespace SprayChronicle.CommandHandling
 {
-    public interface ICommandPipeline : IPipeline, IRouterSubscriber<IHandle>, IRouterSubscriber<IProcess>
+    public interface ICommandHandlingPipeline : IPipeline, IMessagingStrategyRouterSubscriber<IHandle>
     {
         
     }

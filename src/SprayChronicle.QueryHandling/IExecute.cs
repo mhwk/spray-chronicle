@@ -9,6 +9,6 @@ namespace SprayChronicle.QueryHandling
     
     public interface IExecute<in T> : IExecute
     {
-        Task<QueryExecuted> Execute(T query);
+        Task<Executor> Execute(T query);
     }
 }

@@ -13,9 +13,9 @@ namespace SprayChronicle.CommandHandling
             return server;
         }
 
-        public static ContainerBuilder RegisterCommandPipeline<THandler,TState>(this ContainerBuilder builder, string stream)
-            where THandler : IHandle, IProcess
-            where TState : class
+        public static ContainerBuilder RegisterCommandHandler<THandler,TState>(this ContainerBuilder builder, string stream)
+            where THandler : class, IHandle, IProcess
+            where TState : EventSourced<TState>
         {
             builder.RegisterModule(new CommandHandlingModule.CommandPipeline<THandler,TState>(stream));
             return builder;

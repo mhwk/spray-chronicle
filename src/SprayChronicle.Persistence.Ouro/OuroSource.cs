@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
@@ -10,9 +12,12 @@ using SprayChronicle.MessageHandling;
 
 namespace SprayChronicle.Persistence.Ouro
 {
-    public abstract class OuroSource<TSourceTarget> : IEventSource<DomainMessage>
+    public abstract class OuroSource<TSourceTarget> : IEventSource<DomainMessage>, IMessagingStrategyRouter<TSourceTarget>
+        where TSourceTarget : class
     {
         protected readonly TransformBlock<ResolvedEvent,DomainMessage> _domainMessages;
+
+        private readonly Dictionary<IMessagingStrategy<TSourceTarget>, HandleMessage> _strategies = new Dictionary<IMessagingStrategy<TSourceTarget>, HandleMessage>();
 
         private readonly int _sleepMS = 100;
 
@@ -51,18 +56,15 @@ namespace SprayChronicle.Persistence.Ouro
 
         protected abstract Task StopBuffering();
 
-        public Task Stop()
+        private Task<DomainMessage> ConsumeResolvedEvent(ResolvedEvent resolvedEvent)
         {
-            _running = false;
-            return Task.CompletedTask;
-        }
-
-        protected static Task<DomainMessage> ConsumeResolvedEvent(ResolvedEvent resolvedEvent)
-        {
-            var type = MessageHandlingMetadata.For<TSourceTarget>(resolvedEvent.Event.EventType);
-            if (null == type) {
+            var strategy = _strategies.FirstOrDefault(s => s.Key.Resolves(resolvedEvent.Event.EventType)).Key;
+            
+            if (null == strategy) {
                 return null;
             }
+
+            var type = strategy.ToType(resolvedEvent.Event.EventType);
             
             Console.WriteLine($"Consumed {resolvedEvent.Event.EventType} into {type}");
             return Task.FromResult(new DomainMessage(
@@ -107,6 +109,18 @@ namespace SprayChronicle.Persistence.Ouro
         public void ReleaseReservation(DataflowMessageHeader messageHeader, ITargetBlock<DomainMessage> target)
         {
             ((ISourceBlock<DomainMessage>)_domainMessages).ReleaseReservation(messageHeader, target);
+        }
+
+        public IMessagingStrategyRouter<TSourceTarget> Subscribe(IMessagingStrategy<TSourceTarget> strategy, HandleMessage handler)
+        {
+            _strategies.Add(strategy, handler);
+            return this;
+        }
+
+        public IMessagingStrategyRouter<TSourceTarget> Subscribe(IMessagingStrategyRouterSubscriber<TSourceTarget> subscriber)
+        {
+            subscriber.Subscribe(this);
+            return this;
         }
     }
 }

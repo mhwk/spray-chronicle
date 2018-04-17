@@ -8,34 +8,22 @@ using SprayChronicle.Server;
 
 namespace SprayChronicle.QueryHandling
 {
-    public class LoggingRouter : IRouter<IExecute>
+    public class LoggingRouter : IMessageRouter
     {
-        private readonly ILogger<IRouter<IExecute>> _logger;
+        private readonly ILogger<IExecute> _logger;
         
         private readonly IMeasure _measure;
 
-        private readonly IRouter<IExecute> _child;
+        private readonly IMessageRouter _child;
 
         public LoggingRouter(
-            ILogger<IRouter<IExecute>> logger,
+            ILogger<IExecute> logger,
             IMeasure measure,
-            IRouter<IExecute> child)
+            IMessageRouter child)
         {
             _logger = logger;
             _measure = measure;
             _child = child;
-        }
-
-        public IRouter<IExecute> Subscribe(IMessageHandlingStrategy<IExecute> strategy, HandleMessage handler)
-        {
-            _child.Subscribe(strategy, handler);
-            return this;
-        }
-
-        public IRouter<IExecute> Subscribe(IRouterSubscriber<IExecute> subscriber)
-        {
-            _child.Subscribe(subscriber);
-            return this;
         }
 
         public Task<object> Route(params object[] arguments)

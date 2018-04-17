@@ -1,4 +1,5 @@
-﻿using App.Metrics.Health;
+﻿using System.Threading.Tasks.Dataflow;
+using App.Metrics.Health;
 using Autofac;
 using Raven.Client.Documents;
 using SprayChronicle.EventHandling;
@@ -65,16 +66,24 @@ namespace SprayChronicle.Persistence.Raven
             protected override void Load(ContainerBuilder builder)
             {
                 builder
-                    .Register(c => new RavenQueryPipeline<TProcessor,TState>(
+                    .Register(c => new RavenExecutionPipeline<TProcessor,TState>(
+                        c.Resolve<IDocumentStore>(),
+                        c.Resolve<TProcessor>()))
+                    .AsSelf()
+                    .As<IQueryPipeline>()
+                    .As<IMessagingStrategyRouterSubscriber<IExecute>>()
+                    .SingleInstance();
+                
+                builder
+                    .Register(c => new RavenProcessingPipeline<TProcessor,TState>(
+                        c.Resolve<IDocumentStore>(),
                         c.Resolve<IEventSourceFactory<DomainMessage>>().Build(new CatchUpOptions(
                             _streamName
                         )),
-                        new QueryQueue(),
-                        c.Resolve<TProcessor>(),
-                        c.Resolve<IDocumentStore>()))
+                        c.Resolve<TProcessor>()))
                     .AsSelf()
                     .As<IQueryPipeline>()
-                    .As<IRouterSubscriber<IExecute>>()
+                    .As<IMessagingStrategyRouterSubscriber<IExecute>>()
                     .SingleInstance();
                 
                 builder

@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Raven.Client.Documents.Indexes;
-using Raven.Client.Documents.Linq;
+﻿using Raven.Client.Documents.Indexes;
 using SprayChronicle.EventHandling;
-using SprayChronicle.Persistence.Ouro;
 using SprayChronicle.QueryHandling;
 
 namespace SprayChronicle.Persistence.Raven
@@ -13,25 +8,25 @@ namespace SprayChronicle.Persistence.Raven
         where TProcessor : RavenQueryProcessor<TProcessor,TState>
         where TState : class
     {
-        protected EventProcessed<TState> Process()
+        protected RavenProcessorFactory<TState> Process()
         {
-            return new EventProcessed<TState>();
+            return new RavenProcessorFactory<TState>();
         }
         
-        protected EventProcessed<TState> Process(string identity)
+        protected RavenProcessorFactory<TState> Process(string identity)
         {
-            return new EventProcessed<TState>(identity);
+            return new RavenProcessorFactory<TState>(identity);
         }
 
-        protected RavenQueryExecuted<TState> Execute()
+        protected RavenExecutedFactory<TState> Execute()
         {
-            return new RavenQueryExecuted<TState>();
+            return new RavenExecutedFactory<TState>();
         }
         
-        protected RavenQueryExecuted<TState,TFilter> Execute<TFilter>()
+        protected RavenExecutorFactory<TState,TFilter> Execute<TFilter>()
             where TFilter : AbstractIndexCreationTask, new()
         {
-            return new RavenQueryExecuted<TState,TFilter>();
+            return new RavenExecutorFactory<TState,TFilter>();
         }
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SprayChronicle.MessageHandling
 {
-    public sealed class OverloadHandlingStrategy<T> : IMessageHandlingStrategy<T> where T : class
+    public sealed class OverloadMessagingStrategy<T> : IMessagingStrategy<T> where T : class
     {
         private const BindingFlags BindingFlags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.DeclaredOnly;
 
@@ -14,11 +14,11 @@ namespace SprayChronicle.MessageHandling
         
         private readonly Dictionary<string,Type> _nameToMessage = new Dictionary<string,Type>();
         
-        public OverloadHandlingStrategy(string methodName) : this(new ContextTypeLocator<T>(), methodName)
+        public OverloadMessagingStrategy(string methodName) : this(new ContextTypeLocator<T>(), methodName)
         {
         }
         
-        public OverloadHandlingStrategy(ITypeLocator locator)
+        public OverloadMessagingStrategy(ITypeLocator locator)
         {
             locator.LocateTypesWithParent<T>()
                 .SelectMany(type => type.GetMethods(BindingFlags))
@@ -27,7 +27,7 @@ namespace SprayChronicle.MessageHandling
                 .ForEach(AddMethod);
         }
 
-        public OverloadHandlingStrategy(ITypeLocator locator, string methodName)
+        public OverloadMessagingStrategy(ITypeLocator locator, string methodName)
         {
             locator.LocateTypesWithParent<T>()
                 .SelectMany(type => type.GetMethods(BindingFlags))
@@ -55,6 +55,20 @@ namespace SprayChronicle.MessageHandling
         public Task<TResult> Ask<TResult>(T subject, params object[] arguments) where TResult : class
         {
             return Task.FromResult(ResolveMethod(subject, arguments).Invoke(subject, arguments) as TResult);
+        }
+
+        public Type ToType(string messageName)
+        {
+            if (_nameToMessage.ContainsKey(messageName)) return _nameToMessage[messageName];
+            
+            var messageList = string.Join(", ", _nameToMessage.Select(kv => kv.Key));
+            throw new ArgumentException($"Message {messageName} not valid for {typeof(T)}, accepts only ({messageList})");
+
+        }
+
+        public bool Resolves(string messageName)
+        {
+            return _nameToMessage.ContainsKey(messageName);
         }
 
         public bool Resolves(params Type[] types)

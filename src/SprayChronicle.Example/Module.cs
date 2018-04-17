@@ -11,10 +11,10 @@ namespace SprayChronicle.Example
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterCommandPipeline<HandleBasket,Basket>("$ce-SprayChronicle");
-            builder.RegisterCommandPipeline<HandleOrder,Order>("$ce-SprayChronicle");
+            builder.RegisterCommandHandler<HandleBasket,Basket>("$ce-SprayChronicle");
+            builder.RegisterCommandHandler<HandleOrder,Order>("$ce-SprayChronicle");
             
-            builder.RegisterCommandPipeline<QueryBasketWithProducts,BasketWithProducts>("$ce-SprayChronicle");
+            builder.RegisterQueryExecutor<QueryBasketWithProducts,BasketWithProducts>("$ce-SprayChronicle");
         }
     }
 }

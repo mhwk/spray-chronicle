@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 
 namespace SprayChronicle.MessageHandling
 {
-    public abstract class OneToOneRouter<THandler> : IRouter<THandler>
+    public abstract class MessagingStrategyRouter<THandler> : IMessageRouter, IMessagingStrategyRouter<THandler>
         where THandler : class
     {
-        private readonly Dictionary<IMessageHandlingStrategy<THandler>,HandleMessage> _strategies = new Dictionary<IMessageHandlingStrategy<THandler>,HandleMessage>();
+        private readonly Dictionary<IMessagingStrategy<THandler>,HandleMessage> _strategies = new Dictionary<IMessagingStrategy<THandler>,HandleMessage>();
 
-        public IRouter<THandler> Subscribe(IMessageHandlingStrategy<THandler> strategy, HandleMessage handler)
+        public IMessagingStrategyRouter<THandler> Subscribe(IMessagingStrategy<THandler> strategy, HandleMessage handler)
         {
             if (_strategies.ContainsKey(strategy)) {
                 throw new Exception($"Strategy {strategy.GetType()} already subscribed");
@@ -21,7 +21,7 @@ namespace SprayChronicle.MessageHandling
             return this;
         }
 
-        public IRouter<THandler> Subscribe(IRouterSubscriber<THandler> subscriber)
+        public IMessagingStrategyRouter<THandler> Subscribe(IMessagingStrategyRouterSubscriber<THandler> subscriber)
         {
             subscriber.Subscribe(this);
             return this;

@@ -7,7 +7,5 @@ namespace SprayChronicle.EventHandling
         string Description { get; }
 
         Task Start();
-
-        Task Stop();
     }
 }

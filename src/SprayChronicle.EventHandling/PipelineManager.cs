@@ -26,10 +26,5 @@ namespace SprayChronicle.EventHandling
         {
             return Task.WhenAll(_pipelines.Select(p => p.Start()));
         }
-
-        public Task Stop()
-        {
-            return Task.WhenAll(_pipelines.Select(p => p.Stop()));
-        }
     }
 }

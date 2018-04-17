@@ -4,25 +4,13 @@ using SprayChronicle.MessageHandling;
 
 namespace SprayChronicle.CommandHandling
 {
-    public class ErrorSuppressingRouter : IRouter<IHandle>
+    public class ErrorSuppressingRouter : IMessageRouter
     {
-        private readonly IRouter<IHandle> _child;
+        private readonly IMessageRouter _child;
 
-        public ErrorSuppressingRouter(IRouter<IHandle> child)
+        public ErrorSuppressingRouter(IMessageRouter child)
         {
             _child = child;
-        }
-
-        public IRouter<IHandle> Subscribe(IMessageHandlingStrategy<IHandle> strategy, HandleMessage handler)
-        {
-            _child.Subscribe(strategy, handler);
-            return this;
-        }
-
-        public IRouter<IHandle> Subscribe(IRouterSubscriber<IHandle> subscriber)
-        {
-            _child.Subscribe(subscriber);
-            return this;
         }
 
         public async Task<object> Route(params object[] arguments)

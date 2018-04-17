@@ -6,31 +6,19 @@ using SprayChronicle.Server;
 
 namespace SprayChronicle.CommandHandling
 {
-    public class LoggingRouter : IRouter<IHandle>
+    public class LoggingRouter : IMessageRouter
     {
-        private readonly ILogger<IRouter<IHandle>> _logger;
+        private readonly ILogger<IHandle> _logger;
         
         private readonly IMeasure _measure;
 
-        private readonly IRouter<IHandle> _child;
+        private readonly IMessageRouter _child;
 
-        public LoggingRouter(ILogger<IRouter<IHandle>> logger, IMeasure measure, IRouter<IHandle> child)
+        public LoggingRouter(ILogger<IHandle> logger, IMeasure measure, IMessageRouter child)
         {
             _logger = logger;
             _measure = measure;
             _child = child;
-        }
-
-        public IRouter<IHandle> Subscribe(IMessageHandlingStrategy<IHandle> strategy, HandleMessage handler)
-        {
-            _child.Subscribe(strategy, handler);
-            return this;
-        }
-
-        public IRouter<IHandle> Subscribe(IRouterSubscriber<IHandle> subscriber)
-        {
-            _child.Subscribe(subscriber);
-            return this;
         }
 
         public async Task<object> Route(params object[] arguments)

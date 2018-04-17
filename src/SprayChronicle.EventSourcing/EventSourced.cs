@@ -11,7 +11,7 @@ namespace SprayChronicle.EventSourcing
 
         private readonly List<IDomainMessage> _queue = new List<IDomainMessage>();
 
-        private static readonly IMessageHandlingStrategy<T> Strategy = new OverloadHandlingStrategy<T>(new ContextTypeLocator<T>());
+        private static readonly IMessagingStrategy<T> Strategy = new OverloadMessagingStrategy<T>(new ContextTypeLocator<T>());
 
         public abstract string Identity();
 

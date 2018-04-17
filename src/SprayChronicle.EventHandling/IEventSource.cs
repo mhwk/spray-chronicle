@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
+using SprayChronicle.MessageHandling;
 
 namespace SprayChronicle.EventHandling
 {

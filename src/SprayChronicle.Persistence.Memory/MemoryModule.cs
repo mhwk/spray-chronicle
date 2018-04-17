@@ -10,37 +10,10 @@ namespace SprayChronicle.Persistence.Memory
     {
         protected override void Load(ContainerBuilder builder)
         {
-//            builder
-//                .Register(
-//                    c => new MemoryRepositoryFactory()
-//                )
-//                .AsSelf()
-//                .As<IBuildStatefulRepositories>()
-//                .SingleInstance();
-            
-//            builder
-//                .Register(
-//                    c => new MemoryProjectorFactory(
-//                        c.Resolve<ILoggerFactory>(),
-//                        c.Resolve<MemoryRepositoryFactory>()
-//                    )
-//                )
-//                .AsSelf()
-//                .As<IBuildProjectors>()
-//                .SingleInstance();
-
             builder
                 .Register(c => new MemoryEventStore())
                 .AsSelf()
                 .As<IEventStore>()
-                .SingleInstance();
-            
-            builder
-                .Register(c => new MemoryStreamFactory(
-                    c.Resolve<MemoryEventStore>()
-                ))
-                .AsSelf()
-                .As<IBuildStreams>()
                 .SingleInstance();
         }
     }
