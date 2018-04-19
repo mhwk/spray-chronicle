@@ -5,13 +5,13 @@ using SprayChronicle.Example.Application.State;
 
 namespace SprayChronicle.Example.Application.Service
 {
-    public sealed class QueryBasketWithProducts_PickedUpPerDay : AbstractIndexCreationTask<BasketWithProducts,PickedUpBasketsPerDay>
+    public sealed class QueryBasketWithProducts_PickedUpPerDay : AbstractIndexCreationTask<BasketWithProducts_v1,PickedUpBasketsPerDay_v1>
     {
         public QueryBasketWithProducts_PickedUpPerDay()
         {
             Map = baskets =>
                 from basket in baskets
-                select new PickedUpBasketsPerDay
+                select new PickedUpBasketsPerDay_v1
                 {
                     Day = basket.PickedUpAt.ToString("yyyy-MM-dd"),
                     Count = 1
@@ -20,7 +20,7 @@ namespace SprayChronicle.Example.Application.Service
             Reduce = results =>
                 from result in results
                 group result by result.Day into g
-                select new PickedUpBasketsPerDay
+                select new PickedUpBasketsPerDay_v1
                 {
                     Day = g.Key,
                     Count = g.Sum(r => r.Count)

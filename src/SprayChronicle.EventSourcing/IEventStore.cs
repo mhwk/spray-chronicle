@@ -6,6 +6,6 @@ namespace SprayChronicle.EventSourcing
     {
         void Append<T>(string identity, IEnumerable<IDomainMessage> domainMessages);
 
-        IEnumerable<IDomainMessage> Load<T>(string identity);
+        IEventSource<T> Load<T>(string identity) where T : class;
     }
 }

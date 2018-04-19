@@ -8,14 +8,14 @@ namespace SprayChronicle.Persistence.Raven
         where TProcessor : RavenQueryProcessor<TProcessor,TState>
         where TState : class
     {
-        protected RavenProcessorFactory<TState> Process()
+        protected RavenProcessedFactory<TState> Process()
         {
-            return new RavenProcessorFactory<TState>();
+            return new RavenProcessedFactory<TState>();
         }
         
-        protected RavenProcessorFactory<TState> Process(string identity)
+        protected RavenProcessedFactory<TState> Process(string identity)
         {
-            return new RavenProcessorFactory<TState>(identity);
+            return new RavenProcessedFactory<TState>(identity);
         }
 
         protected RavenExecutedFactory<TState> Execute()

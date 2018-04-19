@@ -1,6 +1,5 @@
 using System.Reflection;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Logging;
 using SprayChronicle.CommandHandling;
 
 namespace SprayChronicle.Server.Http
@@ -11,12 +10,12 @@ namespace SprayChronicle.Server.Http
 
         private readonly IValidator _validator;
 
-        private readonly ICommandRouter _dispatcher;
+        private readonly CommandRouter _dispatcher;
 
         public HttpCommandRouteMapper(
             ILogger<HttpCommandDispatcher> logger,
             IValidator validator,
-            ICommandRouter dispatcher)
+            CommandRouter dispatcher)
         {
             _logger = logger;
             _validator = validator;

@@ -14,7 +14,7 @@ namespace SprayChronicle.Testing
 
         private readonly List<IDomainMessage> _future = new List<IDomainMessage>();
 
-        private bool _present = false;
+        private bool _present;
 
         public TestStore(IEventStore child, EpochGenerator epochs)
         {
@@ -45,7 +45,7 @@ namespace SprayChronicle.Testing
                     list.Add(new DomainMessage(
                         message.Sequence,
                         _epochs[i],
-                        message.Payload()
+                        message.Payload
                     ));
                 } else {
                     _epochs.Add(message.Epoch);
@@ -57,7 +57,8 @@ namespace SprayChronicle.Testing
             return list.ToArray();
         }
 
-        public IEnumerable<IDomainMessage> Load<T>(string identity)
+        public IEventSource<T> Load<T>(string identity)
+            where T : class
         {
             return _child.Load<T>(identity);
         }

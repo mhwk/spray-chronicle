@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Autofac;
 using Autofac.Core;
 using SprayChronicle.EventSourcing;
-using SprayChronicle.Persistence.Memory;
 
 namespace SprayChronicle.Testing
 {
@@ -18,10 +17,9 @@ namespace SprayChronicle.Testing
 
         public EventSourcedFixture(Action<ContainerBuilder> configure)
             : base(builder => {
-                builder.RegisterModule<MemoryModule>();
                 builder
                     .Register(c => new TestStore(
-                        c.Resolve<MemoryEventStore>(),
+                        c.Resolve<IEventStore>(),
                         c.Resolve<EpochGenerator>()
                     ))
                     .AsSelf()

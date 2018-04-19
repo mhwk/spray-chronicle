@@ -9,7 +9,7 @@ namespace SprayChronicle.Example.Test.Application.Command
 {
     public class CheckoutBasketWillGenerateAnOrder : CommandTestCase<Module>
     {
-        protected override Task Given(ICommandRouter dispatcher)
+        protected override Task Given(CommandRouter dispatcher)
         {
             return dispatcher.Route(
                 new PickUpBasket("basketId"),
@@ -17,7 +17,7 @@ namespace SprayChronicle.Example.Test.Application.Command
             );
         }
         
-        protected override Task When(ICommandRouter dispatcher)
+        protected override Task When(CommandRouter dispatcher)
         {
             return dispatcher.Route(
                 new CheckOutBasket("basketId", "orderId")

@@ -1,10 +1,10 @@
-using System;
 using System.Collections.Generic;
-using FluentAssertions;
+using System.Threading.Tasks;
 using NSubstitute;
 using Shouldly;
 using SprayChronicle.Example.Domain;
 using SprayChronicle.Example.Domain.Model;
+using SprayChronicle.Testing;
 using Xunit;
 
 namespace SprayChronicle.EventSourcing.Test
@@ -25,11 +25,14 @@ namespace SprayChronicle.EventSourcing.Test
         }
 
         [Fact]
-        public void ItLoadsMessages()
+        public async Task ItLoadsMessages()
         {
+            var source = new TestSource<Basket>();
+            await source.Publish(new BasketPickedUp("foo"));
+            
             _persistence
                 .Load<Basket>(Arg.Is("foo"))
-                .Returns(new [] { new DomainMessage(0, new DateTime(), new BasketPickedUp("foo")) });
+                .Returns(source);
                 
             new EventSourcedRepository<Basket>(_persistence)
                 .Load("foo")
@@ -37,42 +40,48 @@ namespace SprayChronicle.EventSourcing.Test
         }
 
         [Fact]
-        public void ItIsOkIfNull()
+        public async Task ItIsOkIfNull()
         {
+            var source = new TestSource<Basket>();
+            await source.Publish(new object());
+            
             _persistence
                 .Load<Basket>(Arg.Is("foo"))
-                .Returns(new [] { new DomainMessage(0, new DateTime(), new object {}) });
+                .Returns(source);
             
             new EventSourcedRepository<Basket>(_persistence)
                 .Load("foo")
-                .Should()
-                .BeNull();
+                .ShouldBeNull();
         }
 
         [Fact]
-        public void ItFailsIfSpecificStateIsNull()
+        public async Task ItFailsIfSpecificStateIsNull()
         {
+            var source = new TestSource<Basket>();
+            await source.Publish(new object());
+            
             _persistence
                 .Load<Basket>(Arg.Is("foo"))
-                .Returns(new [] { new DomainMessage(0, new DateTime(), new object {}) });
+                .Returns(source);
 
-            Should.Throw<InvalidStateException>(
-                () => new EventSourcedRepository<Basket>(_persistence)
-                    .Load<Basket>("foo")
+            await Should.ThrowAsync<InvalidStateException>(
+                new EventSourcedRepository<Basket>(_persistence).Load<Basket>("foo")
             );
         }
 
         [Fact]
-        public void ItIsOkIfDefaultIsNull()
+        public async Task ItIsOkIfDefaultIsNull()
         {
+            var source = new TestSource<Basket>();
+            await source.Publish(new object());
+            
             _persistence
                 .Load<Basket>(Arg.Is("foo"))
-                .Returns(new [] { new DomainMessage(0, new DateTime(), new object {}) });
+                .Returns(source);
             
             new EventSourcedRepository<Basket>(_persistence)
                 .LoadOrDefault<Basket>("foo")
-                .Should()
-                .BeNull();
+                .ShouldBeNull();
         }
     }
 }

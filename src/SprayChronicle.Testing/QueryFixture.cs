@@ -3,21 +3,18 @@ using System.Threading.Tasks;
 using Autofac;
 using Autofac.Core;
 using SprayChronicle.EventHandling;
-using SprayChronicle.Persistence.Memory;
 using SprayChronicle.QueryHandling;
 
 namespace SprayChronicle.Testing
 {
-    public class QueryFixture<TModule> : Fixture<TModule,TestStream,Task,IQueryRouter,Task<object>>
+    public class QueryFixture<TModule,TTarget> : Fixture<TModule,TestSource<TTarget>,Task,QueryRouter,Task<object>>
         where TModule : IModule, new()
+        where TTarget : class
     {
         public QueryFixture(Action<ContainerBuilder> configure)
             : base(builder => {
-                builder.RegisterModule<SyncEventHandlingModule>();
-                builder.RegisterModule<MemoryModule>();
+                builder.RegisterModule<EventHandlingModule>();
                 builder.RegisterModule<QueryHandlingModule>();
-                builder.Register(c => new TestStream(c.Resolve<EpochGenerator>())).SingleInstance();
-                builder.Register<IBuildStreams>(c => new TestStreamFactory(c.Resolve<TestStream>())).SingleInstance();
                 builder.RegisterModule<TModule>();
                 configure(builder);
             })
@@ -30,19 +27,20 @@ namespace SprayChronicle.Testing
 
         protected override void Boot()
         {
-            Container.Resolve<IManageStreamHandlers>().Manage();
+            // @todo cancellation token
+            Container.Resolve<IPipelineManager>().Start();
         }
 
-        public override async Task<IExecute<IQueryRouter, Task<object>>> Given(Func<TestStream, Task> callback)
+        public override async Task<IExecute<QueryRouter, Task<object>>> Given(Func<TestSource<TTarget>, Task> callback)
         {
-            var stream = Container.Resolve<TestStream>();
+            var stream = Container.Resolve<TestSource<TTarget>>();
             await callback(stream);
             return this;
         }
 
-        public override async Task<IValidate> When(Func<IQueryRouter, Task<object>> callback)
+        public override async Task<IValidate> When(Func<QueryRouter, Task<object>> callback)
         {
-            return await QueryValidator.Run(Container, () => callback(Container.Resolve<LoggingRouter>()));
+            return await QueryValidator.Run(Container, () => callback(Container.Resolve<QueryRouter>()));
         }
     }
 }

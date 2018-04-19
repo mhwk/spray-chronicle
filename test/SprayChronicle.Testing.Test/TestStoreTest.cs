@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using NSubstitute;
 using Shouldly;
 using SprayChronicle.EventSourcing;
@@ -31,7 +32,7 @@ namespace SprayChronicle.Testing.Test
                 ),
             });
             
-            store.Past().Select(p => p.Payload()).ShouldBe(new [] { message1 });
+            store.Past().Select(p => p.Payload).ShouldBe(new [] { message1 });
         }
         
         [Fact]
@@ -53,7 +54,7 @@ namespace SprayChronicle.Testing.Test
                 ),
             });
             
-            store.Future().Select(p => p.Payload()).ShouldBe(new [] { message2 });
+            store.Future().Select(p => p.Payload).ShouldBe(new [] { message2 });
         }
         
         [Fact]
@@ -75,22 +76,19 @@ namespace SprayChronicle.Testing.Test
                 ),
             });
             
-            store.Chronicle().Select(p => p.Payload()).ShouldBe(new [] { message1, message2 });
+            store.Chronicle().Select(p => p.Payload).ShouldBe(new [] { message1, message2 });
         }
         
         [Fact]
-        public void LoadFromChild()
+        public async Task LoadFromChild()
         {
-            var message1 = new object();
-            var store = new TestStore(_child, new EpochGenerator());
-            var stream = new[] {
-                new DomainMessage(
-                    0, DateTime.Now, message1
-                ),
-            };
+            var source = new TestSource<Basket>();
+            await source.Publish(new object());
             
-            _child.Load<Basket>("basket1").Returns(stream);
-            store.Load<Basket>("basket1").ShouldBe(stream);
+            var store = new TestStore(_child, new EpochGenerator());
+            
+            _child.Load<Basket>("basket1").Returns(source);
+            store.Load<Basket>("basket1").ShouldBe(source);
         }
         
         [Fact]

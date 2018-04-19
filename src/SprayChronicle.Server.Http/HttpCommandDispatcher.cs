@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using SprayChronicle.CommandHandling;
 using SprayChronicle.EventSourcing;
+using SprayChronicle.MessageHandling;
 
 namespace SprayChronicle.Server.Http
 {
@@ -17,7 +18,7 @@ namespace SprayChronicle.Server.Http
 
         private readonly IValidator _validator;
 
-        private readonly ICommandRouter _dispatcher;
+        private readonly CommandRouter _dispatcher;
 
         private readonly Type _type;
 
@@ -31,7 +32,7 @@ namespace SprayChronicle.Server.Http
         public HttpCommandDispatcher(
             ILogger<HttpCommandDispatcher> logger,
             IValidator validator,
-            ICommandRouter dispatcher,
+            CommandRouter dispatcher,
             Type type)
         {
             _logger = logger;
@@ -42,56 +43,54 @@ namespace SprayChronicle.Server.Http
 
         public async Task Dispatch(HttpRequest request, HttpResponse response, RouteData routeData)
         {
-            using (var reader = new StreamReader(request.Body)) {
-                response.ContentType = "application/json";
+            response.ContentType = "application/json";
 
-                try {
-                    var payload = await converter.Convert(request, routeData, _type);
+            try {
+                var payload = await converter.Convert(request, routeData, _type);
 
-                    _validator.Validate(payload);
+                _validator.Validate(payload);
 
-                    _logger.LogDebug("Dispatching {0} {1}", _type, JsonConvert.SerializeObject(payload));
-                    await _dispatcher.Route(payload);
-                    response.StatusCode = 200;
-                    await response.WriteAsync(JsonConvert.SerializeObject(new {
-                        Success = true
-                    }, _serializerSettings));
-                } catch (UnhandledCommandException error) {
-                    _logger.LogWarning(error);
-                    response.StatusCode = 404;
-                    await response.WriteAsync(JsonConvert.SerializeObject(new {
-                        Success = false,
-                        Error = error.Message
-                    }, _serializerSettings));
-                } catch (ConcurrencyException error) {
-                    _logger.LogWarning(error);
-                    response.StatusCode = 409;
-                    await response.WriteAsync(JsonConvert.SerializeObject(new {
-                        Success = false,
-                        Error = error.Message
-                    }, _serializerSettings));
-                } catch (InvalidStateException error) {
-                    _logger.LogWarning(error);
-                    response.StatusCode = 428;
-                    await response.WriteAsync(JsonConvert.SerializeObject(new {
-                        Success = false,
-                        Error = error.Message
-                    }, _serializerSettings));
-                } catch (InvalidRequestException error) {
-                    _logger.LogWarning(error);
-                    response.StatusCode = 400;
-                    await response.WriteAsync(JsonConvert.SerializeObject(new {
-                        Success = false,
-                        Error = error.Message
-                    }, _serializerSettings));
-                } catch (Exception error) {
-                    _logger.LogCritical(error);
-                    response.StatusCode = 500;
-                    await response.WriteAsync(JsonConvert.SerializeObject(new {
-                        Success = false,
-                        Error = error.Message
-                    }, _serializerSettings));
-                }
+                _logger.LogDebug("Dispatching {0} {1}", _type, JsonConvert.SerializeObject(payload));
+                await _dispatcher.Route(payload);
+                response.StatusCode = 200;
+                await response.WriteAsync(JsonConvert.SerializeObject(new {
+                    Success = true
+                }, _serializerSettings));
+            } catch (UnhandledCommandException error) {
+                _logger.LogWarning(error);
+                response.StatusCode = 404;
+                await response.WriteAsync(JsonConvert.SerializeObject(new {
+                    Success = false,
+                    Error = error.Message
+                }, _serializerSettings));
+            } catch (ConcurrencyException error) {
+                _logger.LogWarning(error);
+                response.StatusCode = 409;
+                await response.WriteAsync(JsonConvert.SerializeObject(new {
+                    Success = false,
+                    Error = error.Message
+                }, _serializerSettings));
+            } catch (InvalidStateException error) {
+                _logger.LogWarning(error);
+                response.StatusCode = 428;
+                await response.WriteAsync(JsonConvert.SerializeObject(new {
+                    Success = false,
+                    Error = error.Message
+                }, _serializerSettings));
+            } catch (InvalidRequestException error) {
+                _logger.LogWarning(error);
+                response.StatusCode = 400;
+                await response.WriteAsync(JsonConvert.SerializeObject(new {
+                    Success = false,
+                    Error = error.Message
+                }, _serializerSettings));
+            } catch (Exception error) {
+                _logger.LogCritical(error);
+                response.StatusCode = 500;
+                await response.WriteAsync(JsonConvert.SerializeObject(new {
+                    Success = false,
+                    Error = error.Message
+                }, _serializerSettings));
             }
         }
     }

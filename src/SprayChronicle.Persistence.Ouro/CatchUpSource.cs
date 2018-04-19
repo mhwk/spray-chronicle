@@ -3,21 +3,24 @@ using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.SystemData;
+using SprayChronicle.EventHandling;
 using SprayChronicle.EventSourcing;
 using SprayChronicle.Server;
 
 namespace SprayChronicle.Persistence.Ouro
 {
-    public sealed class CatchUpSource<TSourceTarget> : OuroSource<TSourceTarget>
-        where TSourceTarget : class
+    public sealed class CatchUpSource<TTarget> : OuroSource<TTarget>
+        where TTarget : class
     {
-        private readonly ILogger<IEventStore> _logger;
+        private readonly ILogger<TTarget> _logger;
         
         private readonly IEventStoreConnection _eventStore;
         
         private readonly UserCredentials _credentials;
 
         private readonly string _streamName;
+        
+        private long _checkpoint;
 
         private EventStoreCatchUpSubscription _subscription;
         
@@ -25,18 +28,17 @@ namespace SprayChronicle.Persistence.Ouro
         
         private bool _liveProcessing;
 
-        private long _checkPoint;
-
         public CatchUpSource(
-            ILogger<IEventStore> logger,
+            ILogger<TTarget> logger,
             IEventStoreConnection eventStore,
             UserCredentials credentials,
-            string streamName)
+            CatchUpOptions options)
         {
             _logger = logger;
             _eventStore = eventStore;
             _credentials = credentials;
-            _streamName = streamName;
+            _streamName = options.StreamName;
+            _checkpoint = options.Checkpoint;
         }
 
         protected override Task StartBuffering()
@@ -53,10 +55,10 @@ namespace SprayChronicle.Persistence.Ouro
 
         private EventStoreCatchUpSubscription Subscribe()
         {
-            _logger.LogDebug($"Start subscription {_streamName}");
+            _logger.LogDebug($"Start subscription {_streamName} from {_checkpoint}");
             return _eventStore.SubscribeToStreamFrom(
                 _streamName,
-                _checkPoint,
+                _checkpoint,
                 CatchUpSubscriptionSettings.Default,
                 EventAppeared,
                 LiveProcessingStarted,
@@ -67,8 +69,9 @@ namespace SprayChronicle.Persistence.Ouro
 
         private Task EventAppeared(EventStoreCatchUpSubscription subscription, ResolvedEvent resolvedEvent)
         {
-            _checkPoint++;
-            _domainMessages.Post(resolvedEvent);
+            _checkpoint++;
+            
+            Queue.Post(resolvedEvent);
             
             _logger.LogDebug($"Emit subscription  {_streamName} - {resolvedEvent.Event.EventType}");
 

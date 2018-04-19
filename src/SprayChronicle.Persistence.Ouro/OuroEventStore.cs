@@ -15,16 +15,20 @@ namespace SprayChronicle.Persistence.Ouro
     {
         private readonly ILogger<IEventStore> _logger;
 
+        private readonly OuroSourceFactory _sourceFactory;
+        
         private readonly IEventStoreConnection _eventStore;
 
         private readonly UserCredentials _credentials;
 
         public OuroEventStore(
             ILogger<IEventStore> logger,
+            OuroSourceFactory sourceFactory,
             IEventStoreConnection eventStore,
             UserCredentials credentials)
         {
             _logger = logger;
+            _sourceFactory = sourceFactory;
             _eventStore = eventStore;
             _credentials = credentials;
         }
@@ -58,27 +62,10 @@ namespace SprayChronicle.Persistence.Ouro
             }
         }
 
-        public IEnumerable<IDomainMessage> Load<T>(string identity)
+        public IEventSource<T> Load<T>(string identity)
+            where T : class
         {
-            var stream = Stream<T>(identity);
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-
-            var eos = false;
-            var current = 0;
-
-            do {
-                var slice = _eventStore.ReadStreamEventsForwardAsync(stream, current, 50, false, _credentials).Result;
-                foreach (var resolvedEvent in slice.Events) {
-                    yield return new OuroMessage(resolvedEvent);
-
-                    current++;
-                }
-                eos = slice.IsEndOfStream;
-            } while (!eos);
-
-            stopwatch.Stop();
-            _logger.LogDebug("[{0}::load] {1}ms", stream, stopwatch.ElapsedMilliseconds);
+            return _sourceFactory.Build<T,ReadForwardOptions>(new ReadForwardOptions(Stream<T>(identity)));
         }
 
         private static string Stream<T>(string identity)

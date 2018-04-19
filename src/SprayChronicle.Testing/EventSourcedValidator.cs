@@ -70,7 +70,7 @@ namespace SprayChronicle.Testing
 		public IValidate Expect(params object[] expectation)
 		{
 		    _messages
-		        .Select(dm => dm.Payload())
+		        .Select(dm => dm.Payload)
 		        .ToArray()
 		        .ShouldBeDeepEqualTo(expectation);
             
@@ -80,7 +80,7 @@ namespace SprayChronicle.Testing
 		public IValidate Expect(params Type[] expectation)
 		{
 		    _messages
-		        .Select(dm => dm.Payload().GetType().FullName)
+		        .Select(dm => dm.Payload.GetType().FullName)
 		        .ToArray()
 		        .ShouldBeDeepEqualTo(expectation
 		            .Select(type => type.FullName)

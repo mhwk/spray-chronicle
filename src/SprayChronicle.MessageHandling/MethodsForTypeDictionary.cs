@@ -18,7 +18,7 @@ namespace SprayChronicle.MessageHandling
             _map[type].Add(methodInfo);
         }
 
-        public MethodInfo[] MethodsForTypes(IEnumerable<Type> types)
+        public MethodInfo[] MethodsFor(IEnumerable<Type> types)
         {
             if (null == types) {
                 return new MethodInfo[] {};
@@ -35,7 +35,16 @@ namespace SprayChronicle.MessageHandling
 
         public MethodInfo[] MethodsFor(IEnumerable<object> args)
         {
-            return MethodsForTypes(args.Select(arg => arg.GetType()));
+            return MethodsFor(args.Select(arg => arg.GetType()));
+        }
+
+        public IEnumerable<string> SuggestList(object subject)
+        {
+            return _map
+//                .Where(kv => !kv.Value.All(t => t.IsStatic && t.DeclaringType.IsInstanceOfType(subject)))
+                .Select(kv => kv.Key)
+                .Select(ts => string.Join(", ", ts.Select(t => t.FullName)))
+                .ToList();
         }
     }
 }

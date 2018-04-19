@@ -6,7 +6,7 @@ namespace SprayChronicle.CommandHandling
     {
         public string Identity { get; }
 
-        public Handled(string identity)
+        protected Handled(string identity)
         {
             Identity = identity;
         }

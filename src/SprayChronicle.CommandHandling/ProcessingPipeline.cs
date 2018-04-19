@@ -14,35 +14,44 @@ namespace SprayChronicle.CommandHandling
         
         private readonly IMessagingStrategy<THandler> _strategy = new OverloadMessagingStrategy<THandler>("Process");
 
-        private readonly ISourceBlock<DomainMessage> _queue;
+        private readonly IEventSourceFactory _sourceFactory;
         
+        private readonly PersistentOptions _sourceOptions;
+
         private readonly IMessageRouter _router;
         
         private readonly THandler _handler;
 
         public ProcessingPipeline(
-            ISourceBlock<DomainMessage> queue,
+            IEventSourceFactory sourceFactory,
+            PersistentOptions sourceOptions,
             IMessageRouter router,
             THandler handler)
         {
-            _queue = queue;
+            _sourceFactory = sourceFactory;
+            _sourceOptions = sourceOptions;
             _router = router;
             _handler = handler;
         }
 
         public async Task Start()
         {
+            var source = _sourceFactory.Build<THandler,PersistentOptions>(_sourceOptions);
+            var converted = new TransformBlock<object,DomainMessage>(message => source.Convert(_strategy, message));
             var dispatch = new TransformBlock<DomainMessage,Processed>(message => Dispatch(message));
             var apply = new ActionBlock<Processed>(command => Apply(command));
 
-            _queue.LinkTo(dispatch, new DataflowLinkOptions {
+            source.LinkTo(converted, new DataflowLinkOptions {
+                PropagateCompletion = true
+            });
+            converted.LinkTo(dispatch, new DataflowLinkOptions {
                 PropagateCompletion = true
             });
             dispatch.LinkTo(apply, new DataflowLinkOptions {
                 PropagateCompletion = true
             });
 
-            await apply.Completion;
+            await Task.WhenAll(source.Start(), apply.Completion);
         }
 
         private Task<Processed> Dispatch(DomainMessage message)

@@ -10,9 +10,13 @@ namespace SprayChronicle.MessageHandling
     {
         private const BindingFlags BindingFlags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.DeclaredOnly;
 
-        private readonly MethodsForTypeDictionary _messageToMethod = new MethodsForTypeDictionary();
+        private readonly MethodsForTypeDictionary _typesToMethod = new MethodsForTypeDictionary();
         
-        private readonly Dictionary<string,Type> _nameToMessage = new Dictionary<string,Type>();
+        private readonly Dictionary<string,Type> _nameToType = new Dictionary<string,Type>();
+        
+        public OverloadMessagingStrategy() : this(new ContextTypeLocator<T>())
+        {
+        }
         
         public OverloadMessagingStrategy(string methodName) : this(new ContextTypeLocator<T>(), methodName)
         {
@@ -39,9 +43,9 @@ namespace SprayChronicle.MessageHandling
 
         private void AddMethod(MethodInfo method)
         {
-            _messageToMethod.Add(method.GetParameters().Select(parameter => parameter.ParameterType).ToArray(), method);
-            if ( ! _nameToMessage.ContainsKey(method.GetParameters().First().ParameterType.Name)) {
-                _nameToMessage.Add(method.GetParameters().First().ParameterType.Name, method.GetParameters().First().ParameterType);
+            _typesToMethod.Add(method.GetParameters().Select(parameter => parameter.ParameterType).ToArray(), method);
+            if ( ! _nameToType.ContainsKey(method.GetParameters().First().ParameterType.Name)) {
+                _nameToType.Add(method.GetParameters().First().ParameterType.Name, method.GetParameters().First().ParameterType);
             }
         }
 
@@ -59,21 +63,21 @@ namespace SprayChronicle.MessageHandling
 
         public Type ToType(string messageName)
         {
-            if (_nameToMessage.ContainsKey(messageName)) return _nameToMessage[messageName];
+            if (_nameToType.ContainsKey(messageName)) return _nameToType[messageName];
             
-            var messageList = string.Join(", ", _nameToMessage.Select(kv => kv.Key));
+            var messageList = string.Join(", ", _nameToType.Select(kv => kv.Key));
             throw new ArgumentException($"Message {messageName} not valid for {typeof(T)}, accepts only ({messageList})");
 
         }
 
         public bool Resolves(string messageName)
         {
-            return _nameToMessage.ContainsKey(messageName);
+            return _nameToType.ContainsKey(messageName);
         }
 
         public bool Resolves(params Type[] types)
         {
-            return _messageToMethod.MethodsForTypes(types).Any();
+            return _typesToMethod.MethodsFor(types).Any();
         }
 
         public bool Resolves(params object[] arguments)
@@ -83,7 +87,7 @@ namespace SprayChronicle.MessageHandling
 
         public bool Resolves<TResult>(params Type[] types)
         {
-            return _messageToMethod.MethodsForTypes(types).Any(m => m.ReturnType == typeof(T));
+            return _typesToMethod.MethodsFor(types).Any(m => m.ReturnType == typeof(TResult));
         }
 
         public bool Resolves<TResult>(params object[] arguments)
@@ -93,17 +97,19 @@ namespace SprayChronicle.MessageHandling
 
         private MethodInfo ResolveMethod(T subject, params object[] arguments)
         {
-            var methods = _messageToMethod.MethodsFor(arguments);
-            
+            var methods = _typesToMethod.MethodsFor(arguments);
+
             if ( ! methods.Any()) {
+                var providedArgs = string.Join(", ", arguments.Select(a => a.GetType().FullName));
+                var suggestedArgs = string.Join(", ", _typesToMethod.SuggestList(subject));
                 throw new UnhandledMessageException(
-                    $"[{typeof(T)}] No handler methods found with args {string.Join(", ", arguments.Select(a => a.GetType()))}"
+                    $"[{typeof(T)}] Not handled ({providedArgs}), try one of ({suggestedArgs})"
                 );
             }
             
             var stateMethods = null == subject
-                ? _messageToMethod.MethodsFor(arguments).Where(method => method.IsStatic).ToList()
-                : _messageToMethod.MethodsFor(arguments).Where(method => ! method.IsStatic && method.DeclaringType.IsInstanceOfType(subject)).ToList();
+                ? _typesToMethod.MethodsFor(arguments).Where(method => method.IsStatic).ToList()
+                : _typesToMethod.MethodsFor(arguments).Where(method => ! method.IsStatic && method.DeclaringType.IsInstanceOfType(subject)).ToList();
 
             if (methods.Any() && ! stateMethods.Any()) {
                 throw new UnexpectedStateException(

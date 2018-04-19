@@ -15,8 +15,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SprayChronicle.Example", "s
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SprayChronicle.MessageHandling", "src\SprayChronicle.MessageHandling\SprayChronicle.MessageHandling.csproj", "{E9807AA2-BA01-47EC-89EB-52884AC3A884}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SprayChronicle.Persistence.Memory", "src\SprayChronicle.Persistence.Memory\SprayChronicle.Persistence.Memory.csproj", "{ADD2AB01-938B-4B06-A91A-6CE97F155063}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SprayChronicle.Persistence.Mongo", "src\SprayChronicle.Persistence.Mongo\SprayChronicle.Persistence.Mongo.csproj", "{BA17235E-B83C-4133-98ED-1B6DA136313C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SprayChronicle.Persistence.Ouro", "src\SprayChronicle.Persistence.Ouro\SprayChronicle.Persistence.Ouro.csproj", "{24B1CE1F-632A-4685-9EDD-3E74E7E176D1}"
@@ -40,8 +38,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SprayChronicle.Example.Test", "test\SprayChronicle.Example.Test\SprayChronicle.Example.Test.csproj", "{BFA4BA69-15F5-4248-9418-900387C51172}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SprayChronicle.MessageHandling.Test", "test\SprayChronicle.MessageHandling.Test\SprayChronicle.MessageHandling.Test.csproj", "{21C953C2-2ADA-423C-86DD-BD077FE00D6F}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SprayChronicle.Persistence.Memory.Test", "test\SprayChronicle.Persistence.Memory.Test\SprayChronicle.Persistence.Memory.Test.csproj", "{BF2C3869-75BC-46F5-96EB-D075A03E4D35}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SprayChronicle.Persistence.Mongo.Test", "test\SprayChronicle.Persistence.Mongo.Test\SprayChronicle.Persistence.Mongo.Test.csproj", "{EB16FD90-8CED-44E8-80E1-E2ED1DD33834}"
 EndProject
@@ -130,18 +126,6 @@ Global
 		{E9807AA2-BA01-47EC-89EB-52884AC3A884}.Release|x64.Build.0 = Release|x64
 		{E9807AA2-BA01-47EC-89EB-52884AC3A884}.Release|x86.ActiveCfg = Release|x86
 		{E9807AA2-BA01-47EC-89EB-52884AC3A884}.Release|x86.Build.0 = Release|x86
-		{ADD2AB01-938B-4B06-A91A-6CE97F155063}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{ADD2AB01-938B-4B06-A91A-6CE97F155063}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{ADD2AB01-938B-4B06-A91A-6CE97F155063}.Debug|x64.ActiveCfg = Debug|x64
-		{ADD2AB01-938B-4B06-A91A-6CE97F155063}.Debug|x64.Build.0 = Debug|x64
-		{ADD2AB01-938B-4B06-A91A-6CE97F155063}.Debug|x86.ActiveCfg = Debug|x86
-		{ADD2AB01-938B-4B06-A91A-6CE97F155063}.Debug|x86.Build.0 = Debug|x86
-		{ADD2AB01-938B-4B06-A91A-6CE97F155063}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{ADD2AB01-938B-4B06-A91A-6CE97F155063}.Release|Any CPU.Build.0 = Release|Any CPU
-		{ADD2AB01-938B-4B06-A91A-6CE97F155063}.Release|x64.ActiveCfg = Release|x64
-		{ADD2AB01-938B-4B06-A91A-6CE97F155063}.Release|x64.Build.0 = Release|x64
-		{ADD2AB01-938B-4B06-A91A-6CE97F155063}.Release|x86.ActiveCfg = Release|x86
-		{ADD2AB01-938B-4B06-A91A-6CE97F155063}.Release|x86.Build.0 = Release|x86
 		{BA17235E-B83C-4133-98ED-1B6DA136313C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BA17235E-B83C-4133-98ED-1B6DA136313C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BA17235E-B83C-4133-98ED-1B6DA136313C}.Debug|x64.ActiveCfg = Debug|x64
@@ -377,7 +361,6 @@ Global
 		{EBFC2DF1-2EF6-4FB2-9418-5E66C5169A39} = {8B4E9B45-811B-499D-B996-F93C022C965B}
 		{439BA650-8EFF-4AD2-887F-D5ADA57920C7} = {8B4E9B45-811B-499D-B996-F93C022C965B}
 		{E9807AA2-BA01-47EC-89EB-52884AC3A884} = {8B4E9B45-811B-499D-B996-F93C022C965B}
-		{ADD2AB01-938B-4B06-A91A-6CE97F155063} = {8B4E9B45-811B-499D-B996-F93C022C965B}
 		{BA17235E-B83C-4133-98ED-1B6DA136313C} = {8B4E9B45-811B-499D-B996-F93C022C965B}
 		{24B1CE1F-632A-4685-9EDD-3E74E7E176D1} = {8B4E9B45-811B-499D-B996-F93C022C965B}
 		{23188493-7998-4803-8480-8DF932EEDD3E} = {8B4E9B45-811B-499D-B996-F93C022C965B}

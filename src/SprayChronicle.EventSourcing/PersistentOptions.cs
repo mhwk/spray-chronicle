@@ -1,4 +1,4 @@
-﻿namespace SprayChronicle.Persistence.Ouro
+﻿namespace SprayChronicle.EventSourcing
 {
     public sealed class PersistentOptions
     {

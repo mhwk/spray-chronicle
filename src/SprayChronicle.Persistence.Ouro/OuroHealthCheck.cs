@@ -76,9 +76,12 @@ namespace SprayChronicle.Persistence.Ouro
 
         protected override async ValueTask<HealthCheckResult> CheckAsync(CancellationToken cancellationToken = default (CancellationToken))
         {
-            return _healthy
-                ? HealthCheckResult.Healthy($"[{_state}]")
-                : HealthCheckResult.Unhealthy($"[{_state}] {_reason}");
+            return await Task.Run(
+                () => _healthy
+                    ? HealthCheckResult.Healthy($"[{_state}]")
+                    : HealthCheckResult.Unhealthy($"[{_state}] {_reason}"),
+                cancellationToken
+            );
         }
     }
 }

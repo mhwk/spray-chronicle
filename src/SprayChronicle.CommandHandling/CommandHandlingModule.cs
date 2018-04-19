@@ -1,11 +1,8 @@
 using System.Linq;
-using System.Threading.Tasks.Dataflow;
 using Autofac;
-using Autofac.Core;
 using SprayChronicle.EventHandling;
 using SprayChronicle.EventSourcing;
 using SprayChronicle.MessageHandling;
-using SprayChronicle.Server;
 
 namespace SprayChronicle.CommandHandling
 {
@@ -17,22 +14,6 @@ namespace SprayChronicle.CommandHandling
                 .RegisterType<CommandRouter>()
                 .AsSelf()
                 .OnActivating(e => RegisterCommandHandlers(e.Context, e.Instance))
-                .SingleInstance();
-            
-            builder
-                .Register(c => new LoggingRouter(
-                    c.Resolve<ILoggerFactory>().Create<IHandle>(),
-                    new MeasureMilliseconds(),
-                    c.Resolve<CommandRouter>()
-                ))
-                .AsSelf()
-                .SingleInstance();
-            
-            builder
-                .Register(c => new ErrorSuppressingRouter(
-                    c.Resolve<LoggingRouter>()
-                ))
-                .AsSelf()
                 .SingleInstance();
         }
 
@@ -89,10 +70,9 @@ namespace SprayChronicle.CommandHandling
                 if (null != _streamName) {
                     builder
                         .Register(c => new ProcessingPipeline<THandler>(
-                            c.Resolve<IEventSourceFactory<DomainMessage>>().Build(new CatchUpOptions(
-                                _streamName
-                            )),
-                            c.Resolve<LoggingRouter>(),
+                            c.Resolve<IEventSourceFactory>(),
+                            new PersistentOptions(_streamName, typeof(THandler).FullName), 
+                            c.Resolve<CommandRouter>(),
                             c.Resolve<THandler>()))
                         .AsSelf()
                         .As<IPipeline>()

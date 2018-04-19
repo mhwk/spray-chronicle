@@ -1,50 +1,58 @@
 using System;
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.SystemData;
-using FluentAssertions;
-using Microsoft.Extensions.Logging;
-using Moq;
+using NSubstitute;
+using Shouldly;
 using SprayChronicle.EventSourcing;
-using SprayChronicle.MessageHandling;
+using SprayChronicle.Server;
 using Xunit;
 
 namespace SprayChronicle.Persistence.Ouro.Test
 {
     public abstract class OuroEventStoreTest
     {
-        /**
-         * Sadly, due to lack embedded client for dotnet core, a lot is untestable.
-         */
+        private readonly ILoggerFactory _loggerFactory = Substitute.For<ILoggerFactory>();
+        
+        private readonly ILogger<IEventStore> _logger = Substitute.For<ILogger<IEventStore>>();
 
-        private readonly Mock<ILogger<IEventStore>> _logger = new Mock<ILogger<IEventStore>>();
+        private readonly IEventStoreConnection _eventStore = Substitute.For<IEventStoreConnection>();
 
-        private readonly Mock<IEventStoreConnection> _eventStore = new Mock<IEventStoreConnection>();
+        private readonly UserCredentials _credentials = new UserCredentials("username", "password");
+
+        private OuroEventStore Store()
+        {
+            return new OuroEventStore(
+                _logger,
+                new OuroSourceFactory(
+                    _loggerFactory,
+                    _eventStore,
+                    _credentials
+                ),
+                _eventStore,
+                _credentials
+            );
+        }
 
         [Fact]
-        public void ItCanInstantiateOuroPersister()
+        public void ItCanInstantiateOuroStore()
         {
-            var persister = new OuroEventStore(_logger.Object, _eventStore.Object, new UserCredentials("username", "password"), "Tenant");
-            persister.Should().NotBeNull();
+            Store().ShouldNotBeNull();
         }
         
         [Fact]
         public void ItCanNotSaveEmptyStreamName()
         {
-            var persister = new OuroEventStore(_logger.Object, _eventStore.Object, new UserCredentials("username", "password"), "Tenant");
-            Action append = () => persister.Append<ExampleAggregate>("", new[] {
-                new DomainMessage(0, new DateTime(), new object{}.ToMessage())
-            });
-            append.ShouldThrow<InvalidStreamException>();
+            Should.Throw<InvalidStreamException>(() => Store().Append<ExampleAggregate>("", new[] {
+                new DomainMessage(0, new DateTime(), new object())
+            }));
         }
         
         [Fact]
         public void ItCanNotSaveInvalidStreamName()
         {
-            var persister = new OuroEventStore(_logger.Object, _eventStore.Object, new UserCredentials("username", "password"), "Tenant");
-            Action append = () => persister.Append<ExampleAggregate>("@", new[] {
-                new DomainMessage(0, new DateTime(), new object{}.ToMessage())
-            });
-            append.ShouldThrow<InvalidStreamException>();
+            Should.Throw<InvalidStreamException>(() => Store().Append<ExampleAggregate>("@", new[] {
+                new DomainMessage(0, new DateTime(), new object())
+            }));
         }
         
         public class ExampleAggregate : EventSourced<ExampleAggregate>

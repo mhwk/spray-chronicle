@@ -3,16 +3,16 @@ using System.Threading.Tasks;
 
 namespace SprayChronicle.Persistence.Raven
 {
-    public sealed class RavenProcessorFactory<TState>
+    public sealed class RavenProcessedFactory<TState>
         where TState : class
     {
         private readonly string _identity;
 
-        public RavenProcessorFactory()
+        public RavenProcessedFactory()
         {
         }
 
-        public RavenProcessorFactory(string identity)
+        public RavenProcessedFactory(string identity)
         {
             _identity = identity;
         }

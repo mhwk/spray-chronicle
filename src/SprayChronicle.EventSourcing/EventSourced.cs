@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
 using SprayChronicle.MessageHandling;
 
 namespace SprayChronicle.EventSourcing
@@ -11,7 +12,7 @@ namespace SprayChronicle.EventSourcing
 
         private readonly List<IDomainMessage> _queue = new List<IDomainMessage>();
 
-        private static readonly IMessagingStrategy<T> Strategy = new OverloadMessagingStrategy<T>(new ContextTypeLocator<T>());
+        private static readonly IMessagingStrategy<T> Strategy = new OverloadMessagingStrategy<T>();
 
         public abstract string Identity();
 
@@ -22,18 +23,27 @@ namespace SprayChronicle.EventSourcing
             return diff;
         }
 
-        public static async Task<T> Patch(IEnumerable<IDomainMessage> messages)
+        public static async Task<T> Patch(IEventSource<T> messages)
         {
             var sourcable = default(IEventSourcable<T>);
-            foreach (var message in messages) {
+            
+            var converted = new TransformBlock<object, DomainMessage>(message => messages.Convert(Strategy, message));
+            var applied = new ActionBlock<DomainMessage>(async message =>
+            {
                 sourcable = await Strategy.Ask<EventSourced<T>>(sourcable as T, message);
                 
                 if (null == sourcable) {
-                    continue;
+                    return;
                 }
                 
                 ((EventSourced<T>)sourcable)._sequence = message.Sequence;
-            }
+            });
+
+            messages.LinkTo(converted);
+            converted.LinkTo(applied);
+
+            await converted.Completion;
+            
             return (T) sourcable;
         }
 

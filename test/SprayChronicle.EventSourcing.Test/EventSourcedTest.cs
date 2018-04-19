@@ -1,9 +1,9 @@
-using System;
 using System.Linq;
-using FluentAssertions;
+using System.Threading.Tasks;
+using Shouldly;
 using SprayChronicle.Example.Domain;
 using SprayChronicle.Example.Domain.Model;
-using SprayChronicle.MessageHandling;
+using SprayChronicle.Testing;
 using Xunit;
 
 namespace SprayChronicle.EventSourcing.Test
@@ -13,24 +13,30 @@ namespace SprayChronicle.EventSourcing.Test
         [Fact]
         public void ItProvidesDiff()
         {
-            Basket
+            var diff = Basket
                 .PickUp(new BasketId("foo"))
-                .Diff()
-                .Select(domainMessage => domainMessage.Payload())
-                .ShouldAllBeEquivalentTo(new [] {new BasketPickedUp("foo")});
+                .Diff();
+            
+            diff
+                .Select(domainMessage => domainMessage.Payload.GetType())
+                .ShouldBe(new object[] {
+                    typeof(BasketPickedUp)
+                });
         }
 
         [Fact]
         public void ItPatches()
         {
-            Basket
+            var diff = Basket
                 .PickUp(new BasketId("foo"))
                 .AddProduct(new ProductId("bar"))
-                .Diff()
-                .Select(domainMessage => domainMessage.Payload())
-                .ShouldAllBeEquivalentTo(new object[] {
-                    new BasketPickedUp("foo"),
-                    new ProductAddedToBasket("foo", "bar")
+                .Diff();
+            
+            diff
+                .Select(domainMessage => domainMessage.Payload.GetType())
+                .ShouldBe(new object[] {
+                    typeof(BasketPickedUp),
+                    typeof(ProductAddedToBasket)
                 });
         }
 
@@ -43,65 +49,54 @@ namespace SprayChronicle.EventSourcing.Test
                 .AddProduct(new ProductId("bar"))
                 .Diff()
                 .Select(domainMessage => domainMessage.Sequence)
-                .ShouldAllBeEquivalentTo(new [] {0, 1, 2});
+                .ToArray()
+                .ShouldBe(new [] {0L, 1L, 2L});
         }
 
         [Fact]
-        public void ItCalculatesSequenceAfterPatch()
+        public async Task ItCalculatesSequenceAfterPatch()
         {
-            var aggregate = (PickedUpBasket) Basket.Patch(new [] {
-                new DomainMessage(
-                    0,
-                    new DateTime(),
-                    new BasketPickedUp("foo")
-                )
-            });
+            var source = new TestSource<Basket>();
+            await source.Publish(new BasketPickedUp("foo"));
+            
+            var aggregate = (PickedUpBasket) await Basket.Patch(source);
             aggregate
                 .AddProduct(new ProductId("bar"))
                 .AddProduct(new ProductId("bar"))
                 .Diff()
                 .Select(domainMessage => domainMessage.Sequence)
-                .ShouldAllBeEquivalentTo(new [] {1, 2});
+                .ToArray()
+                .ShouldBe(new [] {1L, 2L});
         }
 
         [Fact]
-        public void ItDoesNotPatchGracefully()
+        public async Task ItPatchesGracefully()
         {
-            var aggregate = (PickedUpBasket) Basket.Patch(new [] {
-                new DomainMessage(
-                    0,
-                    new DateTime(),
-                    new BasketPickedUp("foo")
-                ),
-                new DomainMessage(
-                    1,
-                    new DateTime(),
-                    new UnknownBasketEvent()
-                ),
-            });
+            var source = new TestSource<Basket>();
+            
+            await source.Publish(new BasketPickedUp("foo"));
+            await source.Publish(new UnknownBasketEvent());
+            await Basket.Patch(source);
         }
 
         [Fact]
-        public void ItCalculatesSequenceAfterUnknownPatch()
+        public async Task ItCalculatesSequenceAfterUnknownPatch()
         {
-            var aggregate = (PickedUpBasket) Basket.Patch(new DomainMessage[] {
-                new DomainMessage(
-                    0,
-                    new DateTime(),
-                    new BasketPickedUp("foo")
-                ),
-                new DomainMessage(
-                    1,
-                    new DateTime(),
-                    new UnknownBasketEvent()
-                ),
-            });
+            var source = new TestSource<Basket>();
+            
+            await source.Publish(new BasketPickedUp("foo"));
+            await source.Publish(new UnknownBasketEvent());
+            await Basket.Patch(source);
+            
+            var aggregate = (PickedUpBasket) await Basket.Patch(source);
+            
             aggregate
                 .AddProduct(new ProductId("bar"))
                 .AddProduct(new ProductId("bar"))
                 .Diff()
                 .Select(domainMessage => domainMessage.Sequence)
-                .ShouldAllBeEquivalentTo(new long[] {2, 3});
+                .ToArray()
+                .ShouldBe(new [] {2L, 3L});
         }
 
         private sealed class UnknownBasketEvent

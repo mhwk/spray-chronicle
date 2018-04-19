@@ -1,126 +1,102 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using EventStore.ClientAPI;
 using Newtonsoft.Json;
-using SprayChronicle.EventHandling;
 using SprayChronicle.EventSourcing;
 using SprayChronicle.MessageHandling;
 
 namespace SprayChronicle.Persistence.Ouro
 {
-    public abstract class OuroSource<TSourceTarget> : IEventSource<DomainMessage>, IMessagingStrategyRouter<TSourceTarget>
-        where TSourceTarget : class
+    public abstract class OuroSource<TTarget> : IEventSource<TTarget>
+        where TTarget : class
     {
-        protected readonly TransformBlock<ResolvedEvent,DomainMessage> _domainMessages;
+        protected readonly BufferBlock<object> Queue = new BufferBlock<object>();
 
-        private readonly Dictionary<IMessagingStrategy<TSourceTarget>, HandleMessage> _strategies = new Dictionary<IMessagingStrategy<TSourceTarget>, HandleMessage>();
+        private const int SleepMs = 100;
 
-        private readonly int _sleepMS = 100;
+        private const int MinBufferLength = 1000;
 
-        private readonly int _minBufferLength = 1000;
-        
-        private readonly int _maxBufferLength = 40000;
-        
+        private const int MaxBufferLength = 40000;
+
         private bool _running;
         
-        protected OuroSource()
-        {
-            _domainMessages = new TransformBlock<ResolvedEvent,DomainMessage>(
-                resolvedEvent => ConsumeResolvedEvent(resolvedEvent)
-            );
-        }
-
         public async Task Start()
         {
             _running = true;
             while (_running) {
                 await StartBuffering();
                 
-                while (_domainMessages.InputCount < _maxBufferLength) {
-                    await Task.Delay(TimeSpan.FromMilliseconds(_sleepMS));
+                while (Queue.Count < MaxBufferLength) {
+                    await Task.Delay(TimeSpan.FromMilliseconds(SleepMs));
                 }
 
                 await StopBuffering();
 
-                while (_domainMessages.InputCount > _minBufferLength) {
-                    await Task.Delay(TimeSpan.FromMilliseconds(_sleepMS));
+                while (Queue.Count > MinBufferLength) {
+                    await Task.Delay(TimeSpan.FromMilliseconds(SleepMs));
                 }
             }
         }
 
-        protected abstract Task StartBuffering();
-
-        protected abstract Task StopBuffering();
-
-        private Task<DomainMessage> ConsumeResolvedEvent(ResolvedEvent resolvedEvent)
+        public DomainMessage Convert(IMessagingStrategy<TTarget> strategy, object message)
         {
-            var strategy = _strategies.FirstOrDefault(s => s.Key.Resolves(resolvedEvent.Event.EventType)).Key;
-            
-            if (null == strategy) {
-                return null;
+            if (!(message is ResolvedEvent resolvedEvent)) {
+                throw new ArgumentException($"Message of type {message.GetType()} is expected to be a {typeof(ResolvedEvent)}");
             }
-
+            
             var type = strategy.ToType(resolvedEvent.Event.EventType);
             
-            Console.WriteLine($"Consumed {resolvedEvent.Event.EventType} into {type}");
-            return Task.FromResult(new DomainMessage(
+            Console.WriteLine($"Converting {resolvedEvent.Event.EventType} into {type}");
+            
+            return new DomainMessage(
                 resolvedEvent.Event.EventNumber,
                 resolvedEvent.Event.Created,
                 JsonConvert.DeserializeObject(
                     Encoding.UTF8.GetString(resolvedEvent.Event.Data),
                     type
                 )
-            ));
+            );
         }
+
+        protected abstract Task StartBuffering();
+
+        protected abstract Task StopBuffering();
 
         public void Complete()
         {
-            _domainMessages.Complete();
+            Queue.Complete();
         }
 
         public void Fault(Exception exception)
         {
-            ((IDataflowBlock) _domainMessages).Fault(exception);
+            ((IDataflowBlock) Queue).Fault(exception);
         }
 
-        public Task Completion {
-            get { return _domainMessages.Completion; }
-        }
-
-        public IDisposable LinkTo(ITargetBlock<DomainMessage> target, DataflowLinkOptions linkOptions)
+        public Task Completion
         {
-            return _domainMessages.LinkTo(target, linkOptions);
+            get { return Queue.Completion; }
         }
 
-        public DomainMessage ConsumeMessage(DataflowMessageHeader messageHeader, ITargetBlock<DomainMessage> target, out bool messageConsumed)
+        public IDisposable LinkTo(ITargetBlock<object> target, DataflowLinkOptions linkOptions)
         {
-            return ((ISourceBlock<DomainMessage>)_domainMessages).ConsumeMessage(messageHeader, target, out messageConsumed);
+            return Queue.LinkTo(target, linkOptions);
         }
 
-        public bool ReserveMessage(DataflowMessageHeader messageHeader, ITargetBlock<DomainMessage> target)
+        public object ConsumeMessage(DataflowMessageHeader messageHeader, ITargetBlock<object> target, out bool messageConsumed)
         {
-            return ((ISourceBlock<DomainMessage>)_domainMessages).ReserveMessage(messageHeader, target);
+            return ((ISourceBlock<object>)Queue).ConsumeMessage(messageHeader, target, out messageConsumed);
         }
 
-        public void ReleaseReservation(DataflowMessageHeader messageHeader, ITargetBlock<DomainMessage> target)
+        public bool ReserveMessage(DataflowMessageHeader messageHeader, ITargetBlock<object> target)
         {
-            ((ISourceBlock<DomainMessage>)_domainMessages).ReleaseReservation(messageHeader, target);
+            return ((ISourceBlock<object>)Queue).ReserveMessage(messageHeader, target);
         }
 
-        public IMessagingStrategyRouter<TSourceTarget> Subscribe(IMessagingStrategy<TSourceTarget> strategy, HandleMessage handler)
+        public void ReleaseReservation(DataflowMessageHeader messageHeader, ITargetBlock<object> target)
         {
-            _strategies.Add(strategy, handler);
-            return this;
-        }
-
-        public IMessagingStrategyRouter<TSourceTarget> Subscribe(IMessagingStrategyRouterSubscriber<TSourceTarget> subscriber)
-        {
-            subscriber.Subscribe(this);
-            return this;
+            ((ISourceBlock<object>)Queue).ReleaseReservation(messageHeader, target);
         }
     }
 }

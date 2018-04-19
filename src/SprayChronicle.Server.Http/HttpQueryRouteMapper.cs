@@ -11,16 +11,16 @@ namespace SprayChronicle.Server.Http
 
         readonly IValidator _validator;
 
-        readonly IQueryRouter _processor;
+        readonly QueryRouter _executor;
 
         public HttpQueryRouteMapper(
             ILogger<HttpQueryProcessor> logger,
             IValidator validator,
-            IQueryRouter processor)
+            QueryRouter executor)
         {
             _logger = logger;
             _validator = validator;
-            _processor = processor;
+            _executor = executor;
         }
 
         public void Map(RouteBuilder builder)
@@ -31,13 +31,13 @@ namespace SprayChronicle.Server.Http
                     case "POST":
                         builder.MapPost(
                             query.GetTypeInfo().GetCustomAttribute<HttpQueryAttribute>().Template,
-                            new HttpQueryProcessor(_logger, _validator, _processor, query, query.GetTypeInfo().GetCustomAttribute<HttpQueryAttribute>().ContentType).Process
+                            new HttpQueryProcessor(_logger, _validator, _executor, query, query.GetTypeInfo().GetCustomAttribute<HttpQueryAttribute>().ContentType).Process
                         );
                     break;
                     case "GET":
                         builder.MapGet(
                             query.GetTypeInfo().GetCustomAttribute<HttpQueryAttribute>().Template,
-                            new HttpQueryProcessor(_logger, _validator, _processor, query, query.GetTypeInfo().GetCustomAttribute<HttpQueryAttribute>().ContentType).Process
+                            new HttpQueryProcessor(_logger, _validator, _executor, query, query.GetTypeInfo().GetCustomAttribute<HttpQueryAttribute>().ContentType).Process
                         );
                     break;
                 }

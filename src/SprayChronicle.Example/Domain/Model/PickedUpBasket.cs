@@ -8,6 +8,10 @@ namespace SprayChronicle.Example.Domain.Model
         public PickedUpBasket(BasketId basketId, ImmutableList<ProductId> productsInBasket)
             : base(basketId, productsInBasket)
         {}
+        
+        public PickedUpBasket(BasketId basketId)
+            : base(basketId, ImmutableList<ProductId>.Empty)
+        {}
 
         public PickedUpBasket AddProduct(ProductId productId)
         {

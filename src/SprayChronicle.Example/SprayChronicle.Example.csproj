@@ -7,7 +7,6 @@
     <ProjectReference Include="../SprayChronicle.CommandHandling/SprayChronicle.CommandHandling.csproj" />
     <ProjectReference Include="../SprayChronicle.EventHandling/SprayChronicle.EventHandling.csproj" />
     <ProjectReference Include="../SprayChronicle.EventSourcing/SprayChronicle.EventSourcing.csproj" />
-    <ProjectReference Include="../SprayChronicle.Persistence.Memory/SprayChronicle.Persistence.Memory.csproj" />
     <ProjectReference Include="../SprayChronicle.Persistence.Ouro/SprayChronicle.Persistence.Ouro.csproj" />
     <ProjectReference Include="../SprayChronicle.QueryHandling/SprayChronicle.QueryHandling.csproj" />
     <ProjectReference Include="../SprayChronicle.Server/SprayChronicle.Server.csproj" />
@@ -15,11 +14,8 @@
     <ProjectReference Include="..\SprayChronicle.Persistence.Raven\SprayChronicle.Persistence.Raven.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Autofac" Version="4.6.2" />
-    <PackageReference Include="FluentAssertions" Version="4.19.4" />
+    <PackageReference Include="Autofac" Version="4.7.1" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.3" />
-    <PackageReference Include="MongoDB.Driver" Version="2.4.4" />
-    <PackageReference Include="MongoDB.Bson" Version="2.4.4" />
     <PackageReference Include="System.Collections.Immutable" Version="1.5.0-preview2-26406-04" />
   </ItemGroup>
 </Project>

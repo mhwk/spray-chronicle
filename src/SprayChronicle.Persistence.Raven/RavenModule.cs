@@ -24,7 +24,7 @@ namespace SprayChronicle.Persistence.Raven
                         Urls = new[] {
                             "http://ravendb"
                         },
-                        Database = DatabaseName()
+                        Database = ChronicleServer.Env("RAVENDB_DB", ChronicleServer.Env("HOSTNAME"))
                     };
                     store.Initialize();
                     return store;
@@ -40,11 +40,6 @@ namespace SprayChronicle.Persistence.Raven
                 .SingleInstance();
         }
 
-        private static string DatabaseName()
-        {
-            return ChronicleServer.Env("RAVENDB_DB");
-        }
-        
         public sealed class QueryPipeline<TProcessor,TState> : Module
             where TProcessor : RavenQueryProcessor<TProcessor,TState>
             where TState : class
@@ -77,9 +72,8 @@ namespace SprayChronicle.Persistence.Raven
                 builder
                     .Register(c => new RavenProcessingPipeline<TProcessor,TState>(
                         c.Resolve<IDocumentStore>(),
-                        c.Resolve<IEventSourceFactory<DomainMessage>>().Build(new CatchUpOptions(
-                            _streamName
-                        )),
+                        c.Resolve<IEventSourceFactory>(),
+                        new CatchUpOptions(_streamName),
                         c.Resolve<TProcessor>()))
                     .AsSelf()
                     .As<IQueryPipeline>()

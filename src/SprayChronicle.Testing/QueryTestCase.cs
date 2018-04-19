@@ -7,22 +7,23 @@ using Xunit;
 
 namespace SprayChronicle.Testing
 {
-    public abstract class QueryTestCase<TModule>
+    public abstract class QueryTestCase<TModule,TTarget>
         where TModule : IModule, new()
+        where TTarget : class
     {
         protected virtual void Configure(ContainerBuilder builder)
         {}
 
-        protected abstract Task Given(TestStream stream);
+        protected abstract Task Given(TestSource<TTarget> source);
 
-        protected abstract Task<object> When(IQueryRouter processor);
+        protected abstract Task<object> When(QueryRouter processor);
 
         protected abstract void Then(IValidate validate);
 
         [Fact]
         public virtual async Task Scenario()
         {
-            Then(await (await new QueryFixture<TModule>(Configure).Given(Given)).When(When));
+            Then(await (await new QueryFixture<TModule,TTarget>(Configure).Given(Given)).When(When));
         }
     }
 }

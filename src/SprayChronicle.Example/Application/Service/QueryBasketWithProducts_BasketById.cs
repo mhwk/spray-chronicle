@@ -4,7 +4,7 @@ using SprayChronicle.Example.Application.State;
 
 namespace SprayChronicle.Example.Application.Service
 {
-    public sealed class QueryBasketWithProducts_BasketById : AbstractIndexCreationTask<BasketWithProducts>
+    public sealed class QueryBasketWithProducts_BasketById : AbstractIndexCreationTask<BasketWithProducts_v1>
     {
         public QueryBasketWithProducts_BasketById()
         {

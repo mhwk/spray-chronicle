@@ -6,8 +6,5 @@ namespace SprayChronicle.CommandHandling
     {
         public UnhandledCommandException(string message): base(message)
         {}
-        
-        public UnhandledCommandException(string message, Exception innerException): base(message, innerException)
-        {}
     }
 }

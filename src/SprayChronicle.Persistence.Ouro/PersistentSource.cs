@@ -1,4 +1,5 @@
 using System;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using EventStore.ClientAPI;
@@ -8,10 +9,10 @@ using SprayChronicle.Server;
 
 namespace SprayChronicle.Persistence.Ouro
 {
-    public sealed class PersistentSource<TSourceTarget> : OuroSource<TSourceTarget>
-        where TSourceTarget : class
+    public sealed class PersistentSource<TTarget> : OuroSource<TTarget>
+        where TTarget : class
     {
-        private readonly ILogger<IEventStore> _logger;
+        private readonly ILogger<TTarget> _logger;
 
         private readonly IEventStoreConnection _eventStore;
 
@@ -24,17 +25,16 @@ namespace SprayChronicle.Persistence.Ouro
         private EventStorePersistentSubscriptionBase _subscription;
 
         public PersistentSource(
-            ILogger<IEventStore> logger,
+            ILogger<TTarget> logger,
             IEventStoreConnection eventStore,
             UserCredentials credentials,
-            string streamName,
-            string groupName)
+            PersistentOptions options)
         {
             _logger = logger;
             _eventStore = eventStore;
             _credentials = credentials;
-            _streamName = streamName;
-            _groupName = groupName;
+            _streamName = options.StreamName;
+            _groupName = options.GroupName;
         }
 
         protected override async Task StartBuffering()
@@ -69,7 +69,7 @@ namespace SprayChronicle.Persistence.Ouro
                 _streamName,
                 _groupName,
                 (subscription, resolvedEvent) => {
-                    _domainMessages.Post(resolvedEvent);
+                    Queue.Post(resolvedEvent);
                     // Handle ack / nak flow through tpl?
                     // Or do we catch-up all the things?
                 },
