@@ -6,7 +6,7 @@ namespace SprayChronicle.CommandHandling
     public sealed class HandledFactory<TState>
         where TState : class
     {
-        public Task<HandledCreate<TState>> Mutate(Func<TState> mutation)
+        public Task<HandledCreate<TState>> Mutate(Func<Task<TState>> mutation)
         {
             return Task.FromResult(new HandledCreate<TState>(mutation));
         }
@@ -23,7 +23,7 @@ namespace SprayChronicle.CommandHandling
             _identity = identity;
         }
         
-        public Task<HandledUpdate<TStart,TState>> Mutate(Func<TStart,TState> mutation)
+        public Task<HandledUpdate<TStart,TState>> Mutate(Func<TStart,Task<TState>> mutation)
         {
             return Task.FromResult(new HandledUpdate<TStart,TState>(_identity, mutation));
         }

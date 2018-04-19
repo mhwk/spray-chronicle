@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Threading.Tasks;
 using SprayChronicle.EventSourcing;
 
 namespace SprayChronicle.Example.Domain.Model
@@ -20,9 +21,9 @@ namespace SprayChronicle.Example.Domain.Model
             return BasketId;
         }
         
-        public static PickedUpBasket PickUp(BasketId basketId)
+        public static Task<Basket> PickUp(BasketId basketId)
         {
-            return (PickedUpBasket) Apply(new BasketPickedUp(
+            return Apply(new BasketPickedUp(
                 basketId
             ));
         }

@@ -17,10 +17,12 @@ namespace SprayChronicle.Example.Application.Service
         public async Task<Handled> Handle(GenerateOrder command)
         {
             return await Handle()
-                .Mutate(() => Order.Generate(
-                    command.OrderId,
-                    command.ProductIds.Cast<ProductId>().ToArray()
-                ));
+                .Mutate(async () => {
+                    return await Order.Generate(
+                        command.OrderId,
+                        command.ProductIds.Cast<ProductId>().ToArray()
+                    );
+                });
         }
         
         public async Task<Processed> Process(BasketCheckedOut message, DateTime epoch)

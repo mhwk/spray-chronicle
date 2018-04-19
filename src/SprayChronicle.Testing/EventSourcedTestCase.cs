@@ -15,12 +15,12 @@ namespace SprayChronicle.Testing
 
         protected abstract TSourced When(TSourced sourced);
 
-        protected abstract void Then(IValidate validator);
+        protected abstract Task Then(IValidate validator);
 
         [Fact]
         public virtual async Task Scenario()
         {
-            Then(await (await new EventSourcedFixture<TModule,TSourced>(Configure).Given(Given)).When(When));
+            await Then(await (await new EventSourcedFixture<TModule,TSourced>(Configure).Given(Given)).When(When));
         }
     }
 }

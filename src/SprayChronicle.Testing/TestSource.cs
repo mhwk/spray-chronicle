@@ -18,6 +18,9 @@ namespace SprayChronicle.Testing
             foreach (var message in messages) {
                 _queue.Post(message);
             }
+
+            _queue.Complete();
+            
             return Task.CompletedTask;
         }
 

@@ -8,9 +8,9 @@ namespace SprayChronicle.MessageHandling
     public abstract class MessagingStrategyRouter<THandler> : IMessageRouter, IMessagingStrategyRouter<THandler>
         where THandler : class
     {
-        private readonly Dictionary<IMessagingStrategy<THandler>,HandleMessage> _strategies = new Dictionary<IMessagingStrategy<THandler>,HandleMessage>();
+        private readonly Dictionary<IMessagingStrategy,HandleMessage> _strategies = new Dictionary<IMessagingStrategy,HandleMessage>();
 
-        public IMessagingStrategyRouter<THandler> Subscribe(IMessagingStrategy<THandler> strategy, HandleMessage handler)
+        public IMessagingStrategyRouter<THandler> Subscribe(IMessagingStrategy strategy, HandleMessage handler)
         {
             if (_strategies.ContainsKey(strategy)) {
                 throw new Exception($"Strategy {strategy.GetType()} already subscribed");
@@ -32,7 +32,7 @@ namespace SprayChronicle.MessageHandling
             var tasks = new List<Task<object>>();
             
             foreach (var strategy in _strategies) {
-                if (!strategy.Key.Resolves(strategy.Value, arguments)) {
+                if (!strategy.Key.Resolves(arguments)) {
                     continue;
                 }
 
@@ -42,8 +42,8 @@ namespace SprayChronicle.MessageHandling
             if (0 != tasks.Count) return await Task.WhenAll(tasks);
             
             var messageList = string.Join(", ", arguments.Select(m => m.GetType().Name));
-            var handlerList = string.Join(", ", _strategies.Select(s => s.Value.GetType().Name));
-            throw new UnhandledMessageException($"Messages ({messageList}) not handled by ({handlerList})");
+            var handlerList = string.Join(", ", _strategies.Select(s => s.Key.GetType().GenericTypeArguments.First().Name));
+            throw new UnroutableMessageException($"Message ({messageList}) not handled by ({handlerList})");
         }
     }
 }

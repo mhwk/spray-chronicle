@@ -62,7 +62,7 @@ namespace SprayChronicle.MessageHandling.Test
         [Fact]
         public void TellUnhandledMessage()
         {
-            Should.Throw<UnhandledMessageException>(() => _strategy.Tell(null, new UnknownMessage()));
+            Should.Throw<UnroutableMessageException>(() => _strategy.Tell(null, new UnknownMessage()));
         }
 
         [Fact]

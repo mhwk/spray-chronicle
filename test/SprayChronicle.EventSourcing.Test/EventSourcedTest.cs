@@ -11,13 +11,11 @@ namespace SprayChronicle.EventSourcing.Test
     public class EventSourcedTest
     {
         [Fact]
-        public void ItProvidesDiff()
+        public async Task ItProvidesDiff()
         {
-            var diff = Basket
-                .PickUp(new BasketId("foo"))
-                .Diff();
+            var basket = (PickedUpBasket) await Basket.PickUp("foo");
             
-            diff
+            basket.Diff()
                 .Select(domainMessage => domainMessage.Payload.GetType())
                 .ShouldBe(new object[] {
                     typeof(BasketPickedUp)
@@ -25,14 +23,12 @@ namespace SprayChronicle.EventSourcing.Test
         }
 
         [Fact]
-        public void ItPatches()
+        public async Task ItPatches()
         {
-            var diff = Basket
-                .PickUp(new BasketId("foo"))
-                .AddProduct(new ProductId("bar"))
-                .Diff();
+            var basket = (PickedUpBasket) await Basket.PickUp("foo");
+            basket = (PickedUpBasket) await basket.AddProduct(new ProductId("bar"));
             
-            diff
+            basket.Diff()
                 .Select(domainMessage => domainMessage.Payload.GetType())
                 .ShouldBe(new object[] {
                     typeof(BasketPickedUp),
@@ -41,13 +37,13 @@ namespace SprayChronicle.EventSourcing.Test
         }
 
         [Fact]
-        public void ItCalculatesSequence()
+        public async Task ItCalculatesSequence()
         {
-            Basket
-                .PickUp(new BasketId("foo"))
-                .AddProduct(new ProductId("bar"))
-                .AddProduct(new ProductId("bar"))
-                .Diff()
+            var basket = (PickedUpBasket) await Basket.PickUp("foo");
+            basket = (PickedUpBasket) await basket.AddProduct(new ProductId("bar"));
+            basket = (PickedUpBasket) await basket.AddProduct(new ProductId("bar"));
+            
+            basket.Diff()
                 .Select(domainMessage => domainMessage.Sequence)
                 .ToArray()
                 .ShouldBe(new [] {0L, 1L, 2L});
@@ -59,11 +55,11 @@ namespace SprayChronicle.EventSourcing.Test
             var source = new TestSource<Basket>();
             await source.Publish(new BasketPickedUp("foo"));
             
-            var aggregate = (PickedUpBasket) await Basket.Patch(source);
-            aggregate
-                .AddProduct(new ProductId("bar"))
-                .AddProduct(new ProductId("bar"))
-                .Diff()
+            var basket = (PickedUpBasket) await Basket.Patch(source);
+            basket = (PickedUpBasket) await basket.AddProduct(new ProductId("bar"));
+            basket = (PickedUpBasket) await basket.AddProduct(new ProductId("bar"));
+            
+            basket.Diff()
                 .Select(domainMessage => domainMessage.Sequence)
                 .ToArray()
                 .ShouldBe(new [] {1L, 2L});
@@ -88,12 +84,11 @@ namespace SprayChronicle.EventSourcing.Test
             await source.Publish(new UnknownBasketEvent());
             await Basket.Patch(source);
             
-            var aggregate = (PickedUpBasket) await Basket.Patch(source);
+            var basket = (PickedUpBasket) await Basket.Patch(source);
+            basket = (PickedUpBasket) await basket.AddProduct(new ProductId("bar"));
+            basket = (PickedUpBasket) await basket.AddProduct(new ProductId("bar"));
             
-            aggregate
-                .AddProduct(new ProductId("bar"))
-                .AddProduct(new ProductId("bar"))
-                .Diff()
+            basket.Diff()
                 .Select(domainMessage => domainMessage.Sequence)
                 .ToArray()
                 .ShouldBe(new [] {2L, 3L});

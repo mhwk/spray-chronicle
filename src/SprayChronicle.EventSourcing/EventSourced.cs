@@ -30,7 +30,7 @@ namespace SprayChronicle.EventSourcing
             var converted = new TransformBlock<object, DomainMessage>(message => messages.Convert(Strategy, message));
             var applied = new ActionBlock<DomainMessage>(async message =>
             {
-                sourcable = await Strategy.Ask<EventSourced<T>>(sourcable as T, message);
+                sourcable = await Strategy.Ask<EventSourced<T>>(sourcable as T, message.Payload);
                 
                 if (null == sourcable) {
                     return;
@@ -39,15 +39,19 @@ namespace SprayChronicle.EventSourcing
                 ((EventSourced<T>)sourcable)._sequence = message.Sequence;
             });
 
-            messages.LinkTo(converted);
-            converted.LinkTo(applied);
+            messages.LinkTo(converted, new DataflowLinkOptions {
+                PropagateCompletion = true
+            });
+            converted.LinkTo(applied, new DataflowLinkOptions {
+                PropagateCompletion = true
+            });
 
             await converted.Completion;
             
             return (T) sourcable;
         }
 
-        protected static T Apply(IEventSourcable<T> sourcable, object payload)
+        protected static async Task<T> Apply(IEventSourcable<T> sourcable, object payload)
         {
             var domainMessage = new DomainMessage(
                 ((EventSourced<T>) sourcable)?._sequence + 1 ?? 0,
@@ -55,7 +59,7 @@ namespace SprayChronicle.EventSourcing
                 payload
             );
 
-            var updated = (IEventSourcable<T>) Strategy.Tell(sourcable as T, domainMessage);
+            var updated = (IEventSourcable<T>) await Strategy.Ask<EventSourced<T>>(sourcable as T, domainMessage);
             
             if (updated != sourcable && null != sourcable) {
                 ((EventSourced<T>)updated)._queue.AddRange(((EventSourced<T>)sourcable)._queue);
@@ -67,24 +71,24 @@ namespace SprayChronicle.EventSourcing
             return (T) updated;
         }
 
-        protected static T Apply(IEventSourcable<T> sourcable, params object[] payloads)
+        protected static async Task<T> Apply(IEventSourcable<T> sourcable, params object[] payloads)
         {
             foreach (var payload in payloads) {
-                sourcable = Apply(sourcable, payload);
+                sourcable = await Apply(sourcable, payload);
             }
             return (T) sourcable;
         }
 
-        protected static T Apply(object payload)
+        protected static async Task<T> Apply(object payload)
         {
-            return Apply(null, payload);
+            return await Apply(null, payload);
         }
 
-        protected static T Apply(params object[] payloads)
+        protected static async Task<T> Apply(params object[] payloads)
         {
             T sourcable = default(T);
             foreach (var payload in payloads) {
-                sourcable = Apply(sourcable, payload);
+                sourcable = await Apply(sourcable, payload);
             }
             return sourcable;
         }

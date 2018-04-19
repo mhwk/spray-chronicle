@@ -14,10 +14,10 @@ namespace SprayChronicle.EventSourcing.Test
         private readonly IEventStore _persistence = Substitute.For<IEventStore>();
 
         [Fact]
-        public void ItAppendsMessages()
+        public async Task ItAppendsMessages()
         {
-            new EventSourcedRepository<Basket>(_persistence)
-                .Save(Basket.PickUp(new BasketId("foo")));
+            await new EventSourcedRepository<Basket>(_persistence)
+                .Save(await Basket.PickUp(new BasketId("foo")));
             
             _persistence
                 .Received()
@@ -34,9 +34,8 @@ namespace SprayChronicle.EventSourcing.Test
                 .Load<Basket>(Arg.Is("foo"))
                 .Returns(source);
                 
-            new EventSourcedRepository<Basket>(_persistence)
-                .Load("foo")
-                .ShouldBeAssignableTo<PickedUpBasket>();
+            var result = await new EventSourcedRepository<Basket>(_persistence).Load("foo");
+            result.ShouldBeAssignableTo<PickedUpBasket>();
         }
 
         [Fact]
@@ -49,9 +48,8 @@ namespace SprayChronicle.EventSourcing.Test
                 .Load<Basket>(Arg.Is("foo"))
                 .Returns(source);
             
-            new EventSourcedRepository<Basket>(_persistence)
-                .Load("foo")
-                .ShouldBeNull();
+            var result = await new EventSourcedRepository<Basket>(_persistence).Load("foo");
+            result.ShouldBeNull();
         }
 
         [Fact]
@@ -64,8 +62,8 @@ namespace SprayChronicle.EventSourcing.Test
                 .Load<Basket>(Arg.Is("foo"))
                 .Returns(source);
 
-            await Should.ThrowAsync<InvalidStateException>(
-                new EventSourcedRepository<Basket>(_persistence).Load<Basket>("foo")
+            Should.Throw<InvalidStateException>(
+                () => new EventSourcedRepository<Basket>(_persistence).Load<Basket>("foo")
             );
         }
 
@@ -79,9 +77,8 @@ namespace SprayChronicle.EventSourcing.Test
                 .Load<Basket>(Arg.Is("foo"))
                 .Returns(source);
             
-            new EventSourcedRepository<Basket>(_persistence)
-                .LoadOrDefault<Basket>("foo")
-                .ShouldBeNull();
+            var result = await new EventSourcedRepository<Basket>(_persistence).LoadOrDefault<Basket>("foo");
+            result.ShouldBeNull();
         }
     }
 }

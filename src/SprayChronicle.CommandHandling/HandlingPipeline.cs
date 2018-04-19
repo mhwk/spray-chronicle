@@ -29,7 +29,7 @@ namespace SprayChronicle.CommandHandling
 
         public void Subscribe(IMessagingStrategyRouter<IHandle> messageRouter)
         {
-            messageRouter.Subscribe(_strategy as IMessagingStrategy<IHandle>, command =>
+            messageRouter.Subscribe(_strategy as IMessagingStrategy, command =>
             {
                 _queue.Post(command);
                 return null;

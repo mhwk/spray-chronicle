@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace SprayChronicle.MessageHandling
 {
-    public sealed class OverloadMessagingStrategy<T> : IMessagingStrategy<T> where T : class
+    public sealed class OverloadMessagingStrategy<T> : IMessagingStrategy, IMessagingStrategy<T>
+        where T : class
     {
         private const BindingFlags BindingFlags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.DeclaredOnly;
 
@@ -102,7 +103,7 @@ namespace SprayChronicle.MessageHandling
             if ( ! methods.Any()) {
                 var providedArgs = string.Join(", ", arguments.Select(a => a.GetType().FullName));
                 var suggestedArgs = string.Join(", ", _typesToMethod.SuggestList(subject));
-                throw new UnhandledMessageException(
+                throw new UnroutableMessageException(
                     $"[{typeof(T)}] Not handled ({providedArgs}), try one of ({suggestedArgs})"
                 );
             }

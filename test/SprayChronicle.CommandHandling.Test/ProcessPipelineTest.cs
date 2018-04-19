@@ -39,7 +39,7 @@ namespace SprayChronicle.CommandHandling.Test
                 .Returns(new DomainMessage(0, DateTime.Now, message));
 
             await _source.Publish(message);
-            await Should.ThrowAsync<UnhandledMessageException>(pipeline.Start());
+            await Should.ThrowAsync<UnroutableMessageException>(pipeline.Start());
         }
         
         [Fact]

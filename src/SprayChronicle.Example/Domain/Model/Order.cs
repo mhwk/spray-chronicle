@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Threading.Tasks;
 using SprayChronicle.EventSourcing;
 
 namespace SprayChronicle.Example.Domain.Model
@@ -15,9 +16,9 @@ namespace SprayChronicle.Example.Domain.Model
             _productIds = productIds;
         }
 
-        public static Order Generate(OrderId orderId, ProductId[] productIds)
+        public static async Task<Order> Generate(OrderId orderId, ProductId[] productIds)
         {
-            return Apply(new OrderGenerated(
+            return await Apply(new OrderGenerated(
                 orderId,
                 productIds.Select(p => p.ToString()).ToArray()
             ));

@@ -8,7 +8,7 @@ using SprayChronicle.MessageHandling;
 namespace SprayChronicle.CommandHandling
 {
     public sealed class ProcessingPipeline<THandler> : IPipeline
-        where THandler : class
+        where THandler : class, IProcess
     {
         public string Description => $"CommandProcessor: {typeof(THandler).Name}";
         

@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace SprayChronicle.Example.Domain.Model
 {
@@ -13,27 +14,27 @@ namespace SprayChronicle.Example.Domain.Model
             : base(basketId, ImmutableList<ProductId>.Empty)
         {}
 
-        public PickedUpBasket AddProduct(ProductId productId)
+        public async Task<Basket> AddProduct(ProductId productId)
         {
-            return (PickedUpBasket) Apply(this, new ProductAddedToBasket(
+            return await Apply(this, new ProductAddedToBasket(
                 BasketId.ToString(),
                 productId.ToString()
             ));
         }
 
-        public PickedUpBasket RemoveProduct(ProductId productId)
+        public  async Task<Basket> RemoveProduct(ProductId productId)
         {
             AssertContainsProduct(productId);
             
-            return (PickedUpBasket) Apply(this, new ProductRemovedFromBasket(
+            return await Apply(this, new ProductRemovedFromBasket(
                 BasketId.ToString(),
                 productId.ToString()
             ));
         }
 
-        public CheckedOutBasket CheckOut(OrderId orderId)
+        public async Task<Basket> CheckOut(OrderId orderId)
         {
-            return (CheckedOutBasket) Apply(this, new BasketCheckedOut(
+            return await Apply(this, new BasketCheckedOut(
                 BasketId.ToString(),
                 orderId.ToString(),
                 ProductsInBasket.Select(p => p.ToString()).ToArray()

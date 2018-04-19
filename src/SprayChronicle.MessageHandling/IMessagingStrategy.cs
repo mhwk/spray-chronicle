@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace SprayChronicle.MessageHandling
 {
-    public interface IMessagingStrategy<in T>
+    public interface IMessagingStrategy
     {
         bool Resolves(string messageName);
         
@@ -15,10 +15,13 @@ namespace SprayChronicle.MessageHandling
         
         bool Resolves<TResult>(params object[] arguments);
         
+        Type ToType(string messageName);
+    }
+    
+    public interface IMessagingStrategy<in T> : IMessagingStrategy
+    {
         Task Tell(T subject, params object[] arguments);
         
         Task<TResult> Ask<TResult>(T subject, params object[] arguments) where TResult : class;
-        
-        Type ToType(string messageName);
     }
 }

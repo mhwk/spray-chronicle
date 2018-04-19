@@ -6,9 +6,9 @@ namespace SprayChronicle.CommandHandling
     public sealed class HandledCreate<TState> : Handled
         where TState : class
     {
-        private readonly Func<TState> _mutation;
+        private readonly Func<Task<TState>> _mutation;
         
-        public HandledCreate(Func<TState> mutation) : base(null)
+        public HandledCreate(Func<Task<TState>> mutation) : base(null)
         {
             _mutation = mutation;
         }
