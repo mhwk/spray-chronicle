@@ -18,23 +18,26 @@ namespace SprayChronicle.Testing
             foreach (var message in messages) {
                 _queue.Post(message);
             }
-
-            _queue.Complete();
             
             return Task.CompletedTask;
         }
 
         public Task Start()
         {
+            _queue.Complete();
             return Task.CompletedTask;
         }
 
         public DomainMessage Convert(IMessagingStrategy<TTarget> strategy, object message)
         {
+            if (!strategy.Resolves(message)) {
+                return null;
+            }
+            
             return new DomainMessage(
                 _sequence++,
                 new DateTime(),
-                message 
+                message
             );
         }
 

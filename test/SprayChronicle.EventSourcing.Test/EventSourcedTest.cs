@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Shouldly;
@@ -71,8 +72,12 @@ namespace SprayChronicle.EventSourcing.Test
             var source = new TestSource<Basket>();
             
             await source.Publish(new BasketPickedUp("foo"));
-            await source.Publish(new UnknownBasketEvent());
-            await Basket.Patch(source);
+            await source.Publish(new object());
+            
+            source.Complete();
+            
+            var basket = await Basket.Patch(source);
+            basket.ShouldBeOfType<PickedUpBasket>();
         }
 
         [Fact]
@@ -81,22 +86,19 @@ namespace SprayChronicle.EventSourcing.Test
             var source = new TestSource<Basket>();
             
             await source.Publish(new BasketPickedUp("foo"));
-            await source.Publish(new UnknownBasketEvent());
-            await Basket.Patch(source);
+            await source.Publish(new object());
             
             var basket = (PickedUpBasket) await Basket.Patch(source);
+            
+            Console.WriteLine(null == basket ? "--- NULL" : "--- " + basket.GetType());
             basket = (PickedUpBasket) await basket.AddProduct(new ProductId("bar"));
             basket = (PickedUpBasket) await basket.AddProduct(new ProductId("bar"));
             
-            basket.Diff()
+            basket
+                .Diff()
                 .Select(domainMessage => domainMessage.Sequence)
                 .ToArray()
                 .ShouldBe(new [] {2L, 3L});
-        }
-
-        private sealed class UnknownBasketEvent
-        {
-
         }
     }
 }

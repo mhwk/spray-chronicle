@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace SprayChronicle.EventHandling
 {
@@ -7,5 +8,6 @@ namespace SprayChronicle.EventHandling
         string Description { get; }
 
         Task Start();
+        Task Stop();
     }
 }

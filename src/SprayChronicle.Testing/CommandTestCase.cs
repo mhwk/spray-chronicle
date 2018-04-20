@@ -20,7 +20,11 @@ namespace SprayChronicle.Testing
         [Fact]
         public virtual async Task Scenario()
         {
-             Then(await (await new CommandFixture<TModule>(Configure).Given(Given)).When(When));
+            var fixture = new CommandFixture<TModule>(Configure);
+
+            await fixture.Given(Given);
+
+            Then(await fixture.When(When));
         }
     }
 }

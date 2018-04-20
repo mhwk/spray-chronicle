@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Autofac;
-using Autofac.Core;
 using Microsoft.Extensions.Logging;
 using SprayChronicle.Server;
 
 namespace SprayChronicle.Testing
 {
-    public abstract class Fixture<TModule,TPopulate,TPopulateResult,TExecute,TValidate> : IPopulate<TPopulate,TPopulateResult,TExecute,TValidate>, IExecute<TExecute,TValidate>
-        where TModule : IModule, new()
+    public abstract class Fixture<TPopulate,TPopulateResult,TExecute,TValidate> : IPopulate<TPopulate,TPopulateResult,TExecute,TValidate>, IExecute<TExecute,TValidate>
         where TPopulate : class
         where TPopulateResult : class
         where TExecute : class

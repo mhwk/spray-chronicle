@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.SystemData;
 using NSubstitute;
@@ -15,34 +16,49 @@ namespace SprayChronicle.Persistence.Ouro.Test
         
         private readonly ILogger<IEventStore> _logger = Substitute.For<ILogger<IEventStore>>();
 
-        private readonly IEventStoreConnection _eventStore = Substitute.For<IEventStoreConnection>();
-
         private readonly UserCredentials _credentials = new UserCredentials("username", "password");
 
-        private OuroEventStore Store()
+        private static async Task<IEventStoreConnection> InitializeOuro()
         {
+            var connection = EventStoreConnection.Create (
+                ConnectionSettings.Create()
+                    .WithConnectionTimeoutOf(TimeSpan.FromSeconds(5))
+                    .KeepReconnecting()
+                    .KeepRetrying()
+                    .UseConsoleLogger()
+                    .Build(),
+                new Uri ("tcp://admin:changeit@eventstore:1113")
+            );
+		    
+            await connection.ConnectAsync();
+            return connection;
+        }
+
+        private async Task<OuroEventStore> Store()
+        {
+            var ouro = await InitializeOuro();
             return new OuroEventStore(
                 _logger,
                 new OuroSourceFactory(
                     _loggerFactory,
-                    _eventStore,
+                    ouro,
                     _credentials
                 ),
-                _eventStore,
+                ouro,
                 _credentials
             );
         }
 
         [Fact]
-        public void ItCanInstantiateOuroStore()
+        public async Task ItCanInstantiateOuroStore()
         {
-            Store().ShouldNotBeNull();
+            (await Store()).ShouldNotBeNull();
         }
         
         [Fact]
         public void ItCanNotSaveEmptyStreamName()
         {
-            Should.Throw<InvalidStreamException>(() => Store().Append<ExampleAggregate>("", new[] {
+            Should.Throw<InvalidStreamException>(async () => (await Store()).Append<ExampleAggregate>("", new[] {
                 new DomainMessage(0, new DateTime(), new object())
             }));
         }
@@ -50,7 +66,7 @@ namespace SprayChronicle.Persistence.Ouro.Test
         [Fact]
         public void ItCanNotSaveInvalidStreamName()
         {
-            Should.Throw<InvalidStreamException>(() => Store().Append<ExampleAggregate>("@", new[] {
+            Should.Throw<InvalidStreamException>(async () => (await Store()).Append<ExampleAggregate>("@", new[] {
                 new DomainMessage(0, new DateTime(), new object())
             }));
         }

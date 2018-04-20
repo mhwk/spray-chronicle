@@ -11,16 +11,20 @@ namespace SprayChronicle.Testing
         protected virtual void Configure(ContainerBuilder builder)
         {}
 
-        protected abstract TSourced Given(TSourced sourced);
+        protected abstract Task<TSourced> Given(TSourced sourced);
 
-        protected abstract TSourced When(TSourced sourced);
+        protected abstract Task<TSourced> When(TSourced sourced);
 
-        protected abstract Task Then(IValidate validator);
+        protected abstract void Then(IValidate validator);
 
         [Fact]
         public virtual async Task Scenario()
         {
-            await Then(await (await new EventSourcedFixture<TModule,TSourced>(Configure).Given(Given)).When(When));
+            var fixture = new EventSourcedFixture<TModule, TSourced>(Configure);
+            
+            await fixture.Given(Given);
+
+            Then(await fixture.When(When));
         }
     }
 }

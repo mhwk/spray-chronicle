@@ -35,6 +35,10 @@ namespace SprayChronicle.MessageHandling
 
         public MethodInfo[] MethodsFor(IEnumerable<object> args)
         {
+            if (args.Any(a => a == null)) {
+                throw new ArgumentException($"Null value not allowed in args");
+            }
+            
             return MethodsFor(args.Select(arg => arg.GetType()));
         }
 

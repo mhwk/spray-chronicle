@@ -28,24 +28,22 @@ namespace SprayChronicle.Testing
             _error = error;
         }
 
-        public static async Task<EventSourcedValidator> Run<TSourced>(IContainer container, Func<TSourced> callback)
+        public static async Task<EventSourcedValidator> Run<TSourced>(IContainer container, Func<Task<TSourced>> callback)
             where TSourced : EventSourced<TSourced>
         {
-            return await Task.Run(() => {
-                container.Resolve<TestStore>().Present();
+            container.Resolve<TestStore>().Present();
                 
-                try {
-                    return new EventSourcedValidator(
-                        container,
-                        callback()?.Diff().ToArray()
-                    );
-                } catch (Exception error) {
-                    return new EventSourcedValidator(
-                        container,
-                        error
-                    );
-                }
-            });
+            try {
+                return new EventSourcedValidator(
+                    container,
+                    (await callback())?.Diff().ToArray()
+                );
+            } catch (Exception error) {
+                return new EventSourcedValidator(
+                    container,
+                    error
+                );
+            }
         }
         
         public DateTime Epoch(int index)

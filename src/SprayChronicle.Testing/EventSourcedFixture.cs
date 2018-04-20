@@ -6,7 +6,7 @@ using SprayChronicle.EventSourcing;
 
 namespace SprayChronicle.Testing
 {
-    public class EventSourcedFixture<TModule,TSourced> : Fixture<TModule,TSourced,TSourced,TSourced,TSourced>
+    public class EventSourcedFixture<TModule,TSourced> : Fixture<TSourced,Task<TSourced>,TSourced,Task<TSourced>>
         where TModule : IModule, new()
         where TSourced : EventSourced<TSourced>
     {
@@ -31,15 +31,15 @@ namespace SprayChronicle.Testing
         {
         }
 
-        public override async Task<IExecute<TSourced, TSourced>> Given(Func<TSourced, TSourced> callback)
+        public override async Task<IExecute<TSourced, Task<TSourced>>> Given(Func<TSourced, Task<TSourced>> callback)
         {
-            _sourced = await Task.Run(() => callback(null));
+            _sourced = await callback(null);
             _sourced?.Diff();
             
             return this;
         }
 
-        public override async Task<IValidate> When(Func<TSourced,TSourced> callback)
+        public override async Task<IValidate> When(Func<TSourced,Task<TSourced>> callback)
         {
             return await EventSourcedValidator.Run(Container, () => callback(_sourced));
         }

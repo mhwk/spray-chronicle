@@ -22,6 +22,8 @@ namespace SprayChronicle.CommandHandling
         
         private readonly THandler _handler;
 
+        private IEventSource<THandler> _source;
+
         public ProcessingPipeline(
             IEventSourceFactory sourceFactory,
             PersistentOptions sourceOptions,
@@ -36,12 +38,12 @@ namespace SprayChronicle.CommandHandling
 
         public async Task Start()
         {
-            var source = _sourceFactory.Build<THandler,PersistentOptions>(_sourceOptions);
-            var converted = new TransformBlock<object,DomainMessage>(message => source.Convert(_strategy, message));
+            _source = _sourceFactory.Build<THandler,PersistentOptions>(_sourceOptions);
+            var converted = new TransformBlock<object,DomainMessage>(message => _source.Convert(_strategy, message));
             var dispatch = new TransformBlock<DomainMessage,Processed>(message => Dispatch(message));
             var apply = new ActionBlock<Processed>(command => Apply(command));
 
-            source.LinkTo(converted, new DataflowLinkOptions {
+            _source.LinkTo(converted, new DataflowLinkOptions {
                 PropagateCompletion = true
             });
             converted.LinkTo(dispatch, new DataflowLinkOptions {
@@ -50,13 +52,28 @@ namespace SprayChronicle.CommandHandling
             dispatch.LinkTo(apply, new DataflowLinkOptions {
                 PropagateCompletion = true
             });
+            
+            await Task.WhenAll(_source.Start(), apply.Completion);
+        }
 
-            await Task.WhenAll(source.Start(), apply.Completion);
+        public async Task Stop()
+        {
+                
+            if (null == _source) {
+                return;
+            }
+            
+            _source.Complete();
+            await _source.Completion;
         }
 
         private Task<Processed> Dispatch(DomainMessage message)
         {
-            return _strategy.Ask<Processed>(_handler, message);
+            try {
+                return _strategy.Ask<Processed>(_handler, message.Payload);
+            } catch (UnhandledCommandException error) {
+                return Processed.WithError(error);
+            }
         }
         
         private async Task Apply(Processed processed)

@@ -6,7 +6,7 @@ using SprayChronicle.MessageHandling;
 
 namespace SprayChronicle.EventSourcing
 {
-    public abstract class EventSourced<T> : IEventSourcable<T> where T : class, IEventSourcable<T>
+    public abstract class EventSourced<T> : IEventSourcable<T> where T : EventSourced<T>
     {
         private long _sequence = -1;
 
@@ -25,19 +25,25 @@ namespace SprayChronicle.EventSourcing
 
         public static async Task<T> Patch(IEventSource<T> messages)
         {
-            var sourcable = default(IEventSourcable<T>);
+            var sourcable = default(T);
             
             var converted = new TransformBlock<object, DomainMessage>(message => messages.Convert(Strategy, message));
-            var applied = new ActionBlock<DomainMessage>(async message =>
-            {
-                sourcable = await Strategy.Ask<EventSourced<T>>(sourcable as T, message.Payload);
-                
-                if (null == sourcable) {
-                    return;
+            var applied = new ActionBlock<DomainMessage>(
+                async message =>
+                {
+                    if (null != message) {
+                        sourcable = await Strategy.Ask<T>(sourcable, message.Payload);
+                    }
+
+                    if (null != sourcable) {
+                        sourcable._sequence++;
+                    }
+                    
+                },
+                new ExecutionDataflowBlockOptions {
+                    MaxDegreeOfParallelism = 1
                 }
-                
-                ((EventSourced<T>)sourcable)._sequence = message.Sequence;
-            });
+            );
 
             messages.LinkTo(converted, new DataflowLinkOptions {
                 PropagateCompletion = true
@@ -46,9 +52,10 @@ namespace SprayChronicle.EventSourcing
                 PropagateCompletion = true
             });
 
-            await converted.Completion;
+            await messages.Start();
+            await applied.Completion;
             
-            return (T) sourcable;
+            return sourcable;
         }
 
         protected static async Task<T> Apply(IEventSourcable<T> sourcable, object payload)
@@ -59,7 +66,7 @@ namespace SprayChronicle.EventSourcing
                 payload
             );
 
-            var updated = (IEventSourcable<T>) await Strategy.Ask<EventSourced<T>>(sourcable as T, domainMessage);
+            var updated = (IEventSourcable<T>) await Strategy.Ask<EventSourced<T>>(sourcable as T, domainMessage.Payload);
             
             if (updated != sourcable && null != sourcable) {
                 ((EventSourced<T>)updated)._queue.AddRange(((EventSourced<T>)sourcable)._queue);

@@ -8,12 +8,12 @@ namespace SprayChronicle.Example.Test.Domain
 {
     public sealed class PickUpABasket : EventSourcedTestCase<Module,Basket>
     {
-        protected override Basket Given(Basket sourced)
+        protected override Task<Basket> Given(Basket sourced)
         {
             return null;
         }
 
-        protected override Basket When(Basket basket)
+        protected override Task<Basket> When(Basket basket)
         {
             return Basket.PickUp(new BasketId("basketId"));
         }

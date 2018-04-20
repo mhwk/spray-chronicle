@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using SprayChronicle.EventSourcing;
 using SprayChronicle.MessageHandling;
@@ -13,7 +14,7 @@ namespace SprayChronicle.CommandHandling
         
         private readonly IMessagingStrategy<THandler> _strategy = new OverloadMessagingStrategy<THandler>("Handle");
 
-        private readonly BufferBlock<object> _queue = new BufferBlock<object>();
+        private readonly BufferBlock<object> _queue;
 
         private readonly THandler _handler;
         
@@ -21,18 +22,29 @@ namespace SprayChronicle.CommandHandling
 
         public HandlingPipeline(
             IEventSourcingRepository<TState> repository,
-            THandler handler)
+            THandler handler) :  this(
+                repository,
+                handler,
+                new BufferBlock<object>()
+            )
+        {
+        }
+
+        public HandlingPipeline(
+            IEventSourcingRepository<TState> repository,
+            THandler handler,
+            BufferBlock<object> queue)
         {
             _repository = repository;
             _handler = handler;
+            _queue = queue;
         }
 
         public void Subscribe(IMessagingStrategyRouter<IHandle> messageRouter)
         {
-            messageRouter.Subscribe(_strategy as IMessagingStrategy, command =>
-            {
+            messageRouter.Subscribe(_strategy, command => {
                 _queue.Post(command);
-                return null;
+                return Task.FromResult<object>(null);
             });
         }
 
@@ -48,7 +60,13 @@ namespace SprayChronicle.CommandHandling
                 PropagateCompletion = true
             });
 
-            await apply.Completion;
+            await Task.WhenAll(dispatch.Completion);
+        }
+
+        public async Task Stop()
+        {
+            _queue.Complete();
+            await _queue.Completion;
         }
 
         private Task<Handled> Dispatch(object command)

@@ -8,7 +8,7 @@ using SprayChronicle.EventSourcing;
 
 namespace SprayChronicle.Testing
 {
-    public sealed class CommandFixture<TModule> : Fixture<TModule,CommandRouter,Task,CommandRouter,Task> where TModule : IModule, new()
+    public sealed class CommandFixture<TModule> : Fixture<CommandRouter,Task,CommandRouter,Task> where TModule : IModule, new()
     {
         public CommandFixture(): this(builder => {})
         {}

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using Raven.Client.Documents;
@@ -25,6 +26,8 @@ namespace SprayChronicle.Persistence.Raven
         
         private readonly IDocumentStore _store;
 
+        private IEventSource<TProcessor> _source;
+
         private long _checkpoint;
 
         public RavenProcessingPipeline(
@@ -41,15 +44,19 @@ namespace SprayChronicle.Persistence.Raven
         
         public async Task Start()
         {
+            if (null != _source) {
+                throw new Exception("Raven processing already started");
+            }
+            
             _checkpoint = await LoadCheckpoint();
 
-            var source = _sourceFactory.Build<TProcessor,CatchUpOptions>(_sourceOptions.WithCheckpoint(_checkpoint));
-            var converted = new TransformBlock<object,DomainMessage>(message => source.Convert(_strategy, message));
+            _source = _sourceFactory.Build<TProcessor,CatchUpOptions>(_sourceOptions.WithCheckpoint(_checkpoint));
+            var converted = new TransformBlock<object,DomainMessage>(message => _source.Convert(_strategy, message));
             var routed = new TransformBlock<DomainMessage,RavenProcessed>(message => Route(message));
             var batched = new BatchBlock<RavenProcessed>(1000);
             var action = new ActionBlock<RavenProcessed[]>(processed => Apply(processed));
 
-            source.LinkTo(converted, new DataflowLinkOptions {
+            _source.LinkTo(converted, new DataflowLinkOptions {
                 PropagateCompletion = true
             });
             converted.LinkTo(routed, new DataflowLinkOptions {
@@ -65,7 +72,17 @@ namespace SprayChronicle.Persistence.Raven
                 PropagateCompletion = true
             });
 
-            await Task.WhenAll(source.Start(), action.Completion);
+            await Task.WhenAll(_source.Start(), batched.Completion);
+        }
+
+        public Task Stop()
+        {
+            if (null == _source) {
+                throw new Exception("Raven processing not started");
+            }
+            
+            _source.Complete();
+            return _source.Completion;
         }
 
         private async Task<RavenProcessed> Route(DomainMessage domainMessage)

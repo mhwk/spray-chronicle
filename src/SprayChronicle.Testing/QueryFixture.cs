@@ -7,7 +7,7 @@ using SprayChronicle.QueryHandling;
 
 namespace SprayChronicle.Testing
 {
-    public class QueryFixture<TModule,TTarget> : Fixture<TModule,TestSource<TTarget>,Task,QueryRouter,Task<object>>
+    public class QueryFixture<TModule,TTarget> : Fixture<TestSource<TTarget>,Task,QueryRouter,Task<object>>
         where TModule : IModule, new()
         where TTarget : class
     {

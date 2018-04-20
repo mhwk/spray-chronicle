@@ -49,9 +49,15 @@ namespace SprayChronicle.QueryHandling
                 PropagateCompletion = true
             });
             
-            await Task.WhenAll(_queue.Completion);
+            await Task.WhenAll(applied.Completion);
         }
-        
+
+        public Task Stop()
+        {
+            _queue.Complete();
+            return Task.CompletedTask;
+        }
+
         private async Task<Executor> ExecuteQuery(QueryRequest query)
         {
             return await _strategy.Ask<Executor>(_processor, query).ConfigureAwait(false);

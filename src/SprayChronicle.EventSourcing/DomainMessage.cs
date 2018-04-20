@@ -1,5 +1,4 @@
 using System;
-using SprayChronicle.MessageHandling;
 
 namespace SprayChronicle.EventSourcing
 {
@@ -17,7 +16,7 @@ namespace SprayChronicle.EventSourcing
         {
             Sequence = sequence;
             Epoch = epoch;
-            Name = payload.GetType().Name;
+            Name = payload?.GetType().Name;
             Payload = payload;
         }
     }
