@@ -78,8 +78,14 @@ namespace SprayChronicle.Persistence.Ouro
 				new Uri (uri)
 			);
 		    
-			connection.ConnectAsync().Wait();
-            container.Resolve<ILoggerFactory>().Create<IEventStoreConnection>().LogInformation("Connected to eventstore on {0}!", uri);
+			connection
+			    .ConnectAsync()
+			    .Wait();
+		    
+            container
+                .Resolve<ILoggerFactory>()
+                .Create<IEventStoreConnection>()
+                .LogInformation($"Connected to eventstore on {uri}!");
 
 			return connection;
 		}
@@ -104,9 +110,7 @@ namespace SprayChronicle.Persistence.Ouro
 			connection.ConnectAsync().Wait();
 
             logger.LogInformation(
-                "Connected to eventstore cluster dns {0}:{1}!",
-                ChronicleServer.Env("EVENTSTORE_CLUSTER_DNS"),
-                ChronicleServer.Env("EVENTSTORE_GOSSIP_PORT") ?? "2113"
+                $"Connected to eventstore cluster dns {ChronicleServer.Env("EVENTSTORE_CLUSTER_DNS")}:{ChronicleServer.Env("EVENTSTORE_GOSSIP_PORT")}!"
             );
 
 			return connection;

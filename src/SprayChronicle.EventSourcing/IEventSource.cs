@@ -4,7 +4,12 @@ using SprayChronicle.MessageHandling;
 
 namespace SprayChronicle.EventSourcing
 {
-    public interface IEventSource<out TTarget> : ISourceBlock<object>
+    public interface IEventSource
+    {
+        
+    }
+    
+    public interface IEventSource<out TTarget> : ISourceBlock<object>, IEventSource
         where TTarget : class
     {
         Task Start();

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -8,7 +7,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using SprayChronicle.CommandHandling;
 using SprayChronicle.EventSourcing;
-using SprayChronicle.MessageHandling;
 
 namespace SprayChronicle.Server.Http
 {
@@ -27,7 +25,7 @@ namespace SprayChronicle.Server.Http
             Converters = new List<JsonConverter>() { new ISO8601DateConverter() }
         };
 
-        private static readonly RequestToMessageConverter converter = new RequestToMessageConverter();
+        private static readonly RequestToMessageConverter Converter = new RequestToMessageConverter();
 
         public HttpCommandDispatcher(
             ILogger<HttpCommandDispatcher> logger,
@@ -46,11 +44,11 @@ namespace SprayChronicle.Server.Http
             response.ContentType = "application/json";
 
             try {
-                var payload = await converter.Convert(request, routeData, _type);
+                var payload = await Converter.Convert(request, routeData, _type);
 
                 _validator.Validate(payload);
-
-                _logger.LogDebug("Dispatching {0} {1}", _type, JsonConvert.SerializeObject(payload));
+                _logger.LogDebug($"Dispatching {_type} {JsonConvert.SerializeObject(payload)}");
+                
                 await _dispatcher.Route(payload);
                 response.StatusCode = 200;
                 await response.WriteAsync(JsonConvert.SerializeObject(new {

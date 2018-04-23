@@ -1,5 +1,4 @@
 using System;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using EventStore.ClientAPI;
@@ -60,9 +59,9 @@ namespace SprayChronicle.Persistence.Ouro
                         .Build(),
                     _credentials
                 );
-                _logger.LogDebug("Created subscription {0}_{1}", _streamName, _groupName);
+                _logger.LogDebug($"Created subscription {_streamName}_{_groupName}");
             } catch (AggregateException) {
-                _logger.LogDebug("Continuing subscription {0}_{1}", _streamName, _groupName);
+                _logger.LogDebug($"Continuing subscription {_streamName}_{_groupName}");
             }
 
             return _eventStore.ConnectToPersistentSubscription(
