@@ -57,9 +57,19 @@ namespace SprayChronicle.MessageHandling
             return Task.CompletedTask;
         }
 
-        public Task<TResult> Ask<TResult>(T subject, params object[] arguments) where TResult : class
+        public async Task<TResult> Ask<TResult>(T subject, params object[] arguments) where TResult : class
         {
-            return Task.FromResult(ResolveMethod(subject, arguments).Invoke(subject, arguments) as TResult);
+            var result = ResolveMethod(subject, arguments).Invoke(subject, arguments);
+            var task = (Task) result;
+            
+            if (null == task) {
+                return result as TResult;
+            }
+
+            await task.ConfigureAwait(false);
+            var jaja = (TResult)((dynamic)task).Result;
+
+            return (TResult)((dynamic)task).Result;
         }
 
         public Type ToType(string messageName)

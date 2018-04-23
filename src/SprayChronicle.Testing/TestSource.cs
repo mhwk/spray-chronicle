@@ -47,18 +47,18 @@ namespace SprayChronicle.Testing
                 throw new ArgumentException("You must provide a message for conversion");
             }
             
-            if (!strategy.Resolves(message)) {
+            if (!strategy.Resolves(message, DateTime.Now)) {
                 _logger.LogDebug($"Message {message.GetType().Name} not resolved");
                 return new DomainMessage(
                     _sequence++,
-                    new DateTime(),
+                    DateTime.Now,
                     message.GetType().Name
                 );
             }
             
             return new DomainMessage(
                 _sequence++,
-                new DateTime(),
+                DateTime.Now,
                 message
             );
         }

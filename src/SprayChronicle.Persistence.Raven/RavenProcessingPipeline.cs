@@ -106,8 +106,7 @@ namespace SprayChronicle.Persistence.Raven
         private async Task<RavenProcessed> Route(DomainMessage domainMessage)
         {
             return await _strategy
-                .Ask<RavenProcessed>(_processor, domainMessage.Payload, domainMessage.Epoch)
-                .ConfigureAwait(false);
+                .Ask<RavenProcessed>(_processor, domainMessage.Payload, domainMessage.Epoch);
         }
         
         private async Task Apply(RavenProcessed[] processed)
