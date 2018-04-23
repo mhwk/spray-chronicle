@@ -3,20 +3,29 @@ using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using SprayChronicle.EventSourcing;
 using SprayChronicle.MessageHandling;
+using SprayChronicle.Server;
 
 namespace SprayChronicle.Testing
 {
     public sealed class TestSource<TTarget> : IEventSource<TTarget>
         where TTarget : class
     {
+        private readonly ILogger<TTarget> _logger;
+        
         private readonly BufferBlock<object> _queue = new BufferBlock<object>();
         
         private long _sequence;
-        
+
+        public TestSource(ILogger<TTarget> logger)
+        {
+            _logger = logger;
+        }
+
         public Task Publish(params object[] messages)
         {
             foreach (var message in messages) {
                 _queue.Post(message);
+                _logger.LogDebug($"Published {message.GetType().Name} to queue");
             }
             
             return Task.CompletedTask;
@@ -31,6 +40,7 @@ namespace SprayChronicle.Testing
         public DomainMessage Convert(IMessagingStrategy<TTarget> strategy, object message)
         {
             if (!strategy.Resolves(message)) {
+                _logger.LogDebug($"Message {message.GetType().Name} not resolved");
                 return null;
             }
             

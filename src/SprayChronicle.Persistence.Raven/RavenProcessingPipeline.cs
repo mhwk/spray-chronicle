@@ -62,7 +62,7 @@ namespace SprayChronicle.Persistence.Raven
             var batched = new BatchBlock<RavenProcessed>(1000);
             var action = new ActionBlock<RavenProcessed[]>(processed => Apply(processed));
 
-            var timer = new System.Threading.Timer(time => {
+            var timer = new Timer(time => {
                 batched.TriggerBatch();
             });
             
@@ -88,6 +88,7 @@ namespace SprayChronicle.Persistence.Raven
                 PropagateCompletion = true
             });
 
+            _logger.LogDebug($"Raven processing pipeline running...");
             await Task.WhenAll(_source.Start(), batched.Completion);
         }
 
@@ -97,6 +98,7 @@ namespace SprayChronicle.Persistence.Raven
                 throw new Exception("Raven processing not started");
             }
             
+            _logger.LogDebug($"Raven processing pipeline stopping...");
             _source.Complete();
             return _source.Completion;
         }
@@ -112,6 +114,9 @@ namespace SprayChronicle.Persistence.Raven
         {
             using (var session = _store.OpenAsyncSession()) {
                 var identities = processed.Select(p => p.Identity).Distinct().ToArray();
+                
+                _logger.LogDebug($"Working with identities {string.Join(", ", identities)}");
+                
                 var documents = await session.LoadAsync<TState>(identities);
                 var ordered = processed
                     .Select(p => {

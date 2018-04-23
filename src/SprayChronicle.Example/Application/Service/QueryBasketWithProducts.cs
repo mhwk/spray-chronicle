@@ -5,7 +5,6 @@ using Raven.Client.Documents.Linq;
 using SprayChronicle.EventHandling;
 using SprayChronicle.Example.Application.State;
 using SprayChronicle.Example.Domain;
-using SprayChronicle.Example.Domain.Model;
 using SprayChronicle.Persistence.Raven;
 using SprayChronicle.QueryHandling;
 

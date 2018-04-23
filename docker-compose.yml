@@ -114,7 +114,7 @@ services:
       - 2113:2113
 
   ravendb:
-    image: ravendb/ravendb:4.0.3-patch-40034-ubuntu.16.04-x64
+    image: ravendb/ravendb:4.0.3-ubuntu.16.04-x64
     environment:
       - RAVEN_ARGS=-n -l
       - RAVEN_Setup.Mode=Unsecured

@@ -15,7 +15,7 @@ namespace SprayChronicle.Persistence.Raven.Test
                 var builder = new ContainerBuilder();
                 builder.RegisterModule<RavenModule>();
                 builder.Register(c => new ConsoleLoggerFactory()).As<ILoggerFactory>().SingleInstance();
-                builder.Register(c => new TestSourceFactory()).As<IEventSourceFactory>().SingleInstance();
+                builder.Register(c => new TestSourceFactory(c.Resolve<ILoggerFactory>())).As<IEventSourceFactory>().SingleInstance();
 
                 Configure(builder);
 

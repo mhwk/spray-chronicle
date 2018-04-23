@@ -18,13 +18,15 @@ namespace SprayChronicle.Persistence.Raven.Test
         [Fact]
         public async Task TestSavesDocument()
         {
+            var identity1 = Guid.NewGuid().ToString();
+            
             var store = Container()
                 .Resolve<IDocumentStore>();
             var pipeline = Container()
                 .Resolve<RavenProcessingPipeline<QueryBasketWithProducts, BasketWithProducts_v1>>();
 
             var source = (TestSource<QueryBasketWithProducts>) Container().Resolve<IEventSourceFactory>().Build<QueryBasketWithProducts,CatchUpOptions>(new CatchUpOptions("foo"));
-            await source.Publish(new BasketPickedUp("basketId"));
+            await source.Publish(new BasketPickedUp(identity1));
 
             await Task.WhenAny(
                 pipeline.Start(),
@@ -32,7 +34,7 @@ namespace SprayChronicle.Persistence.Raven.Test
             );
 
             using (var session = store.OpenAsyncSession()) {
-                var result = await session.LoadAsync<BasketWithProducts_v1>("basketId");
+                var result = await session.LoadAsync<BasketWithProducts_v1>(identity1);
                 result.ShouldNotBeNull();
             }
         }

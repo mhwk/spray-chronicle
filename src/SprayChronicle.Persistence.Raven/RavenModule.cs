@@ -1,7 +1,6 @@
 ﻿using App.Metrics.Health;
 using Autofac;
 using Raven.Client.Documents;
-using Raven.Client.Extensions;
 using Raven.Client.ServerWide;
 using Raven.Client.ServerWide.Operations;
 using SprayChronicle.EventHandling;
@@ -9,6 +8,7 @@ using SprayChronicle.EventSourcing;
 using SprayChronicle.MessageHandling;
 using SprayChronicle.QueryHandling;
 using SprayChronicle.Server;
+using ConcurrencyException = Raven.Client.Exceptions.ConcurrencyException;
 
 namespace SprayChronicle.Persistence.Raven
 {
@@ -38,9 +38,15 @@ namespace SprayChronicle.Persistence.Raven
                         Database = database
                     };
                     store.Initialize();
-                    store.Maintenance.Server.Send(new CreateDatabaseOperation(
-                        new DatabaseRecord(database)
-                    ));
+
+                    try {
+                        store.Maintenance.Server.Send(new CreateDatabaseOperation(
+                            new DatabaseRecord(database)
+                        ));
+                    } catch (ConcurrencyException) {
+                        c.Resolve<ILoggerFactory>().Create<RavenModule>().LogDebug($"Database {database} already exist");
+                    }
+                    
                     return store;
                 })
                 .AsSelf()
