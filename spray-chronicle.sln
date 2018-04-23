@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26124.0
@@ -52,6 +52,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SprayChronicle.Testing.Test", "test\SprayChronicle.Testing.Test\SprayChronicle.Testing.Test.csproj", "{A21459BB-5372-4FF8-8F2B-E92C4D5BE38A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SprayChronicle.Persistence.Raven", "src\SprayChronicle.Persistence.Raven\SprayChronicle.Persistence.Raven.csproj", "{55DB892D-BDB1-4AAD-9C57-1219D5C5AD8E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SprayChronicle.Persistence.Raven.Test", "test\SprayChronicle.Persistence.Raven.Test\SprayChronicle.Persistence.Raven.Test.csproj", "{0FACD718-810E-427E-AB1D-4B9534C9444B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -354,6 +356,18 @@ Global
 		{55DB892D-BDB1-4AAD-9C57-1219D5C5AD8E}.Release|x64.Build.0 = Release|Any CPU
 		{55DB892D-BDB1-4AAD-9C57-1219D5C5AD8E}.Release|x86.ActiveCfg = Release|Any CPU
 		{55DB892D-BDB1-4AAD-9C57-1219D5C5AD8E}.Release|x86.Build.0 = Release|Any CPU
+		{0FACD718-810E-427E-AB1D-4B9534C9444B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0FACD718-810E-427E-AB1D-4B9534C9444B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0FACD718-810E-427E-AB1D-4B9534C9444B}.Debug|x64.ActiveCfg = Debug|x64
+		{0FACD718-810E-427E-AB1D-4B9534C9444B}.Debug|x64.Build.0 = Debug|x64
+		{0FACD718-810E-427E-AB1D-4B9534C9444B}.Debug|x86.ActiveCfg = Debug|x86
+		{0FACD718-810E-427E-AB1D-4B9534C9444B}.Debug|x86.Build.0 = Debug|x86
+		{0FACD718-810E-427E-AB1D-4B9534C9444B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0FACD718-810E-427E-AB1D-4B9534C9444B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0FACD718-810E-427E-AB1D-4B9534C9444B}.Release|x64.ActiveCfg = Release|x64
+		{0FACD718-810E-427E-AB1D-4B9534C9444B}.Release|x64.Build.0 = Release|x64
+		{0FACD718-810E-427E-AB1D-4B9534C9444B}.Release|x86.ActiveCfg = Release|x86
+		{0FACD718-810E-427E-AB1D-4B9534C9444B}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{6C0A0EC4-CBC9-4E70-AF81-2D2CCE179656} = {8B4E9B45-811B-499D-B996-F93C022C965B}
@@ -380,5 +394,6 @@ Global
 		{E2FB4F70-BB40-42DB-9DA9-BEEA5F40E132} = {B20789C9-C214-41E2-98EC-23A2178C3E75}
 		{A21459BB-5372-4FF8-8F2B-E92C4D5BE38A} = {B20789C9-C214-41E2-98EC-23A2178C3E75}
 		{55DB892D-BDB1-4AAD-9C57-1219D5C5AD8E} = {8B4E9B45-811B-499D-B996-F93C022C965B}
+		{0FACD718-810E-427E-AB1D-4B9534C9444B} = {B20789C9-C214-41E2-98EC-23A2178C3E75}
 	EndGlobalSection
 EndGlobal

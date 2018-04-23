@@ -25,7 +25,9 @@ namespace SprayChronicle.Server.Http
         public void Map(RouteBuilder builder)
         {
             foreach (var command in Locator.LocateWithAttribute<HttpCommandAttribute>()) {
-                _logger.LogDebug("Mapping {0} to command {1}", command.GetTypeInfo().GetCustomAttribute<HttpCommandAttribute>()?.Template, command);
+                var template = command.GetTypeInfo().GetCustomAttribute<HttpCommandAttribute>()?.Template;
+                
+                _logger.LogDebug($"Mapping {template} to command {command}");
                 switch (command.GetTypeInfo().GetCustomAttribute<HttpCommandAttribute>().Method) {
                     case "POST":
                         builder.MapPost(

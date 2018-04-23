@@ -53,7 +53,7 @@ namespace SprayChronicle.Persistence.Ouro
                 ).Wait();
 
                 stopwatch.Stop();
-                _logger.LogDebug("[{0}::append] {1}ms", Stream<T>(identity), stopwatch.ElapsedMilliseconds);
+                _logger.LogDebug($"[{Stream<T>(identity)}::append] {stopwatch.ElapsedMilliseconds}ms");
             } catch (AggregateException error) {
                 throw new ConcurrencyException(string.Format(
                     "Concurrency detected: {0}",

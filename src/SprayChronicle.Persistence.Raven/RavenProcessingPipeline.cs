@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using Raven.Client.Documents;
@@ -7,6 +8,7 @@ using Raven.Client.Documents.Session;
 using SprayChronicle.EventHandling;
 using SprayChronicle.EventSourcing;
 using SprayChronicle.MessageHandling;
+using SprayChronicle.Server;
 
 namespace SprayChronicle.Persistence.Raven
 {
@@ -18,12 +20,14 @@ namespace SprayChronicle.Persistence.Raven
         
         private readonly IMessagingStrategy<TProcessor> _strategy = new OverloadMessagingStrategy<TProcessor>(new ContextTypeLocator<TProcessor>());
         
+        private readonly ILogger<TProcessor> _logger;
+        
         private readonly IEventSourceFactory _sourceFactory;
         
         private readonly CatchUpOptions _sourceOptions;
 
         private readonly TProcessor _processor;
-        
+
         private readonly IDocumentStore _store;
 
         private IEventSource<TProcessor> _source;
@@ -31,11 +35,13 @@ namespace SprayChronicle.Persistence.Raven
         private long _checkpoint;
 
         public RavenProcessingPipeline(
+            ILogger<TProcessor> logger,
             IDocumentStore store,
             IEventSourceFactory sourceFactory,
             CatchUpOptions sourceOptions,
             TProcessor processor)
         {
+            _logger = logger;
             _store = store;
             _sourceFactory = sourceFactory;
             _sourceOptions = sourceOptions;
@@ -56,22 +62,33 @@ namespace SprayChronicle.Persistence.Raven
             var batched = new BatchBlock<RavenProcessed>(1000);
             var action = new ActionBlock<RavenProcessed[]>(processed => Apply(processed));
 
+            var timer = new Timer(time => {
+                batched.TriggerBatch();
+            });
+            
+            var triggerBatch = new TransformBlock<RavenProcessed,RavenProcessed>(message =>
+            {
+                timer.Change(TimeSpan.FromSeconds(.1f), Timeout.InfiniteTimeSpan);
+                return message;
+            });
+            
             _source.LinkTo(converted, new DataflowLinkOptions {
                 PropagateCompletion = true
             });
             converted.LinkTo(routed, new DataflowLinkOptions {
                 PropagateCompletion = true
             });
-            routed.LinkTo(batched, new DataflowLinkOptions {
+            routed.LinkTo(triggerBatch, new DataflowLinkOptions {
                 PropagateCompletion = true
             });
-            routed.LinkTo(batched, new DataflowLinkOptions {
+            triggerBatch.LinkTo(batched, new DataflowLinkOptions {
                 PropagateCompletion = true
             });
             batched.LinkTo(action, new DataflowLinkOptions {
                 PropagateCompletion = true
             });
 
+            _logger.LogDebug($"Raven processing pipeline running...");
             await Task.WhenAll(_source.Start(), batched.Completion);
         }
 
@@ -81,6 +98,7 @@ namespace SprayChronicle.Persistence.Raven
                 throw new Exception("Raven processing not started");
             }
             
+            _logger.LogDebug($"Raven processing pipeline stopping...");
             _source.Complete();
             return _source.Completion;
         }
@@ -96,6 +114,9 @@ namespace SprayChronicle.Persistence.Raven
         {
             using (var session = _store.OpenAsyncSession()) {
                 var identities = processed.Select(p => p.Identity).Distinct().ToArray();
+                
+                _logger.LogDebug($"Working with identities {string.Join(", ", identities)}");
+                
                 var documents = await session.LoadAsync<TState>(identities);
                 var ordered = processed
                     .Select(p => {
@@ -127,7 +148,14 @@ namespace SprayChronicle.Persistence.Raven
         {
             var id = $"Checkpoint/{typeof(TState).Name}";
             var checkpoint = await session.LoadAsync<Checkpoint>(id);
-            return checkpoint?.Sequence ?? 0;
+
+            if (null == checkpoint) {
+                _logger.LogDebug("No checkpoint");
+                return 0;
+            }
+            
+            _logger.LogDebug($"Loaded checkpoint {checkpoint.Sequence}");
+            return checkpoint.Sequence;
         }
 
         private async Task SaveCheckpoint(IAsyncDocumentSession session, long sequence)
@@ -135,6 +163,7 @@ namespace SprayChronicle.Persistence.Raven
             var id = $"Checkpoint/{typeof(TState).Name}";
             var checkpoint = await session.LoadAsync<Checkpoint>(id);
             if (null != checkpoint) {
+                _logger.LogDebug($"Saving checkpoint {checkpoint.Sequence}");
                 checkpoint.Increase(sequence);
             } else {
                 checkpoint = new Checkpoint(id);

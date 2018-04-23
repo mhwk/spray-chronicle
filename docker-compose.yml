@@ -66,6 +66,8 @@ services:
     working_dir: /spray/test/SprayChronicle.Persistence.Raven.Test
     depends_on:
       - ravendb
+    environment:
+      - RAVENDB_HOST=http://ravendb:8080
     entrypoint: dotnet
     command: test
 
@@ -107,9 +109,16 @@ services:
       - EVENTSTORE_MEM_DB=1
       - EVENTSTORE_START_STANDARD_PROJECTIONS=1
       - EVENTSTORE_RUN_PROJECTIONS=All
+    ports:
+      - 1113:1113
+      - 2113:2113
 
   ravendb:
-    image: ravendb/ravendb:4.0.3-patch-40034-ubuntu.16.04-x64
+    image: ravendb/ravendb:4.0.3-ubuntu.16.04-x64
     environment:
-      - RAVEN_ARGS='--Setup.Mode=None'
-      - RunInMemory=1
+      - RAVEN_ARGS=-n -l
+      - RAVEN_Setup.Mode=Unsecured
+      - RAVEN_RunInMemory=true
+      - UNSECURED_ACCESS_ALLOWED=PublicNetwork
+    ports:
+      - 8080:8080

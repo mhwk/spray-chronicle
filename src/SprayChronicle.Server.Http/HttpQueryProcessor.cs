@@ -24,7 +24,7 @@ namespace SprayChronicle.Server.Http
 
         private readonly JsonSerializerSettings _serializerSettings = new JsonSerializerSettings {
             ContractResolver = new CamelCasePropertyNamesContractResolver(),
-            Converters = new List<JsonConverter>() { new ISO8601DateConverter() }
+            Converters = new List<JsonConverter> { new ISO8601DateConverter() }
         };
 
         private static readonly RequestToMessageConverter Converter = new RequestToMessageConverter();
@@ -50,7 +50,7 @@ namespace SprayChronicle.Server.Http
 
                 _validator.Validate(payload);
 
-                _logger.LogDebug("Processing {0} {1}", _type, JsonConvert.SerializeObject(payload));
+                _logger.LogDebug($"Processing {_type} {JsonConvert.SerializeObject(payload)}");
                 var result = await _executor.Route(payload);
                 response.ContentType = _contentType;
                 response.StatusCode = 200;

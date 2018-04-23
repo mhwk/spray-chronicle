@@ -1,12 +1,14 @@
-﻿using System.Threading.Tasks.Dataflow;
-using App.Metrics.Health;
+﻿using App.Metrics.Health;
 using Autofac;
 using Raven.Client.Documents;
+using Raven.Client.ServerWide;
+using Raven.Client.ServerWide.Operations;
 using SprayChronicle.EventHandling;
 using SprayChronicle.EventSourcing;
 using SprayChronicle.MessageHandling;
 using SprayChronicle.QueryHandling;
 using SprayChronicle.Server;
+using ConcurrencyException = Raven.Client.Exceptions.ConcurrencyException;
 
 namespace SprayChronicle.Persistence.Raven
 {
@@ -19,14 +21,32 @@ namespace SprayChronicle.Persistence.Raven
                 .SingleInstance();
 
             builder
-                .Register(c => {
+                .Register(c =>
+                {
+                    var database = ChronicleServer.Env(
+                        "RAVENDB_DB",
+                        ChronicleServer.Env(
+                            "HOSTNAME",
+                            "default"
+                        )
+                    );
+                    
                     var store = new DocumentStore {
                         Urls = new[] {
-                            "http://ravendb"
+                            ChronicleServer.Env("RAVENDB_HOST", "http://localhost:8080")
                         },
-                        Database = ChronicleServer.Env("RAVENDB_DB", ChronicleServer.Env("HOSTNAME"))
+                        Database = database
                     };
                     store.Initialize();
+
+                    try {
+                        store.Maintenance.Server.Send(new CreateDatabaseOperation(
+                            new DatabaseRecord(database)
+                        ));
+                    } catch (ConcurrencyException) {
+                        c.Resolve<ILoggerFactory>().Create<RavenModule>().LogDebug($"Database {database} already exist");
+                    }
+                    
                     return store;
                 })
                 .AsSelf()
@@ -65,19 +85,19 @@ namespace SprayChronicle.Persistence.Raven
                         c.Resolve<IDocumentStore>(),
                         c.Resolve<TProcessor>()))
                     .AsSelf()
-                    .As<IQueryPipeline>()
+                    .As<IPipeline>()
                     .As<IMessagingStrategyRouterSubscriber<IExecute>>()
                     .SingleInstance();
                 
                 builder
                     .Register(c => new RavenProcessingPipeline<TProcessor,TState>(
+                        c.Resolve<ILoggerFactory>().Create<TProcessor>(),
                         c.Resolve<IDocumentStore>(),
                         c.Resolve<IEventSourceFactory>(),
                         new CatchUpOptions(_streamName),
                         c.Resolve<TProcessor>()))
                     .AsSelf()
-                    .As<IQueryPipeline>()
-                    .As<IMessagingStrategyRouterSubscriber<IExecute>>()
+                    .As<IPipeline>()
                     .SingleInstance();
                 
                 builder

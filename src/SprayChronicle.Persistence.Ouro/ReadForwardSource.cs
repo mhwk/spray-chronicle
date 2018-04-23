@@ -56,7 +56,7 @@ namespace SprayChronicle.Persistence.Ouro
             Queue.Complete();
 
             stopwatch.Stop();
-            _logger.LogDebug("[{0}::load] {1}ms", _streamName, stopwatch.ElapsedMilliseconds);
+            _logger.LogDebug($"[{_streamName}::load] {stopwatch.ElapsedMilliseconds}ms");
             
         }
 

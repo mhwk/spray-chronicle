@@ -26,7 +26,8 @@ namespace SprayChronicle.Server.Http
         public void Map(RouteBuilder builder)
         {
             foreach (var query in Locator.LocateWithAttribute<HttpQueryAttribute>()) {
-                _logger.LogDebug("Mapping {0} to query {1}", query.GetTypeInfo().GetCustomAttribute<HttpQueryAttribute>().Template, query);
+                var template = query.GetTypeInfo().GetCustomAttribute<HttpQueryAttribute>().Template;
+                _logger.LogDebug($"Mapping {template} to query {query}");
                 switch (query.GetTypeInfo().GetCustomAttribute<HttpQueryAttribute>().Method) {
                     case "POST":
                         builder.MapPost(

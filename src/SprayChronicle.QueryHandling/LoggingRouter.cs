@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using SprayChronicle.MessageHandling;
@@ -29,26 +27,23 @@ namespace SprayChronicle.QueryHandling
         public Task<object> Route(params object[] arguments)
         {
             var measurement = _measure.Start();
+            var argumentList = string.Join(", ", arguments.Select(m => m.GetType().Name));
 
             try {
                 _logger.LogDebug(
-                    "{0}: Executing...",
-                    string.Join(", ", arguments.Select(m => m.GetType().Name))
+                    $"{argumentList}: Executing..."
                 );
 
                 return _child.Route(arguments);
             } catch (Exception error) {
                 _logger.LogError(
                     error,
-                    "{0}: Execution failure",
-                    string.Join(", ", arguments.Select(m => m.GetType().Name))
+                    $"{argumentList}: Execution failure"
                 );
                 throw;
             } finally {
                 _logger.LogInformation(
-                    "{0}: {1}",
-                    string.Join(", ", arguments.Select(m => m.GetType().Name)),
-                    measurement.Stop()
+                    $"{argumentList}: {measurement.Stop()}"
                 );
             }
         }
