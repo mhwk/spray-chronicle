@@ -8,7 +8,7 @@ namespace SprayChronicle.EventSourcing
         where TTarget : class
     {
         Task Start();
-
+        
         DomainMessage Convert(IMessagingStrategy<TTarget> strategy, object message);
     }
 }

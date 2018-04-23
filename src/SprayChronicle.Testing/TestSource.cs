@@ -30,8 +30,16 @@ namespace SprayChronicle.Testing
 
         public DomainMessage Convert(IMessagingStrategy<TTarget> strategy, object message)
         {
+            if (null == message) {
+                throw new ArgumentException("You must provide a message for conversion");
+            }
+            
             if (!strategy.Resolves(message)) {
-                return null;
+                return new DomainMessage(
+                    _sequence++,
+                    new DateTime(),
+                    message.GetType().Name
+                );
             }
             
             return new DomainMessage(

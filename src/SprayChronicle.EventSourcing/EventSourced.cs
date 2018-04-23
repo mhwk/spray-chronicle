@@ -28,22 +28,15 @@ namespace SprayChronicle.EventSourcing
             var sourcable = default(T);
             
             var converted = new TransformBlock<object, DomainMessage>(message => messages.Convert(Strategy, message));
-            var applied = new ActionBlock<DomainMessage>(
-                async message =>
-                {
-                    if (null != message) {
-                        sourcable = await Strategy.Ask<T>(sourcable, message.Payload);
-                    }
-
-                    if (null != sourcable) {
-                        sourcable._sequence++;
-                    }
-                    
-                },
-                new ExecutionDataflowBlockOptions {
-                    MaxDegreeOfParallelism = 1
+            var applied = new ActionBlock<DomainMessage>(async message => {
+                if (null != message) {
+                    sourcable = await Strategy.Ask<T>(sourcable, message.Payload);
                 }
-            );
+
+                if (null != sourcable) {
+                    sourcable._sequence++;
+                }
+            });
 
             messages.LinkTo(converted, new DataflowLinkOptions {
                 PropagateCompletion = true

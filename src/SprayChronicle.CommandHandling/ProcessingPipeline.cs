@@ -4,6 +4,7 @@ using System.Threading.Tasks.Dataflow;
 using SprayChronicle.EventHandling;
 using SprayChronicle.EventSourcing;
 using SprayChronicle.MessageHandling;
+using SprayChronicle.Server;
 
 namespace SprayChronicle.CommandHandling
 {
@@ -14,22 +15,26 @@ namespace SprayChronicle.CommandHandling
         
         private readonly IMessagingStrategy<THandler> _strategy = new OverloadMessagingStrategy<THandler>("Process");
 
+        private readonly ILogger<THandler> _logger;
+        
         private readonly IEventSourceFactory _sourceFactory;
         
         private readonly PersistentOptions _sourceOptions;
 
         private readonly IMessageRouter _router;
-        
+
         private readonly THandler _handler;
 
         private IEventSource<THandler> _source;
 
         public ProcessingPipeline(
+            ILogger<THandler> logger,
             IEventSourceFactory sourceFactory,
             PersistentOptions sourceOptions,
             IMessageRouter router,
             THandler handler)
         {
+            _logger = logger;
             _sourceFactory = sourceFactory;
             _sourceOptions = sourceOptions;
             _router = router;
@@ -38,6 +43,10 @@ namespace SprayChronicle.CommandHandling
 
         public async Task Start()
         {
+            if (null != _source) {
+                throw new PipelineException($"Command processing pipeline already started");
+            }
+            
             _source = _sourceFactory.Build<THandler,PersistentOptions>(_sourceOptions);
             var converted = new TransformBlock<object,DomainMessage>(message => _source.Convert(_strategy, message));
             var dispatch = new TransformBlock<DomainMessage,Processed>(message => Dispatch(message));
@@ -53,26 +62,26 @@ namespace SprayChronicle.CommandHandling
                 PropagateCompletion = true
             });
             
-            await Task.WhenAll(_source.Start(), apply.Completion);
+            await Task.WhenAll(_source.Start(), dispatch.Completion);
         }
 
         public async Task Stop()
         {
-                
             if (null == _source) {
-                return;
+                throw new PipelineException($"Command processing pipeline not running");
             }
             
             _source.Complete();
             await _source.Completion;
         }
 
-        private Task<Processed> Dispatch(DomainMessage message)
+        private async Task<Processed> Dispatch(DomainMessage message)
         {
             try {
-                return _strategy.Ask<Processed>(_handler, message.Payload);
+                return await _strategy.Ask<Processed>(_handler, message.Payload);
             } catch (UnhandledCommandException error) {
-                return Processed.WithError(error);
+                _logger.LogDebug(error);
+                return await Processed.WithError(error);
             }
         }
         

@@ -7,6 +7,7 @@ using SprayChronicle.Example.Application;
 using SprayChronicle.Example.Application.Service;
 using SprayChronicle.Example.Domain;
 using SprayChronicle.MessageHandling;
+using SprayChronicle.Server;
 using SprayChronicle.Testing;
 using Xunit;
 
@@ -21,21 +22,29 @@ namespace SprayChronicle.CommandHandling.Test
         private readonly PersistentOptions _options = new PersistentOptions("test", "test");
 
         private readonly IMessageRouter _router = Substitute.For<IMessageRouter>();
+
+        private readonly ILogger<HandleOrder> _logger = Substitute.For<ILogger<HandleOrder>>();
         
         [Fact]
         public async Task HandleUnknownMessage()
         {
             var message = new object();
-            var pipeline = new ProcessingPipeline<HandleOrder>(_factory, _options, _router, new HandleOrder());
+            var pipeline = new ProcessingPipeline<HandleOrder>(
+                _logger,
+                _factory,
+                _options,
+                _router,
+                new HandleOrder()
+            );
             
             _factory
-//                .Build<HandleOrder, PersistentOptions>(Arg.Is(_options))
-                .Build<HandleOrder, PersistentOptions>(Arg.Any<PersistentOptions>())
+                .Build<HandleOrder, PersistentOptions>(Arg.Is(_options))
                 .Returns(_source);
 
             await _source.Publish(message);
-//            await Should.ThrowAsync<UnroutableMessageException>(pipeline.Start());
             await pipeline.Start();
+            
+            _logger.Received().LogDebug(Arg.Any<UnroutableMessageException>());
         }
         
 //        [Fact]

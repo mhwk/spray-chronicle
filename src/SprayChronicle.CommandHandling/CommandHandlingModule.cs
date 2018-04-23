@@ -3,6 +3,7 @@ using Autofac;
 using SprayChronicle.EventHandling;
 using SprayChronicle.EventSourcing;
 using SprayChronicle.MessageHandling;
+using SprayChronicle.Server;
 
 namespace SprayChronicle.CommandHandling
 {
@@ -70,6 +71,7 @@ namespace SprayChronicle.CommandHandling
                 if (null != _streamName) {
                     builder
                         .Register(c => new ProcessingPipeline<THandler>(
+                            c.Resolve<ILoggerFactory>().Create<THandler>(),
                             c.Resolve<IEventSourceFactory>(),
                             new PersistentOptions(_streamName, typeof(THandler).FullName), 
                             c.Resolve<CommandRouter>(),
