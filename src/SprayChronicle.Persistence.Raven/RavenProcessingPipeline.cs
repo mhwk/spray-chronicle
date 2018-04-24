@@ -31,6 +31,8 @@ namespace SprayChronicle.Persistence.Raven
         private readonly IDocumentStore _store;
 
         private IEventSource<TProcessor> _source;
+        
+        private readonly string _checkpointName;
 
         private long _checkpoint;
 
@@ -40,12 +42,30 @@ namespace SprayChronicle.Persistence.Raven
             IEventSourceFactory sourceFactory,
             CatchUpOptions sourceOptions,
             TProcessor processor)
+            : this(
+                logger,
+                store,
+                sourceFactory,
+                sourceOptions,
+                processor,
+                typeof(TProcessor).FullName)
+        {
+        }
+
+        public RavenProcessingPipeline(
+            ILogger<TProcessor> logger,
+            IDocumentStore store,
+            IEventSourceFactory sourceFactory,
+            CatchUpOptions sourceOptions,
+            TProcessor processor,
+            string checkpointName)
         {
             _logger = logger;
             _store = store;
             _sourceFactory = sourceFactory;
             _sourceOptions = sourceOptions;
             _processor = processor;
+            _checkpointName = checkpointName;
         }
         
         public async Task Start()
@@ -88,8 +108,11 @@ namespace SprayChronicle.Persistence.Raven
                 PropagateCompletion = true
             });
 
-            _logger.LogDebug($"Raven processing pipeline running...");
+            _logger.LogDebug($"Pipeline running...");
             await Task.WhenAll(_source.Start(), batched.Completion);
+            _logger.LogDebug($"Pipeline shutting down, waiting 1 seconds...");
+            await Task.Delay(TimeSpan.FromSeconds(1));
+            _logger.LogDebug($"Pipeline shut down");
         }
 
         public Task Stop()
@@ -98,7 +121,7 @@ namespace SprayChronicle.Persistence.Raven
                 throw new Exception("Raven processing not started");
             }
             
-            _logger.LogDebug($"Raven processing pipeline stopping...");
+            _logger.LogDebug($"Pipeline stopping...");
             _source.Complete();
             return _source.Completion;
         }
@@ -112,27 +135,52 @@ namespace SprayChronicle.Persistence.Raven
         private async Task Apply(RavenProcessed[] processed)
         {
             using (var session = _store.OpenAsyncSession()) {
-                var identities = processed.Select(p => p.Identity).Distinct().ToArray();
+                try {
+                    var identities = processed
+                        .Select(p => p.Identity)
+                        .Where(i => i != null)
+                        .Distinct()
+                        .ToArray();
                 
-                _logger.LogDebug($"Working with identities {string.Join(", ", identities)}");
+                    var documents = await session.LoadAsync<TState>(identities);
+                    
+                    _logger.LogDebug($"Working with identities ({string.Join(", ", identities)})");
+                    _logger.LogDebug($"Found {documents.Count} documents...");
+                    _logger.LogDebug($"Processing {processed.Length} items...");
                 
-                var documents = await session.LoadAsync<TState>(identities);
-                var ordered = processed
-                    .Select(p => {
-                        documents.TryGetValue(p.Identity, out var document);
-                        return document;
-                    })
-                    .ToArray();
+                    for (var i = 0; i < processed.Length; i++) {
+                        TState document = null;
 
-                for (var i = 0; i < processed.Length; i++) {
-                    ordered[i] = processed[i].Do(ordered[i]) as TState;
-                    await session.StoreAsync(ordered[i]);
-                    _checkpoint++;
+                        if (null != processed[i].Identity) {
+                            if (!documents.ContainsKey(processed[i].Identity)) {
+                                throw new Exception($"State with id {processed[i].Identity} not found in dictionary");
+                            }
+                            
+                            document = documents[processed[i].Identity];
+                        }
+                    
+                        _logger.LogDebug($"Processing {i} from {processed[i].Identity}");
+                    
+                        document = (TState) await processed[i].Do(document);
+                    
+                        await session.StoreAsync(document);
+                    
+                        var documentId = session.Advanced.GetDocumentId(document);
+
+                        documents[documentId] = document;
+                    
+                        _checkpoint++;
+                    }
+
+                    await SaveCheckpoint(session, _checkpoint);
+                
+                    await session.SaveChangesAsync();
+                    
+                    _logger.LogInformation($"Processed {processed.Length} items");
                 }
-
-                await SaveCheckpoint(session, _checkpoint);
-                
-                await session.SaveChangesAsync();
+                catch (Exception error) {
+                    _logger.LogCritical(error); // @todo handle failure correctly
+                }
             }
         }
 
@@ -145,21 +193,21 @@ namespace SprayChronicle.Persistence.Raven
 
         private async Task<long> LoadCheckpoint(IAsyncDocumentSession session)
         {
-            var id = $"Checkpoint/{typeof(TState).Name}";
+            var id = $"Checkpoint/{_checkpointName}";
             var checkpoint = await session.LoadAsync<Checkpoint>(id);
 
             if (null == checkpoint) {
-                _logger.LogDebug("No checkpoint");
+                _logger.LogDebug("Starting from the beginning");
                 return 0;
             }
             
-            _logger.LogDebug($"Loaded checkpoint {checkpoint.Sequence}");
+            _logger.LogDebug($"Starting from checkpoint {checkpoint.Sequence}");
             return checkpoint.Sequence;
         }
 
         private async Task SaveCheckpoint(IAsyncDocumentSession session, long sequence)
         {
-            var id = $"Checkpoint/{typeof(TState).Name}";
+            var id = $"Checkpoint/{_checkpointName}";
             var checkpoint = await session.LoadAsync<Checkpoint>(id);
             if (null != checkpoint) {
                 _logger.LogDebug($"Saving checkpoint {checkpoint.Sequence}");

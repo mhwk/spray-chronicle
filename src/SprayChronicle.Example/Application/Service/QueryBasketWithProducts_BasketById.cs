@@ -12,7 +12,7 @@ namespace SprayChronicle.Example.Application.Service
                 from basket in baskets
                 select new
                 {
-                    basket.BasketId
+                    BasketId = basket.Id
                 };
         }
     }

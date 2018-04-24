@@ -7,11 +7,12 @@ namespace SprayChronicle.Persistence.Raven
     {
         public static ContainerBuilder RegisterQueryExecutor<TProcessor,TState>(
             this ContainerBuilder builder,
-            string streamName)
+            string streamName,
+            string checkpointName = null)
             where TProcessor : RavenQueryProcessor<TProcessor,TState>
             where TState : class
         {
-            builder.RegisterModule(new RavenModule.QueryPipeline<TProcessor,TState>(streamName));
+            builder.RegisterModule(new RavenModule.QueryPipeline<TProcessor,TState>(streamName, checkpointName));
             return builder;
         }
         

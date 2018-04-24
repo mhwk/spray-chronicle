@@ -19,9 +19,7 @@ namespace SprayChronicle.Persistence.Raven
                 throw new ArgumentException($"State is expected to be null, {state.GetType()} given");
             }
 
-            return Task.FromResult<object>(
-                _mutation?.Invoke()
-            );
+            return Task.FromResult<object>(_mutation?.Invoke());
         }
     }
 }

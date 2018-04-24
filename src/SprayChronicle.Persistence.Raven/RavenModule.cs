@@ -64,18 +64,13 @@ namespace SprayChronicle.Persistence.Raven
             where TProcessor : RavenQueryProcessor<TProcessor,TState>
             where TState : class
         {
-            private readonly string _reference;
-
             private readonly string _streamName;
+            private readonly string _checkpointName;
 
-            public QueryPipeline(string stream)
-                : this(typeof(TState).Name, stream)
-            {}
-
-            public QueryPipeline(string reference, string streamName)
+            public QueryPipeline(string streamName, string checkpointName = null)
             {
-                _reference = reference;
                 _streamName = streamName;
+                _checkpointName = checkpointName;
             }
 
             protected override void Load(ContainerBuilder builder)
@@ -95,7 +90,9 @@ namespace SprayChronicle.Persistence.Raven
                         c.Resolve<IDocumentStore>(),
                         c.Resolve<IEventSourceFactory>(),
                         new CatchUpOptions(_streamName),
-                        c.Resolve<TProcessor>()))
+                        c.Resolve<TProcessor>(),
+                        _checkpointName
+                    ))
                     .AsSelf()
                     .As<IPipeline>()
                     .SingleInstance();

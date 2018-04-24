@@ -67,7 +67,6 @@ namespace SprayChronicle.MessageHandling
             }
 
             await task.ConfigureAwait(false);
-            var jaja = (TResult)((dynamic)task).Result;
 
             return (TResult)((dynamic)task).Result;
         }

@@ -5,15 +5,15 @@ namespace SprayChronicle.Example.Application.State
 {
     public sealed class BasketWithProducts_v1
     {
-        public string BasketId { get; }
+        public string Id { get; }
             
         public DateTime PickedUpAt { get; }
 
         public readonly List<string> ProductIds = new List<string>();
 
-        public BasketWithProducts_v1(string basketId, DateTime pickedUpAt)
+        public BasketWithProducts_v1(string id, DateTime pickedUpAt)
         {
-            BasketId = basketId;
+            Id = id;
             PickedUpAt = pickedUpAt;
         }
 

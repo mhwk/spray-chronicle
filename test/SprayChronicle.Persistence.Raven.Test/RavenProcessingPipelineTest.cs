@@ -15,8 +15,10 @@ namespace SprayChronicle.Persistence.Raven.Test
 {
     public class RavenProcessingPipelineTest : RavenTestCase
     {
+        private readonly string _checkpointName = Guid.NewGuid().ToString();
+
         [Fact]
-        public async Task TestSavesDocument()
+        public async Task TestSavesNewDocument()
         {
             var identity1 = Guid.NewGuid().ToString();
             
@@ -28,20 +30,40 @@ namespace SprayChronicle.Persistence.Raven.Test
             var source = (TestSource<QueryBasketWithProducts>) Container().Resolve<IEventSourceFactory>().Build<QueryBasketWithProducts,CatchUpOptions>(new CatchUpOptions("foo"));
             await source.Publish(new BasketPickedUp(identity1));
 
-            await Task.WhenAny(
-                pipeline.Start(),
-                Task.Delay(TimeSpan.FromSeconds(.5))
-            );
+            await pipeline.Start();
 
             using (var session = store.OpenAsyncSession()) {
                 var result = await session.LoadAsync<BasketWithProducts_v1>(identity1);
                 result.ShouldNotBeNull();
             }
         }
+        
+        [Fact]
+        public async Task TestUpdatesPreviousDocument()
+        {
+            var identity1 = Guid.NewGuid().ToString();
+            
+            var store = Container()
+                .Resolve<IDocumentStore>();
+            var pipeline = Container()
+                .Resolve<RavenProcessingPipeline<QueryBasketWithProducts, BasketWithProducts_v1>>();
+
+            var source = (TestSource<QueryBasketWithProducts>) Container().Resolve<IEventSourceFactory>().Build<QueryBasketWithProducts,CatchUpOptions>(new CatchUpOptions("foo"));
+            await source.Publish(new BasketPickedUp(identity1));
+            await source.Publish(new ProductAddedToBasket(identity1, "productId"));
+
+            await pipeline.Start();
+
+            using (var session = store.OpenAsyncSession()) {
+                var result = await session.LoadAsync<BasketWithProducts_v1>(identity1);
+                result.ShouldNotBeNull();
+                result.ProductIds.Count.ShouldBe(1);
+            }
+        }
 
         protected override void Configure(ContainerBuilder builder)
         {
-            builder.RegisterQueryExecutor<QueryBasketWithProducts,BasketWithProducts_v1>("foo");
+            builder.RegisterQueryExecutor<QueryBasketWithProducts,BasketWithProducts_v1>("foo", _checkpointName);
         }
     }
 }

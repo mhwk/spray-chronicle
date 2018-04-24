@@ -39,7 +39,7 @@ namespace SprayChronicle.Example.Application.Service
         {
             return await Execute<QueryBasketWithProducts_BasketById>()
                 .Query(baskets => baskets
-                    .Where(b => b.BasketId == query.BasketId, false)
+                    .Where(b => b.Id == query.BasketId, false)
                     .FirstOrDefaultAsync());
         }
 

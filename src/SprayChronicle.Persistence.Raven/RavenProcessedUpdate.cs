@@ -17,11 +17,11 @@ namespace SprayChronicle.Persistence.Raven
         internal override Task<object> Do(object state = null)
         {
             if (null == state) {
-                throw new ArgumentException($"Sourcable is expected to be {typeof(TSource)}, null given");
+                throw new ArgumentException($"State is expected to be {typeof(TSource)}, null given");
             }
 
             if (!(state is TSource source)) {
-                throw new ArgumentException($"Sourcable {state.GetType()} is not assignable to {typeof(TSource)}");
+                throw new ArgumentException($"State {state.GetType()} is not assignable to {typeof(TSource)}");
             }
             
             return Task.FromResult<object>(
