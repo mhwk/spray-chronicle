@@ -118,6 +118,7 @@ services:
     environment:
       - RAVEN_ARGS=-n -l
       - RAVEN_Setup.Mode=Unsecured
+      - RAVEN_License.Eula.Accepted=true
       - RAVEN_RunInMemory=true
       - UNSECURED_ACCESS_ALLOWED=PublicNetwork
     ports:

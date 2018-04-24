@@ -77,6 +77,7 @@ namespace SprayChronicle.Persistence.Raven
             {
                 builder
                     .Register(c => new RavenExecutionPipeline<TProcessor,TState>(
+                        c.Resolve<ILoggerFactory>().Create<TProcessor>(),
                         c.Resolve<IDocumentStore>(),
                         c.Resolve<TProcessor>()))
                     .AsSelf()
