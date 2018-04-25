@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.SystemData;
-using SprayChronicle.EventHandling;
 using SprayChronicle.EventSourcing;
 using SprayChronicle.Server;
 

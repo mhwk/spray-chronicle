@@ -55,6 +55,7 @@ namespace SprayChronicle.EventSourcing.Test
         {
             var source = new TestSource<Basket>();
             await source.Publish(new BasketPickedUp("foo"));
+            source.Complete();
             
             var basket = (PickedUpBasket) await Basket.Patch(source);
             basket = (PickedUpBasket) await basket.AddProduct(new ProductId("bar"));
@@ -73,6 +74,7 @@ namespace SprayChronicle.EventSourcing.Test
             
             await source.Publish(new BasketPickedUp("foo"));
             await source.Publish(new object());
+            source.Complete();
             
             source.Complete();
             
@@ -87,6 +89,7 @@ namespace SprayChronicle.EventSourcing.Test
             
             await source.Publish(new BasketPickedUp("foo"));
             await source.Publish(new object());
+            source.Complete();
             
             var basket = (PickedUpBasket) await Basket.Patch(source);
             

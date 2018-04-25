@@ -43,16 +43,11 @@ namespace SprayChronicle.Testing
         public DomainMessage Convert(IMessagingStrategy<TTarget> strategy, object message)
         {
             if (null == message) {
-                throw new ArgumentException("You must provide a message for conversion");
+                throw new InvalidDomainMessageException("You must provide a message for conversion");
             }
             
             if (!strategy.Resolves(message, DateTime.Now)) {
-                _logger.LogDebug($"Message {message.GetType().Name} not resolved");
-                return new DomainMessage(
-                    _sequence++,
-                    DateTime.Now,
-                    message.GetType().Name
-                );
+                throw new UnsupportedMessageException($"Message {message.GetType().Name} not resolved");
             }
             
             return new DomainMessage(

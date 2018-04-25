@@ -42,24 +42,36 @@ namespace SprayChronicle.CommandHandling.Test
                 .Returns(_source);
 
             await _source.Publish(message);
+            _source.Complete();
+
             await pipeline.Start();
             
-            _logger.Received().LogDebug(Arg.Any<UnroutableMessageException>());
+            _logger.Received().LogDebug(Arg.Any<UnsupportedMessageException>());
         }
         
-//        [Fact]
-//        public async Task HandleKnownMessage()
-//        {
-//            var message = new BasketPickedUp("basketId");
-//            var pipeline = new ProcessingPipeline<HandleBasket>(_factory, _options, _router, new HandleBasket());
-//            
-//            _factory
-//                .Build<HandleOrder, PersistentOptions>(Arg.Is(_options))
-//                .Returns(_source);
-//
-//            await _source.Publish(message);
-//            await pipeline.Start();
-//            await _router.Received().Route(Arg.Any<GenerateOrder>());
-//        }
+        [Fact]
+        public async Task HandleKnownMessage()
+        {
+            var message = new BasketCheckedOut("basketId", "orderId", new string[0]);
+            var pipeline = new ProcessingPipeline<HandleOrder>(
+                _logger,
+                _factory,
+                _options,
+                _router,
+                new HandleOrder()
+            );
+            
+            _factory
+                .Build<HandleOrder, PersistentOptions>(Arg.Is(_options))
+                .Returns(_source);
+
+            await _source.Publish(message);
+            _source.Complete();
+            
+            await pipeline.Start();
+            
+            _logger.DidNotReceive().LogDebug(Arg.Any<Exception>());
+            await _router.Received().Route(Arg.Any<GenerateOrder>());
+        }
     }
 }

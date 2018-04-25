@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using Autofac;
-using EventStore.ClientAPI;
 using Shouldly;
 using SprayChronicle.EventSourcing;
 using SprayChronicle.Example.Domain;
@@ -67,12 +66,10 @@ namespace SprayChronicle.Persistence.Ouro.Test
                 PropagateCompletion = true
             });
 
-            Console.WriteLine("Starting");
             await Task.WhenAny(
                 source.Start(),
                 action.Completion
             );
-            Console.WriteLine("Complete");
 
             result.Count.ShouldBe(1);
             result.First().ShouldBeOfType<BasketPickedUp>();

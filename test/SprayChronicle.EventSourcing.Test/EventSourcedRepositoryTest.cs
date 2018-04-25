@@ -19,7 +19,7 @@ namespace SprayChronicle.EventSourcing.Test
             await new EventSourcedRepository<Basket>(_persistence)
                 .Save(await Basket.PickUp(new BasketId("foo")));
             
-            _persistence
+            await _persistence
                 .Received()
                 .Append<Basket>(Arg.Is("foo"), Arg.Any<IEnumerable<IDomainMessage>>());
         }
@@ -29,6 +29,7 @@ namespace SprayChronicle.EventSourcing.Test
         {
             var source = new TestSource<Basket>();
             await source.Publish(new BasketPickedUp("foo"));
+            source.Complete();
             
             _persistence
                 .Load<Basket>(Arg.Is("foo"))
@@ -43,6 +44,7 @@ namespace SprayChronicle.EventSourcing.Test
         {
             var source = new TestSource<Basket>();
             await source.Publish(new object());
+            source.Complete();
             
             _persistence
                 .Load<Basket>(Arg.Is("foo"))
@@ -57,6 +59,7 @@ namespace SprayChronicle.EventSourcing.Test
         {
             var source = new TestSource<Basket>();
             await source.Publish(new object());
+            source.Complete();
             
             _persistence
                 .Load<Basket>(Arg.Is("foo"))
@@ -72,6 +75,7 @@ namespace SprayChronicle.EventSourcing.Test
         {
             var source = new TestSource<Basket>();
             await source.Publish(new object());
+            source.Complete();
             
             _persistence
                 .Load<Basket>(Arg.Is("foo"))

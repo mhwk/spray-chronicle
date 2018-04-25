@@ -27,10 +27,18 @@ namespace SprayChronicle.EventSourcing
         {
             var sourcable = default(T);
             
-            var converted = new TransformBlock<object, DomainMessage>(message => messages.Convert(Strategy, message));
+            var converted = new TransformBlock<object, DomainMessage>(
+                message =>
+                {
+                    try {
+                        return messages.Convert(Strategy, message);
+                    } catch (UnsupportedMessageException) {
+                        return null;
+                    }
+                });
             var applied = new ActionBlock<DomainMessage>(async message => {
                 if (null != message) {
-                    sourcable = await Strategy.Ask<T>(sourcable, message.Payload);
+                    sourcable = await Strategy.Ask<T>(sourcable, message.Payload, message.Epoch);
                 }
 
                 if (null != sourcable) {
@@ -59,7 +67,7 @@ namespace SprayChronicle.EventSourcing
                 payload
             );
 
-            var updated = (IEventSourcable<T>) await Strategy.Ask<EventSourced<T>>(sourcable as T, domainMessage.Payload);
+            var updated = (IEventSourcable<T>) await Strategy.Ask<EventSourced<T>>(sourcable as T, domainMessage.Payload, domainMessage.Epoch);
             
             if (updated != sourcable && null != sourcable) {
                 ((EventSourced<T>)updated)._queue.AddRange(((EventSourced<T>)sourcable)._queue);

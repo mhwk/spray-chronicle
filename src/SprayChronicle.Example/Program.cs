@@ -16,7 +16,7 @@ namespace SprayChronicle.Example
         {
             await new ChronicleServer()
                 .WithHealthChecks()
-//                .WithOuroPersistence()
+                .WithOuroPersistence()
 //                .WithMongoPersistence()
                 .WithRavenPersistence()
                 .WithEventHandling()

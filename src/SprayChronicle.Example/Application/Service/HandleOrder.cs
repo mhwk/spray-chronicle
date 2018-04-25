@@ -1,6 +1,5 @@
 ﻿using System;
 using SprayChronicle.CommandHandling;
-using SprayChronicle.EventSourcing;
 using SprayChronicle.Example.Domain;
 using SprayChronicle.Example.Domain.Model;
 using System.Linq;
@@ -17,12 +16,10 @@ namespace SprayChronicle.Example.Application.Service
         public async Task<Handled> Handle(GenerateOrder command)
         {
             return await Handle()
-                .Mutate(async () => {
-                    return await Order.Generate(
-                        command.OrderId,
-                        command.ProductIds.Cast<ProductId>().ToArray()
-                    );
-                });
+                .Mutate(async () => await Order.Generate(
+                    command.OrderId,
+                    command.ProductIds.Cast<ProductId>().ToArray()
+                ));
         }
         
         public async Task<Processed> Process(BasketCheckedOut message, DateTime epoch)

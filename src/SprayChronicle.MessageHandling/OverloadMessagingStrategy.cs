@@ -60,9 +60,8 @@ namespace SprayChronicle.MessageHandling
         public async Task<TResult> Ask<TResult>(T subject, params object[] arguments) where TResult : class
         {
             var result = ResolveMethod(subject, arguments).Invoke(subject, arguments);
-            var task = (Task) result;
-            
-            if (null == task) {
+
+            if (!(result is Task task)) {
                 return result as TResult;
             }
 

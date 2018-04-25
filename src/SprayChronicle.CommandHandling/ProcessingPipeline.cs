@@ -48,7 +48,14 @@ namespace SprayChronicle.CommandHandling
             }
             
             _source = _sourceFactory.Build<THandler,PersistentOptions>(_sourceOptions);
-            var converted = new TransformBlock<object,DomainMessage>(message => _source.Convert(_strategy, message));
+            var converted = new TransformBlock<object,DomainMessage>(message => {
+                try {
+                    return _source.Convert(_strategy, message);
+                } catch (UnsupportedMessageException error) {
+                    _logger.LogDebug(error);
+                    return null;
+                }
+            });
             var dispatch = new TransformBlock<DomainMessage,Processed>(message => Dispatch(message));
             var apply = new ActionBlock<Processed>(command => Apply(command));
 
@@ -65,21 +72,28 @@ namespace SprayChronicle.CommandHandling
             await Task.WhenAll(_source.Start(), dispatch.Completion);
         }
 
-        public async Task Stop()
+        public Task Stop()
         {
             if (null == _source) {
                 throw new PipelineException($"Command processing pipeline not running");
             }
             
             _source.Complete();
-            await _source.Completion;
+            
+            return Task.CompletedTask;
         }
 
         private async Task<Processed> Dispatch(DomainMessage message)
         {
+            if (null == message) {
+                return await Processed.WithError(new UnhandledCommandException(
+                    "Command not handled by pipeline"
+                ));
+            }
+            
             try {
-                return await _strategy.Ask<Processed>(_handler, message.Payload);
-            } catch (UnhandledCommandException error) {
+                return await _strategy.Ask<Processed>(_handler, message.Payload, message.Epoch);
+            } catch (Exception error) {
                 _logger.LogDebug(error);
                 return await Processed.WithError(error);
             }

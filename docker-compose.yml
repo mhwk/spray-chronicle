@@ -1,7 +1,7 @@
 version: '3.3'
 
 services:
-  commandhandling:
+  commandhandling_test:
     image: microsoft/dotnet:2.0-sdk
     volumes:
       - ./:/spray
@@ -9,7 +9,7 @@ services:
     entrypoint: dotnet 
     command: test
     
-  eventhandling:
+  eventhandling_test:
     image: microsoft/dotnet:2.0-sdk
     volumes:
       - ./:/spray
@@ -17,7 +17,7 @@ services:
     entrypoint: dotnet
     command: test
 
-  eventsourcing:
+  eventsourcing_test:
     image: microsoft/dotnet:2.0-sdk
     volumes:
       - ./:/spray
@@ -29,11 +29,25 @@ services:
     image: microsoft/dotnet:2.0-sdk
     volumes:
       - ./:/spray
+    depends_on:
+      - eventstore
+      - ravendb
+    environment:
+      - EVENTSTORE_HOST=eventstore
+      - RAVENDB_HOST=http://ravendb:8080
+    working_dir: /spray/src/SprayChronicle.Example
+    entrypoint: dotnet
+    command: run
+
+  example_test:
+    image: microsoft/dotnet:2.0-sdk
+    volumes:
+      - ./:/spray
     working_dir: /spray/test/SprayChronicle.Example.Test
     entrypoint: dotnet
     command: test
 
-  messagehandling:
+  messagehandling_test:
     image: microsoft/dotnet:2.0-sdk
     volumes:
       - ./:/spray
@@ -41,7 +55,7 @@ services:
     entrypoint: dotnet
     command: test
 
-  persistence_mongo:
+  persistence_mongo_test:
     image: microsoft/dotnet:2.0-sdk
     volumes:
       - ./:/spray
@@ -49,7 +63,7 @@ services:
     entrypoint: dotnet
     command: test
 
-  persistence_ouro:
+  persistence_ouro_test:
     image: microsoft/dotnet:2.0-sdk
     volumes:
       - ./:/spray
@@ -61,7 +75,7 @@ services:
     entrypoint: dotnet
     command: test
 
-  persistence_raven:
+  persistence_raven_test:
     image: microsoft/dotnet:2.0-sdk
     volumes:
       - ./:/spray
@@ -73,7 +87,7 @@ services:
     entrypoint: dotnet
     command: test
 
-  queryhandling:
+  queryhandling_test:
     image: microsoft/dotnet:2.0-sdk
     volumes:
       - ./:/spray
@@ -81,7 +95,7 @@ services:
     entrypoint: dotnet
     command: test
 
-  server:
+  server_test:
     image: microsoft/dotnet:2.0-sdk
     volumes:
       - ./:/spray
@@ -89,7 +103,7 @@ services:
     entrypoint: dotnet
     command: test
 
-  server_http:
+  server_http_test:
     image: microsoft/dotnet:2.0-sdk
     volumes:
       - ./:/spray
@@ -97,7 +111,7 @@ services:
     entrypoint: dotnet
     command: test
 
-  testing:
+  testing_test:
     image: microsoft/dotnet:2.0-sdk
     volumes:
       - ./:/spray

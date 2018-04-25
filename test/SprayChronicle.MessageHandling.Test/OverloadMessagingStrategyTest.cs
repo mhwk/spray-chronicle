@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Shouldly;
 using SprayChronicle.Example.Application;
@@ -15,7 +16,7 @@ namespace SprayChronicle.MessageHandling.Test
         public void ItAcceptsMessage()
         {
             _strategy
-                .Resolves(new BasketPickedUp("basketId"))
+                .Resolves(new BasketPickedUp("basketId"), DateTime.Now)
                 .ShouldBeTrue();
         }
 
@@ -23,7 +24,7 @@ namespace SprayChronicle.MessageHandling.Test
         public void ItAcceptsMessageOfOverload()
         {
             _strategy
-                .Resolves(new ProductAddedToBasket("basketId", "productId"))
+                .Resolves(new ProductAddedToBasket("basketId", "productId"), DateTime.Now)
                 .ShouldBeTrue();
         }
 
@@ -31,7 +32,7 @@ namespace SprayChronicle.MessageHandling.Test
         public void ItDoesNotAcceptUnknownMessage()
         {
             _strategy
-                .Resolves(new UnknownMessage())
+                .Resolves(new UnknownMessage(), DateTime.Now)
                 .ShouldBeFalse();
         }
         
@@ -62,41 +63,41 @@ namespace SprayChronicle.MessageHandling.Test
         [Fact]
         public void TellUnhandledMessage()
         {
-            Should.Throw<UnroutableMessageException>(() => _strategy.Tell(null, new UnknownMessage()));
+            Should.Throw<UnroutableMessageException>(() => _strategy.Tell(null, new UnknownMessage(), DateTime.Now));
         }
 
         [Fact]
         public void TellInstanceMethodToNull()
         {
-            Should.Throw<UnexpectedStateException>(() => _strategy.Tell(null, new ProductAddedToBasket("basketId", "productId")));
+            Should.Throw<UnexpectedStateException>(() => _strategy.Tell(null, new ProductAddedToBasket("basketId", "productId"), DateTime.Now));
         }
 
         [Fact]
         public void TellFactoryMethodToInstance()
         {
-            Should.Throw<UnexpectedStateException>(() => _strategy.Tell(new PickedUpBasket("basketId"), new BasketPickedUp("basketId")));
+            Should.Throw<UnexpectedStateException>(() => _strategy.Tell(new PickedUpBasket("basketId"), new BasketPickedUp("basketId"), DateTime.Now));
         }
 
         [Fact]
         public async Task AskMessageResult()
         {
-            var result = await _strategy.Ask<Basket>(null, new BasketPickedUp("basketId"));
+            var result = await _strategy.Ask<Basket>(null, new BasketPickedUp("basketId"), DateTime.Now);
             result.ShouldBeAssignableTo<PickedUpBasket>();
         }
 
         [Fact]
         public async Task ThrowUnexpectedStateExceptionForExistingInstance()
         {
-            var basket = await _strategy.Ask<Basket>(null, new BasketPickedUp("basketId"));
+            var basket = await _strategy.Ask<Basket>(null, new BasketPickedUp("basketId"), DateTime.Now);
                
-            Should.Throw<UnexpectedStateException>(() => _strategy.Ask<Basket>(basket, new BasketPickedUp("basketId")));
+            Should.Throw<UnexpectedStateException>(() => _strategy.Ask<Basket>(basket, new BasketPickedUp("basketId"), DateTime.Now));
         }
 
         [Fact]
         public async Task ProcessSecondMessage()
         {
-            var basket = await _strategy.Ask<Basket>(null, new BasketPickedUp("basketId"));
-            basket = await _strategy.Ask<Basket>(basket, new BasketCheckedOut("basketId", "orderId", new string[0]));
+            var basket = await _strategy.Ask<Basket>(null, new BasketPickedUp("basketId"), DateTime.Now);
+            basket = await _strategy.Ask<Basket>(basket, new BasketCheckedOut("basketId", "orderId", new string[0]), DateTime.Now);
             
             basket.ShouldBeAssignableTo<CheckedOutBasket>();
         }

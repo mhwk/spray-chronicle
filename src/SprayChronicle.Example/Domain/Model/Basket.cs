@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 using SprayChronicle.EventSourcing;
@@ -28,7 +29,7 @@ namespace SprayChronicle.Example.Domain.Model
             ));
         }
 
-        protected static PickedUpBasket On(BasketPickedUp @event)
+        protected static PickedUpBasket On(BasketPickedUp @event, DateTime epoch)
         {
             return new PickedUpBasket(
                 new BasketId(@event.BasketId),
@@ -36,7 +37,7 @@ namespace SprayChronicle.Example.Domain.Model
             );
         }
 
-        protected PickedUpBasket On(ProductAddedToBasket @event)
+        protected PickedUpBasket On(ProductAddedToBasket @event, DateTime epoch)
         {
             return new PickedUpBasket(
                 BasketId,
@@ -44,7 +45,7 @@ namespace SprayChronicle.Example.Domain.Model
             );
         }
 
-        protected PickedUpBasket On(ProductRemovedFromBasket @event)
+        protected PickedUpBasket On(ProductRemovedFromBasket @event, DateTime epoch)
         {
             return new PickedUpBasket(
                 BasketId,
@@ -52,7 +53,7 @@ namespace SprayChronicle.Example.Domain.Model
             );
         }
 
-        protected CheckedOutBasket On(BasketCheckedOut @event)
+        protected CheckedOutBasket On(BasketCheckedOut @event, DateTime epoch)
         {
             return new CheckedOutBasket(BasketId, ProductsInBasket);
         }

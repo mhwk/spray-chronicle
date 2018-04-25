@@ -64,7 +64,7 @@ namespace SprayChronicle.EventSourcing
                     typeof(TChild)
                 ));
             }
-            return (TChild) sourced;
+            return sourced;
         }
     }
 }
