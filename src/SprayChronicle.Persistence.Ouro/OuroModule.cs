@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using App.Metrics.Health;
 using Autofac;
 using EventStore.ClientAPI;
@@ -54,7 +55,7 @@ namespace SprayChronicle.Persistence.Ouro
 
         private static IEventStoreConnection InitEventStore(IComponentContext container)
         {
-            return "" != (ChronicleServer.Env("EVENTSTORE_CLUSTER_DNS") ?? "")
+            return "" != (ChronicleServer.Env("EVENTSTORE_CLUSTER_DNS", ""))
                 ? InitEventStoreCluster(container)
                 : InitEventStoreSingle(container);
         }
@@ -78,9 +79,7 @@ namespace SprayChronicle.Persistence.Ouro
 				new Uri (uri)
 			);
 		    
-			connection
-			    .ConnectAsync()
-			    .Wait();
+			connection.ConnectAsync().Wait();
 		    
             container
                 .Resolve<ILoggerFactory>()
@@ -99,14 +98,15 @@ namespace SprayChronicle.Persistence.Ouro
                     .KeepReconnecting()
                     .PerformOnAnyNode()
                     .SetDefaultUserCredentials(new UserCredentials(
-                        ChronicleServer.Env("EVENTSTORE_USERNAME") ?? "admin",
-                        ChronicleServer.Env("EVENTSTORE_PASSWORD") ?? "changeit"
+                        ChronicleServer.Env("EVENTSTORE_USERNAME", "admin"),
+                        ChronicleServer.Env("EVENTSTORE_PASSWORD", "changeit")
                     )),
                 ClusterSettings.Create().DiscoverClusterViaDns()
-                    .SetClusterDns(ChronicleServer.Env("EVENTSTORE_CLUSTER_DNS") ?? "eventstore")
-                    .SetClusterGossipPort(Int32.Parse(ChronicleServer.Env("EVENTSTORE_GOSSIP_PORT") ?? "2113"))
+                    .SetClusterDns(ChronicleServer.Env("EVENTSTORE_CLUSTER_DNS", "eventstore"))
+                    .SetClusterGossipPort(Int32.Parse(ChronicleServer.Env("EVENTSTORE_GOSSIP_PORT", "2113")))
                     .PreferRandomNode()
 			);
+            
 			connection.ConnectAsync().Wait();
 
             logger.LogInformation(

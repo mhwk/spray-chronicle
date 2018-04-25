@@ -56,6 +56,8 @@ services:
     working_dir: /spray/test/SprayChronicle.Persistence.Ouro.Test
     depends_on:
       - eventstore
+    environment:
+      - EVENTSTORE_HOST=eventstore
     entrypoint: dotnet
     command: test
 

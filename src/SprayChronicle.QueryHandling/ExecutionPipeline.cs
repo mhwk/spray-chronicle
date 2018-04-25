@@ -11,7 +11,7 @@ namespace SprayChronicle.QueryHandling
     {
         public string Description => $"QueryExecution: {typeof(TQueryExecutor).Name}";
         
-        private readonly BufferBlock<QueryRequest> _queue = new BufferBlock<QueryRequest>();
+        private readonly BufferBlock<QueryEnvelope> _queue = new BufferBlock<QueryEnvelope>();
         
         private readonly IMessagingStrategy<TQueryExecutor> _strategy = new OverloadMessagingStrategy<TQueryExecutor>("Execute");
 
@@ -30,34 +30,34 @@ namespace SprayChronicle.QueryHandling
         public async Task Start()
         {
             _logger.LogDebug("Starting execution pipeline...");
-            var executed = new TransformBlock<QueryRequest,Tuple<Action<object>,Executor>>(
+            var executed = new TransformBlock<QueryEnvelope,Tuple<QueryEnvelope,Executor>>(
                 async request => {
                     try {
-                        return new Tuple<Action<object>, Executor>(
-                            request.OnSuccess,
+                        return new Tuple<QueryEnvelope, Executor>(
+                            request,
                             await ExecuteQuery(request)
                         );
                     } catch (Exception error) {
                         _logger.LogCritical(error);
-                        // @todo handle error
+                        request.OnError(error);
                         return null;
                     }
                 });
-            var applied = new TransformBlock<Tuple<Action<object>,Executor>,Tuple<Action<object>,object>>(
+            var applied = new TransformBlock<Tuple<QueryEnvelope,Executor>,Tuple<QueryEnvelope,object>>(
                 async tuple => {
                     try {
-                        return new Tuple<Action<object>, object>(
+                        return new Tuple<QueryEnvelope, object>(
                             tuple.Item1,
                             await Apply(tuple.Item2)
                         );
                     } catch (Exception error) {
                         _logger.LogCritical(error);
-                        // @todo handle error
+                        tuple.Item1.OnError(error);
                         return null;
                     }
                 });
-            var succeeded = new ActionBlock<Tuple<Action<object>,object>>(
-                tuple => tuple.Item1(tuple.Item2)
+            var succeeded = new ActionBlock<Tuple<QueryEnvelope,object>>(
+                tuple => tuple.Item1.OnSuccess(tuple.Item2)
             );
 
             _queue.LinkTo(executed, new DataflowLinkOptions {
@@ -80,7 +80,7 @@ namespace SprayChronicle.QueryHandling
             return Task.CompletedTask;
         }
 
-        private async Task<Executor> ExecuteQuery(QueryRequest query)
+        private async Task<Executor> ExecuteQuery(QueryEnvelope query)
         {
             return await _strategy.Ask<Executor>(_processor, query.Payload).ConfigureAwait(false);
         }
@@ -93,9 +93,10 @@ namespace SprayChronicle.QueryHandling
             {
                 var onComplete = new TaskCompletionSource<object>();
 
-                _queue.Post(new QueryRequest(
+                _queue.Post(new QueryEnvelope(
                     arguments,
-                    result => onComplete.TrySetResult(result)
+                    result => onComplete.TrySetResult(result),
+                    error => onComplete.TrySetException(error)
                 ));
 
                 return onComplete.Task;

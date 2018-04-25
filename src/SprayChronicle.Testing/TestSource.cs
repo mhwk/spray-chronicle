@@ -37,7 +37,6 @@ namespace SprayChronicle.Testing
 
         public Task Start()
         {
-            _queue.Complete();
             return Task.CompletedTask;
         }
 

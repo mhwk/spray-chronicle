@@ -210,7 +210,7 @@ namespace SprayChronicle.Persistence.Raven
             var id = $"Checkpoint/{_checkpointName}";
             var checkpoint = await session.LoadAsync<Checkpoint>(id);
             if (null != checkpoint) {
-                _logger.LogDebug($"Saving checkpoint {checkpoint.Sequence}");
+                _logger.LogDebug($"Saving checkpoint {sequence}");
                 checkpoint.Increase(sequence);
             } else {
                 checkpoint = new Checkpoint(id);

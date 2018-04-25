@@ -1,64 +1,32 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
+using Autofac;
 using EventStore.ClientAPI;
-using EventStore.ClientAPI.SystemData;
-using NSubstitute;
 using Shouldly;
 using SprayChronicle.EventSourcing;
-using SprayChronicle.Server;
+using SprayChronicle.Example.Domain;
+using SprayChronicle.Example.Domain.Model;
+using SprayChronicle.MessageHandling;
 using Xunit;
 
 namespace SprayChronicle.Persistence.Ouro.Test
 {
-    public abstract class OuroEventStoreTest
+    public class OuroEventStoreTest : OuroTestCase
     {
-        private readonly ILoggerFactory _loggerFactory = Substitute.For<ILoggerFactory>();
-        
-        private readonly ILogger<IEventStore> _logger = Substitute.For<ILogger<IEventStore>>();
-
-        private readonly UserCredentials _credentials = new UserCredentials("username", "password");
-
-        private static async Task<IEventStoreConnection> InitializeOuro()
-        {
-            var connection = EventStoreConnection.Create (
-                ConnectionSettings.Create()
-                    .WithConnectionTimeoutOf(TimeSpan.FromSeconds(5))
-                    .KeepReconnecting()
-                    .KeepRetrying()
-                    .UseConsoleLogger()
-                    .Build(),
-                new Uri ("tcp://admin:changeit@eventstore:1113")
-            );
-		    
-            await connection.ConnectAsync();
-            return connection;
-        }
-
-        private async Task<OuroEventStore> Store()
-        {
-            var ouro = await InitializeOuro();
-            return new OuroEventStore(
-                _logger,
-                new OuroSourceFactory(
-                    _loggerFactory,
-                    ouro,
-                    _credentials
-                ),
-                ouro,
-                _credentials
-            );
-        }
-
         [Fact]
-        public async Task ItCanInstantiateOuroStore()
+        public void ItCanInstantiateOuroStore()
         {
-            (await Store()).ShouldNotBeNull();
+            Container().Resolve<OuroEventStore>().ShouldNotBeNull();
         }
         
         [Fact]
         public void ItCanNotSaveEmptyStreamName()
         {
-            Should.Throw<InvalidStreamException>(async () => (await Store()).Append<ExampleAggregate>("", new[] {
+            var store = Container().Resolve<OuroEventStore>();
+            Should.Throw<InvalidStreamException>(async () => await store.Append<Basket>("", new[] {
                 new DomainMessage(0, new DateTime(), new object())
             }));
         }
@@ -66,17 +34,54 @@ namespace SprayChronicle.Persistence.Ouro.Test
         [Fact]
         public void ItCanNotSaveInvalidStreamName()
         {
-            Should.Throw<InvalidStreamException>(async () => (await Store()).Append<ExampleAggregate>("@", new[] {
+            var store = Container().Resolve<OuroEventStore>();
+            Should.Throw<InvalidStreamException>(async () => await store.Append<Basket>("@", new[] {
                 new DomainMessage(0, new DateTime(), new object())
             }));
         }
-        
-        public class ExampleAggregate : EventSourced<ExampleAggregate>
+
+        [Fact]
+        public async Task LoadAppended()
         {
-            public override string Identity()
-            {
-                return "identity";
-            }
+            var identity = Guid.NewGuid().ToString();
+            var store = Container().Resolve<OuroEventStore>();
+            var strategy = new OverloadMessagingStrategy<Basket>();
+            var result = new List<object>();
+            
+            await store.Append<Basket>(identity, new [] {
+                new DomainMessage(
+                    0,
+                    DateTime.Now,
+                    new BasketPickedUp(identity)
+                )
+            });
+
+            var source = store.Load<Basket>(identity);
+            var convert = new TransformBlock<object,DomainMessage>(message => source.Convert(strategy, message));
+            var action = new ActionBlock<DomainMessage>(message => result.Add(message.Payload));
+
+            source.LinkTo(convert, new DataflowLinkOptions{
+                PropagateCompletion = true
+            });
+            convert.LinkTo(action, new DataflowLinkOptions{
+                PropagateCompletion = true
+            });
+
+            Console.WriteLine("Starting");
+            await Task.WhenAny(
+                source.Start(),
+                action.Completion
+            );
+            Console.WriteLine("Complete");
+
+            result.Count.ShouldBe(1);
+            result.First().ShouldBeOfType<BasketPickedUp>();
+            ((BasketPickedUp)result.First()).BasketId.ShouldBe(identity);
+        }
+
+        protected override void Configure(ContainerBuilder builder)
+        {
+            
         }
     }
 }

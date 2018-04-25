@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using SprayChronicle.EventSourcing;
 
 namespace SprayChronicle.Testing
@@ -22,7 +23,7 @@ namespace SprayChronicle.Testing
             _epochs = epochs;
         }
 
-        public void Append<T>(string identity, IEnumerable<IDomainMessage> domainMessages)
+        public Task Append<T>(string identity, IEnumerable<IDomainMessage> domainMessages)
         {
             var range = PrepareRange(domainMessages);
             
@@ -33,6 +34,8 @@ namespace SprayChronicle.Testing
             }
             
             _child.Append<T>(identity, range);
+
+            return Task.CompletedTask;
         }
 
         private IEnumerable<IDomainMessage> PrepareRange(IEnumerable<IDomainMessage> domainMessages)

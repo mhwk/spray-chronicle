@@ -3,6 +3,7 @@ using System.Text;
 using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.SystemData;
 using Newtonsoft.Json;
@@ -33,7 +34,7 @@ namespace SprayChronicle.Persistence.Ouro
             _credentials = credentials;
         }
 
-        public void Append<T>(string identity, IEnumerable<IDomainMessage> domainMessages)
+        public async Task Append<T>(string identity, IEnumerable<IDomainMessage> domainMessages)
         {
             var enumerable = domainMessages as DomainMessage[] ?? domainMessages.ToArray();
             
@@ -45,19 +46,18 @@ namespace SprayChronicle.Persistence.Ouro
                 var stopwatch = new Stopwatch();
                 stopwatch.Start();
 
-                _eventStore.AppendToStreamAsync(
+                await _eventStore.AppendToStreamAsync(
                     Stream<T>(identity),
                     enumerable.First().Sequence - 1,
                     enumerable.Select(BuildEventData),
                     _credentials
-                ).Wait();
+                );
 
                 stopwatch.Stop();
                 _logger.LogDebug($"[{Stream<T>(identity)}::append] {stopwatch.ElapsedMilliseconds}ms");
             } catch (AggregateException error) {
                 throw new ConcurrencyException(string.Format(
-                    "Concurrency detected: {0}",
-                    error.InnerException.Message
+                    $"Concurrency detected: {error.InnerException?.Message}"
                 ));
             }
         }
@@ -71,23 +71,13 @@ namespace SprayChronicle.Persistence.Ouro
         private static string Stream<T>(string identity)
         {
             if (identity.Equals("")) {
-                throw new InvalidStreamException(string.Format(
-                    "Stream name can not be empty",
-                    identity
-                ));
+                throw new InvalidStreamException("Stream name can not be empty");
             }
             if (identity.Contains("@")) {
-                throw new InvalidStreamException(string.Format(
-                    "Stream name {0} contains invalid character '@'",
-                    identity
-                ));
+                throw new InvalidStreamException($"Stream name {identity} contains invalid character '@'");
             }
 
-            return string.Format(
-                "{0}-{2}",
-                typeof(T).Namespace.Split('.').First(),
-                identity
-            );
+            return $"{typeof(T).Namespace?.Split('.').First()}-{identity}";
         }
 
         private EventData BuildEventData(IDomainMessage domainMessage)

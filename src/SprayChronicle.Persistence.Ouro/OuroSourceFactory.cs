@@ -1,8 +1,6 @@
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.SystemData;
-using SprayChronicle.EventHandling;
 using SprayChronicle.EventSourcing;
-using SprayChronicle.MessageHandling;
 using SprayChronicle.Server;
 
 namespace SprayChronicle.Persistence.Ouro

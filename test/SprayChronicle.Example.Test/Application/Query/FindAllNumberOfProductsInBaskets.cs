@@ -10,13 +10,16 @@ using Xunit;
 
 namespace SprayChronicle.Example.Test.Application.Query
 {
-    public class FindAllNumerOfProductsInBaskets : QueryTestCase<Module,Basket>
+    public class FindAllNumberOfProductsInBaskets : QueryTestCase<Module,Basket>
     {
+        private readonly string _basketId1 = Guid.NewGuid().ToString();
+        private readonly string _basketId2 = Guid.NewGuid().ToString();
+        
         protected override Task Given(TestSource<Basket> source)
         {
             return source.Publish(
-                new BasketPickedUp("basketId1"),
-                new BasketPickedUp("basketId2")
+                new BasketPickedUp(_basketId1),
+                new BasketPickedUp(_basketId2)
             );
         }
 
@@ -30,8 +33,8 @@ namespace SprayChronicle.Example.Test.Application.Query
         protected override void Then(IValidate validator)
         {
             validator.Expect(
-                new BasketWithProducts_v1("basketId1", DateTime.Now),
-                new BasketWithProducts_v1("basketId2", DateTime.Now)
+                new BasketWithProducts_v1(_basketId2, DateTime.Now),
+                new BasketWithProducts_v1(_basketId2, DateTime.Now)
             );
         }
 

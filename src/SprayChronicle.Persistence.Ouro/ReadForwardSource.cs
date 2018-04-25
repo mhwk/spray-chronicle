@@ -21,7 +21,7 @@ namespace SprayChronicle.Persistence.Ouro
         
         private long _checkpoint;
         
-        private bool _running;
+        private bool _buffering;
 
         public ReadForwardSource(
             ILogger<TTarget> logger,
@@ -38,31 +38,37 @@ namespace SprayChronicle.Persistence.Ouro
 
         protected override async Task StartBuffering()
         {
-            _running = true;
+            _buffering = true;
 
             var stopwatch = new Stopwatch();
             stopwatch.Start();
             
+            _logger.LogDebug($"Starting buffering");
+            
             var eos = false;
             do {
                 var slice = await _eventStore.ReadStreamEventsForwardAsync(_streamName, _checkpoint, 50, false, _credentials);
+                
+                _logger.LogDebug($"Read slice, {slice.FromEventNumber} to {slice.LastEventNumber}");
+                
                 foreach (var resolvedEvent in slice.Events) {
                     Queue.Post(resolvedEvent);
                     _checkpoint++;
                 }
                 eos = slice.IsEndOfStream;
-            } while (!eos && _running);
+            } while (!eos && _buffering);
             
-            Queue.Complete();
+            _logger.LogDebug($"End of stream, stopping buffering");
 
             stopwatch.Stop();
             _logger.LogDebug($"[{_streamName}::load] {stopwatch.ElapsedMilliseconds}ms");
-            
+
+            Queue.Complete();
         }
 
         protected override Task StopBuffering()
         {
-            _running = false;
+            _buffering = false;
             return Task.CompletedTask;
         }
     }

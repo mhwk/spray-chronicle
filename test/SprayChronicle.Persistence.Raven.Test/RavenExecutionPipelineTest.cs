@@ -3,13 +3,10 @@ using System.Threading.Tasks;
 using Autofac;
 using Raven.Client.Documents;
 using Shouldly;
-using SprayChronicle.EventSourcing;
 using SprayChronicle.Example.Application;
 using SprayChronicle.Example.Application.Service;
 using SprayChronicle.Example.Application.State;
-using SprayChronicle.Example.Domain;
 using SprayChronicle.QueryHandling;
-using SprayChronicle.Testing;
 using Xunit;
 
 namespace SprayChronicle.Persistence.Raven.Test
