@@ -4,8 +4,8 @@ using SprayChronicle.QueryHandling;
 
 namespace SprayChronicle.Persistence.Raven
 {
-    public abstract class RavenQueryProcessor<TProcessor,TState> : IExecute, IProcess
-        where TProcessor : RavenQueryProcessor<TProcessor,TState>
+    public abstract class RavenQueries<TProcessor,TState> : IExecute, IProcess
+        where TProcessor : RavenQueries<TProcessor,TState>
         where TState : class
     {
         protected RavenProcessedFactory<TState> Process()
@@ -18,9 +18,9 @@ namespace SprayChronicle.Persistence.Raven
             return new RavenProcessedFactory<TState>(identity);
         }
 
-        protected RavenExecutedFactory<TState> Execute()
+        protected ExecutedFactory<TState> Execute()
         {
-            return new RavenExecutedFactory<TState>();
+            return new ExecutedFactory<TState>();
         }
         
         protected RavenExecutorFactory<TState,TFilter> Execute<TFilter>()

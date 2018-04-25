@@ -1,4 +1,6 @@
-﻿using System.Threading;
+﻿using System;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using SprayChronicle.EventSourcing;
@@ -14,7 +16,7 @@ namespace SprayChronicle.CommandHandling
         
         private readonly IMessagingStrategy<THandler> _strategy = new OverloadMessagingStrategy<THandler>("Handle");
 
-        private readonly BufferBlock<object> _queue;
+        private readonly BufferBlock<CommandEnvelope> _queue;
 
         private readonly THandler _handler;
         
@@ -25,7 +27,7 @@ namespace SprayChronicle.CommandHandling
             THandler handler) :  this(
                 repository,
                 handler,
-                new BufferBlock<object>()
+                new BufferBlock<CommandEnvelope>()
             )
         {
         }
@@ -33,7 +35,7 @@ namespace SprayChronicle.CommandHandling
         public HandlingPipeline(
             IEventSourcingRepository<TState> repository,
             THandler handler,
-            BufferBlock<object> queue)
+            BufferBlock<CommandEnvelope> queue)
         {
             _repository = repository;
             _handler = handler;
@@ -42,16 +44,44 @@ namespace SprayChronicle.CommandHandling
 
         public void Subscribe(IMessagingStrategyRouter<IHandle> messageRouter)
         {
-            messageRouter.Subscribe(_strategy, command => {
-                _queue.Post(command);
-                return Task.FromResult<object>(null);
+            messageRouter.Subscribe(_strategy, commands => {
+                var onComplete = new TaskCompletionSource<object>();
+                
+                _queue.Post(new CommandEnvelope(
+                    commands.First(),
+                    () => onComplete.TrySetResult(new object()),
+                    error => onComplete.TrySetException(error)
+                ));
+
+                return onComplete.Task;
             });
         }
 
         public async Task Start()
         {
-            var dispatch = new TransformBlock<object,Handled>(command => Dispatch(command));
-            var apply = new ActionBlock<Handled>(command => Apply(command));
+            var dispatch = new TransformBlock<CommandEnvelope,Tuple<CommandEnvelope,Handled>>(async envelope => {
+                try {
+                    return new Tuple<CommandEnvelope, Handled>(
+                        envelope,
+                        await Dispatch(envelope.Command)
+                    );
+                } catch (Exception error) {
+                    envelope.OnError(error);
+                    return null;
+                }
+            });
+            var apply = new ActionBlock<Tuple<CommandEnvelope,Handled>>(async tuple => {
+                if (null == tuple) {
+                    return;
+                }
+                
+                try {
+                    await Apply(tuple.Item2);
+                    tuple.Item1.OnSuccess();
+                } catch (Exception error) {
+                    tuple.Item1.OnError(error);
+                }
+            });
 
             _queue.LinkTo(dispatch, new DataflowLinkOptions {
                 PropagateCompletion = true
@@ -60,7 +90,7 @@ namespace SprayChronicle.CommandHandling
                 PropagateCompletion = true
             });
 
-            await Task.WhenAll(dispatch.Completion);
+            await dispatch.Completion;
         }
 
         public async Task Stop()
@@ -77,13 +107,18 @@ namespace SprayChronicle.CommandHandling
         private async Task Apply(Handled handled)
         {
             TState identity;
-            
-            if (null != handled.Identity) {
-                identity = await handled.Do(await _repository.Load<TState>(handled.Identity)) as TState;
-            } else {
-                identity = await handled.Do() as TState;
-            }
 
+            switch (handled) {
+                case HandledCreate<TState> created:
+                    identity = await created.Do();
+                    break;
+                case HandledUpdate<TState> updated:
+                    identity = await updated.Do(await _repository.Load<TState>(handled.Identity));
+                    break;
+                default:
+                    throw new Exception($"Unsupported pipeline result {handled.GetType()}");
+            }
+            
             await _repository.Save<TState>(identity);
         }
     }

@@ -37,8 +37,13 @@ namespace SprayChronicle.MessageHandling
                 }
 
                 tasks.Add(strategy.Value(arguments));
+                return await strategy.Value(arguments);
             }
 
+            if (1 == tasks.Count) {
+                return await tasks.First();
+            }
+            
             if (0 != tasks.Count) return await Task.WhenAll(tasks);
             
             var messageList = string.Join(", ", arguments.Select(m => m.GetType().Name));

@@ -17,20 +17,20 @@ namespace SprayChronicle.Persistence.Raven
             _identity = identity;
         }
 
-        public Task<RavenProcessedCreate<TState>> Mutate(Func<TState> mutator)
+        public Task<ProcessedCreate<TState>> Mutate(Func<TState> mutator)
         {
-            return Task.FromResult(new RavenProcessedCreate<TState>(mutator));
+            return Task.FromResult(new ProcessedCreate<TState>(mutator));
         }
 
-        public Task<RavenProcessedUpdate<TState,TState>> Mutate(Func<TState,TState> mutator)
+        public Task<ProcessedUpdate<TState,TState>> Mutate(Func<TState,TState> mutator)
         {
-            return Task.FromResult(new RavenProcessedUpdate<TState,TState>(_identity, mutator));
+            return Task.FromResult(new ProcessedUpdate<TState,TState>(_identity, mutator));
         }
 
-        public Task<RavenProcessedUpdate<TState,TResult>> Mutate<TResult>(Func<TState,TResult> mutator)
+        public Task<ProcessedUpdate<TState,TResult>> Mutate<TResult>(Func<TState,TResult> mutator)
             where TResult : class
         {
-            return Task.FromResult(new RavenProcessedUpdate<TState,TResult>(_identity, mutator));
+            return Task.FromResult(new ProcessedUpdate<TState,TResult>(_identity, mutator));
         }
     }
 }

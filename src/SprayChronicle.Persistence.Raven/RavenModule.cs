@@ -61,7 +61,7 @@ namespace SprayChronicle.Persistence.Raven
         }
 
         public sealed class QueryPipeline<TProcessor,TState> : Module
-            where TProcessor : RavenQueryProcessor<TProcessor,TState>
+            where TProcessor : RavenQueries<TProcessor,TState>
             where TState : class
         {
             private readonly string _streamName;

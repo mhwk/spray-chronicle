@@ -29,10 +29,7 @@ namespace SprayChronicle.EventHandling
                 throw new Exception("Pipeline manager already running");
             }
 
-            Console.WriteLine(string.Join(", ", _pipelines.Select(p => p.GetType().Name).ToArray()));
-            
-//            return Task.WhenAll(_pipelines.Select(p => p.Start()).ToArray());
-            return Task.CompletedTask;
+            return Task.WhenAll(_pipelines.Select(p => p.Start()));
         }
 
         public Task Stop()

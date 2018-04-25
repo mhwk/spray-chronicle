@@ -24,6 +24,13 @@ namespace SprayChronicle.EventSourcing
 
         public async Task Save<TChild>(T sourced) where TChild : T
         {
+            if (null == sourced) {
+                throw new InvalidStateException(string.Format(
+                    "Expected state {0}, but got null",
+                    typeof(TChild)
+                ));
+            }
+            
             if ( ! (sourced is TChild)) {
                 throw new InvalidStateException(string.Format(
                     "Expected state {0}, but got {1}",

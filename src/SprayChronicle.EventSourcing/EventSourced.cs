@@ -53,8 +53,10 @@ namespace SprayChronicle.EventSourcing
                 PropagateCompletion = true
             });
 
-            await messages.Start();
-            await applied.Completion;
+            await Task.WhenAll(
+                messages.Start(),
+                applied.Completion
+            );
             
             return sourcable;
         }

@@ -32,6 +32,8 @@ services:
     depends_on:
       - eventstore
       - ravendb
+    ports:
+      - 5000:5000
     environment:
       - EVENTSTORE_HOST=eventstore
       - RAVENDB_HOST=http://ravendb:8080
@@ -132,10 +134,7 @@ services:
   ravendb:
     image: ravendb/ravendb:4.0.3-ubuntu.16.04-x64
     environment:
-      - RAVEN_ARGS=-n -l
-      - RAVEN_Setup.Mode=Unsecured
-      - RAVEN_License.Eula.Accepted=true
-      - RAVEN_RunInMemory=true
-      - UNSECURED_ACCESS_ALLOWED=PublicNetwork
+      - RAVEN_ARGS=-n -l --Setup.Mode=None
+      - RAVEN_Security_UnsecuredAccessAllowed=PrivateNetwork
     ports:
       - 8080:8080

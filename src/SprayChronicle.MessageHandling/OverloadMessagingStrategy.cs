@@ -62,7 +62,7 @@ namespace SprayChronicle.MessageHandling
             var result = ResolveMethod(subject, arguments).Invoke(subject, arguments);
 
             if (!(result is Task task)) {
-                return result as TResult;
+                return (TResult) result;
             }
 
             await task.ConfigureAwait(false);
@@ -111,8 +111,8 @@ namespace SprayChronicle.MessageHandling
             if ( ! methods.Any()) {
                 var providedArgs = string.Join(", ", arguments.Select(a => a.GetType().FullName));
                 var suggestedArgs = string.Join(", ", _typesToMethod.SuggestList(subject));
-                throw new UnroutableMessageException(
-                    $"[{typeof(T)}] Not handled ({providedArgs}), try one of ({suggestedArgs})"
+                throw new UnsupportedMessageException(
+                    $"[{typeof(T)}] Unknown message ({providedArgs}), try one of ({suggestedArgs})"
                 );
             }
             

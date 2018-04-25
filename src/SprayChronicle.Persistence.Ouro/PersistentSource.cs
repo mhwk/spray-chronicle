@@ -73,7 +73,7 @@ namespace SprayChronicle.Persistence.Ouro
                     // Or do we catch-up all the things?
                 },
                 (subscription, reason, error) => {
-                    _logger.LogCritical(error, $"Errored subscription {_streamName}_{_groupName}: {reason}, {error}");
+                    _logger.LogCritical(error, $"Errored persistent subscription {_streamName}_{_groupName}: {reason}, {error}");
                 },
                 _credentials
             );

@@ -13,15 +13,13 @@ namespace SprayChronicle.CommandHandling
             _mutation = mutation;
         }
 
-        internal override Task<object> Do(object sourcable = null)
+        internal Task<TState> Do(object sourcable = null)
         {
             if (null != sourcable) {
                 throw new ArgumentException($"Sourcable is expected to be null, {sourcable.GetType()} given");
             }
 
-            return Task.FromResult<object>(
-                _mutation?.Invoke()
-            );
+            return _mutation?.Invoke();
         }
     }
 }

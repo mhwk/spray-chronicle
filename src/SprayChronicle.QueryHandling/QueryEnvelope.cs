@@ -4,21 +4,18 @@ namespace SprayChronicle.QueryHandling
 {
     public sealed class QueryEnvelope
     {
-        public string Name { get; }
-
-        public object Payload { get; }
+        public object[] Queries { get; }
         
         public Action<object> OnSuccess { get; }
         
         public Action<Exception> OnError { get; }
 
         public QueryEnvelope(
-            object payload,
+            object[] queries,
             Action<object> onSuccess,
             Action<Exception> onError)
         {
-            Name = payload.GetType().Name;
-            Payload = payload;
+            Queries = queries;
             OnSuccess = onSuccess;
             OnError = onError;
         }

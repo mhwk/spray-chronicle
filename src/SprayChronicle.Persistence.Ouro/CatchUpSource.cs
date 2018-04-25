@@ -109,7 +109,7 @@ namespace SprayChronicle.Persistence.Ouro
                 case SubscriptionDropReason.PersistentSubscriptionDeleted:
                 case SubscriptionDropReason.Unknown:
                 case SubscriptionDropReason.NotFound:
-                    _logger.LogError(error, $"Errored subscription {_streamName}");
+                    _logger.LogCritical(error, $"Errored subscription {_streamName} ({reason}): {_error}");
                     _error = error;
                     break;
                 default:

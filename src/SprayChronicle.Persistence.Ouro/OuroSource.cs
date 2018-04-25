@@ -24,7 +24,7 @@ namespace SprayChronicle.Persistence.Ouro
         
         public async Task Start()
         {
-            while (!Queue.Completion.IsCompleted && !Queue.Completion.IsCanceled && !Queue.Completion.IsFaulted) {
+            while (!Queue.Completion.IsCompleted) {
                 await StartBuffering();
             
                 while (Queue.Count < MaxBufferLength) {

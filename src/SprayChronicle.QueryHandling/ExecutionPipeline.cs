@@ -70,7 +70,7 @@ namespace SprayChronicle.QueryHandling
                 PropagateCompletion = true
             });
             
-            await Task.WhenAll(applied.Completion);
+            await applied.Completion;
         }
 
         public Task Stop()
@@ -82,7 +82,7 @@ namespace SprayChronicle.QueryHandling
 
         private async Task<Executor> ExecuteQuery(QueryEnvelope query)
         {
-            return await _strategy.Ask<Executor>(_processor, query.Payload).ConfigureAwait(false);
+            return await _strategy.Ask<Executor>(_processor, query.Queries).ConfigureAwait(false);
         }
 
         protected abstract Task<object> Apply(Executor executor);
@@ -91,15 +91,15 @@ namespace SprayChronicle.QueryHandling
         {
             messageRouter.Subscribe(_strategy, arguments =>
             {
-                var onComplete = new TaskCompletionSource<object>();
+                var completion = new TaskCompletionSource<object>();
 
                 _queue.Post(new QueryEnvelope(
                     arguments,
-                    result => onComplete.TrySetResult(result),
-                    error => onComplete.TrySetException(error)
+                    result => completion.TrySetResult(result),
+                    error => completion.TrySetException(error)
                 ));
 
-                return onComplete.Task;
+                return completion.Task;
             });
         }
     }

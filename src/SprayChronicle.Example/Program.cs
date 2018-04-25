@@ -23,7 +23,7 @@ namespace SprayChronicle.Example
                 .WithCommandHandling()
                 .WithQueryHandling()
                 .WithHttp()
-                .WithModule<Module>()
+                .WithExample()
                 .Run(args);
         }
     }

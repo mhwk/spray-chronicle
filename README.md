@@ -10,6 +10,15 @@ Examples
 
 Have a look at the [example project](src/SprayChronicle.Example) and [example tests](test/SprayChronicle.Example.Test) for how the framework is used.
 
+Development
+===========
+
+For most parts of the framework just the [dotnet cli](https://docs.microsoft.com/en-us/dotnet/core/tools) is enough to get started. Parts that communicate with external services need those services running in order to be able to test them. You can either install those services on your machine or use the [docker-compose](https://docs.docker.com/compose) configuration [file](docker-compose.yml). With the following commands you can turn these services on:
+
+  docker-compose up -d eventstore
+  docker-compose up -d ravendb
+
+
 
 Changelog
 =========

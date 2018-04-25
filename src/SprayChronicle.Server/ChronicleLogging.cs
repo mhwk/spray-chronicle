@@ -80,8 +80,8 @@ namespace SprayChronicle.Server
                 "\n"
             );
 
-            LoggerFrom(services).LogInformation(
-                $"Environment variables:\n{string.Join("\n", ChronicleServer.Variables.Select(kv => $"  {kv.Key}={kv.Value}"))}"
+            LoggerFrom(services).LogDebug(
+                $"Environment variables:\n{string.Join("\n", ChronicleServer.Variables.OrderBy(kv => kv.Key).Select(kv => $"  {kv.Key}={kv.Value}"))}"
             );
         }
 

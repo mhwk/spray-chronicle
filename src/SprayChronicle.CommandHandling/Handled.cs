@@ -10,7 +10,5 @@ namespace SprayChronicle.CommandHandling
         {
             Identity = identity;
         }
-
-        internal abstract Task<object> Do(object sourcable = null);
     }
 }

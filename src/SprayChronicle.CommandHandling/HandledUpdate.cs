@@ -3,30 +3,38 @@ using System.Threading.Tasks;
 
 namespace SprayChronicle.CommandHandling
 {
-    public class HandledUpdate<TSource,TTarget> : Handled
-        where TSource : class
-        where TTarget : class
+    public abstract class HandledUpdate<TState> : Handled
+        where TState : class
     {
-        private readonly Func<TSource, Task<TTarget>> _mutation;
+        protected HandledUpdate(string identity) : base(identity)
+        {
+        }
         
-        public HandledUpdate(string identity, Func<TSource,Task<TTarget>> mutation) : base(identity)
+        internal abstract Task<TState> Do(object sourcable = null);
+    }
+    
+    public class HandledUpdate<TStart,TState> : HandledUpdate<TState>
+        where TStart : class
+        where TState : class
+    {
+        private readonly Func<TStart, Task<TState>> _mutation;
+        
+        public HandledUpdate(string identity, Func<TStart,Task<TState>> mutation) : base(identity)
         {
             _mutation = mutation;
         }
 
-        internal override async Task<object> Do(object sourcable = null)
+        internal override async Task<TState> Do(object sourcable = null)
         {
             if (null == sourcable) {
-                throw new ArgumentException($"Sourcable is expected to be {typeof(TSource)}, null given");
+                throw new ArgumentException($"Sourcable is expected to be {typeof(TStart)} but was null");
             }
 
-            if (!(sourcable is TSource state)) {
-                throw new ArgumentException($"Sourcable {sourcable.GetType()} is not assignable to {typeof(TSource)}");
+            if (!(sourcable is TStart state)) {
+                throw new ArgumentException($"Sourcable is expected to be {typeof(TStart)} but was {typeof(TState)}");
             }
 
-            return Task.FromResult<object>(
-                await _mutation.Invoke(state)
-            );
+            return await _mutation.Invoke(state);
         }
     }
 }

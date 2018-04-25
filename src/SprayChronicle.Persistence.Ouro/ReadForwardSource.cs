@@ -43,13 +43,13 @@ namespace SprayChronicle.Persistence.Ouro
             var stopwatch = new Stopwatch();
             stopwatch.Start();
             
-            _logger.LogDebug($"Starting buffering");
-            
+            _logger.LogDebug($"Reading forward");
+
             var eos = false;
             do {
                 var slice = await _eventStore.ReadStreamEventsForwardAsync(_streamName, _checkpoint, 50, false, _credentials);
                 
-                _logger.LogDebug($"Read slice, {slice.FromEventNumber} to {slice.LastEventNumber}");
+                _logger.LogDebug($"-> Read slice {slice.FromEventNumber} to {slice.LastEventNumber}");
                 
                 foreach (var resolvedEvent in slice.Events) {
                     Queue.Post(resolvedEvent);
@@ -58,10 +58,9 @@ namespace SprayChronicle.Persistence.Ouro
                 eos = slice.IsEndOfStream;
             } while (!eos && _buffering);
             
-            _logger.LogDebug($"End of stream, stopping buffering");
 
             stopwatch.Stop();
-            _logger.LogDebug($"[{_streamName}::load] {stopwatch.ElapsedMilliseconds}ms");
+            _logger.LogDebug($"Reading forward complete: {_checkpoint} events in {stopwatch.ElapsedMilliseconds}ms");
 
             Queue.Complete();
         }

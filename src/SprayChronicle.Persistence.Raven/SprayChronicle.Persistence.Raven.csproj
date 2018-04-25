@@ -3,7 +3,7 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SprayChronicle.Persistence.Ouro\SprayChronicle.Persistence.Ouro.csproj"/>
+    <ProjectReference Include="..\SprayChronicle.Persistence.Ouro\SprayChronicle.Persistence.Ouro.csproj" />
     <ProjectReference Include="..\SprayChronicle.QueryHandling\SprayChronicle.QueryHandling.csproj" />
     <ProjectReference Include="..\SprayChronicle.Server\SprayChronicle.Server.csproj" />
   </ItemGroup>

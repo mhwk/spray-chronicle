@@ -41,31 +41,15 @@ namespace SprayChronicle.Persistence.Raven
             IDocumentStore store,
             IEventSourceFactory sourceFactory,
             CatchUpOptions sourceOptions,
-            TProcessor processor)
-            : this(
-                logger,
-                store,
-                sourceFactory,
-                sourceOptions,
-                processor,
-                typeof(TProcessor).FullName)
-        {
-        }
-
-        public RavenProcessingPipeline(
-            ILogger<TProcessor> logger,
-            IDocumentStore store,
-            IEventSourceFactory sourceFactory,
-            CatchUpOptions sourceOptions,
             TProcessor processor,
-            string checkpointName)
+            string checkpointName = null)
         {
             _logger = logger;
             _store = store;
             _sourceFactory = sourceFactory;
             _sourceOptions = sourceOptions;
             _processor = processor;
-            _checkpointName = checkpointName;
+            _checkpointName = checkpointName ?? typeof(TProcessor).Name;
         }
         
         public async Task Start()
@@ -78,15 +62,15 @@ namespace SprayChronicle.Persistence.Raven
 
             _source = _sourceFactory.Build<TProcessor,CatchUpOptions>(_sourceOptions.WithCheckpoint(_checkpoint));
             var converted = new TransformBlock<object,DomainMessage>(message => _source.Convert(_strategy, message));
-            var routed = new TransformBlock<DomainMessage,RavenProcessed>(message => Route(message));
-            var batched = new BatchBlock<RavenProcessed>(1000);
-            var action = new ActionBlock<RavenProcessed[]>(processed => Apply(processed));
+            var routed = new TransformBlock<DomainMessage,Processed>(message => Route(message));
+            var batched = new BatchBlock<Processed>(1000);
+            var action = new ActionBlock<Processed[]>(processed => Apply(processed));
 
             var timer = new Timer(time => {
                 batched.TriggerBatch();
             });
             
-            var triggerBatch = new TransformBlock<RavenProcessed,RavenProcessed>(message =>
+            var triggerBatch = new TransformBlock<Processed,Processed>(message =>
             {
                 timer.Change(TimeSpan.FromSeconds(.1f), Timeout.InfiniteTimeSpan);
                 return message;
@@ -126,13 +110,13 @@ namespace SprayChronicle.Persistence.Raven
             return _source.Completion;
         }
 
-        private async Task<RavenProcessed> Route(DomainMessage domainMessage)
+        private async Task<Processed> Route(DomainMessage domainMessage)
         {
             return await _strategy
-                .Ask<RavenProcessed>(_processor, domainMessage.Payload, domainMessage.Epoch);
+                .Ask<Processed>(_processor, domainMessage.Payload, domainMessage.Epoch);
         }
         
-        private async Task Apply(RavenProcessed[] processed)
+        private async Task Apply(Processed[] processed)
         {
             using (var session = _store.OpenAsyncSession()) {
                 try {

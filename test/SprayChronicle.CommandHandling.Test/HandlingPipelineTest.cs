@@ -17,37 +17,36 @@ namespace SprayChronicle.CommandHandling.Test
     {
         private readonly IEventSourcingRepository<Basket> _baskets = Substitute.For<IEventSourcingRepository<Basket>>();
 
-//        [Fact]
-//        public void ItWontHandleUnsupportedCommand()
-//        {
-//            var buffer = new BufferBlock<object>();
-//            var router = new CommandRouter();
-//            var pipeline = new HandlingPipeline<HandleBasket, Basket>(_baskets, new HandleBasket(), buffer);
-//
-//            router.Subscribe(pipeline);
-//            
-//            Should.Throw<UnroutableMessageException>(
-//                router.Route(new DoNotAcceptCommand())
-//            );
-//        }
-//
-//        [Fact]
-//        public async Task ItDoesHandleSupportedCommand()
-//        {
-//            var buffer = new BufferBlock<object>();
-//            var router = new CommandRouter();
-//            var pipeline = new HandlingPipeline<HandleBasket, Basket>(_baskets, new HandleBasket(), buffer);
-//
-//            router.Subscribe(pipeline);
-//            await router.Route(new PickUpBasket("basketId"));
-//            buffer.Complete();
-//            
-//            await pipeline.Start();
-//            
-//            await _baskets
-//                .Received()
-//                .Save<Basket>(Arg.Any<Basket>());
-//        }
+        [Fact]
+        public void ItWontHandleUnsupportedCommand()
+        {
+            var buffer = new BufferBlock<CommandEnvelope>();
+            var router = new CommandRouter();
+            var pipeline = new HandlingPipeline<HandleBasket, Basket>(_baskets, new HandleBasket(), buffer);
+
+            router.Subscribe(pipeline);
+            
+            Should.Throw<UnroutableMessageException>(
+                router.Route(new DoNotAcceptCommand())
+            );
+        }
+
+        [Fact]
+        public async Task ItDoesHandleSupportedCommand()
+        {
+            var buffer = new BufferBlock<CommandEnvelope>();
+            var router = new CommandRouter();
+            var pipeline = new HandlingPipeline<HandleBasket, Basket>(_baskets, new HandleBasket(), buffer);
+            var task = pipeline.Start();
+            
+            router.Subscribe(pipeline);
+            await router.Route(new PickUpBasket("basketId"));
+            buffer.Complete();
+            
+            await _baskets
+                .Received()
+                .Save<Basket>(Arg.Any<Basket>());
+        }
         
         private class DoNotAcceptCommand
         {}

@@ -7,10 +7,11 @@ using SprayChronicle.Example.Application.State;
 using SprayChronicle.Example.Domain;
 using SprayChronicle.Persistence.Raven;
 using SprayChronicle.QueryHandling;
+using Processed = SprayChronicle.EventHandling.Processed;
 
 namespace SprayChronicle.Example.Application.Service
 {
-    public sealed class QueryBasketWithProducts : RavenQueryProcessor<QueryBasketWithProducts,BasketWithProducts_v1>,
+    public sealed class QueryBasketWithProducts : RavenQueries<QueryBasketWithProducts,BasketWithProducts_v2>,
         IProcess<BasketPickedUp>,
         IProcess<ProductAddedToBasket>,
         IProcess<ProductRemovedFromBasket>,
@@ -20,7 +21,7 @@ namespace SprayChronicle.Example.Application.Service
         public async Task<Processed> Process(BasketPickedUp payload, DateTime epoch)
         {
             return await Process()
-                .Mutate(() => new BasketWithProducts_v1(payload.BasketId, epoch));
+                .Mutate(() => new BasketWithProducts_v2(payload.BasketId, epoch));
         }
 
         public async Task<Processed> Process(ProductAddedToBasket payload, DateTime epoch)
@@ -37,10 +38,8 @@ namespace SprayChronicle.Example.Application.Service
         
         public async Task<Executor> Execute(BasketById query)
         {
-            return await Execute<QueryBasketWithProducts_BasketById>()
-                .Query(baskets => baskets
-                    .Where(b => b.Id == query.BasketId, false)
-                    .FirstOrDefaultAsync());
+            return await Execute()
+                .Find(query.BasketId);
         }
 
         public async Task<Executor> Execute(PickedUpPerDay query)

@@ -3,11 +3,11 @@ using SprayChronicle.EventHandling;
 
 namespace SprayChronicle.Persistence.Raven
 {
-    public abstract class RavenProcessed : Processed
+    public abstract class Processed : EventHandling.Processed
     {
         public string Identity { get; }
 
-        protected RavenProcessed(string identity)
+        protected Processed(string identity)
         {
             Identity = identity;
         }
