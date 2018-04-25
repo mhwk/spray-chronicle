@@ -17,14 +17,6 @@ namespace SprayChronicle.Testing
 
         public EventSourcedFixture(Action<ContainerBuilder> configure)
             : base(builder => {
-                builder
-                    .Register(c => new TestStore(
-                        c.Resolve<IEventStore>(),
-                        c.Resolve<EpochGenerator>()
-                    ))
-                    .AsSelf()
-                    .As<IEventStore>()
-                    .SingleInstance();
                 builder.RegisterModule<TModule>();
                 configure(builder);
             })

@@ -31,8 +31,6 @@ namespace SprayChronicle.Testing
         public static async Task<EventSourcedValidator> Run<TSourced>(IContainer container, Func<Task<TSourced>> callback)
             where TSourced : EventSourced<TSourced>
         {
-            container.Resolve<TestStore>().Present();
-                
             try {
                 return new EventSourcedValidator(
                     container,

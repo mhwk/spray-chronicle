@@ -7,15 +7,13 @@ namespace SprayChronicle.EventHandling
 {
     public sealed class PipelineManager : IPipelineManager
     {
-        public string Description => "PipelineManager";
-
         private Task _running;
 
         private readonly List<IPipeline> _pipelines = new List<IPipeline>();
 
         public PipelineManager()
         {
-            Attach(this);
+            
         }
 
         public IPipelineManager Attach(IPipeline pipeline)
@@ -28,10 +26,13 @@ namespace SprayChronicle.EventHandling
         public Task Start()
         {
             if (null != _running) {
-                throw new Exception("Pipeline manager alreeady running");
+                throw new Exception("Pipeline manager already running");
             }
+
+            Console.WriteLine(string.Join(", ", _pipelines.Select(p => p.GetType().Name).ToArray()));
             
-            return Task.WhenAll(_pipelines.Select(p => p.Start()));
+//            return Task.WhenAll(_pipelines.Select(p => p.Start()).ToArray());
+            return Task.CompletedTask;
         }
 
         public Task Stop()

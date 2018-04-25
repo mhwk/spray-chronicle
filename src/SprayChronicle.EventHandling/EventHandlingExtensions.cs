@@ -1,6 +1,6 @@
 using System;
 using Autofac;
-using Autofac.Core;
+using Microsoft.Extensions.DependencyInjection;
 using SprayChronicle.Server;
 
 namespace SprayChronicle.EventHandling
@@ -10,7 +10,7 @@ namespace SprayChronicle.EventHandling
         public static ChronicleServer WithEventHandling(this ChronicleServer server)
         {
             server.OnAutofacConfigure += builder => builder.RegisterEventHandling();
-            server.OnStartup += services => ((IPipelineManager)services.GetService(typeof(IPipelineManager))).Start();
+            server.OnStartup += services => services.GetService<IPipelineManager>().Start();
             return server;
         }
         

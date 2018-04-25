@@ -18,7 +18,6 @@ namespace SprayChronicle.EventHandling
         private static void RegisterPipelines(IComponentContext context, IPipelineManager manager)
         {
             context.ComponentRegistry.Registrations
-                .Where(pipeline => !pipeline.Activator.LimitType.IsAssignableTo<IPipelineManager>())
                 .Where(pipeline => pipeline.Activator.LimitType.IsAssignableTo<IPipeline>())
                 .Select(pipeline => context.Resolve(pipeline.Activator.LimitType) as IPipeline)
                 .ToList()
