@@ -65,6 +65,7 @@ namespace SprayChronicle.EventSourcing
         public async Task<TChild> Load<TChild>(string identity) where TChild : T
         {
             var sourced = await LoadOrDefault<TChild>(identity);
+            
             if (null == sourced) {
                 throw new InvalidStateException(string.Format(
                     "Expected state {0}, but got null",

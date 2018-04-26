@@ -54,8 +54,11 @@ namespace SprayChronicle.Persistence.Ouro
                 );
 
                 stopwatch.Stop();
-                _logger.LogDebug($"[{Stream<T>(identity)}::append] {stopwatch.ElapsedMilliseconds}ms");
+
+                var messageList = string.Join(", ", domainMessages.Select(d => d.Name));
+                _logger.LogDebug($"{typeof(T)}::{Stream<T>(identity)} Appended {domainMessages.Count()} messages ({messageList}) in {stopwatch.ElapsedMilliseconds}ms");
             } catch (AggregateException error) {
+                // @todo handle correct exception
                 throw new ConcurrencyException(string.Format(
                     $"Concurrency detected: {error.InnerException?.Message}"
                 ));

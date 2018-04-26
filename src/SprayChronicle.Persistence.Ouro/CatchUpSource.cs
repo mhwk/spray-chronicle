@@ -31,7 +31,7 @@ namespace SprayChronicle.Persistence.Ouro
             ILogger<TTarget> logger,
             IEventStoreConnection eventStore,
             UserCredentials credentials,
-            CatchUpOptions options)
+            CatchUpOptions options) : base(logger)
         {
             _logger = logger;
             _eventStore = eventStore;
@@ -72,8 +72,6 @@ namespace SprayChronicle.Persistence.Ouro
             
             Queue.Post(resolvedEvent);
             
-            _logger.LogDebug($"Emit subscription  {_streamName} - {resolvedEvent.Event.EventType}");
-
             return Task.CompletedTask;
         }
 

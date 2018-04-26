@@ -21,12 +21,12 @@ namespace SprayChronicle.Persistence.Raven.Test
             var store = Container()
                 .Resolve<IDocumentStore>();
             var pipeline = Container()
-                .Resolve<RavenExecutionPipeline<QueryBasketWithProducts, BasketWithProducts_v2>>();
+                .Resolve<RavenExecutionPipeline<QueryBasketWithProducts, BasketWithProducts_v1>>();
             var router = new QueryRouter();
             router.Subscribe(pipeline);
             
             using (var session = store.OpenAsyncSession()) {
-                await session.StoreAsync(new BasketWithProducts_v2(identity1, DateTime.Now));
+                await session.StoreAsync(new BasketWithProducts_v1(identity1, DateTime.Now));
                 await session.SaveChangesAsync();
             }
 
@@ -39,12 +39,12 @@ namespace SprayChronicle.Persistence.Raven.Test
                 pipeline.Stop()
             );
             
-            result.ShouldBeOfType<BasketWithProducts_v2>();
+            result.ShouldBeOfType<BasketWithProducts_v1>();
         }
 
         protected override void Configure(ContainerBuilder builder)
         {
-            builder.RegisterQueryExecutor<QueryBasketWithProducts,BasketWithProducts_v2>("foo");
+            builder.RegisterQueryExecutor<QueryBasketWithProducts,BasketWithProducts_v1>("foo");
         }
     }
 }

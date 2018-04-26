@@ -32,7 +32,7 @@ namespace SprayChronicle.CommandHandling.Test
         }
 
         [Fact]
-        public async Task ItDoesHandleSupportedCommand()
+        public async Task ItDoesHandleFirstCommand()
         {
             var buffer = new BufferBlock<CommandEnvelope>();
             var router = new CommandRouter();
@@ -46,6 +46,56 @@ namespace SprayChronicle.CommandHandling.Test
             await _baskets
                 .Received()
                 .Save<Basket>(Arg.Any<Basket>());
+        }
+
+        [Fact]
+        public async Task ItDoesHandleSecondCommand()
+        {
+            var buffer = new BufferBlock<CommandEnvelope>();
+            var router = new CommandRouter();
+            var pipeline = new HandlingPipeline<HandleBasket, Basket>(_baskets, new HandleBasket(), buffer);
+            var task = pipeline.Start();
+
+            _baskets.Load<Basket>(Arg.Any<string>()).Returns(new PickedUpBasket("basketId"));
+            
+            router.Subscribe(pipeline);
+            await router.Route(new PickUpBasket("basketId"));
+            await router.Route(new AddProductToBasket("basketId", "productId"));
+            buffer.Complete();
+            
+            await _baskets
+                .Received()
+                .Save<Basket>(Arg.Any<PickedUpBasket>());
+            await _baskets
+                .Received()
+                .Save<Basket>(Arg.Any<PickedUpBasket>());
+        }
+
+        [Fact]
+        public async Task ItDoesHandleThirdCommand()
+        {
+            var buffer = new BufferBlock<CommandEnvelope>();
+            var router = new CommandRouter();
+            var pipeline = new HandlingPipeline<HandleBasket, Basket>(_baskets, new HandleBasket(), buffer);
+            var task = pipeline.Start();
+            
+            _baskets.Load<Basket>(Arg.Any<string>()).Returns(new PickedUpBasket("basketId"));
+
+            router.Subscribe(pipeline);
+            await router.Route(new PickUpBasket("basketId"));
+            await router.Route(new AddProductToBasket("basketId", "productId"));
+            await router.Route(new CheckOutBasket("basketId", "orderId"));
+            buffer.Complete();
+            
+            await _baskets
+                .Received()
+                .Save<Basket>(Arg.Any<PickedUpBasket>());
+            await _baskets
+                .Received()
+                .Save<Basket>(Arg.Any<PickedUpBasket>());
+            await _baskets
+                .Received()
+                .Save<Basket>(Arg.Any<CheckedOutBasket>());
         }
         
         private class DoNotAcceptCommand

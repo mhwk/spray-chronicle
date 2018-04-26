@@ -1,6 +1,7 @@
 ﻿using App.Metrics.Health;
 using Autofac;
 using Raven.Client.Documents;
+using Raven.Client.Documents.Indexes;
 using Raven.Client.ServerWide;
 using Raven.Client.ServerWide.Operations;
 using SprayChronicle.EventHandling;
@@ -101,6 +102,7 @@ namespace SprayChronicle.Persistence.Raven
                 builder
                     .RegisterType<TProcessor>()
                     .PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies)
+                    .OnActivating(e => IndexCreation.CreateIndexes(typeof(TProcessor).Assembly, e.Context.Resolve<IDocumentStore>()))
                     .SingleInstance();
             }
         }

@@ -27,7 +27,7 @@ namespace SprayChronicle.Persistence.Ouro
             ILogger<TTarget> logger,
             IEventStoreConnection eventStore,
             UserCredentials credentials,
-            ReadForwardOptions options)
+            ReadForwardOptions options) : base(logger)
         {
             _logger = logger;
             _eventStore = eventStore;
@@ -43,7 +43,7 @@ namespace SprayChronicle.Persistence.Ouro
             var stopwatch = new Stopwatch();
             stopwatch.Start();
             
-            _logger.LogDebug($"Reading forward");
+            _logger.LogDebug($"Reading forward from {_streamName}");
 
             var eos = false;
             do {

@@ -33,8 +33,8 @@ namespace SprayChronicle.Example.Test.Application.Query
         protected override void Then(IValidate validator)
         {
             validator.Expect(
-                new BasketWithProducts_v2(_basketId2, DateTime.Now),
-                new BasketWithProducts_v2(_basketId2, DateTime.Now)
+                new BasketWithProducts_v1(_basketId2, DateTime.Now),
+                new BasketWithProducts_v1(_basketId2, DateTime.Now)
             );
         }
 
