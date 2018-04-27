@@ -48,16 +48,49 @@ namespace SprayChronicle.CommandHandling
             }
             
             _source = _sourceFactory.Build<THandler,PersistentOptions>(_sourceOptions);
-            var converted = new TransformBlock<object,DomainMessage>(message => {
-                try {
-                    return _source.Convert(_strategy, message);
-                } catch (UnsupportedMessageException error) {
-                    _logger.LogDebug(error);
-                    return null;
+            var converted = new TransformBlock<object,DomainMessage>(
+                message => {
+                    try {
+                        return _source.Convert(_strategy, message);
+                    } catch (UnsupportedMessageException error) {
+                        _logger.LogWarning(error);
+                        return null;
+                    }
+                },
+                new ExecutionDataflowBlockOptions {
+                    MaxDegreeOfParallelism = 4
                 }
-            });
-            var dispatch = new TransformBlock<DomainMessage,Processed>(message => Dispatch(message));
-            var apply = new ActionBlock<Processed>(command => Apply(command));
+            );
+            var dispatch = new TransformBlock<DomainMessage,Processed>(
+                message => {
+                    if (null == message) return null;
+                    
+                    try {
+                        return Dispatch(message);
+                    } catch (Exception error) {
+                        _logger.LogError(error);
+                        return null;
+                    }
+                },
+                new ExecutionDataflowBlockOptions {
+                    MaxDegreeOfParallelism = 4
+                }
+            );
+            var apply = new ActionBlock<Processed>(
+                command => {
+                    if (null == command) return null;
+                    
+                    try {
+                        return Apply(command);
+                    } catch (Exception error) {
+                        _logger.LogCritical(error);
+                        return null;
+                    }
+                },
+                new ExecutionDataflowBlockOptions {
+                    MaxDegreeOfParallelism = 4
+                }
+            );
 
             _source.LinkTo(converted, new DataflowLinkOptions {
                 PropagateCompletion = true

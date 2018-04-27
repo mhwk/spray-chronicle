@@ -37,11 +37,11 @@ namespace SprayChronicle.Server.Http
             }
         }
 
-        string BuildGetData(IQueryCollection query, RouteData routeData)
+        private static string BuildGetData(IQueryCollection query, RouteData routeData)
         {
             var dict = new Dictionary<string,object>();
             foreach (var key in query.Keys) {
-                StringValues @value = new StringValues();
+                var @value = new StringValues();
                 query.TryGetValue(key, out @value);
                 dict.Add(key, @value.ToString());
             }

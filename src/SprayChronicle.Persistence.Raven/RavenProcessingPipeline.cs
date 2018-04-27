@@ -18,7 +18,7 @@ namespace SprayChronicle.Persistence.Raven
     {
         public string Description => $"Raven processing: {typeof(TProcessor).Name}";
 
-        private const int BatchSize = 1000;
+        private const int BatchSize = 2000;
         private const int BatchTimeout = 100;
         
         private readonly IMessagingStrategy<TProcessor> _strategy = new OverloadMessagingStrategy<TProcessor>(new ContextTypeLocator<TProcessor>());
@@ -76,7 +76,7 @@ namespace SprayChronicle.Persistence.Raven
                     }
                 },
                 new ExecutionDataflowBlockOptions {
-//                    MaxDegreeOfParallelism = 4
+                    MaxDegreeOfParallelism = 4
                 }
             );
             var routed = new TransformBlock<DomainMessage,Processed>(
@@ -92,7 +92,7 @@ namespace SprayChronicle.Persistence.Raven
                     }
                 },
                 new ExecutionDataflowBlockOptions {
-//                    MaxDegreeOfParallelism = 4
+                    MaxDegreeOfParallelism = 4
                 }
             );
             var batched = new BatchBlock<Processed>(BatchSize, new GroupingDataflowBlockOptions {
@@ -111,7 +111,7 @@ namespace SprayChronicle.Persistence.Raven
             );
 
             var timer = new Timer(time => {
-                _logger.LogDebug($"TRIGGERING BATCH {batched.OutputCount}");
+//                _logger.LogDebug($"TRIGGERING BATCH {batched.OutputCount}");
                 batched.TriggerBatch();
             });
             
@@ -122,7 +122,7 @@ namespace SprayChronicle.Persistence.Raven
                     return processed;
                 },
                 new ExecutionDataflowBlockOptions {
-//                    MaxDegreeOfParallelism = 4
+                    MaxDegreeOfParallelism = 4
                 }
             );
             
@@ -178,7 +178,7 @@ namespace SprayChronicle.Persistence.Raven
             
                 for (var i = 0; i < processed.Length; i++) {
                     if (null == processed[i]) {
-                        _logger.LogDebug($"Skipping null at {i}");
+//                        _logger.LogDebug($"Skipping null at {i}");
                         continue;
                     }
                 

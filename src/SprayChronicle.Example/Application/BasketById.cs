@@ -1,5 +1,8 @@
-﻿namespace SprayChronicle.Example.Application
+﻿using SprayChronicle.Server.Http;
+
+namespace SprayChronicle.Example.Application
 {
+    [HttpQuery("basket/{basketId}")]
     public sealed class BasketById
     {
         public string BasketId { get; }

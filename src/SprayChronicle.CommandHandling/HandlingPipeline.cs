@@ -58,29 +58,39 @@ namespace SprayChronicle.CommandHandling
 
         public async Task Start()
         {
-            var dispatch = new TransformBlock<CommandEnvelope,Tuple<CommandEnvelope,Handled>>(async envelope => {
-                try {
-                    return new Tuple<CommandEnvelope, Handled>(
-                        envelope,
-                        await Dispatch(envelope.Command)
-                    );
-                } catch (Exception error) {
-                    envelope.OnError(error);
-                    return null;
+            var dispatch = new TransformBlock<CommandEnvelope,Tuple<CommandEnvelope,Handled>>(
+                async envelope => {
+                    try {
+                        return new Tuple<CommandEnvelope, Handled>(
+                            envelope,
+                            await Dispatch(envelope.Command)
+                        );
+                    } catch (Exception error) {
+                        envelope.OnError(error);
+                        return null;
+                    }
+                },
+                new ExecutionDataflowBlockOptions {
+                    MaxDegreeOfParallelism = 4
                 }
-            });
-            var apply = new ActionBlock<Tuple<CommandEnvelope,Handled>>(async tuple => {
-                if (null == tuple) {
-                    return;
+            );
+            var apply = new ActionBlock<Tuple<CommandEnvelope,Handled>>(
+                async tuple => {
+                    if (null == tuple) {
+                        return;
+                    }
+                    
+                    try {
+                        await Apply(tuple.Item2);
+                        tuple.Item1.OnSuccess();
+                    } catch (Exception error) {
+                        tuple.Item1.OnError(error);
+                    }
+                },
+                new ExecutionDataflowBlockOptions {
+                    MaxDegreeOfParallelism = 4
                 }
-                
-                try {
-                    await Apply(tuple.Item2);
-                    tuple.Item1.OnSuccess();
-                } catch (Exception error) {
-                    tuple.Item1.OnError(error);
-                }
-            });
+            );
 
             _queue.LinkTo(dispatch, new DataflowLinkOptions {
                 PropagateCompletion = true

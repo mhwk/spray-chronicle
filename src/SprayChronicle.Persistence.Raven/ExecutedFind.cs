@@ -15,7 +15,7 @@ namespace SprayChronicle.Persistence.Raven
         
         internal override async Task<object> Do(IAsyncDocumentSession session)
         {
-            return await session.LoadAsync<TState>(_identity);
+            return await session.LoadAsync<TState>($"{typeof(TState).Name}/{_identity}");
         }
     }
 }
