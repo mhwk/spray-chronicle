@@ -89,11 +89,11 @@ namespace SprayChronicle.EventSourcing.Test
             
             await source.Publish(new BasketPickedUp("foo"));
             await source.Publish(new object());
+            await source.Publish(new object());
+            await source.Publish(new object());
             source.Complete();
             
             var basket = (PickedUpBasket) await Basket.Patch(source);
-            
-            Console.WriteLine(null == basket ? "--- NULL" : "--- " + basket.GetType());
             basket = (PickedUpBasket) await basket.AddProduct(new ProductId("bar"));
             basket = (PickedUpBasket) await basket.AddProduct(new ProductId("bar"));
             
@@ -101,7 +101,7 @@ namespace SprayChronicle.EventSourcing.Test
                 .Diff()
                 .Select(domainMessage => domainMessage.Sequence)
                 .ToArray()
-                .ShouldBe(new [] {2L, 3L});
+                .ShouldBe(new [] {4L, 5L});
         }
     }
 }

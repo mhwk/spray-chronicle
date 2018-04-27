@@ -25,7 +25,7 @@ namespace SprayChronicle.Persistence.Raven.Test
             var store = Container()
                 .Resolve<IDocumentStore>();
             var pipeline = Container()
-                .Resolve<RavenProcessingPipeline<QueryBasketWithProducts, BasketWithProducts_v1>>();
+                .Resolve<RavenProcessingPipeline<QueryBasketWithProducts, BasketWithProducts_v6>>();
             var source = (TestSource<QueryBasketWithProducts>) Container().Resolve<IEventSourceFactory>().Build<QueryBasketWithProducts,CatchUpOptions>(new CatchUpOptions("foo"));
             var task = pipeline.Start();
             
@@ -35,7 +35,7 @@ namespace SprayChronicle.Persistence.Raven.Test
             await task;
 
             using (var session = store.OpenAsyncSession()) {
-                var result = await session.LoadAsync<BasketWithProducts_v1>(identity1);
+                var result = await session.LoadAsync<BasketWithProducts_v6>("BasketWithProducts_v2/" + identity1);
                 result.ShouldNotBeNull();
             }
         }
@@ -48,7 +48,7 @@ namespace SprayChronicle.Persistence.Raven.Test
             var store = Container()
                 .Resolve<IDocumentStore>();
             var pipeline = Container()
-                .Resolve<RavenProcessingPipeline<QueryBasketWithProducts, BasketWithProducts_v1>>();
+                .Resolve<RavenProcessingPipeline<QueryBasketWithProducts, BasketWithProducts_v6>>();
             var source = (TestSource<QueryBasketWithProducts>) Container().Resolve<IEventSourceFactory>().Build<QueryBasketWithProducts,CatchUpOptions>(new CatchUpOptions("foo"));
             var task = pipeline.Start();
             
@@ -61,7 +61,7 @@ namespace SprayChronicle.Persistence.Raven.Test
             await task;
             
             using (var session = store.OpenAsyncSession()) {
-                var result = await session.LoadAsync<BasketWithProducts_v1>(identity1);
+                var result = await session.LoadAsync<BasketWithProducts_v6>("BasketWithProducts_v2/" + identity1);
                 result.ShouldNotBeNull();
                 result.ProductIds.Count.ShouldBe(1);
             }
@@ -77,7 +77,7 @@ namespace SprayChronicle.Persistence.Raven.Test
             var store = Container()
                 .Resolve<IDocumentStore>();
             var pipeline = Container()
-                .Resolve<RavenProcessingPipeline<QueryBasketWithProducts, BasketWithProducts_v1>>();
+                .Resolve<RavenProcessingPipeline<QueryBasketWithProducts, BasketWithProducts_v6>>();
             var source = (TestSource<QueryBasketWithProducts>) Container().Resolve<IEventSourceFactory>().Build<QueryBasketWithProducts,CatchUpOptions>(new CatchUpOptions("foo"));
             var task = pipeline.Start();
             
@@ -88,7 +88,7 @@ namespace SprayChronicle.Persistence.Raven.Test
             await task;
             
             using (var session = store.OpenAsyncSession()) {
-                var result = await session.LoadAsync<BasketWithProducts_v1>(identity1);
+                var result = await session.LoadAsync<BasketWithProducts_v6>("BasketWithProducts_v2/" + identity1);
                 result.ShouldNotBeNull();
                 result.ProductIds.Count.ShouldBe(1);
             }
@@ -98,7 +98,7 @@ namespace SprayChronicle.Persistence.Raven.Test
 
         protected override void Configure(ContainerBuilder builder)
         {
-            builder.RegisterQueryExecutor<QueryBasketWithProducts,BasketWithProducts_v1>("foo", _checkpointName);
+            builder.RegisterQueryExecutor<QueryBasketWithProducts,BasketWithProducts_v6>("foo", _checkpointName);
         }
     }
 }

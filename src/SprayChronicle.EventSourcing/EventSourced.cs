@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
+using SprayChronicle.EventHandling;
 using SprayChronicle.MessageHandling;
 
 namespace SprayChronicle.EventSourcing
@@ -26,7 +27,8 @@ namespace SprayChronicle.EventSourcing
         public static async Task<T> Patch(IEventSource<T> messages)
         {
             var sourcable = default(T);
-            
+            var sequence = -1L;
+
             var converted = new TransformBlock<object, DomainMessage>(
                 message =>
                 {
@@ -37,12 +39,14 @@ namespace SprayChronicle.EventSourcing
                     }
                 });
             var applied = new ActionBlock<DomainMessage>(async message => {
+                sequence++;
+                
                 if (null != message) {
                     sourcable = await Strategy.Ask<T>(sourcable, message.Payload, message.Epoch);
                 }
 
                 if (null != sourcable) {
-                    sourcable._sequence++;
+                    sourcable._sequence = sequence;
                 }
             });
 

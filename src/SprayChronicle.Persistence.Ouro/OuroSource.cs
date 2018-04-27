@@ -32,13 +32,12 @@ namespace SprayChronicle.Persistence.Ouro
 
         public async Task Start()
         {
-            while (!Queue.Completion.IsCompleted) {
+            while (!Queue.Completion.IsCompleted && !Queue.Completion.IsFaulted && !Queue.Completion.IsCanceled) {
                 // @todo figure out other way than polling
                 await StartBuffering();
                 _logger.LogDebug("Buffer started");
             
-                while (Queue.Count < MaxBufferLength && !Queue.Completion.IsCompleted) {
-                    _logger.LogDebug($"Buffering... {Queue.Count}");
+                while (Queue.Count < MaxBufferLength && !Queue.Completion.IsCompleted && !Queue.Completion.IsFaulted && !Queue.Completion.IsCanceled) {
                     await Task.Delay(TimeSpan.FromMilliseconds(SleepMs));
                 }
 
@@ -49,6 +48,11 @@ namespace SprayChronicle.Persistence.Ouro
                     await Task.Delay(TimeSpan.FromMilliseconds(SleepMs));
                 }
             }
+
+            if (Queue.Completion.IsFaulted) {
+                throw Queue.Completion.Exception;
+            }
+            
             _logger.LogDebug("DONE");
         }
 

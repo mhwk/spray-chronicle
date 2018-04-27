@@ -13,11 +13,11 @@ namespace SprayChronicle.CommandHandling
             return server;
         }
 
-        public static ContainerBuilder RegisterCommandHandler<THandler,TState>(this ContainerBuilder builder, string stream)
+        public static ContainerBuilder RegisterCommandHandler<THandler,TState>(this ContainerBuilder builder, string streamName = null)
             where THandler : class, IHandle, IProcess
             where TState : EventSourced<TState>
         {
-            builder.RegisterModule(new CommandHandlingModule.CommandPipeline<THandler,TState>(stream));
+            builder.RegisterModule(new CommandHandlingModule.CommandPipeline<THandler,TState>(streamName));
             return builder;
         }
     }

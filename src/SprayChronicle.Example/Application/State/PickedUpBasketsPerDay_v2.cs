@@ -1,6 +1,6 @@
 namespace SprayChronicle.Example.Application.State
 {
-    public sealed class PickedUpBasketsPerDay_v1
+    public sealed class PickedUpBasketsPerDay_v2
     {
         public string Day { get; set; }
 

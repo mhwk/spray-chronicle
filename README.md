@@ -18,8 +18,6 @@ For most parts of the framework just the [dotnet cli](https://docs.microsoft.com
   docker-compose up -d eventstore
   docker-compose up -d ravendb
 
-
-
 Changelog
 =========
 

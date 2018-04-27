@@ -102,7 +102,7 @@ namespace SprayChronicle.Persistence.Raven
                 builder
                     .RegisterType<TProcessor>()
                     .PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies)
-                    .OnActivating(e => IndexCreation.CreateIndexes(typeof(TProcessor).Assembly, e.Context.Resolve<IDocumentStore>()))
+                    .OnActivated(e => IndexCreation.CreateIndexes(typeof(TProcessor).Assembly, e.Context.Resolve<IDocumentStore>()))
                     .SingleInstance();
             }
         }

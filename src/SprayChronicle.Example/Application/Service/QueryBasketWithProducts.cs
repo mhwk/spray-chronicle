@@ -11,7 +11,7 @@ using Processed = SprayChronicle.EventHandling.Processed;
 
 namespace SprayChronicle.Example.Application.Service
 {
-    public sealed class QueryBasketWithProducts : RavenQueries<QueryBasketWithProducts,BasketWithProducts_v1>,
+    public sealed class QueryBasketWithProducts : RavenQueries<QueryBasketWithProducts,BasketWithProducts_v6>,
         IProcess<BasketPickedUp>,
         IProcess<ProductAddedToBasket>,
         IProcess<ProductRemovedFromBasket>,
@@ -20,8 +20,8 @@ namespace SprayChronicle.Example.Application.Service
     {
         public async Task<Processed> Process(BasketPickedUp payload, DateTime epoch)
         {
-            return await Process()
-                .Mutate(() => new BasketWithProducts_v1(payload.BasketId, epoch));
+            return await Process(payload.BasketId)
+                .Mutate(() => new BasketWithProducts_v6(payload.BasketId, epoch));
         }
 
         public async Task<Processed> Process(ProductAddedToBasket payload, DateTime epoch)
@@ -45,7 +45,7 @@ namespace SprayChronicle.Example.Application.Service
         public async Task<Executor> Execute(PickedUpPerDay query)
         {
             return await Execute<QueryBasketWithProducts_PickedUpPerDay>()
-                .Query<PickedUpBasketsPerDay_v1>(baskets => baskets
+                .Query<PickedUpBasketsPerDay_v2>(baskets => baskets
                     .Skip((query.Page - 1) * 50)
                     .Take(50)
                     .ToListAsync());

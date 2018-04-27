@@ -19,7 +19,7 @@ namespace SprayChronicle.Persistence.Raven
 
         public Task<ProcessedCreate<TState>> Mutate(Func<TState> mutator)
         {
-            return Task.FromResult(new ProcessedCreate<TState>(mutator));
+            return Task.FromResult(new ProcessedCreate<TState>(_identity, mutator));
         }
 
         public Task<ProcessedUpdate<TState,TState>> Mutate(Func<TState,TState> mutator)

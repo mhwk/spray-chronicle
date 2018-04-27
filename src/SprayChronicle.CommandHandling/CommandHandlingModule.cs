@@ -33,12 +33,7 @@ namespace SprayChronicle.CommandHandling
         {
             private readonly string _streamName;
             
-            public CommandPipeline()
-            {
-                _streamName = null;
-            }
-
-            public CommandPipeline(string streamName)
+            public CommandPipeline(string streamName = null)
             {
                 _streamName = streamName;
             }

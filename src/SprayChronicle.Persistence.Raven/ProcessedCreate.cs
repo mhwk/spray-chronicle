@@ -8,7 +8,7 @@ namespace SprayChronicle.Persistence.Raven
     {
         private readonly Func<TState> _mutation;
         
-        public ProcessedCreate(Func<TState> mutation): base(null)
+        public ProcessedCreate(string identity, Func<TState> mutation): base($"{typeof(TState).Name}/{identity}")
         {
             _mutation = mutation;
         }

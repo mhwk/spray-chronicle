@@ -17,6 +17,9 @@ namespace SprayChronicle.Persistence.Raven
         where TState : class
     {
         public string Description => $"Raven processing: {typeof(TProcessor).Name}";
+
+        private const int BatchSize = 1000;
+        private const int BatchTimeout = 100;
         
         private readonly IMessagingStrategy<TProcessor> _strategy = new OverloadMessagingStrategy<TProcessor>(new ContextTypeLocator<TProcessor>());
         
@@ -64,54 +67,79 @@ namespace SprayChronicle.Persistence.Raven
                 .Build<TProcessor,CatchUpOptions>(_sourceOptions.WithCheckpoint(_checkpoint));
             
             var converted = new TransformBlock<object,DomainMessage>(
-                message => _source.Convert(_strategy, message),
+                message => {
+                    try {
+                        return _source.Convert(_strategy, message);
+                    } catch (Exception error) {
+//                        _logger.LogDebug(error);
+                        return null;
+                    }
+                },
                 new ExecutionDataflowBlockOptions {
-                    MaxDegreeOfParallelism = 4
+//                    MaxDegreeOfParallelism = 4
                 }
             );
             var routed = new TransformBlock<DomainMessage,Processed>(
-                async message => await Route(message),
+                async message => {
+                    if (null == message) return null;
+                    
+//                    _logger.LogDebug($"Route-{message.Name}-{message.Sequence}");
+                    try {
+                        return await _strategy.Ask<Processed>(_processor, message.Payload, message.Epoch);
+                    } catch (Exception error) {
+                        _logger.LogDebug(error);
+                        return null;
+                    }
+                },
                 new ExecutionDataflowBlockOptions {
-                    MaxDegreeOfParallelism = 4
+//                    MaxDegreeOfParallelism = 4
                 }
             );
-            var batched = new BatchBlock<Processed>(100, new GroupingDataflowBlockOptions
-            {
+            var batched = new BatchBlock<Processed>(BatchSize, new GroupingDataflowBlockOptions {
 //                Greedy = true,
 //                BoundedCapacity = 20
             });
-            var action = new ActionBlock<Processed[]>(async processed =>
-            {
-                await Apply(processed);
-            });
+            var action = new ActionBlock<Processed[]>(
+                async processed => {
+                    try {
+                        await Apply(processed);
+                    } catch (Exception error) {
+                        _logger.LogCritical(error);
+                        throw;
+                    }
+                }
+            );
 
             var timer = new Timer(time => {
                 _logger.LogDebug($"TRIGGERING BATCH {batched.OutputCount}");
                 batched.TriggerBatch();
             });
             
-            var timeout = new TransformBlock<Processed,Processed>(message => {
-                timer.Change(TimeSpan.FromSeconds(.01f), Timeout.InfiniteTimeSpan);
-                return message;
-            }, new ExecutionDataflowBlockOptions
-            {
-                MaxDegreeOfParallelism = 4
-            });
+            var timeout = new TransformBlock<Processed,Processed>(
+                processed => {
+                    timer.Change(TimeSpan.FromMilliseconds(BatchTimeout), Timeout.InfiniteTimeSpan);
+//                    _logger.LogDebug($"Pre-{processed.GetType().Name}");
+                    return processed;
+                },
+                new ExecutionDataflowBlockOptions {
+//                    MaxDegreeOfParallelism = 4
+                }
+            );
             
             _source.LinkTo(converted, new DataflowLinkOptions {
-//                PropagateCompletion = true
+                PropagateCompletion = true
             });
             converted.LinkTo(routed, new DataflowLinkOptions {
-//                PropagateCompletion = true
+                PropagateCompletion = true
             });
             routed.LinkTo(timeout, new DataflowLinkOptions {
-//                PropagateCompletion = true
+                PropagateCompletion = true
             });
             timeout.LinkTo(batched, new DataflowLinkOptions {
-//                PropagateCompletion = true
+                PropagateCompletion = true
             });
             batched.LinkTo(action, new DataflowLinkOptions {
-//                PropagateCompletion = true
+                PropagateCompletion = true
             });
             
             _logger.LogDebug($"Pipeline running...");
@@ -132,24 +160,13 @@ namespace SprayChronicle.Persistence.Raven
             return _source.Completion;
         }
 
-        private async Task<Processed> Route(DomainMessage domainMessage)
-        {
-            try {
-                return await _strategy.Ask<Processed>(_processor, domainMessage.Payload, domainMessage.Epoch);
-            } catch (Exception error) {
-                _logger.LogDebug(error);
-                return null;
-            }
-        }
-        
         private async Task Apply(Processed[] processed)
         {
             _logger.LogDebug($"Applying {processed.Length} processed items");
             using (var session = _store.OpenAsyncSession()) {
                 var identities = processed
-                    .Where(p => null != p)
+                    .Where(p => p != null)
                     .Select(p => p.Identity)
-                    .Where(i => i != null)
                     .Distinct()
                     .ToArray();
             
@@ -160,41 +177,25 @@ namespace SprayChronicle.Persistence.Raven
 //                _logger.LogDebug($"Processing {processed.Length} items...");
             
                 for (var i = 0; i < processed.Length; i++) {
-                    _checkpoint++;
-                    
-                    try {
-                        TState document = null;
-
-                        if (null == processed[i]) {
-                            _logger.LogDebug($"Skipping null at {i}");
-                            continue;
-                        }
-
-                        if (null != processed[i].Identity) {
-                            if (!documents.ContainsKey(processed[i].Identity)) {
-                                throw new Exception($"Trying to update {processed[i].Identity} which doesn't exist");
-                            }
-                            
-                            document = documents[processed[i].Identity];
-                        }
-                    
+                    if (null == processed[i]) {
+                        _logger.LogDebug($"Skipping null at {i}");
+                        continue;
+                    }
+                
 //                        _logger.LogDebug($" -> Processing {i}...");
-                    
-                        document = (TState) await processed[i].Do(document);
-                    
-                        await session.StoreAsync(document);
-                    
-                        var documentId = session.Advanced.GetDocumentId(document);
+                
+                    documents[processed[i].Identity] = (TState) await processed[i].Do(documents[processed[i].Identity]);
 
-                        documents[documentId] = document;
-                    }
-                    catch (Exception error) {
-                        _logger.LogCritical(error);
-                        // @todo handle failure correctly
-                    }
+                    var cancellation = new CancellationTokenSource();
+                    
+                    await session.StoreAsync(
+                        documents[processed[i].Identity],
+                        processed[i].Identity,
+                        cancellation.Token
+                    );
                 }
 
-                await SaveCheckpoint(session, _checkpoint);
+                await SaveCheckpoint(session, _checkpoint += processed.Length);
             
                 await session.SaveChangesAsync();
                 

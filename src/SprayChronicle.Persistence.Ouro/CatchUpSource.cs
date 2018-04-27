@@ -66,13 +66,15 @@ namespace SprayChronicle.Persistence.Ouro
             );
         }
 
-        private Task EventAppeared(EventStoreCatchUpSubscription subscription, ResolvedEvent resolvedEvent)
+        private async Task EventAppeared(EventStoreCatchUpSubscription subscription, ResolvedEvent resolvedEvent)
         {
             _checkpoint++;
-            
-            Queue.Post(resolvedEvent);
-            
-            return Task.CompletedTask;
+            try {
+                await Queue.SendAsync(resolvedEvent);
+            }
+            catch (Exception error) {
+                Console.WriteLine(error);
+            }
         }
 
         private void LiveProcessingStarted(EventStoreCatchUpSubscription subscription)
