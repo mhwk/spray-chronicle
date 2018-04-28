@@ -7,13 +7,18 @@ namespace SprayChronicle.Persistence.Ouro
     {
         public readonly string OriginalFqn;
 
-        public Metadata(Type originalFqn)
+        public readonly string MessageId;
+
+        public readonly string CausationId;
+
+        public readonly string CorrelationId;
+
+        public Metadata(Type originalFqn, string messageId, string causationId, string correlationId)
         {
-            OriginalFqn = string.Format(
-                "{0}, {1}",
-                originalFqn.ToString(),
-                originalFqn.GetTypeInfo().Assembly
-            );
+            OriginalFqn = $"{originalFqn}, {originalFqn.GetTypeInfo().Assembly}";
+            MessageId = messageId;
+            CausationId = causationId;
+            CorrelationId = correlationId;
         }
     }
 }

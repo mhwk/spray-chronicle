@@ -40,20 +40,23 @@ namespace SprayChronicle.Testing
             return Task.CompletedTask;
         }
 
-        public DomainMessage Convert(IMessagingStrategy<TTarget> strategy, object message)
+        public DomainEnvelope Convert(IMailStrategy<TTarget> strategy, object message)
         {
             if (null == message) {
                 throw new InvalidDomainMessageException("You must provide a message for conversion");
             }
             
-            if (!strategy.Resolves(message, DateTime.Now)) {
+            if (!strategy.Resolves(message)) {
                 throw new UnsupportedMessageException($"Message {message.GetType().Name} not resolved");
             }
             
-            return new DomainMessage(
+            return new DomainEnvelope(
+                Guid.NewGuid().ToString(),
+                null,
+                Guid.NewGuid().ToString(),
                 _sequence++,
-                DateTime.Now,
-                message
+                message,
+                DateTime.Now
             );
         }
 

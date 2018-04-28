@@ -13,7 +13,7 @@ namespace SprayChronicle.QueryHandling
         
         private readonly BufferBlock<QueryEnvelope> _queue = new BufferBlock<QueryEnvelope>();
         
-        private readonly IMessagingStrategy<TQueryExecutor> _strategy = new OverloadMessagingStrategy<TQueryExecutor>("Execute");
+        private readonly IMailStrategy<TQueryExecutor> _strategy = new OverloadMailStrategy<TQueryExecutor>("Execute");
 
         private readonly ILogger<TQueryExecutor> _logger;
         
@@ -46,9 +46,10 @@ namespace SprayChronicle.QueryHandling
             var applied = new TransformBlock<Tuple<QueryEnvelope,Executor>,Tuple<QueryEnvelope,object>>(
                 async tuple => {
                     try {
+                        var result = await Apply(tuple.Item2);
                         return new Tuple<QueryEnvelope, object>(
                             tuple.Item1,
-                            await Apply(tuple.Item2)
+                            result
                         );
                     } catch (Exception error) {
                         _logger.LogCritical(error);
@@ -82,25 +83,17 @@ namespace SprayChronicle.QueryHandling
 
         private async Task<Executor> ExecuteQuery(QueryEnvelope query)
         {
-            return await _strategy.Ask<Executor>(_processor, query.Queries).ConfigureAwait(false);
+            return await _strategy.Ask<Executor>(_processor, query.Message, query.Epoch);
         }
 
         protected abstract Task<object> Apply(Executor executor);
         
-        public void Subscribe(IMessagingStrategyRouter<IExecute> messageRouter)
+        public void Subscribe(IMailStrategyRouter<IExecute> messageRouter)
         {
-            messageRouter.Subscribe(_strategy, arguments =>
-            {
-                var completion = new TaskCompletionSource<object>();
-
-                _queue.Post(new QueryEnvelope(
-                    arguments,
-                    result => completion.TrySetResult(result),
-                    error => completion.TrySetException(error)
-                ));
-
-                return completion.Task;
-            });
+            messageRouter.Subscribe(
+                _strategy,
+                async envelope => await _queue.SendAsync((QueryEnvelope) envelope)
+            );
         }
     }
 }

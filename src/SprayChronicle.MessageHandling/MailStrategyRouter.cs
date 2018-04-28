@@ -5,12 +5,19 @@ using System.Threading.Tasks;
 
 namespace SprayChronicle.MessageHandling
 {
-    public abstract class MessagingStrategyRouter<THandler> : IMessageRouter, IMessagingStrategyRouter<THandler>
+    public abstract class MailStrategyRouter<THandler> : IMailRouter, IMailStrategyRouter<THandler>
         where THandler : class
     {
-        private readonly Dictionary<IMessagingStrategy,HandleMessage> _strategies = new Dictionary<IMessagingStrategy,HandleMessage>();
+        private readonly int _maxNumberOfMatches;
+        
+        private readonly Dictionary<IMailStrategy,MailHandler> _strategies = new Dictionary<IMailStrategy,MailHandler>();
 
-        public IMessagingStrategyRouter<THandler> Subscribe(IMessagingStrategy strategy, HandleMessage handler)
+        protected MailStrategyRouter(int maxNumberOfMatches = int.MaxValue)
+        {
+            _maxNumberOfMatches = maxNumberOfMatches;
+        }
+
+        public IMailStrategyRouter<THandler> Subscribe(IMailStrategy strategy, MailHandler handler)
         {
             if (_strategies.ContainsKey(strategy)) {
                 throw new Exception($"Strategy {strategy.GetType()} already subscribed");
@@ -21,23 +28,26 @@ namespace SprayChronicle.MessageHandling
             return this;
         }
 
-        public IMessagingStrategyRouter<THandler> Subscribe(IMessagingStrategyRouterSubscriber<THandler> subscriber)
+        public IMailStrategyRouter<THandler> Subscribe(IMailStrategyRouterSubscriber<THandler> subscriber)
         {
             subscriber.Subscribe(this);
             return this;
         }
         
-        public async Task<object> Route(params object[] arguments)
+        public async Task<object> Route(IEnvelope envelope)
         {
             var tasks = new List<Task<object>>();
             
             foreach (var strategy in _strategies) {
-                if (!strategy.Key.Resolves(arguments)) {
+                if (!strategy.Key.Resolves(envelope.Message)) {
                     continue;
                 }
 
-                tasks.Add(strategy.Value(arguments));
-                return await strategy.Value(arguments);
+                tasks.Add(strategy.Value(envelope));
+
+                if (tasks.Count >= _maxNumberOfMatches) {
+                    break;
+                }
             }
 
             if (1 == tasks.Count) {
@@ -46,9 +56,8 @@ namespace SprayChronicle.MessageHandling
             
             if (0 != tasks.Count) return await Task.WhenAll(tasks);
             
-            var messageList = string.Join(", ", arguments.Select(m => m.GetType().Name));
             var handlerList = string.Join(", ", _strategies.Select(s => s.Key.GetType().GenericTypeArguments.First().Name));
-            throw new UnroutableMessageException($"Message ({messageList}) not handled by ({handlerList})");
+            throw new UnroutableMessageException($"Message ({envelope.MessageName}) not handled by ({handlerList})");
         }
     }
 }

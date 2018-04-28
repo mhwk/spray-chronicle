@@ -5,22 +5,30 @@
         public string StreamName { get; }
         
         public long Checkpoint { get; }
+        
+        public string CausationId { get; }
 
         public CatchUpOptions(string streamName)
+            : this(streamName, -1, null)
         {
-            StreamName = streamName;
-            Checkpoint = 0;
+            
         }
 
-        public CatchUpOptions(string streamName, long checkpoint)
+        private CatchUpOptions(string streamName, long checkpoint, string causationId)
         {
             StreamName = streamName;
             Checkpoint = checkpoint;
+            CausationId = causationId;
         }
 
         public CatchUpOptions WithCheckpoint(long checkpoint)
         {
-            return new CatchUpOptions(StreamName, checkpoint);
+            return new CatchUpOptions(StreamName, checkpoint, CausationId);
+        }
+
+        public CatchUpOptions WithIdempotencyId(string idempotencyId)
+        {
+            return new CatchUpOptions(StreamName, Checkpoint, idempotencyId);
         }
     }
 }

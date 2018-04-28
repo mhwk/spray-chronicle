@@ -17,7 +17,7 @@ namespace SprayChronicle.EventSourcing.Test
             var basket = (PickedUpBasket) await Basket.PickUp("foo");
             
             basket.Diff()
-                .Select(domainMessage => domainMessage.Payload.GetType())
+                .Select(domainMessage => domainMessage.Item2.GetType())
                 .ShouldBe(new object[] {
                     typeof(BasketPickedUp)
                 });
@@ -30,7 +30,7 @@ namespace SprayChronicle.EventSourcing.Test
             basket = (PickedUpBasket) await basket.AddProduct(new ProductId("bar"));
             
             basket.Diff()
-                .Select(domainMessage => domainMessage.Payload.GetType())
+                .Select(domainMessage => domainMessage.Item2.GetType())
                 .ShouldBe(new object[] {
                     typeof(BasketPickedUp),
                     typeof(ProductAddedToBasket)
@@ -45,7 +45,7 @@ namespace SprayChronicle.EventSourcing.Test
             basket = (PickedUpBasket) await basket.AddProduct(new ProductId("bar"));
             
             basket.Diff()
-                .Select(domainMessage => domainMessage.Sequence)
+                .Select(domainMessage => domainMessage.Item1)
                 .ToArray()
                 .ShouldBe(new [] {0L, 1L, 2L});
         }
@@ -62,7 +62,7 @@ namespace SprayChronicle.EventSourcing.Test
             basket = (PickedUpBasket) await basket.AddProduct(new ProductId("bar"));
             
             basket.Diff()
-                .Select(domainMessage => domainMessage.Sequence)
+                .Select(domainMessage => domainMessage.Item1)
                 .ToArray()
                 .ShouldBe(new [] {1L, 2L});
         }
@@ -99,7 +99,7 @@ namespace SprayChronicle.EventSourcing.Test
             
             basket
                 .Diff()
-                .Select(domainMessage => domainMessage.Sequence)
+                .Select(domainMessage => domainMessage.Item1)
                 .ToArray()
                 .ShouldBe(new [] {4L, 5L});
         }

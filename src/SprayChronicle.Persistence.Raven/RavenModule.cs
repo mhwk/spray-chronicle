@@ -83,7 +83,7 @@ namespace SprayChronicle.Persistence.Raven
                         c.Resolve<TProcessor>()))
                     .AsSelf()
                     .As<IPipeline>()
-                    .As<IMessagingStrategyRouterSubscriber<IExecute>>()
+                    .As<IMailStrategyRouterSubscriber<IExecute>>()
                     .SingleInstance();
                 
                 builder

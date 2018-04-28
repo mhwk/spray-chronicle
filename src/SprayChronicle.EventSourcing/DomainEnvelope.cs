@@ -1,9 +1,8 @@
-﻿using System;
-using SprayChronicle.MessageHandling;
+using System;
 
-namespace SprayChronicle.QueryHandling
+namespace SprayChronicle.EventSourcing
 {
-    public sealed class QueryEnvelope : IEnvelope
+    public sealed class DomainEnvelope : IDomainEnvelope
     {
         public string MessageId { get; }
         
@@ -11,34 +10,33 @@ namespace SprayChronicle.QueryHandling
         
         public string CorrelationId { get; }
         
+        public long Sequence { get; }
+
         public string MessageName { get; }
         
         public object Message { get; }
         
         public DateTime Epoch { get; }
-        
-        public Action<object> OnSuccess { get; }
-        
-        public Action<Exception> OnError { get; }
 
-        public QueryEnvelope(
+        public DomainEnvelope(
             string messageId,
             string causationId,
             string correlationId,
-            object query,
-            DateTime epoch,
-            Action<object> onSuccess,
-            Action<Exception> onError)
+            long sequence,
+            object payload,
+            DateTime epoch)
         {
+            if (null == payload) {
+                throw new InvalidDomainMessageException($"You must provide a payload object (or a name, if the object is not supported by the consumer");
+            }
+
             MessageId = messageId;
             CausationId = causationId;
             CorrelationId = correlationId;
-            MessageName = query.GetType().Name;
-            Message = query;
+            Sequence = sequence;
+            MessageName = payload?.GetType().Name;
+            Message = payload;
             Epoch = epoch;
-            OnSuccess = onSuccess;
-            OnError = onError;
         }
-
     }
 }

@@ -69,7 +69,7 @@ namespace SprayChronicle.Testing
             _container
                 .Resolve<TestStore>()
                 .Future()
-                .Select(dm => dm.Payload)
+                .Select(dm => dm.Message)
                 .ToArray()
                 .ShouldBeDeepEqualTo(expectation);
             
@@ -81,7 +81,7 @@ namespace SprayChronicle.Testing
 		    _container
 		        .Resolve<TestStore>()
 		        .Future()
-		        .Select(dm => dm.Payload.GetType().FullName)
+		        .Select(dm => dm.Message.GetType().FullName)
 		        .ToArray()
 		        .ShouldBeDeepEqualTo(expectation);
             

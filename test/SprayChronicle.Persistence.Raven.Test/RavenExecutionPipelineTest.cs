@@ -7,6 +7,7 @@ using SprayChronicle.Example.Application;
 using SprayChronicle.Example.Application.Service;
 using SprayChronicle.Example.Application.State;
 using SprayChronicle.QueryHandling;
+using SprayChronicle.Testing;
 using Xunit;
 
 namespace SprayChronicle.Persistence.Raven.Test
@@ -21,30 +22,31 @@ namespace SprayChronicle.Persistence.Raven.Test
             var store = Container()
                 .Resolve<IDocumentStore>();
             var pipeline = Container()
-                .Resolve<RavenExecutionPipeline<QueryBasketWithProducts, BasketWithProducts_v6>>();
+                .Resolve<RavenExecutionPipeline<QueryBasketWithProducts, BasketWithProducts_v7>>();
             var router = new QueryRouter();
+            var dispatcher = new RouterQueryDispatcher(router);
             router.Subscribe(pipeline);
             
             using (var session = store.OpenAsyncSession()) {
-                await session.StoreAsync(new BasketWithProducts_v6(identity1, DateTime.Now));
+                await session.StoreAsync(new BasketWithProducts_v7(identity1, DateTime.Now), $"{typeof(BasketWithProducts_v7).Name}/{identity1}");
                 await session.SaveChangesAsync();
             }
 
             var task = pipeline.Start();
 
-            var result = await router.Route(new BasketById(identity1));
+            var result = await dispatcher.Dispatch(new BasketById(identity1));
 
             await Task.WhenAll(
 //                task,
                 pipeline.Stop()
             );
             
-            result.ShouldBeOfType<BasketWithProducts_v6>();
+            result.ShouldBeOfType<BasketWithProducts_v7>();
         }
 
         protected override void Configure(ContainerBuilder builder)
         {
-            builder.RegisterQueryExecutor<QueryBasketWithProducts,BasketWithProducts_v6>("foo");
+            builder.RegisterQueryExecutor<QueryBasketWithProducts,BasketWithProducts_v7>("foo");
         }
     }
 }

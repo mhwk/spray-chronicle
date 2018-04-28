@@ -2,5 +2,5 @@
 
 namespace SprayChronicle.MessageHandling
 {
-    public delegate Task<object> HandleMessage(params object[] arguments);
+    public delegate Task<object> MailHandler(IEnvelope envelope);
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,9 +12,9 @@ namespace SprayChronicle.Testing
         
         private readonly EpochGenerator _epochs;
 
-        private readonly List<IDomainMessage> _past = new List<IDomainMessage>();
+        private readonly List<IDomainEnvelope> _past = new List<IDomainEnvelope>();
 
-        private readonly List<IDomainMessage> _future = new List<IDomainMessage>();
+        private readonly List<IDomainEnvelope> _future = new List<IDomainEnvelope>();
 
         private bool _present;
 
@@ -23,7 +24,7 @@ namespace SprayChronicle.Testing
             _epochs = epochs;
         }
 
-        public Task Append<T>(string identity, IEnumerable<IDomainMessage> domainMessages)
+        public Task Append<T>(string identity, IEnumerable<IDomainEnvelope> domainMessages)
         {
             var range = PrepareRange(domainMessages);
             
@@ -38,17 +39,20 @@ namespace SprayChronicle.Testing
             return Task.CompletedTask;
         }
 
-        private IEnumerable<IDomainMessage> PrepareRange(IEnumerable<IDomainMessage> domainMessages)
+        private IEnumerable<IDomainEnvelope> PrepareRange(IEnumerable<IDomainEnvelope> domainMessages)
         {
             var i = 0;
-            var list = new List<IDomainMessage>();
+            var list = new List<IDomainEnvelope>();
             
             foreach (var message in domainMessages) {
                 if (_epochs.Count > i) {
-                    list.Add(new DomainMessage(
+                    list.Add(new DomainEnvelope(
+                        Guid.NewGuid().ToString(),
+                        null,
+                        Guid.NewGuid().ToString(),
                         message.Sequence,
-                        _epochs[i],
-                        message.Payload
+                        message.Message,
+                        _epochs[i]
                     ));
                 } else {
                     _epochs.Add(message.Epoch);
@@ -60,23 +64,23 @@ namespace SprayChronicle.Testing
             return list.ToArray();
         }
 
-        public IEventSource<T> Load<T>(string identity)
+        public IEventSource<T> Load<T>(string identity, string idempotencyId)
             where T : class
         {
-            return _child.Load<T>(identity);
+            return _child.Load<T>(identity, idempotencyId);
         }
 
-        public IEnumerable<IDomainMessage> Past()
+        public IEnumerable<IDomainEnvelope> Past()
         {
             return _past.ToArray();
         }
 
-        public IEnumerable<IDomainMessage> Future()
+        public IEnumerable<IDomainEnvelope> Future()
         {
             return _future.ToArray();
         }
 
-        public IEnumerable<IDomainMessage> Chronicle()
+        public IEnumerable<IDomainEnvelope> Chronicle()
         {
             return _past.Union(_future).ToArray();
         }

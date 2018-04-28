@@ -12,7 +12,7 @@ namespace SprayChronicle.Server.Http
                 .Register(c => new HttpCommandRouteMapper(
                     c.Resolve<ILoggerFactory>().Create<HttpCommandDispatcher>(),
                     c.Resolve<IValidator>(),
-                    c.Resolve<CommandRouter>()
+                    c.Resolve<ICommandDispatcher>()
                 ))
                 .SingleInstance();
 
@@ -20,7 +20,7 @@ namespace SprayChronicle.Server.Http
                 .Register(c => new HttpQueryRouteMapper(
                     c.Resolve<ILoggerFactory>().Create<HttpQueryProcessor>(),
                     c.Resolve<IValidator>(),
-                    c.Resolve<QueryRouter>()
+                    c.Resolve<IQueryDispatcher>()
                 ))
                 .SingleInstance();
             

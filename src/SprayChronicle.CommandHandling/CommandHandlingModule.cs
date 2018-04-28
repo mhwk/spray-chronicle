@@ -16,13 +16,18 @@ namespace SprayChronicle.CommandHandling
                 .AsSelf()
                 .OnActivating(e => RegisterCommandHandlers(e.Context, e.Instance))
                 .SingleInstance();
+            
+            builder
+                .Register<ICommandDispatcher>(c => new RouterCommandDispatcher(c.Resolve<CommandRouter>()))
+                .AsSelf()
+                .SingleInstance();
         }
 
         private static void RegisterCommandHandlers(IComponentContext context, CommandRouter router)
         {
             context.ComponentRegistry.Registrations
-                .Where(r => r.Activator.LimitType.IsAssignableTo<IMessagingStrategyRouterSubscriber<IHandle>>())
-                .Select(r => context.Resolve(r.Activator.LimitType) as IMessagingStrategyRouterSubscriber<IHandle>)
+                .Where(r => r.Activator.LimitType.IsAssignableTo<IMailStrategyRouterSubscriber<IHandle>>())
+                .Select(r => context.Resolve(r.Activator.LimitType) as IMailStrategyRouterSubscriber<IHandle>)
                 .ToList()
                 .ForEach(handler => router.Subscribe(handler));
         }
@@ -59,7 +64,7 @@ namespace SprayChronicle.CommandHandling
                     ))
                     .AsSelf()
                     .As<IPipeline>()
-                    .As<IMessagingStrategyRouterSubscriber<IHandle>>()
+                    .As<IMailStrategyRouterSubscriber<IHandle>>()
                     .SingleInstance();
 
                 
@@ -68,7 +73,7 @@ namespace SprayChronicle.CommandHandling
                         .Register(c => new ProcessingPipeline<THandler>(
                             c.Resolve<ILoggerFactory>().Create<THandler>(),
                             c.Resolve<IEventSourceFactory>(),
-                            new PersistentOptions(_streamName, typeof(THandler).FullName), 
+                            new CatchUpOptions(_streamName), 
                             c.Resolve<CommandRouter>(),
                             c.Resolve<THandler>()))
                         .AsSelf()

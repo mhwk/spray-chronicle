@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using SprayChronicle.EventHandling;
@@ -11,16 +12,16 @@ namespace SprayChronicle.EventSourcing
     {
         private long _sequence = -1;
 
-        private readonly List<IDomainMessage> _queue = new List<IDomainMessage>();
+        private readonly List<Tuple<long,object,DateTime>> _events = new List<Tuple<long,object,DateTime>>();
 
-        private static readonly IMessagingStrategy<T> Strategy = new OverloadMessagingStrategy<T>();
+        private static readonly IMailStrategy<T> Strategy = new OverloadMailStrategy<T>();
 
         public abstract string Identity();
 
-        public IEnumerable<IDomainMessage> Diff()
+        public IEnumerable<Tuple<long,object,DateTime>> Diff()
         {
-            var diff = _queue.ToArray();
-            _queue.Clear();
+            var diff = _events.ToArray();
+            _events.Clear();
             return diff;
         }
 
@@ -29,7 +30,7 @@ namespace SprayChronicle.EventSourcing
             var sourcable = default(T);
             var sequence = -1L;
 
-            var converted = new TransformBlock<object, DomainMessage>(
+            var converted = new TransformBlock<object, DomainEnvelope>(
                 message =>
                 {
                     try {
@@ -38,11 +39,11 @@ namespace SprayChronicle.EventSourcing
                         return null;
                     }
                 });
-            var applied = new ActionBlock<DomainMessage>(async message => {
+            var applied = new ActionBlock<DomainEnvelope>(async message => {
                 sequence++;
                 
                 if (null != message) {
-                    sourcable = await Strategy.Ask<T>(sourcable, message.Payload, message.Epoch);
+                    sourcable = await Strategy.Ask<T>(sourcable, message.Message, message.Epoch);
                 }
 
                 if (null != sourcable) {
@@ -61,26 +62,27 @@ namespace SprayChronicle.EventSourcing
                 messages.Start(),
                 applied.Completion
             );
+
+            if (applied.Completion.IsFaulted) {
+                throw applied.Completion.Exception;
+            }
             
             return sourcable;
         }
 
-        protected static async Task<T> Apply(IEventSourcable<T> sourcable, object payload)
+        protected static async Task<T> Apply(EventSourced<T> sourcable, object message)
         {
-            var domainMessage = new DomainMessage(
-                ((EventSourced<T>) sourcable)?._sequence + 1 ?? 0,
-                new DateTime(),
-                payload
-            );
-
-            var updated = (IEventSourcable<T>) await Strategy.Ask<EventSourced<T>>(sourcable as T, domainMessage.Payload, domainMessage.Epoch);
+            var epoch = DateTime.Now;
+            var updated = await Strategy.Ask<EventSourced<T>>(sourcable as T, message, epoch);
             
             if (updated != sourcable && null != sourcable) {
-                ((EventSourced<T>)updated)._queue.AddRange(((EventSourced<T>)sourcable)._queue);
+                updated._events.AddRange(sourcable._events);
             }
 
-            ((EventSourced<T>)updated)._sequence = domainMessage.Sequence;
-            ((EventSourced<T>)updated)._queue.Add(domainMessage);
+            if (null == updated) return null;
+            
+            updated._sequence = sourcable?._sequence + 1 ?? 0;
+            updated._events.Add(new Tuple<long,object,DateTime>(updated._sequence, message, epoch));
 
             return (T) updated;
         }
@@ -100,7 +102,7 @@ namespace SprayChronicle.EventSourcing
 
         protected static async Task<T> Apply(params object[] payloads)
         {
-            T sourcable = default(T);
+            var sourcable = default(T);
             foreach (var payload in payloads) {
                 sourcable = await Apply(sourcable, payload);
             }

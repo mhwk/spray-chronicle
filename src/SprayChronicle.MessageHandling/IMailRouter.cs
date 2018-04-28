@@ -2,8 +2,8 @@
 
 namespace SprayChronicle.MessageHandling
 {
-    public interface IMessageRouter
+    public interface IMailRouter
     {
-        Task<object> Route(params object[] arguments);
+        Task<object> Route(IEnvelope envelope);
     }
 }

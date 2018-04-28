@@ -14,6 +14,6 @@ namespace SprayChronicle.EventSourcing
     {
         Task Start();
         
-        DomainMessage Convert(IMessagingStrategy<TTarget> strategy, object message);
+        DomainEnvelope Convert(IMailStrategy<TTarget> strategy, object message);
     }
 }

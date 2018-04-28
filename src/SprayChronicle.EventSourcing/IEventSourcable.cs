@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace SprayChronicle.EventSourcing
@@ -6,6 +7,6 @@ namespace SprayChronicle.EventSourcing
     {
         string Identity();
 
-        IEnumerable<IDomainMessage> Diff();
+        IEnumerable<Tuple<long,object,DateTime>> Diff();
     }
 }

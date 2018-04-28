@@ -19,9 +19,9 @@ namespace SprayChronicle.CommandHandling.Test
         
         private readonly IEventSourceFactory _factory = Substitute.For<IEventSourceFactory>();
         
-        private readonly PersistentOptions _options = new PersistentOptions("test", "test");
+        private readonly CatchUpOptions _options = new CatchUpOptions("test");
 
-        private readonly IMessageRouter _router = Substitute.For<IMessageRouter>();
+        private readonly IMailRouter _router = Substitute.For<IMailRouter>();
 
         private readonly ILogger<HandleOrder> _logger = Substitute.For<ILogger<HandleOrder>>();
         
@@ -38,7 +38,7 @@ namespace SprayChronicle.CommandHandling.Test
             );
             
             _factory
-                .Build<HandleOrder, PersistentOptions>(Arg.Is(_options))
+                .Build<HandleOrder, CatchUpOptions>(Arg.Is(_options))
                 .Returns(_source);
 
             await _source.Publish(message);
@@ -46,7 +46,7 @@ namespace SprayChronicle.CommandHandling.Test
 
             await pipeline.Start();
             
-            _logger.Received().LogDebug(Arg.Any<UnsupportedMessageException>());
+            _logger.Received().LogWarning(Arg.Any<UnsupportedMessageException>());
         }
         
         [Fact]
@@ -62,7 +62,7 @@ namespace SprayChronicle.CommandHandling.Test
             );
             
             _factory
-                .Build<HandleOrder, PersistentOptions>(Arg.Is(_options))
+                .Build<HandleOrder, CatchUpOptions>(Arg.Is(_options))
                 .Returns(_source);
 
             await _source.Publish(message);
@@ -71,7 +71,7 @@ namespace SprayChronicle.CommandHandling.Test
             await pipeline.Start();
             
             _logger.DidNotReceive().LogDebug(Arg.Any<Exception>());
-            await _router.Received().Route(Arg.Any<GenerateOrder>());
+            await _router.Received().Route(Arg.Any<IEnvelope>());
         }
     }
 }

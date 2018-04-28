@@ -18,7 +18,7 @@ namespace SprayChronicle.Example.Application.Service
             return await Handle()
                 .Mutate(async () => await Order.Generate(
                     command.OrderId,
-                    command.ProductIds.Cast<ProductId>().ToArray()
+                    command.ProductIds.Select(p => new ProductId(p)).ToArray()
                 ));
         }
         

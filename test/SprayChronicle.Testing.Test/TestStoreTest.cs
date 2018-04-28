@@ -21,18 +21,28 @@ namespace SprayChronicle.Testing.Test
             var store = new TestStore(_child, new EpochGenerator());
             
             store.Append<Basket>("basket1", new [] {
-                new DomainMessage(
-                    0, DateTime.Now, message1 
+                new DomainEnvelope(
+                    Guid.NewGuid().ToString(),
+                    Guid.NewGuid().ToString(),
+                    Guid.NewGuid().ToString(),
+                    0,
+                    message1,
+                    DateTime.Now 
                 ),
             });
             store.Present();
             store.Append<Basket>("basket1", new [] {
-                new DomainMessage(
-                    1, DateTime.Now, message2
+                new DomainEnvelope(
+                    Guid.NewGuid().ToString(),
+                    Guid.NewGuid().ToString(),
+                    Guid.NewGuid().ToString(),
+                    1,
+                    message2,
+                    DateTime.Now
                 ),
             });
             
-            store.Past().Select(p => p.Payload).ShouldBe(new [] { message1 });
+            store.Past().Select(p => p.Message).ShouldBe(new [] { message1 });
         }
         
         [Fact]
@@ -43,18 +53,28 @@ namespace SprayChronicle.Testing.Test
             var store = new TestStore(_child, new EpochGenerator());
             
             store.Append<Basket>("basket1", new [] {
-                new DomainMessage(
-                    0, DateTime.Now, message1 
+                new DomainEnvelope(
+                    Guid.NewGuid().ToString(),
+                    Guid.NewGuid().ToString(),
+                    Guid.NewGuid().ToString(),
+                    0,
+                    message1,
+                    DateTime.Now 
                 ),
             });
             store.Present();
             store.Append<Basket>("basket1", new [] {
-                new DomainMessage(
-                    1, DateTime.Now, message2
+                new DomainEnvelope(
+                    Guid.NewGuid().ToString(),
+                    Guid.NewGuid().ToString(),
+                    Guid.NewGuid().ToString(),
+                    1,
+                    message2,
+                    DateTime.Now
                 ),
             });
             
-            store.Future().Select(p => p.Payload).ShouldBe(new [] { message2 });
+            store.Future().Select(p => p.Message).ShouldBe(new [] { message2 });
         }
         
         [Fact]
@@ -65,18 +85,28 @@ namespace SprayChronicle.Testing.Test
             var store = new TestStore(_child, new EpochGenerator());
             
             store.Append<Basket>("basket1", new [] {
-                new DomainMessage(
-                    0, DateTime.Now, message1 
+                new DomainEnvelope(
+                    Guid.NewGuid().ToString(),
+                    Guid.NewGuid().ToString(),
+                    Guid.NewGuid().ToString(),
+                    0,
+                    message1,
+                    DateTime.Now
                 ),
             });
             store.Present();
             store.Append<Basket>("basket1", new [] {
-                new DomainMessage(
-                    1, DateTime.Now, message2
+                new DomainEnvelope(
+                    Guid.NewGuid().ToString(),
+                    Guid.NewGuid().ToString(),
+                    Guid.NewGuid().ToString(),
+                    1,
+                    message2,
+                    DateTime.Now
                 ),
             });
             
-            store.Chronicle().Select(p => p.Payload).ShouldBe(new [] { message1, message2 });
+            store.Chronicle().Select(p => p.Message).ShouldBe(new [] { message1, message2 });
         }
         
         [Fact]
@@ -87,8 +117,8 @@ namespace SprayChronicle.Testing.Test
             
             var store = new TestStore(_child, new EpochGenerator());
             
-            _child.Load<Basket>("basket1").Returns(source);
-            store.Load<Basket>("basket1").ShouldBe(source);
+            _child.Load<Basket>("basket1", "idempotencyId").Returns(source);
+            store.Load<Basket>("basket1", "idempotencyId").ShouldBe(source);
         }
         
         [Fact]
@@ -98,9 +128,14 @@ namespace SprayChronicle.Testing.Test
             var generator = new EpochGenerator();
             var message1 = new object();
             var store = new TestStore(_child, generator);
-            var stream = new IDomainMessage[] {
-                new DomainMessage(
-                    0, epoch, message1
+            var stream = new IDomainEnvelope[] {
+                new DomainEnvelope(
+                    Guid.NewGuid().ToString(),
+                    Guid.NewGuid().ToString(),
+                    Guid.NewGuid().ToString(),
+                    0,
+                    message1,
+                    epoch
                 ),
             };
             
@@ -110,7 +145,7 @@ namespace SprayChronicle.Testing.Test
             
             _child
                 .Received()
-                .Append<Basket>("basket1", Arg.Do<IDomainMessage[]>(arg => arg.ShouldBeDeepEqualTo(stream)));
+                .Append<Basket>("basket1", Arg.Do<IDomainEnvelope[]>(arg => arg.ShouldBeDeepEqualTo(stream)));
         }
     }
 }

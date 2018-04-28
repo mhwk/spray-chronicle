@@ -26,6 +26,7 @@ Version 0.2.0
 
  * Embraced async
  * Implemented TPL pipelines
+ * Idempotent processes
  * Support for [RavenDB](https://www.ravendb.net)
 
 Version 0.1.0

@@ -16,7 +16,7 @@ namespace SprayChronicle.Server.Http
 
         private readonly IValidator _validator;
 
-        private readonly QueryRouter _executor;
+        private readonly IQueryDispatcher _dispatcher;
 
         private readonly Type _type;
 
@@ -32,13 +32,13 @@ namespace SprayChronicle.Server.Http
         public HttpQueryProcessor(
             ILogger<HttpQueryProcessor> logger,
             IValidator validator,
-            QueryRouter executor,
+            IQueryDispatcher dispatcher,
             Type type,
             string contentType)
         {
             _logger = logger;
             _validator = validator;
-            _executor = executor;
+            _dispatcher = dispatcher;
             _type = type;
             _contentType = contentType;
         }
@@ -51,7 +51,7 @@ namespace SprayChronicle.Server.Http
                 _validator.Validate(payload);
 
                 _logger.LogDebug($"Processing {_type} {JsonConvert.SerializeObject(payload)}");
-                var result = await _executor.Route(payload);
+                var result = await _dispatcher.Dispatch(payload);
                 response.ContentType = _contentType;
                 response.StatusCode = 200;
                 if (_contentType == "application/json") {

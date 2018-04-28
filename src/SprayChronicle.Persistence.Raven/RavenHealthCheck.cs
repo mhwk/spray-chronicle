@@ -20,7 +20,7 @@ namespace SprayChronicle.Persistence.Raven
         {
             try {
                 var stats = await _store.Maintenance.SendAsync(new GetStatisticsOperation(), cancellationToken);
-                return HealthCheckResult.Healthy($"[Connected] {stats.SizeOnDisk}MB");
+                return HealthCheckResult.Healthy($"[Connected] {stats.SizeOnDisk.HumaneSize}");
             } catch (Exception error) {
                 return HealthCheckResult.Unhealthy($"[Errored] {error}");
             }

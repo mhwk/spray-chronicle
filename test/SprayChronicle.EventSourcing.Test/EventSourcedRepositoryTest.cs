@@ -17,11 +17,11 @@ namespace SprayChronicle.EventSourcing.Test
         public async Task ItAppendsMessages()
         {
             await new EventSourcedRepository<Basket>(_persistence)
-                .Save(await Basket.PickUp(new BasketId("foo")));
+                .Save(await Basket.PickUp(new BasketId("foo")), new TestEnvelope());
             
             await _persistence
                 .Received()
-                .Append<Basket>(Arg.Is("foo"), Arg.Any<IEnumerable<IDomainMessage>>());
+                .Append<Basket>(Arg.Is("foo"), Arg.Any<IEnumerable<IDomainEnvelope>>());
         }
 
         [Fact]
@@ -32,10 +32,10 @@ namespace SprayChronicle.EventSourcing.Test
             source.Complete();
             
             _persistence
-                .Load<Basket>(Arg.Is("foo"))
+                .Load<Basket>(Arg.Is("foo"), "idempotencyId")
                 .Returns(source);
                 
-            var result = await new EventSourcedRepository<Basket>(_persistence).Load("foo");
+            var result = await new EventSourcedRepository<Basket>(_persistence).Load("foo", "idempotencyId");
             result.ShouldBeAssignableTo<PickedUpBasket>();
         }
 
@@ -47,10 +47,10 @@ namespace SprayChronicle.EventSourcing.Test
             source.Complete();
             
             _persistence
-                .Load<Basket>(Arg.Is("foo"))
+                .Load<Basket>(Arg.Is("foo"), Arg.Any<string>())
                 .Returns(source);
             
-            var result = await new EventSourcedRepository<Basket>(_persistence).Load("foo");
+            var result = await new EventSourcedRepository<Basket>(_persistence).Load("foo", "idempotencyId");
             result.ShouldBeNull();
         }
 
@@ -62,11 +62,11 @@ namespace SprayChronicle.EventSourcing.Test
             source.Complete();
             
             _persistence
-                .Load<Basket>(Arg.Is("foo"))
+                .Load<Basket>(Arg.Is("foo"), "idempotencyId")
                 .Returns(source);
 
             Should.Throw<InvalidStateException>(
-                () => new EventSourcedRepository<Basket>(_persistence).Load<Basket>("foo")
+                () => new EventSourcedRepository<Basket>(_persistence).Load<Basket>("foo", "idempotencyId")
             );
         }
 
@@ -78,10 +78,10 @@ namespace SprayChronicle.EventSourcing.Test
             source.Complete();
             
             _persistence
-                .Load<Basket>(Arg.Is("foo"))
+                .Load<Basket>(Arg.Is("foo"), Arg.Any<string>())
                 .Returns(source);
             
-            var result = await new EventSourcedRepository<Basket>(_persistence).LoadOrDefault<Basket>("foo");
+            var result = await new EventSourcedRepository<Basket>(_persistence).LoadOrDefault<Basket>("foo", "idempotencyId");
             result.ShouldBeNull();
         }
     }

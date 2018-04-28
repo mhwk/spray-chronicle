@@ -13,7 +13,7 @@ namespace SprayChronicle.CommandHandling
     {
         public string Description => $"CommandHandling: {typeof(THandler).Name}";
         
-        private readonly IMessagingStrategy<THandler> _strategy = new OverloadMessagingStrategy<THandler>("Handle");
+        private readonly IMailStrategy<THandler> _strategy = new OverloadMailStrategy<THandler>("Handle");
 
         private readonly BufferBlock<CommandEnvelope> _queue;
 
@@ -41,19 +41,12 @@ namespace SprayChronicle.CommandHandling
             _queue = queue;
         }
 
-        public void Subscribe(IMessagingStrategyRouter<IHandle> messageRouter)
+        public void Subscribe(IMailStrategyRouter<IHandle> messageRouter)
         {
-            messageRouter.Subscribe(_strategy, commands => {
-                var onComplete = new TaskCompletionSource<object>();
-                
-                _queue.Post(new CommandEnvelope(
-                    commands.First(),
-                    () => onComplete.TrySetResult(new object()),
-                    error => onComplete.TrySetException(error)
-                ));
-
-                return onComplete.Task;
-            });
+            messageRouter.Subscribe(
+                _strategy,
+                async envelope => await _queue.SendAsync((CommandEnvelope) envelope)
+            );
         }
 
         public async Task Start()
@@ -63,7 +56,7 @@ namespace SprayChronicle.CommandHandling
                     try {
                         return new Tuple<CommandEnvelope, Handled>(
                             envelope,
-                            await Dispatch(envelope.Command)
+                            await Dispatch(envelope)
                         );
                     } catch (Exception error) {
                         envelope.OnError(error);
@@ -76,12 +69,10 @@ namespace SprayChronicle.CommandHandling
             );
             var apply = new ActionBlock<Tuple<CommandEnvelope,Handled>>(
                 async tuple => {
-                    if (null == tuple) {
-                        return;
-                    }
+                    if (null == tuple) return;
                     
                     try {
-                        await Apply(tuple.Item2);
+                        await Apply(tuple.Item1, tuple.Item2);
                         tuple.Item1.OnSuccess();
                     } catch (Exception error) {
                         tuple.Item1.OnError(error);
@@ -108,12 +99,12 @@ namespace SprayChronicle.CommandHandling
             await _queue.Completion;
         }
 
-        private Task<Handled> Dispatch(object command)
+        private Task<Handled> Dispatch(CommandEnvelope envelope)
         {
-            return _strategy.Ask<Handled>(_handler, command);
+            return _strategy.Ask<Handled>(_handler, envelope.Message, envelope.Epoch);
         }
 
-        private async Task Apply(Handled handled)
+        private async Task Apply(CommandEnvelope envelope, Handled handled)
         {
             TState identity;
 
@@ -122,13 +113,13 @@ namespace SprayChronicle.CommandHandling
                     identity = await created.Do();
                     break;
                 case HandledUpdate<TState> updated:
-                    identity = await updated.Do(await _repository.Load<TState>(handled.Identity));
+                    identity = await updated.Do(await _repository.Load<TState>(handled.Identity, envelope.MessageId));
                     break;
                 default:
                     throw new Exception($"Unsupported pipeline result {handled.GetType()}");
             }
             
-            await _repository.Save<TState>(identity);
+            await _repository.Save<TState>(identity, envelope);
         }
     }
 }

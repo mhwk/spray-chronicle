@@ -19,9 +19,10 @@ namespace SprayChronicle.Persistence.Raven
         public string Description => $"Raven processing: {typeof(TProcessor).Name}";
 
         private const int BatchSize = 2000;
-        private const int BatchTimeout = 100;
+        private const int BatchTimeout = 200;
+        private const int Parallelism = 4;
         
-        private readonly IMessagingStrategy<TProcessor> _strategy = new OverloadMessagingStrategy<TProcessor>(new ContextTypeLocator<TProcessor>());
+        private readonly IMailStrategy<TProcessor> _strategy = new OverloadMailStrategy<TProcessor>(new ContextTypeLocator<TProcessor>());
         
         private readonly ILogger<TProcessor> _logger;
         
@@ -66,7 +67,7 @@ namespace SprayChronicle.Persistence.Raven
             _source = _sourceFactory
                 .Build<TProcessor,CatchUpOptions>(_sourceOptions.WithCheckpoint(_checkpoint));
             
-            var converted = new TransformBlock<object,DomainMessage>(
+            var converted = new TransformBlock<object,DomainEnvelope>(
                 message => {
                     try {
                         return _source.Convert(_strategy, message);
@@ -76,28 +77,29 @@ namespace SprayChronicle.Persistence.Raven
                     }
                 },
                 new ExecutionDataflowBlockOptions {
-                    MaxDegreeOfParallelism = 4
+                    MaxDegreeOfParallelism = Parallelism,
+                    BoundedCapacity = BatchSize
                 }
             );
-            var routed = new TransformBlock<DomainMessage,Processed>(
+            var routed = new TransformBlock<DomainEnvelope,Processed>(
                 async message => {
                     if (null == message) return null;
-                    
-//                    _logger.LogDebug($"Route-{message.Name}-{message.Sequence}");
+//                    _logger.LogDebug($"Route-{message.MessageName}-{message.Sequence}");
                     try {
-                        return await _strategy.Ask<Processed>(_processor, message.Payload, message.Epoch);
+                        return await _strategy.Ask<Processed>(_processor, message.Message, message.Epoch);
                     } catch (Exception error) {
                         _logger.LogDebug(error);
                         return null;
                     }
                 },
                 new ExecutionDataflowBlockOptions {
-                    MaxDegreeOfParallelism = 4
+                    MaxDegreeOfParallelism = Parallelism,
+                    BoundedCapacity = BatchSize
                 }
             );
             var batched = new BatchBlock<Processed>(BatchSize, new GroupingDataflowBlockOptions {
 //                Greedy = true,
-//                BoundedCapacity = 20
+                BoundedCapacity = BatchSize
             });
             var action = new ActionBlock<Processed[]>(
                 async processed => {
@@ -122,7 +124,8 @@ namespace SprayChronicle.Persistence.Raven
                     return processed;
                 },
                 new ExecutionDataflowBlockOptions {
-                    MaxDegreeOfParallelism = 4
+                    MaxDegreeOfParallelism = Parallelism,
+                    BoundedCapacity = BatchSize
                 }
             );
             
@@ -141,11 +144,11 @@ namespace SprayChronicle.Persistence.Raven
             batched.LinkTo(action, new DataflowLinkOptions {
                 PropagateCompletion = true
             });
-            
+
+            _logger.LogDebug($"Starting source...");
+            await _source.Start();
             _logger.LogDebug($"Pipeline running...");
-            await Task.WhenAll(_source.Start(), action.Completion);
-            _logger.LogDebug($"Pipeline shutting down, waiting 1 seconds...");
-            await Task.Delay(TimeSpan.FromSeconds(1));
+            await action.Completion;
             _logger.LogDebug($"Pipeline shut down");
         }
 
@@ -183,8 +186,16 @@ namespace SprayChronicle.Persistence.Raven
                     }
                 
 //                        _logger.LogDebug($" -> Processing {i}...");
-                
-                    documents[processed[i].Identity] = (TState) await processed[i].Do(documents[processed[i].Identity]);
+
+                    try {
+                        documents[processed[i].Identity] = (TState) await processed[i].Do(documents[processed[i].Identity]);
+                        if (null == documents[processed[i].Identity]) {
+                            throw new Exception($"Null value has been set");
+                        }
+                    } catch (ArgumentException error) {
+                        _logger.LogCritical(error, $"At {_checkpoint + i}");
+                        throw;
+                    }
 
                     var cancellation = new CancellationTokenSource();
                     
@@ -217,7 +228,7 @@ namespace SprayChronicle.Persistence.Raven
 
             if (null == checkpoint) {
                 _logger.LogDebug("Starting from the beginning");
-                return 0;
+                return -1;
             }
             
             _logger.LogDebug($"Starting from checkpoint {checkpoint.Sequence}");

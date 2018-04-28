@@ -10,29 +10,27 @@ namespace SprayChronicle.MessageHandling.Test
 {
     public class OverloadMessagingStrategyTest
     {
-        private readonly OverloadMessagingStrategy<Basket> _strategy = new OverloadMessagingStrategy<Basket>();
-
         [Fact]
         public void ItAcceptsMessage()
         {
-            _strategy
-                .Resolves(new BasketPickedUp("basketId"), DateTime.Now)
+            new OverloadMailStrategy<Basket>()
+                .Resolves(new BasketPickedUp("basketId"))
                 .ShouldBeTrue();
         }
 
         [Fact]
         public void ItAcceptsMessageOfOverload()
         {
-            _strategy
-                .Resolves(new ProductAddedToBasket("basketId", "productId"), DateTime.Now)
+            new OverloadMailStrategy<Basket>()
+                .Resolves(new ProductAddedToBasket("basketId", "productId"))
                 .ShouldBeTrue();
         }
 
         [Fact]
         public void ItDoesNotAcceptUnknownMessage()
         {
-            _strategy
-                .Resolves(new UnknownMessage(), DateTime.Now)
+            new OverloadMailStrategy<Basket>()
+                .Resolves(new UnknownMessage())
                 .ShouldBeFalse();
         }
         
@@ -63,41 +61,49 @@ namespace SprayChronicle.MessageHandling.Test
         [Fact]
         public void TellUnhandledMessage()
         {
-            Should.Throw<UnroutableMessageException>(() => _strategy.Tell(null, new UnknownMessage(), DateTime.Now));
+            Should.Throw<UnsupportedMessageException>(
+                () => new OverloadMailStrategy<Basket>().Tell(null, new UnknownMessage(), DateTime.Now)
+            );
         }
 
         [Fact]
         public void TellInstanceMethodToNull()
         {
-            Should.Throw<UnexpectedStateException>(() => _strategy.Tell(null, new ProductAddedToBasket("basketId", "productId"), DateTime.Now));
+            Should.Throw<UnexpectedStateException>(
+                () => new OverloadMailStrategy<Basket>().Tell(null, new ProductAddedToBasket("basketId", "productId"), DateTime.Now)
+            );
         }
 
         [Fact]
         public void TellFactoryMethodToInstance()
         {
-            Should.Throw<UnexpectedStateException>(() => _strategy.Tell(new PickedUpBasket("basketId"), new BasketPickedUp("basketId"), DateTime.Now));
+            Should.Throw<UnexpectedStateException>(
+                () => new OverloadMailStrategy<Basket>().Tell(new PickedUpBasket("basketId"), new BasketPickedUp("basketId"), DateTime.Now)
+            );
         }
 
         [Fact]
         public async Task AskMessageResult()
         {
-            var result = await _strategy.Ask<Basket>(null, new BasketPickedUp("basketId"), DateTime.Now);
+            var result = await new OverloadMailStrategy<Basket>().Ask<Basket>(null, new BasketPickedUp("basketId"), DateTime.Now);
             result.ShouldBeAssignableTo<PickedUpBasket>();
         }
 
         [Fact]
         public async Task ThrowUnexpectedStateExceptionForExistingInstance()
         {
-            var basket = await _strategy.Ask<Basket>(null, new BasketPickedUp("basketId"), DateTime.Now);
+            var basket = await new OverloadMailStrategy<Basket>().Ask<Basket>(null, new BasketPickedUp("basketId"), DateTime.Now);
                
-            Should.Throw<UnexpectedStateException>(() => _strategy.Ask<Basket>(basket, new BasketPickedUp("basketId"), DateTime.Now));
+            Should.Throw<UnexpectedStateException>(
+                () => new OverloadMailStrategy<Basket>().Ask<Basket>(basket, new BasketPickedUp("basketId"), DateTime.Now)
+            );
         }
 
         [Fact]
         public async Task ProcessSecondMessage()
         {
-            var basket = await _strategy.Ask<Basket>(null, new BasketPickedUp("basketId"), DateTime.Now);
-            basket = await _strategy.Ask<Basket>(basket, new BasketCheckedOut("basketId", "orderId", new string[0]), DateTime.Now);
+            var basket = await new OverloadMailStrategy<Basket>().Ask<Basket>(null, new BasketPickedUp("basketId"), DateTime.Now);
+            basket = await new OverloadMailStrategy<Basket>().Ask<Basket>(basket, new BasketCheckedOut("basketId", "orderId", new string[0]), DateTime.Now);
             
             basket.ShouldBeAssignableTo<CheckedOutBasket>();
         }

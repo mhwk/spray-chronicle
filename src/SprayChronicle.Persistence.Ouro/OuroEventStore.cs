@@ -34,9 +34,9 @@ namespace SprayChronicle.Persistence.Ouro
             _credentials = credentials;
         }
 
-        public async Task Append<T>(string identity, IEnumerable<IDomainMessage> domainMessages)
+        public async Task Append<T>(string identity, IEnumerable<IDomainEnvelope> domainMessages)
         {
-            var enumerable = domainMessages as DomainMessage[] ?? domainMessages.ToArray();
+            var enumerable = domainMessages as DomainEnvelope[] ?? domainMessages.ToArray();
             
             if ( ! enumerable.Any()) {
                 return;
@@ -55,7 +55,7 @@ namespace SprayChronicle.Persistence.Ouro
 
                 stopwatch.Stop();
 
-                var messageList = string.Join(", ", domainMessages.Select(d => d.Name));
+                var messageList = string.Join(", ", domainMessages.Select(d => d.MessageName));
                 _logger.LogDebug($"{typeof(T)}::{Stream<T>(identity)} Appended {domainMessages.Count()} messages ({messageList}) in {stopwatch.ElapsedMilliseconds}ms");
             } catch (AggregateException error) {
                 // @todo handle correct exception
@@ -65,10 +65,13 @@ namespace SprayChronicle.Persistence.Ouro
             }
         }
 
-        public IEventSource<T> Load<T>(string identity)
+        public IEventSource<T> Load<T>(string identity, string idempotencyId)
             where T : class
         {
-            return _sourceFactory.Build<T,ReadForwardOptions>(new ReadForwardOptions(Stream<T>(identity)));
+            return _sourceFactory.Build<T,ReadForwardOptions>(
+                new ReadForwardOptions(Stream<T>(identity))
+                    .WithMessageId(idempotencyId)
+            );
         }
 
         private static string Stream<T>(string identity)
@@ -83,19 +86,20 @@ namespace SprayChronicle.Persistence.Ouro
             return $"{typeof(T).Namespace?.Split('.').First()}-{identity}";
         }
 
-        private EventData BuildEventData(IDomainMessage domainMessage)
+        private EventData BuildEventData(IDomainEnvelope domainEnvelope)
         {
             return new EventData(
                 Guid.NewGuid(),
-                domainMessage.Name,
+                domainEnvelope.MessageName,
                 true,
-                Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(domainMessage.Payload)),
+                Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(domainEnvelope.Message)),
                 Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(new Metadata(
-                    domainMessage.Payload.GetType()
+                    domainEnvelope.Message.GetType(),
+                    domainEnvelope.MessageId,
+                    domainEnvelope.CausationId,
+                    domainEnvelope.CorrelationId
                 )))
             );
-            
-            
         }
     }
 }

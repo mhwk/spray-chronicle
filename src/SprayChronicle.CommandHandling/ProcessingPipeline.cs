@@ -11,17 +11,20 @@ namespace SprayChronicle.CommandHandling
     public sealed class ProcessingPipeline<THandler> : IPipeline
         where THandler : class, IProcess
     {
+        private const int Parallelism = 2;
+        private const int BatchSize = 100;
+        
         public string Description => $"CommandProcessor: {typeof(THandler).Name}";
         
-        private readonly IMessagingStrategy<THandler> _strategy = new OverloadMessagingStrategy<THandler>("Process");
+        private readonly IMailStrategy<THandler> _strategy = new OverloadMailStrategy<THandler>("Process");
 
         private readonly ILogger<THandler> _logger;
         
         private readonly IEventSourceFactory _sourceFactory;
         
-        private readonly PersistentOptions _sourceOptions;
+        private readonly CatchUpOptions _sourceOptions;
 
-        private readonly IMessageRouter _router;
+        private readonly IMailRouter _router;
 
         private readonly THandler _handler;
 
@@ -30,8 +33,8 @@ namespace SprayChronicle.CommandHandling
         public ProcessingPipeline(
             ILogger<THandler> logger,
             IEventSourceFactory sourceFactory,
-            PersistentOptions sourceOptions,
-            IMessageRouter router,
+            CatchUpOptions sourceOptions,
+            IMailRouter router,
             THandler handler)
         {
             _logger = logger;
@@ -47,48 +50,57 @@ namespace SprayChronicle.CommandHandling
                 throw new PipelineException($"Command processing pipeline already started");
             }
             
-            _source = _sourceFactory.Build<THandler,PersistentOptions>(_sourceOptions);
-            var converted = new TransformBlock<object,DomainMessage>(
+            _source = _sourceFactory.Build<THandler,CatchUpOptions>(_sourceOptions);
+            var converted = new TransformBlock<object,DomainEnvelope>(
                 message => {
                     try {
-                        return _source.Convert(_strategy, message);
+                        var result = _source.Convert(_strategy, message);
+                        return result;
                     } catch (UnsupportedMessageException error) {
-                        _logger.LogWarning(error);
+//                        _logger.LogDebug(error);
                         return null;
-                    }
-                },
-                new ExecutionDataflowBlockOptions {
-                    MaxDegreeOfParallelism = 4
-                }
-            );
-            var dispatch = new TransformBlock<DomainMessage,Processed>(
-                message => {
-                    if (null == message) return null;
-                    
-                    try {
-                        return Dispatch(message);
-                    } catch (Exception error) {
-                        _logger.LogError(error);
-                        return null;
-                    }
-                },
-                new ExecutionDataflowBlockOptions {
-                    MaxDegreeOfParallelism = 4
-                }
-            );
-            var apply = new ActionBlock<Processed>(
-                command => {
-                    if (null == command) return null;
-                    
-                    try {
-                        return Apply(command);
                     } catch (Exception error) {
                         _logger.LogCritical(error);
                         return null;
                     }
                 },
                 new ExecutionDataflowBlockOptions {
-                    MaxDegreeOfParallelism = 4
+                    MaxDegreeOfParallelism = Parallelism,
+                    BoundedCapacity = BatchSize * Parallelism
+                }
+            );
+            var dispatch = new TransformBlock<DomainEnvelope,Tuple<DomainEnvelope,Processed>>(
+                async envelope => {
+                    if (null == envelope) return null;
+                    
+                    try {
+                        return new Tuple<DomainEnvelope, Processed>(
+                            envelope,
+                            await Process(envelope)
+                        );
+                    } catch (Exception error) {
+                        _logger.LogError(error);
+                        return null;
+                    }
+                },
+                new ExecutionDataflowBlockOptions {
+                    MaxDegreeOfParallelism = Parallelism,
+                    BoundedCapacity = BatchSize * Parallelism
+                }
+            );
+            var apply = new ActionBlock<Tuple<DomainEnvelope,Processed>>(
+                async tuple => {
+                    if (null == tuple) return;
+                    
+                    try {
+                        await Apply(tuple.Item1, tuple.Item2);
+                    } catch (Exception error) {
+                        _logger.LogCritical(error);
+                    }
+                },
+                new ExecutionDataflowBlockOptions {
+                    MaxDegreeOfParallelism = Parallelism,
+                    BoundedCapacity = BatchSize * Parallelism
                 }
             );
 
@@ -101,9 +113,11 @@ namespace SprayChronicle.CommandHandling
             dispatch.LinkTo(apply, new DataflowLinkOptions {
                 PropagateCompletion = true
             });
-            
-            await Task.WhenAll(_source.Start(), dispatch.Completion);
+
+            await _source.Start();
+            await apply.Completion;
         }
+        
 
         public Task Stop()
         {
@@ -116,29 +130,32 @@ namespace SprayChronicle.CommandHandling
             return Task.CompletedTask;
         }
 
-        private async Task<Processed> Dispatch(DomainMessage message)
+        private async Task<Processed> Process(DomainEnvelope envelope)
         {
-            if (null == message) {
-                return await Processed.WithError(new UnhandledCommandException(
-                    "Command not handled by pipeline"
-                ));
-            }
-            
-            try {
-                return await _strategy.Ask<Processed>(_handler, message.Payload, message.Epoch);
-            } catch (Exception error) {
-                _logger.LogDebug(error);
-                return await Processed.WithError(error);
-            }
+            return await _strategy.Ask<Processed>(_handler, envelope.Message, envelope.Epoch);
         }
         
-        private async Task Apply(Processed processed)
+        private async Task Apply(DomainEnvelope envelope, Processed processed)
         {
             if (!(processed is ProcessedDispatch dispatch)) {
                 throw new ArgumentException($"Processed is expected to be a {typeof(ProcessedDispatch)}, {processed.GetType()} given");
             }
 
-            await _router.Route(dispatch.Command);
+            var completion = new TaskCompletionSource<object>();
+            
+            await _router.Route(new CommandEnvelope(
+                GuidUtility.Create(Guid.Parse(envelope.MessageId), envelope.MessageId).ToString(),
+                envelope.MessageId,
+                envelope.CorrelationId,
+                dispatch.Command,
+                DateTime.Now,
+                () => completion.TrySetResult(null),
+                error => completion.TrySetException(error)
+            ));
+            
+            _logger.LogDebug($"Dispatched {dispatch.Command.GetType()} in response to {envelope.MessageName}");
+
+            await completion.Task;
         }
     }
 }

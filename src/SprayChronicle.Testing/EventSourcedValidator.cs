@@ -11,11 +11,11 @@ namespace SprayChronicle.Testing
     {
         private readonly IContainer _container;
 
-        private readonly IDomainMessage[] _messages;
+        private readonly Tuple<long,object,DateTime>[] _messages;
         
         private readonly Exception _error;
         
-        private EventSourcedValidator(IContainer container, IDomainMessage[] messages)
+        private EventSourcedValidator(IContainer container, Tuple<long,object,DateTime>[] messages)
         {
             _container = container;
             _messages = messages;
@@ -24,7 +24,7 @@ namespace SprayChronicle.Testing
         private EventSourcedValidator(IContainer container, Exception error)
         {
             _container = container;
-            _messages = new IDomainMessage[] {};
+            _messages = new Tuple<long,object,DateTime>[] {};
             _error = error;
         }
 
@@ -66,7 +66,7 @@ namespace SprayChronicle.Testing
 		public IValidate Expect(params object[] expectation)
 		{
 		    _messages
-		        .Select(dm => dm.Payload)
+		        .Select(dm => dm.Item2)
 		        .ToArray()
 		        .ShouldBeDeepEqualTo(expectation);
             
@@ -76,7 +76,7 @@ namespace SprayChronicle.Testing
 		public IValidate Expect(params Type[] expectation)
 		{
 		    _messages
-		        .Select(dm => dm.Payload.GetType().FullName)
+		        .Select(dm => dm.Item2.GetType().FullName)
 		        .ToArray()
 		        .ShouldBeDeepEqualTo(expectation
 		            .Select(type => type.FullName)

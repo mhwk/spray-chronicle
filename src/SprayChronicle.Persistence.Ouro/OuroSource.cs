@@ -15,62 +15,54 @@ namespace SprayChronicle.Persistence.Ouro
     {
         private readonly ILogger<TTarget> _logger;
         
-        protected readonly BufferBlock<object> Queue = new BufferBlock<object>();
+        private readonly string _causationId;
 
-        private const int SleepMs = 100;
-
-        private const int MinBufferLength = 1000;
-
-        private const int MaxBufferLength = 40000;
+        protected readonly BufferBlock<object> Queue = new BufferBlock<object>(new DataflowBlockOptions {
+            BoundedCapacity = 2000
+        });
 
         private bool _running;
 
-        public OuroSource(ILogger<TTarget> logger)
+        public OuroSource(ILogger<TTarget> logger, string causationId)
         {
             _logger = logger;
+            _causationId = causationId;
         }
 
         public async Task Start()
         {
-            while (!Queue.Completion.IsCompleted && !Queue.Completion.IsFaulted && !Queue.Completion.IsCanceled) {
-                // @todo figure out other way than polling
-                await StartBuffering();
-                _logger.LogDebug("Buffer started");
+            await StartBuffering();
+
+            await Queue.Completion;
             
-                while (Queue.Count < MaxBufferLength && !Queue.Completion.IsCompleted && !Queue.Completion.IsFaulted && !Queue.Completion.IsCanceled) {
-                    await Task.Delay(TimeSpan.FromMilliseconds(SleepMs));
-                }
-
-                await StopBuffering();
-                _logger.LogDebug("Buffer stopped");
-
-                while (Queue.Count > MinBufferLength) {
-                    await Task.Delay(TimeSpan.FromMilliseconds(SleepMs));
-                }
-            }
-
-            if (Queue.Completion.IsFaulted) {
-                throw Queue.Completion.Exception;
-            }
-            
-            _logger.LogDebug("DONE");
+            _logger.LogDebug($"{GetType().Name} done streaming messages");
         }
 
-        public DomainMessage Convert(IMessagingStrategy<TTarget> strategy, object message)
+        public DomainEnvelope Convert(IMailStrategy<TTarget> strategy, object message)
         {
             if (!(message is ResolvedEvent resolvedEvent)) {
                 throw new ArgumentException($"Message of type {message.GetType()} is expected to be a {typeof(ResolvedEvent)}");
             }
             
             var type = strategy.ToType(resolvedEvent.Event.EventType);
+            var metadata = JsonConvert.DeserializeObject<Metadata>(
+                Encoding.UTF8.GetString(resolvedEvent.Event.Metadata)
+            );
+
+            if (null != _causationId && _causationId == metadata.MessageId) {
+                throw new IdempotencyException($"Message {_causationId} has already been handled");
+            }
             
-            return new DomainMessage(
+            return new DomainEnvelope(
+                metadata.MessageId,
+                metadata.CausationId,
+                metadata.CorrelationId,
                 resolvedEvent.Event.EventNumber,
-                resolvedEvent.Event.Created,
                 JsonConvert.DeserializeObject(
                     Encoding.UTF8.GetString(resolvedEvent.Event.Data),
                     type
-                )
+                ),
+                resolvedEvent.Event.Created
             );
         }
 

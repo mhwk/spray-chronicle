@@ -7,20 +7,20 @@ namespace SprayChronicle.Server.Http
 {
     public class HttpQueryRouteMapper
     {
-        readonly ILogger<HttpQueryProcessor> _logger;
+        private readonly ILogger<HttpQueryProcessor> _logger;
 
-        readonly IValidator _validator;
+        private readonly IValidator _validator;
 
-        readonly QueryRouter _executor;
+        private readonly IQueryDispatcher _dispatcher;
 
         public HttpQueryRouteMapper(
             ILogger<HttpQueryProcessor> logger,
             IValidator validator,
-            QueryRouter executor)
+            IQueryDispatcher dispatcher)
         {
             _logger = logger;
             _validator = validator;
-            _executor = executor;
+            _dispatcher = dispatcher;
         }
 
         public void Map(RouteBuilder builder)
@@ -32,13 +32,13 @@ namespace SprayChronicle.Server.Http
                     case "POST":
                         builder.MapPost(
                             query.GetTypeInfo().GetCustomAttribute<HttpQueryAttribute>().Template,
-                            new HttpQueryProcessor(_logger, _validator, _executor, query, query.GetTypeInfo().GetCustomAttribute<HttpQueryAttribute>().ContentType).Process
+                            new HttpQueryProcessor(_logger, _validator, _dispatcher, query, query.GetTypeInfo().GetCustomAttribute<HttpQueryAttribute>().ContentType).Process
                         );
                     break;
                     case "GET":
                         builder.MapGet(
                             query.GetTypeInfo().GetCustomAttribute<HttpQueryAttribute>().Template,
-                            new HttpQueryProcessor(_logger, _validator, _executor, query, query.GetTypeInfo().GetCustomAttribute<HttpQueryAttribute>().ContentType).Process
+                            new HttpQueryProcessor(_logger, _validator, _dispatcher, query, query.GetTypeInfo().GetCustomAttribute<HttpQueryAttribute>().ContentType).Process
                         );
                     break;
                 }

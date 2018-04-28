@@ -3,8 +3,10 @@
     public class ReadForwardOptions
     {
         public string StreamName { get; }
-        
+
         public long Checkpoint { get; }
+        
+        public string CausationId { get; }
 
         public ReadForwardOptions(string streamName)
         {
@@ -12,15 +14,21 @@
             Checkpoint = 0;
         }
 
-        public ReadForwardOptions(string streamName, long checkpoint)
+        private ReadForwardOptions(string streamName, long checkpoint, string causationId)
         {
             StreamName = streamName;
             Checkpoint = checkpoint;
+            CausationId = causationId;
         }
 
-        public CatchUpOptions WithCheckpoint(long checkpoint)
+        public ReadForwardOptions WithCheckpoint(long checkpoint)
         {
-            return new CatchUpOptions(StreamName, checkpoint);
+            return new ReadForwardOptions(StreamName, checkpoint, CausationId);
+        }
+
+        public ReadForwardOptions WithMessageId(string messageId)
+        {
+            return new ReadForwardOptions(StreamName, Checkpoint, messageId);
         }
     }
 }

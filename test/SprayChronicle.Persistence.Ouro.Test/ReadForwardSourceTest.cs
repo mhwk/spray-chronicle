@@ -20,7 +20,7 @@ namespace SprayChronicle.Persistence.Ouro.Test
     {
         private ILogger<Basket> _logger = Substitute.For<ILogger<Basket>>();
 
-        private IMessagingStrategy<Basket> _strategy = Substitute.For<IMessagingStrategy<Basket>>();
+        private IMailStrategy<Basket> _strategy = Substitute.For<IMailStrategy<Basket>>();
         
         [Fact]
         public async Task ReadsForwardFromEmptyStreamGracefully()
@@ -31,12 +31,12 @@ namespace SprayChronicle.Persistence.Ouro.Test
                 _logger,
                 ouro,
                 new UserCredentials("admin", "changeit"),
-                new ReadForwardOptions("SprayChronicle-" + streamName, 0)
+                new ReadForwardOptions("SprayChronicle-" + streamName)
             );
             
-            var results = new List<DomainMessage>();
-            var transform = new TransformBlock<object, DomainMessage>(resolved => source.Convert(_strategy, resolved));
-            var action = new ActionBlock<DomainMessage>(domain => results.Add(domain));
+            var results = new List<DomainEnvelope>();
+            var transform = new TransformBlock<object, DomainEnvelope>(resolved => source.Convert(_strategy, resolved));
+            var action = new ActionBlock<DomainEnvelope>(domain => results.Add(domain));
 
             source.LinkTo(transform, new DataflowLinkOptions {
                 PropagateCompletion = true
@@ -64,18 +64,21 @@ namespace SprayChronicle.Persistence.Ouro.Test
                 _logger,
                 ouro,
                 new UserCredentials("admin", "changeit"),
-                new ReadForwardOptions("SprayChronicle-" + streamName, 0)
+                new ReadForwardOptions("SprayChronicle-" + streamName)
             );
 
-            await store.Append<Basket>(streamName, new [] { new DomainMessage(
+            await store.Append<Basket>(streamName, new [] { new DomainEnvelope(
+                Guid.NewGuid().ToString(),
+                Guid.NewGuid().ToString(),
+                Guid.NewGuid().ToString(),
                 0,
-                DateTime.Now,
-                new TestMessage()
+                new TestMessage(),
+                DateTime.Now
             )});
 
-            var results = new List<DomainMessage>();
-            var transform = new TransformBlock<object, DomainMessage>(resolved => source.Convert(_strategy, resolved));
-            var action = new ActionBlock<DomainMessage>(domain => results.Add(domain));
+            var results = new List<DomainEnvelope>();
+            var transform = new TransformBlock<object, DomainEnvelope>(resolved => source.Convert(_strategy, resolved));
+            var action = new ActionBlock<DomainEnvelope>(domain => results.Add(domain));
 
             source.LinkTo(transform, new DataflowLinkOptions {
                 PropagateCompletion = true
@@ -93,7 +96,7 @@ namespace SprayChronicle.Persistence.Ouro.Test
 //                Task.Delay(1000)
             );
 
-            results.First().ShouldBeOfType<DomainMessage>();
+            results.First().ShouldBeOfType<DomainEnvelope>();
         }
         
         [Fact]
@@ -106,25 +109,31 @@ namespace SprayChronicle.Persistence.Ouro.Test
                 _logger,
                 ouro,
                 new UserCredentials("admin", "changeit"),
-                new ReadForwardOptions("SprayChronicle-" + streamName, 1)
+                new ReadForwardOptions("SprayChronicle-" + streamName).WithCheckpoint(1)
             );
 
             await store.Append<Basket>(streamName, new [] {
-                new DomainMessage(
+                new DomainEnvelope(
+                    Guid.NewGuid().ToString(),
+                    Guid.NewGuid().ToString(),
+                    Guid.NewGuid().ToString(),
                     0,
-                    DateTime.Now,
-                    new TestMessage()
+                    new TestMessage(),
+                    DateTime.Now
                 ),
-                new DomainMessage(
+                new DomainEnvelope(
+                    Guid.NewGuid().ToString(),
+                    Guid.NewGuid().ToString(),
+                    Guid.NewGuid().ToString(),
                     1,
-                    DateTime.Now,
-                    new TestMessage()
+                    new TestMessage(),
+                    DateTime.Now
                 ),
             });
 
-            var results = new List<DomainMessage>();
-            var transform = new TransformBlock<object, DomainMessage>(resolved => source.Convert(_strategy, resolved));
-            var action = new ActionBlock<DomainMessage>(domain => results.Add(domain));
+            var results = new List<DomainEnvelope>();
+            var transform = new TransformBlock<object, DomainEnvelope>(resolved => source.Convert(_strategy, resolved));
+            var action = new ActionBlock<DomainEnvelope>(domain => results.Add(domain));
 
             source.LinkTo(transform, new DataflowLinkOptions {
                 PropagateCompletion = true

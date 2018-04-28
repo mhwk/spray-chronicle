@@ -16,20 +16,17 @@ namespace SprayChronicle.QueryHandling
                 .SingleInstance();
             
             builder
-                .Register(c => new LoggingRouter(
-                    c.Resolve<ILoggerFactory>().Create<IExecute>(),
-                    new MeasureMilliseconds(),
-                    c.Resolve<QueryRouter>()
-                ))
+                .Register(c => new RouterQueryDispatcher(c.Resolve<QueryRouter>()))
                 .AsSelf()
+                .As<IQueryDispatcher>()
                 .SingleInstance();
         }
 
         private static void SubscribeRoutables(IComponentContext context, QueryRouter router)
         {
             context.ComponentRegistry.Registrations
-                .Where(s => s.Activator.LimitType.IsAssignableTo<IMessagingStrategyRouterSubscriber<IExecute>>())
-                .Select(s => context.Resolve(s.Activator.LimitType) as IMessagingStrategyRouterSubscriber<IExecute>)
+                .Where(s => s.Activator.LimitType.IsAssignableTo<IMailStrategyRouterSubscriber<IExecute>>())
+                .Select(s => context.Resolve(s.Activator.LimitType) as IMailStrategyRouterSubscriber<IExecute>)
                 .ToList()
                 .ForEach(s => router.Subscribe(s));
         }

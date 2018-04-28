@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SprayChronicle.Example.Application.State
 {
-    public sealed class BasketWithProducts_v6
+    public sealed class BasketWithProducts_v7
     {
         public string BasketId { get; }
         
@@ -11,19 +11,19 @@ namespace SprayChronicle.Example.Application.State
 
         public readonly List<string> ProductIds = new List<string>();
 
-        public BasketWithProducts_v6(string basketId, DateTime pickedUpAt)
+        public BasketWithProducts_v7(string basketId, DateTime pickedUpAt)
         {
             BasketId = basketId;
             PickedUpAt = pickedUpAt;
         }
 
-        public BasketWithProducts_v6 AddProductId(string productId)
+        public BasketWithProducts_v7 AddProductId(string productId)
         {
             ProductIds.Add(productId);
             return this;
         }
 
-        public BasketWithProducts_v6 RemoveProductId(string productId)
+        public BasketWithProducts_v7 RemoveProductId(string productId)
         {
             ProductIds.Remove(productId);
             return this;

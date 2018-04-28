@@ -5,7 +5,7 @@ using SprayChronicle.Example.Application.State;
 
 namespace SprayChronicle.Example.Application.Service
 {
-    public sealed class QueryBasketWithProducts_PickedUpPerDay : AbstractIndexCreationTask<BasketWithProducts_v6,PickedUpBasketsPerDay_v2>
+    public sealed class QueryBasketWithProducts_PickedUpPerDay : AbstractIndexCreationTask<BasketWithProducts_v7,PickedUpBasketsPerDay_v2>
     {
         public QueryBasketWithProducts_PickedUpPerDay()
         {

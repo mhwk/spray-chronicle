@@ -31,7 +31,7 @@ namespace SprayChronicle.Persistence.Ouro
             ILogger<TTarget> logger,
             IEventStoreConnection eventStore,
             UserCredentials credentials,
-            CatchUpOptions options) : base(logger)
+            CatchUpOptions options) : base(logger, options.CausationId)
         {
             _logger = logger;
             _eventStore = eventStore;
@@ -55,10 +55,21 @@ namespace SprayChronicle.Persistence.Ouro
         private EventStoreCatchUpSubscription Subscribe()
         {
             _logger.LogDebug($"Start subscription {_streamName} from {_checkpoint}");
+            if (-1 == _checkpoint) {
+                return _eventStore.SubscribeToStreamFrom(
+                    _streamName,
+                    null,
+                    new CatchUpSubscriptionSettings(10000, 500, false, true, Guid.NewGuid().ToString()),
+                    EventAppeared,
+                    LiveProcessingStarted,
+                    SubscriptionDropped,
+                    _credentials
+                );
+            }
             return _eventStore.SubscribeToStreamFrom(
                 _streamName,
                 _checkpoint,
-                CatchUpSubscriptionSettings.Default,
+                new CatchUpSubscriptionSettings(10000, 500, false, true, Guid.NewGuid().ToString()),
                 EventAppeared,
                 LiveProcessingStarted,
                 SubscriptionDropped,
@@ -71,16 +82,15 @@ namespace SprayChronicle.Persistence.Ouro
             _checkpoint++;
             try {
                 await Queue.SendAsync(resolvedEvent);
-            }
-            catch (Exception error) {
-                Console.WriteLine(error);
+            } catch (Exception error) {
+                _logger.LogCritical(error);
+                throw;
             }
         }
 
         private void LiveProcessingStarted(EventStoreCatchUpSubscription subscription)
         {
-            Console.WriteLine($"Live subscription {_streamName}");
-            
+            _logger.LogDebug($"Live subscription {_streamName} after {_checkpoint} messages");
             _liveProcessing = true;
         }
 
@@ -96,7 +106,7 @@ namespace SprayChronicle.Persistence.Ouro
                     _logger.LogDebug($"Dropped subscription {_streamName}");
                     break;
                 case SubscriptionDropReason.ProcessingQueueOverflow:
-                    _logger.LogDebug($"Overflow subscription {_streamName}");
+                    _logger.LogWarning(error, $"Overflow subscription {_streamName}");
                     break;
                 case SubscriptionDropReason.NotAuthenticated:
                 case SubscriptionDropReason.AccessDenied:

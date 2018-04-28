@@ -27,7 +27,7 @@ namespace SprayChronicle.Persistence.Ouro
             ILogger<TTarget> logger,
             IEventStoreConnection eventStore,
             UserCredentials credentials,
-            PersistentOptions options) : base(logger)
+            PersistentOptions options) : base(logger, options.CausationId)
         {
             _logger = logger;
             _eventStore = eventStore;

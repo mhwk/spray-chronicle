@@ -27,7 +27,8 @@ namespace SprayChronicle.Persistence.Raven
             }
             
             using (var session = _store.OpenAsyncSession()) {
-                return await raven.Do(session);
+                var result = raven.Do(session);
+                return await result;
             }
         }
     }

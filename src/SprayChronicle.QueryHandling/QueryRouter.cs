@@ -2,7 +2,7 @@ using SprayChronicle.MessageHandling;
 
 namespace SprayChronicle.QueryHandling
 {
-    public sealed class QueryRouter : MessagingStrategyRouter<IExecute>
+    public sealed class QueryRouter : MailStrategyRouter<IExecute>
     {
         
     }

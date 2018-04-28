@@ -26,7 +26,14 @@ namespace SprayChronicle.Persistence.Ouro.Test
         {
             var store = Container().Resolve<OuroEventStore>();
             Should.Throw<InvalidStreamException>(async () => await store.Append<Basket>("", new[] {
-                new DomainMessage(0, new DateTime(), new object())
+                new DomainEnvelope(
+                    Guid.NewGuid().ToString(),
+                    Guid.NewGuid().ToString(),
+                    Guid.NewGuid().ToString(),
+                    0,
+                    new object(),
+                    new DateTime()
+                )
             }));
         }
         
@@ -35,7 +42,14 @@ namespace SprayChronicle.Persistence.Ouro.Test
         {
             var store = Container().Resolve<OuroEventStore>();
             Should.Throw<InvalidStreamException>(async () => await store.Append<Basket>("@", new[] {
-                new DomainMessage(0, new DateTime(), new object())
+                new DomainEnvelope(
+                    Guid.NewGuid().ToString(),
+                    Guid.NewGuid().ToString(),
+                    Guid.NewGuid().ToString(),
+                    0,
+                    new object(),
+                    new DateTime()
+                )
             }));
         }
 
@@ -44,20 +58,23 @@ namespace SprayChronicle.Persistence.Ouro.Test
         {
             var identity = Guid.NewGuid().ToString();
             var store = Container().Resolve<OuroEventStore>();
-            var strategy = new OverloadMessagingStrategy<Basket>();
+            var strategy = new OverloadMailStrategy<Basket>();
             var result = new List<object>();
             
             await store.Append<Basket>(identity, new [] {
-                new DomainMessage(
+                new DomainEnvelope(
+                    Guid.NewGuid().ToString(),
+                    Guid.NewGuid().ToString(),
+                    Guid.NewGuid().ToString(),
                     0,
-                    DateTime.Now,
-                    new BasketPickedUp(identity)
+                    new BasketPickedUp(identity),
+                    DateTime.Now
                 )
             });
 
-            var source = store.Load<Basket>(identity);
-            var convert = new TransformBlock<object,DomainMessage>(message => source.Convert(strategy, message));
-            var action = new ActionBlock<DomainMessage>(message => result.Add(message.Payload));
+            var source = store.Load<Basket>(identity, "idempotencyId");
+            var convert = new TransformBlock<object,DomainEnvelope>(message => source.Convert(strategy, message));
+            var action = new ActionBlock<DomainEnvelope>(message => result.Add(message.Message));
 
             source.LinkTo(convert, new DataflowLinkOptions{
                 PropagateCompletion = true
@@ -66,7 +83,7 @@ namespace SprayChronicle.Persistence.Ouro.Test
                 PropagateCompletion = true
             });
 
-            await Task.WhenAny(
+            await Task.WhenAll(
                 source.Start(),
                 action.Completion
             );

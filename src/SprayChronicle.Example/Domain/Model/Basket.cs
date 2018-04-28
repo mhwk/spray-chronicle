@@ -29,7 +29,7 @@ namespace SprayChronicle.Example.Domain.Model
             ));
         }
 
-        protected static PickedUpBasket On(BasketPickedUp @event, DateTime epoch)
+        protected static PickedUpBasket On(BasketPickedUp @event)
         {
             return new PickedUpBasket(
                 new BasketId(@event.BasketId),
@@ -37,7 +37,7 @@ namespace SprayChronicle.Example.Domain.Model
             );
         }
 
-        protected PickedUpBasket On(ProductAddedToBasket @event, DateTime epoch)
+        protected PickedUpBasket On(ProductAddedToBasket @event)
         {
             return new PickedUpBasket(
                 BasketId,
@@ -45,7 +45,7 @@ namespace SprayChronicle.Example.Domain.Model
             );
         }
 
-        protected PickedUpBasket On(ProductRemovedFromBasket @event, DateTime epoch)
+        protected PickedUpBasket On(ProductRemovedFromBasket @event)
         {
             return new PickedUpBasket(
                 BasketId,
@@ -53,7 +53,7 @@ namespace SprayChronicle.Example.Domain.Model
             );
         }
 
-        protected CheckedOutBasket On(BasketCheckedOut @event, DateTime epoch)
+        protected CheckedOutBasket On(BasketCheckedOut @event)
         {
             return new CheckedOutBasket(BasketId, ProductsInBasket);
         }
