@@ -40,5 +40,30 @@ namespace SprayChronicle.QueryHandling
             OnError = onError;
         }
 
+        public IEnvelope WithOnSuccess(Action<object> onSuccess)
+        {
+            return new QueryEnvelope(
+                MessageId,
+                CausationId,
+                CorrelationId,
+                Message,
+                Epoch,
+                onSuccess,
+                OnError
+            );
+        }
+
+        public IEnvelope WithOnError(Action<Exception> onError)
+        {
+            return new QueryEnvelope(
+                MessageId,
+                CausationId,
+                CorrelationId,
+                Message,
+                Epoch,
+                OnSuccess,
+                onError
+            );
+        }
     }
 }

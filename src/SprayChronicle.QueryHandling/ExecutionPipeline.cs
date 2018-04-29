@@ -42,7 +42,11 @@ namespace SprayChronicle.QueryHandling
                         request.OnError(error);
                         return null;
                     }
-                });
+                },
+                new ExecutionDataflowBlockOptions {
+                    MaxDegreeOfParallelism = 4
+                }
+            );
             var applied = new TransformBlock<Tuple<QueryEnvelope,Executor>,Tuple<QueryEnvelope,object>>(
                 async tuple => {
                     try {
@@ -56,9 +60,16 @@ namespace SprayChronicle.QueryHandling
                         tuple.Item1.OnError(error);
                         return null;
                     }
-                });
+                },
+                new ExecutionDataflowBlockOptions {
+                    MaxDegreeOfParallelism = 4
+                }
+            );
             var succeeded = new ActionBlock<Tuple<QueryEnvelope,object>>(
-                tuple => tuple.Item1.OnSuccess(tuple.Item2)
+                tuple => tuple.Item1.OnSuccess(tuple.Item2),
+                new ExecutionDataflowBlockOptions {
+                    MaxDegreeOfParallelism = 4
+                }
             );
 
             _queue.LinkTo(executed, new DataflowLinkOptions {

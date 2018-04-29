@@ -17,7 +17,7 @@ namespace SprayChronicle.CommandHandling
         
         public DateTime Epoch { get; }
         
-        public Action OnSuccess { get; }
+        public Action<object> OnSuccess { get; }
         
         public Action<Exception> OnError { get; }
 
@@ -27,7 +27,7 @@ namespace SprayChronicle.CommandHandling
             string correlationId,
             object command,
             DateTime epoch,
-            Action onSuccess,
+            Action<object> onSuccess,
             Action<Exception> onError)
         {
             if (null == command) {
@@ -49,5 +49,30 @@ namespace SprayChronicle.CommandHandling
             OnError = onError;
         }
 
+        public IEnvelope WithOnSuccess(Action<object> onSuccess)
+        {
+            return new CommandEnvelope(
+                MessageId,
+                CausationId,
+                CorrelationId,
+                Message,
+                Epoch,
+                onSuccess,
+                OnError
+            );
+        }
+
+        public IEnvelope WithOnError(Action<Exception> onError)
+        {
+            return new CommandEnvelope(
+                MessageId,
+                CausationId,
+                CorrelationId,
+                Message,
+                Epoch,
+                OnSuccess,
+                onError
+            );
+        }
     }
 }

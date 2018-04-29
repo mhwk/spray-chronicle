@@ -68,7 +68,7 @@ namespace SprayChronicle.Persistence.Raven
             private readonly string _streamName;
             private readonly string _checkpointName;
 
-            public QueryPipeline(string streamName, string checkpointName = null)
+            public QueryPipeline(string streamName = null, string checkpointName = null)
             {
                 _streamName = streamName;
                 _checkpointName = checkpointName;
@@ -76,6 +76,12 @@ namespace SprayChronicle.Persistence.Raven
 
             protected override void Load(ContainerBuilder builder)
             {
+                builder
+                    .RegisterType<TProcessor>()
+                    .PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies)
+                    .OnActivated(e => IndexCreation.CreateIndexes(typeof(TProcessor).Assembly, e.Context.Resolve<IDocumentStore>()))
+                    .SingleInstance();
+                
                 builder
                     .Register(c => new RavenExecutionPipeline<TProcessor,TState>(
                         c.Resolve<ILoggerFactory>().Create<TProcessor>(),
@@ -85,25 +91,21 @@ namespace SprayChronicle.Persistence.Raven
                     .As<IPipeline>()
                     .As<IMailStrategyRouterSubscriber<IExecute>>()
                     .SingleInstance();
-                
-                builder
-                    .Register(c => new RavenProcessingPipeline<TProcessor,TState>(
-                        c.Resolve<ILoggerFactory>().Create<TProcessor>(),
-                        c.Resolve<IDocumentStore>(),
-                        c.Resolve<IEventSourceFactory>(),
-                        new CatchUpOptions(_streamName),
-                        c.Resolve<TProcessor>(),
-                        _checkpointName
-                    ))
-                    .AsSelf()
-                    .As<IPipeline>()
-                    .SingleInstance();
-                
-                builder
-                    .RegisterType<TProcessor>()
-                    .PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies)
-                    .OnActivated(e => IndexCreation.CreateIndexes(typeof(TProcessor).Assembly, e.Context.Resolve<IDocumentStore>()))
-                    .SingleInstance();
+
+                if (null != _streamName) {
+                    builder
+                        .Register(c => new RavenProcessingPipeline<TProcessor,TState>(
+                            c.Resolve<ILoggerFactory>().Create<TProcessor>(),
+                            c.Resolve<IDocumentStore>(),
+                            c.Resolve<IEventSourceFactory>(),
+                            new CatchUpOptions(_streamName),
+                            c.Resolve<TProcessor>(),
+                            _checkpointName
+                        ))
+                        .AsSelf()
+                        .As<IPipeline>()
+                        .SingleInstance();
+                }
             }
         }
     }

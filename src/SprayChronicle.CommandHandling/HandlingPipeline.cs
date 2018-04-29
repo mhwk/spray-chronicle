@@ -73,7 +73,7 @@ namespace SprayChronicle.CommandHandling
                     
                     try {
                         await Apply(tuple.Item1, tuple.Item2);
-                        tuple.Item1.OnSuccess();
+                        tuple.Item1.OnSuccess(null);
                     } catch (Exception error) {
                         tuple.Item1.OnError(error);
                     }

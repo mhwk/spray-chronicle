@@ -19,21 +19,22 @@ namespace SprayChronicle.Example.Application.Service
             var random = new Random();
             var tasks = new List<Task>();
             
-            for (var i = 0; i < 30000; i++) {
+            for (var i = 0; i < 1000000; i++) {
+                await Task.Delay(TimeSpan.FromMilliseconds(random.Next(0, 1000)));
                 tasks.Add(Task.Run(async () => {
                     try {
                         var basketId = Guid.NewGuid().ToString();
                         
-                        await Task.Delay(TimeSpan.FromSeconds(random.Next(1, 30)));
+                        await Task.Delay(TimeSpan.FromMilliseconds(random.Next(1, 1000)));
                         
                         await _commandDispatcher.Dispatch(new PickUpBasket(basketId));
 
-                        await Task.Delay(TimeSpan.FromSeconds(random.Next(1, 30)));
+                        await Task.Delay(TimeSpan.FromMilliseconds(random.Next(1, 100)));
                         
                         for (var x = 0; x < random.Next(0, 10); x++) {
                             await _commandDispatcher.Dispatch(new AddProductToBasket(basketId, Guid.NewGuid().ToString()));
                             
-                            await Task.Delay(TimeSpan.FromSeconds(random.Next(1, 30)));
+                            await Task.Delay(TimeSpan.FromMilliseconds(random.Next(1, 1000)));
                         
                         }
                     

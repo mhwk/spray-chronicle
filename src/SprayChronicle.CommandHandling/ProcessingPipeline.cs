@@ -149,7 +149,7 @@ namespace SprayChronicle.CommandHandling
                 envelope.CorrelationId,
                 dispatch.Command,
                 DateTime.Now,
-                () => completion.TrySetResult(null),
+                result => completion.TrySetResult(null),
                 error => completion.TrySetException(error)
             ));
             

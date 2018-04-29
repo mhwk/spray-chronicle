@@ -34,27 +34,54 @@ namespace SprayChronicle.MessageHandling
             return this;
         }
         
-        public async Task<object> Route(IEnvelope envelope)
+        public async Task Route(IEnvelope envelope)
         {
             var tasks = new List<Task<object>>();
+            var results = new List<object>();
             
             foreach (var strategy in _strategies) {
                 if (!strategy.Key.Resolves(envelope.Message)) {
                     continue;
                 }
+                
+                var completion = new TaskCompletionSource<object>();
+                
+                await strategy.Value(envelope
+                    .WithOnSuccess(result => {
+                        results.Add(result);
+                        completion.TrySetResult(result);
+                    })
+                    .WithOnError(error => {
+                        completion.TrySetException(error);
+                    })
+                );
 
-                tasks.Add(strategy.Value(envelope));
-
+                tasks.Add(completion.Task);
+                
                 if (tasks.Count >= _maxNumberOfMatches) {
                     break;
                 }
             }
 
             if (1 == tasks.Count) {
-                return await tasks.First();
+                try {
+                    await tasks.First();
+                    envelope.OnSuccess(results.First());
+                } catch (Exception error) {
+                    envelope.OnError(error);
+                }
+                return;
             }
-            
-            if (0 != tasks.Count) return await Task.WhenAll(tasks);
+
+            if (0 != tasks.Count) {
+                try {
+                    await Task.WhenAll(tasks);
+                    envelope.OnSuccess(results.ToArray());
+                } catch (Exception error) {
+                    envelope.OnError(error);
+                }
+                return;
+            }
             
             var handlerList = string.Join(", ", _strategies.Select(s => s.Key.GetType().GenericTypeArguments.First().Name));
             throw new UnroutableMessageException($"Message ({envelope.MessageName}) not handled by ({handlerList})");

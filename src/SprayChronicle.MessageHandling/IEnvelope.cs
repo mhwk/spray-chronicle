@@ -15,5 +15,13 @@ namespace SprayChronicle.MessageHandling
         object Message { get; }
         
         DateTime Epoch { get; }
+        
+        Action<object> OnSuccess { get; }
+        
+        Action<Exception> OnError { get; }
+
+        IEnvelope WithOnSuccess(Action<object> onSuccess);
+
+        IEnvelope WithOnError(Action<Exception> onError);
     }
 }

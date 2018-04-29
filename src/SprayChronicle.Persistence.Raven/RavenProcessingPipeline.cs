@@ -18,8 +18,8 @@ namespace SprayChronicle.Persistence.Raven
     {
         public string Description => $"Raven processing: {typeof(TProcessor).Name}";
 
-        private const int BatchSize = 50;
-        private const int BatchTimeout = 200;
+        private const int BatchSize = 1000;
+        private const int BatchTimeout = 50;
         private const int Parallelism = 4;
         
         private readonly IMailStrategy<TProcessor> _strategy = new OverloadMailStrategy<TProcessor>(new ContextTypeLocator<TProcessor>());
@@ -69,15 +69,12 @@ namespace SprayChronicle.Persistence.Raven
             
             var converted = new TransformBlock<object,DomainEnvelope>(
                 message => {
-//                    var measure = new MeasureMilliseconds();
                     try {
                         return _source.Convert(_strategy, message);
                     }
                     catch (Exception error) {
 //                        _logger.LogDebug(error);
                         return null;
-                    } finally {
-//                        _logger.LogInformation($"Converted in {measure.Stop()}");
                     }
                 },
                 new ExecutionDataflowBlockOptions {
@@ -88,15 +85,12 @@ namespace SprayChronicle.Persistence.Raven
             var routed = new TransformBlock<DomainEnvelope,Processed>(
                 async message => {
                     if (null == message) return null;
-//                    _logger.LogDebug($"Route-{message.MessageName}-{message.Sequence}");
-//                    var measure = new MeasureMilliseconds();
+                    
                     try {
                         return await _strategy.Ask<Processed>(_processor, message.Message, message.Epoch);
                     } catch (Exception error) {
-                        _logger.LogDebug(error);
-                        return null;
-                    } finally {
-//                        _logger.LogInformation($"Converted in {measure.Stop()}");
+                        _logger.LogCritical(error);
+                        throw;
                     }
                 },
                 new ExecutionDataflowBlockOptions {
@@ -117,7 +111,7 @@ namespace SprayChronicle.Persistence.Raven
                         _logger.LogCritical(error);
                         throw;
                     } finally {
-                        _logger.LogInformation($"Applied in {measure.Stop()}");
+                        _logger.LogInformation($"Applied {processed.Length} messages in {measure.Stop()}");
                     }
                 }
             );
@@ -175,7 +169,6 @@ namespace SprayChronicle.Persistence.Raven
 
         private async Task Apply(Processed[] processed)
         {
-            _logger.LogDebug($"Applying {processed.Length} processed items");
             using (var session = _store.OpenAsyncSession()) {
                 var identities = processed
                     .Where(p => p != null)
@@ -219,8 +212,6 @@ namespace SprayChronicle.Persistence.Raven
                 await SaveCheckpoint(session, _checkpoint += processed.Length);
             
                 await session.SaveChangesAsync();
-                
-                _logger.LogInformation($"Processed {processed.Length} items");
             }
         }
 
@@ -248,7 +239,6 @@ namespace SprayChronicle.Persistence.Raven
         private async Task SaveCheckpoint(IAsyncDocumentSession session, long sequence)
         {
             var id = $"Checkpoint/{_checkpointName}";
-            _logger.LogDebug($"Saving checkpoint {id} at {sequence}");
             
             var checkpoint = await session.LoadAsync<Checkpoint>(id);
             if (null != checkpoint) {
@@ -257,6 +247,8 @@ namespace SprayChronicle.Persistence.Raven
                 checkpoint = new Checkpoint(id);
                 await session.StoreAsync(checkpoint);
             }
+            
+            _logger.LogDebug($"Checkpoint {id} at {sequence}");
         }
     }
 }

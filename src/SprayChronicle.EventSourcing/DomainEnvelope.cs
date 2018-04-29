@@ -1,4 +1,5 @@
 using System;
+using SprayChronicle.MessageHandling;
 
 namespace SprayChronicle.EventSourcing
 {
@@ -17,6 +18,10 @@ namespace SprayChronicle.EventSourcing
         public object Message { get; }
         
         public DateTime Epoch { get; }
+        
+        public Action<object> OnSuccess { get; }
+        
+        public Action<Exception> OnError { get; }
 
         public DomainEnvelope(
             string messageId,
@@ -24,7 +29,9 @@ namespace SprayChronicle.EventSourcing
             string correlationId,
             long sequence,
             object payload,
-            DateTime epoch)
+            DateTime epoch,
+            Action<object> onSuccess = null,
+            Action<Exception> onError = null)
         {
             if (null == payload) {
                 throw new InvalidDomainMessageException($"You must provide a payload object (or a name, if the object is not supported by the consumer");
@@ -37,6 +44,36 @@ namespace SprayChronicle.EventSourcing
             MessageName = payload?.GetType().Name;
             Message = payload;
             Epoch = epoch;
+            OnSuccess = onSuccess;
+            OnError = onError;
+        }
+        
+        public IEnvelope WithOnSuccess(Action<object> onSuccess)
+        {
+            return new DomainEnvelope(
+                MessageId,
+                CausationId,
+                CorrelationId,
+                Sequence,
+                Message,
+                Epoch,
+                onSuccess,
+                OnError
+            );
+        }
+
+        public IEnvelope WithOnError(Action<Exception> onError)
+        {
+            return new DomainEnvelope(
+                MessageId,
+                CausationId,
+                CorrelationId,
+                Sequence,
+                Message,
+                Epoch,
+                OnSuccess,
+                onError
+            );
         }
     }
 }

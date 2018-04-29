@@ -1,7 +1,6 @@
 using Autofac;
 using SprayChronicle.CommandHandling;
 using SprayChronicle.Example.Application.Service;
-using SprayChronicle.Example.Application.State;
 using SprayChronicle.Example.Domain.Model;
 using SprayChronicle.Persistence.Raven;
 
@@ -11,10 +10,15 @@ namespace SprayChronicle.Example
     {
         protected override void Load(ContainerBuilder builder)
         {
-//            builder.RegisterCommandHandler<HandleBasket,Basket>(/*"$ce-SprayChronicle"*/);
-//            builder.RegisterCommandHandler<HandleOrder,Order>(/*"$ce-SprayChronicle"*/);
+            builder.RegisterCommandHandler<HandleBasket,Basket>(/*"$ce-SprayChronicle"*/);
+            builder.RegisterCommandHandler<HandleOrder,Order>(/*"$ce-SprayChronicle"*/);
             
-            builder.RegisterQueryExecutor<QueryBasketWithProducts,BasketWithProducts_v7>("$ce-SprayChronicle");
+            builder.RegisterQueryExecutor<QueryBasketsPickedUpPerDay,QueryBasketsPickedUpPerDay.Result>();
+            builder.RegisterQueryExecutor<QueryBasketsPickedUpPerMinute,QueryBasketsPickedUpPerMinute.Result>();
+            builder.RegisterQueryExecutor<QueryBasketWithProducts,QueryBasketWithProducts.BasketWithProducts_v1>("$ce-SprayChronicle");
+            builder.RegisterQueryExecutor<QueryPlacedOrders,QueryPlacedOrders.PlacedOrders_v3>("$ce-SprayChronicle");
+            builder.RegisterQueryExecutor<QueryPlacedOrdersPerDay,QueryPlacedOrdersPerDay.Result>();
+            builder.RegisterQueryExecutor<QueryPlacedOrdersPerMinute,QueryPlacedOrdersPerMinute.Result>();
 
             builder.Register(c => new Populator(c.Resolve<ICommandDispatcher>()));
         }

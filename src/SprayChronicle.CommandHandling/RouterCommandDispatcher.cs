@@ -22,7 +22,7 @@ namespace SprayChronicle.CommandHandling
                 Guid.NewGuid().ToString(),
                 command,
                 DateTime.Now,
-                () => onComplete.TrySetResult(null),
+                result => onComplete.TrySetResult(null),
                 error => onComplete.TrySetException(error)
             ));
 
