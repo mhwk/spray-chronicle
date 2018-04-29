@@ -18,7 +18,7 @@ namespace SprayChronicle.Persistence.Raven
     {
         public string Description => $"Raven processing: {typeof(TProcessor).Name}";
 
-        private const int BatchSize = 2000;
+        private const int BatchSize = 50;
         private const int BatchTimeout = 200;
         private const int Parallelism = 4;
         
@@ -69,11 +69,15 @@ namespace SprayChronicle.Persistence.Raven
             
             var converted = new TransformBlock<object,DomainEnvelope>(
                 message => {
+//                    var measure = new MeasureMilliseconds();
                     try {
                         return _source.Convert(_strategy, message);
-                    } catch (Exception error) {
+                    }
+                    catch (Exception error) {
 //                        _logger.LogDebug(error);
                         return null;
+                    } finally {
+//                        _logger.LogInformation($"Converted in {measure.Stop()}");
                     }
                 },
                 new ExecutionDataflowBlockOptions {
@@ -85,11 +89,14 @@ namespace SprayChronicle.Persistence.Raven
                 async message => {
                     if (null == message) return null;
 //                    _logger.LogDebug($"Route-{message.MessageName}-{message.Sequence}");
+//                    var measure = new MeasureMilliseconds();
                     try {
                         return await _strategy.Ask<Processed>(_processor, message.Message, message.Epoch);
                     } catch (Exception error) {
                         _logger.LogDebug(error);
                         return null;
+                    } finally {
+//                        _logger.LogInformation($"Converted in {measure.Stop()}");
                     }
                 },
                 new ExecutionDataflowBlockOptions {
@@ -103,11 +110,14 @@ namespace SprayChronicle.Persistence.Raven
             });
             var action = new ActionBlock<Processed[]>(
                 async processed => {
+                    var measure = new MeasureMilliseconds();
                     try {
                         await Apply(processed);
                     } catch (Exception error) {
                         _logger.LogCritical(error);
                         throw;
+                    } finally {
+                        _logger.LogInformation($"Applied in {measure.Stop()}");
                     }
                 }
             );

@@ -8,7 +8,7 @@ namespace SprayChronicle.Server
         private readonly DateTime _start;
         private readonly DateTime _stop;
 
-        public MeasureMilliseconds()
+        public MeasureMilliseconds() : this(DateTime.Now)
         {
         }
 
@@ -25,12 +25,12 @@ namespace SprayChronicle.Server
 
         public IMeasure Start()
         {
-            return new MeasureMilliseconds(new DateTime());
+            return new MeasureMilliseconds(DateTime.Now);
         }
 
         public IMeasure Stop()
         {
-            return new MeasureMilliseconds(_start, new DateTime());
+            return new MeasureMilliseconds(_start, DateTime.Now);
         }
 
         public override string ToString()
