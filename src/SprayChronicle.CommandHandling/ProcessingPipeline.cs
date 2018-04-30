@@ -144,7 +144,7 @@ namespace SprayChronicle.CommandHandling
             var completion = new TaskCompletionSource<object>();
             
             await _router.Route(new CommandEnvelope(
-                GuidUtility.Create(Guid.Parse(envelope.MessageId), envelope.MessageId).ToString(),
+                GuidUtility.Create(Guid.Parse(envelope.MessageId), envelope.CorrelationId).ToString(),
                 envelope.MessageId,
                 envelope.CorrelationId,
                 dispatch.Command,
@@ -153,9 +153,9 @@ namespace SprayChronicle.CommandHandling
                 error => completion.TrySetException(error)
             ));
             
-            _logger.LogDebug($"Dispatched {dispatch.Command.GetType()} in response to {envelope.MessageName}");
-
             await completion.Task;
+            
+            _logger.LogDebug($"Dispatched {dispatch.Command.GetType()} in response to {envelope.MessageName}");
         }
     }
 }

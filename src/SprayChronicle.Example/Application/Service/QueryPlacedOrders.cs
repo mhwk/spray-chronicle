@@ -7,14 +7,14 @@ using Processed = SprayChronicle.EventHandling.Processed;
 
 namespace SprayChronicle.Example.Application.Service
 {
-    public sealed class QueryPlacedOrders : RavenQueries<QueryPlacedOrders,QueryPlacedOrders.PlacedOrders_v3>,
+    public sealed class QueryPlacedOrders : RavenQueries<QueryPlacedOrders,QueryPlacedOrders.PlacedOrders_v2>,
         IProcess<BasketCheckedOut>,
         IProcess<OrderGenerated>
     {
         public async Task<Processed> Process(BasketCheckedOut payload, DateTime epoch)
         {
             return await Process(payload.OrderId)
-                .Mutate(() => new PlacedOrders_v3(
+                .Mutate(() => new PlacedOrders_v2(
                     payload.OrderId,
                     payload.ProductIds,
                     "checked_out",
@@ -28,14 +28,14 @@ namespace SprayChronicle.Example.Application.Service
                 .Mutate(order => order.WithStatus("invoiced"));
         }
         
-        public sealed class PlacedOrders_v3
+        public sealed class PlacedOrders_v2
         {
             public string OrderId { get; }
             public string[] ProductIds { get; }
             public string Status { get; private set; }
             public DateTime CheckedOutAt { get; }
 
-            public PlacedOrders_v3(string orderId, string[] productIds, string status, DateTime checkedOutAt)
+            public PlacedOrders_v2(string orderId, string[] productIds, string status, DateTime checkedOutAt)
             {
                 OrderId = orderId;
                 ProductIds = productIds;
@@ -43,7 +43,7 @@ namespace SprayChronicle.Example.Application.Service
                 CheckedOutAt = checkedOutAt;
             }
 
-            public PlacedOrders_v3 WithStatus(string status)
+            public PlacedOrders_v2 WithStatus(string status)
             {
                 Status = status;
 

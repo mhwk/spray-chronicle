@@ -7,6 +7,6 @@ namespace SprayChronicle.EventSourcing
     {
         Task Append<T>(string identity, IEnumerable<IDomainEnvelope> domainMessages);
 
-        IEventSource<T> Load<T>(string identity, string idempotencyId) where T : class;
+        IEventSource<T> Load<T>(string identity, string causationId) where T : class;
     }
 }

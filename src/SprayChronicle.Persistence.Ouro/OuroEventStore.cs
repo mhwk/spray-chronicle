@@ -8,6 +8,7 @@ using EventStore.ClientAPI;
 using EventStore.ClientAPI.SystemData;
 using Newtonsoft.Json;
 using SprayChronicle.EventSourcing;
+using SprayChronicle.MessageHandling;
 using SprayChronicle.Server;
 
 namespace SprayChronicle.Persistence.Ouro
@@ -65,12 +66,12 @@ namespace SprayChronicle.Persistence.Ouro
             }
         }
 
-        public IEventSource<T> Load<T>(string identity, string idempotencyId)
+        public IEventSource<T> Load<T>(string identity, string causationId)
             where T : class
         {
             return _sourceFactory.Build<T,ReadForwardOptions>(
                 new ReadForwardOptions(Stream<T>(identity))
-                    .WithMessageId(idempotencyId)
+                    .WithCausationId(causationId)
             );
         }
 

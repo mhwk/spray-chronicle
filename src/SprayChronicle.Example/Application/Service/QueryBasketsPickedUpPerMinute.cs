@@ -12,7 +12,7 @@ namespace SprayChronicle.Example.Application.Service
     {
         public async Task<Executor> Execute(PerMinute query)
         {
-            return await Execute<BasketsPickedUpPerMinute_v1>()
+            return await Execute<BasketsPickedUpPerMinute>()
                 .Query<Result>(orders => orders
                     .Skip(0)
                     .Take(50)
@@ -26,10 +26,10 @@ namespace SprayChronicle.Example.Application.Service
             public int Count { get; set; }
         }
         
-        public sealed class BasketsPickedUpPerMinute_v1 : AbstractIndexCreationTask<QueryBasketWithProducts.BasketWithProducts_v1,Result>
+        public sealed class BasketsPickedUpPerMinute : AbstractIndexCreationTask<QueryBasketWithProducts.BasketWithProducts_v1,Result>
         {
 
-            public BasketsPickedUpPerMinute_v1()
+            public BasketsPickedUpPerMinute()
             {
                 Map = baskets =>
                     from basket in baskets

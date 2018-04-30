@@ -64,10 +64,10 @@ namespace SprayChronicle.Testing
             return list.ToArray();
         }
 
-        public IEventSource<T> Load<T>(string identity, string idempotencyId)
+        public IEventSource<T> Load<T>(string identity, string causationId)
             where T : class
         {
-            return _child.Load<T>(identity, idempotencyId);
+            return _child.Load<T>(identity, causationId);
         }
 
         public IEnumerable<IDomainEnvelope> Past()

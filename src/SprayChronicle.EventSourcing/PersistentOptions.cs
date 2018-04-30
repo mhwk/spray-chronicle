@@ -20,12 +20,12 @@
             CausationId = causationId;
         }
 
-        public PersistentOptions WithIdempotencyId(string idempotencyId)
+        public PersistentOptions WithCausationId(string causationId)
         {
             return new PersistentOptions(
                 StreamName,
                 GroupName,
-                idempotencyId
+                causationId
             );
         }
     }

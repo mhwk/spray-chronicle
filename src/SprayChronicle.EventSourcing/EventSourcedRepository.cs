@@ -49,9 +49,9 @@ namespace SprayChronicle.EventSourcing
             await Save(sourced, envelope);
         }
 
-        public async Task<T> Load(string identity, string idempotencyId)
+        public async Task<T> Load(string identity, string causationId)
         {
-            return await EventSourced<T>.Patch(_persistence.Load<T>(identity, idempotencyId));
+            return await EventSourced<T>.Patch(_persistence.Load<T>(identity, causationId));
         }
 
         public async Task<TChild> LoadOrDefault<TChild>(string identity, string idempotencyId) where TChild : T
@@ -70,9 +70,9 @@ namespace SprayChronicle.EventSourcing
             return (TChild) sourced;
         }
 
-        public async Task<TChild> Load<TChild>(string identity, string idempotencyId) where TChild : T
+        public async Task<TChild> Load<TChild>(string identity, string causationId) where TChild : T
         {
-            var sourced = await LoadOrDefault<TChild>(identity, idempotencyId);
+            var sourced = await LoadOrDefault<TChild>(identity, causationId);
             
             if (null == sourced) {
                 throw new InvalidStateException(string.Format(

@@ -49,7 +49,8 @@ namespace SprayChronicle.Persistence.Ouro
                 Encoding.UTF8.GetString(resolvedEvent.Event.Metadata)
             );
 
-            if (null != _causationId && _causationId == metadata.MessageId) {
+            if (null != _causationId && _causationId == metadata.CausationId) {
+                Console.WriteLine("Message {_causationId} has already been handled");
                 throw new IdempotencyException($"Message {_causationId} has already been handled");
             }
             

@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using EventStore.ClientAPI;
@@ -29,6 +31,8 @@ namespace SprayChronicle.Persistence.Ouro
             UserCredentials credentials,
             ReadForwardOptions options) : base(logger, options.CausationId)
         {
+            Console.WriteLine($"----------------------{typeof(TTarget).Name} - {options.CausationId}");
+            Thread.Sleep(1);
             _logger = logger;
             _eventStore = eventStore;
             _credentials = credentials;

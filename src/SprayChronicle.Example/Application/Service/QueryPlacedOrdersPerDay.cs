@@ -12,7 +12,7 @@ namespace SprayChronicle.Example.Application.Service
     {
         public async Task<Executor> Execute(PerDay query)
         {
-            return await Execute<PlacedOrdersPerDay_v1>()
+            return await Execute<PlacedOrdersPerDay>()
                 .Query<Result>(baskets => baskets
                     .Skip(0)
                     .Take(50)
@@ -26,9 +26,9 @@ namespace SprayChronicle.Example.Application.Service
             public int Count { get; set; }
         }
         
-        public class PlacedOrdersPerDay_v1 : AbstractIndexCreationTask<QueryPlacedOrders.PlacedOrders_v3,Result>
+        public class PlacedOrdersPerDay : AbstractIndexCreationTask<QueryPlacedOrders.PlacedOrders_v2,Result>
         {
-            public PlacedOrdersPerDay_v1()
+            public PlacedOrdersPerDay()
             {
                 Map = orders =>
                     from order in orders

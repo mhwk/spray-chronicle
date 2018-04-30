@@ -18,7 +18,7 @@ namespace SprayChronicle.Example
                 .WithHealthChecks()
                 .WithOuroPersistence()
 //                .WithMongoPersistence()
-                .WithRavenPersistence()
+//                .WithRavenPersistence()
                 .WithEventHandling()
                 .WithCommandHandling()
                 .WithQueryHandling()

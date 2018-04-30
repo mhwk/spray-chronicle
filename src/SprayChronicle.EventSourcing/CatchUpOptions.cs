@@ -26,9 +26,9 @@
             return new CatchUpOptions(StreamName, checkpoint, CausationId);
         }
 
-        public CatchUpOptions WithIdempotencyId(string idempotencyId)
+        public CatchUpOptions WithCausationId(string causationId)
         {
-            return new CatchUpOptions(StreamName, Checkpoint, idempotencyId);
+            return new CatchUpOptions(StreamName, Checkpoint, causationId);
         }
     }
 }

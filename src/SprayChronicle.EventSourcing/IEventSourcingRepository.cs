@@ -10,9 +10,9 @@ namespace SprayChronicle.EventSourcing
 
         Task Save<TChild>(T subject, IEnvelope envelope) where TChild : T;
 
-        Task<T> Load(string identity, string idempotencyId);
+        Task<T> Load(string identity, string causationId);
 
-        Task<TChild> Load<TChild>(string identity, string idempotencyId) where TChild : T;
+        Task<TChild> Load<TChild>(string identity, string causationId) where TChild : T;
 
         Task<TChild> LoadOrDefault<TChild>(string identity, string idempotencyId) where TChild : T;
     }

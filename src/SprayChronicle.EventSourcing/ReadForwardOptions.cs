@@ -26,9 +26,9 @@
             return new ReadForwardOptions(StreamName, checkpoint, CausationId);
         }
 
-        public ReadForwardOptions WithMessageId(string messageId)
+        public ReadForwardOptions WithCausationId(string causationId)
         {
-            return new ReadForwardOptions(StreamName, Checkpoint, messageId);
+            return new ReadForwardOptions(StreamName, Checkpoint, causationId);
         }
     }
 }

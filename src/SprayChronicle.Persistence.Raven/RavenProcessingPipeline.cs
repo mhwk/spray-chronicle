@@ -19,7 +19,7 @@ namespace SprayChronicle.Persistence.Raven
         public string Description => $"Raven processing: {typeof(TProcessor).Name}";
 
         private const int BatchSize = 1000;
-        private const int BatchTimeout = 50;
+        private const int BatchTimeout = 100;
         private const int Parallelism = 4;
         
         private readonly IMailStrategy<TProcessor> _strategy = new OverloadMailStrategy<TProcessor>(new ContextTypeLocator<TProcessor>());
