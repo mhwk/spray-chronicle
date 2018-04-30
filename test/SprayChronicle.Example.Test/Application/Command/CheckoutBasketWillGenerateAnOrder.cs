@@ -7,19 +7,19 @@ using Xunit;
 
 namespace SprayChronicle.Example.Test.Application.Command
 {
-    public class CheckoutBasketWillGenerateAnOrder : CommandTestCase<Module>
+    public class CheckoutBasketWillGenerateAnOrder : HandlingTestCase<Module>
     {
-        protected override Task Given(CommandRouter dispatcher)
+        protected override Task Given(ICommandDispatcher dispatcher)
         {
-            return dispatcher.Route(
+            return dispatcher.Dispatch(
                 new PickUpBasket("basketId"),
                 new AddProductToBasket("basketId", "productId")
             );
         }
         
-        protected override Task When(CommandRouter dispatcher)
+        protected override Task When(ICommandDispatcher dispatcher)
         {
-            return dispatcher.Route(
+            return dispatcher.Dispatch(
                 new CheckOutBasket("basketId", "orderId")
             );
         }

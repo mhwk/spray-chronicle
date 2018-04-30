@@ -31,7 +31,8 @@ namespace SprayChronicle.Persistence.Ouro.Test
                 _logger,
                 ouro,
                 new UserCredentials("admin", "changeit"),
-                new ReadForwardOptions("SprayChronicle-" + streamName)
+                new ReadForwardOptions("SprayChronicle-" + streamName),
+                options => Task.CompletedTask
             );
             
             var results = new List<DomainEnvelope>();
@@ -64,7 +65,8 @@ namespace SprayChronicle.Persistence.Ouro.Test
                 _logger,
                 ouro,
                 new UserCredentials("admin", "changeit"),
-                new ReadForwardOptions("SprayChronicle-" + streamName)
+                new ReadForwardOptions("SprayChronicle-" + streamName),
+                options => Task.CompletedTask
             );
 
             await store.Append<Basket>(streamName, new [] { new DomainEnvelope(
@@ -109,7 +111,8 @@ namespace SprayChronicle.Persistence.Ouro.Test
                 _logger,
                 ouro,
                 new UserCredentials("admin", "changeit"),
-                new ReadForwardOptions("SprayChronicle-" + streamName).WithCheckpoint(1)
+                new ReadForwardOptions("SprayChronicle-" + streamName).WithCheckpoint(1),
+                options => Task.CompletedTask
             );
 
             await store.Append<Basket>(streamName, new [] {

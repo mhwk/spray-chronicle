@@ -8,12 +8,12 @@ using SprayChronicle.EventSourcing;
 
 namespace SprayChronicle.Testing
 {
-    public sealed class CommandFixture<TModule> : Fixture<CommandRouter,Task,CommandRouter,Task> where TModule : IModule, new()
+    public sealed class HandlingFixture<TModule> : Fixture<ICommandDispatcher,Task,ICommandDispatcher,Task> where TModule : IModule, new()
     {
-        public CommandFixture(): this(builder => {})
+        public HandlingFixture(): this(builder => {})
         {}
 
-        public CommandFixture(Action<ContainerBuilder> configure)
+        public HandlingFixture(Action<ContainerBuilder> configure)
             : base(builder => {
                 builder.RegisterModule<CommandHandlingModule>();
                 builder.RegisterModule<EventHandlingModule>();
@@ -38,16 +38,16 @@ namespace SprayChronicle.Testing
             Container.Resolve<IPipelineManager>().Start();
         }
 
-        public override async Task<IExecute<CommandRouter, Task>> Given(Func<CommandRouter, Task> callback)
+        public override async Task<IExecute<ICommandDispatcher, Task>> Given(Func<ICommandDispatcher, Task> callback)
         {
-            await callback(Container.Resolve<CommandRouter>());
+            await callback(Container.Resolve<ICommandDispatcher>());
             
             return this;
         }
 
-        public override async Task<IValidate> When(Func<CommandRouter,Task> callback)
+        public override async Task<IValidate> When(Func<ICommandDispatcher,Task> callback)
         {
-            return await CommandValidator.Run(Container, () => callback(Container.Resolve<CommandRouter>()));
+            return await HandlingValidator.Run(Container, () => callback(Container.Resolve<ICommandDispatcher>()));
         }
     }
 }

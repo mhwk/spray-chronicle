@@ -96,7 +96,11 @@ namespace SprayChronicle.Persistence.Ouro.Test
         [Fact]
         public async Task ListProjections()
         {
-            var projections = await Container().Resolve<OuroEventStore>().ListProjections();
+            var projections = (await Container()
+                .Resolve<OuroEventStore>()
+                .ListProjections())
+                .Select(p => p.Name)
+                .ToArray();
 
             projections.ShouldContain("$by_category");
             projections.ShouldContain("$by_event_type");
@@ -105,29 +109,36 @@ namespace SprayChronicle.Persistence.Ouro.Test
         }
 
         [Fact]
-        public async Task CreateProjection()
+        public async Task EnsureNoProjectionByDefault()
         {
             var projectionName = Guid.NewGuid().ToString();
             var store = Container().Resolve<OuroEventStore>();
 
-            await store.EnsureProject(new StreamOptions(projectionName).From("Foo").BuildProjectionQuery());
+            await store.EnsureProjection(new StreamOptions(projectionName));
 
-            (await store.ListProjections()).ShouldContain(projectionName);
+            (await Container()
+                .Resolve<OuroEventStore>()
+                .ListProjections())
+                .Select(p => p.Name)
+                .ToArray()
+                .ShouldNotContain(projectionName);
         }
 
         [Fact]
-        public async Task RemoveProjection()
+        public async Task EnsureProjectionForCategories()
         {
             var projectionName = Guid.NewGuid().ToString();
             var store = Container().Resolve<OuroEventStore>();
 
-            await store.EnsureProject(new StreamOptions(projectionName).From("Foo").BuildProjectionQuery());
-            await store.DeleteProjection(new StreamOptions(projectionName).From("Foo").BuildProjectionQuery());
+            await store.EnsureProjection(new StreamOptions(projectionName).From("Foo"));
 
-            (await store.ListProjections()).ShouldContain(projectionName);
+            (await Container()
+                .Resolve<OuroEventStore>()
+                .ListProjections())
+                .Select(p => p.Name)
+                .ToArray()
+                .ShouldContain(projectionName);
         }
-
-
 
         protected override void Configure(ContainerBuilder builder)
         {

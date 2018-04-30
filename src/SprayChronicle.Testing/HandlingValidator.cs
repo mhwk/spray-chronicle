@@ -6,37 +6,37 @@ using Shouldly;
 
 namespace SprayChronicle.Testing
 {
-    public class CommandValidator : IValidate
+    public class HandlingValidator : IValidate
     {
         private readonly IContainer _container;
         
         private readonly Exception _error;
         
-        private CommandValidator(IContainer container)
+        private HandlingValidator(IContainer container)
         {
             _container = container;
         }
         
-        private CommandValidator(IContainer container, Exception error)
+        private HandlingValidator(IContainer container, Exception error)
         {
             _container = container;
             _error = error;
         }
 
-        public static async Task<CommandValidator> Run(IContainer container, Func<Task> callback)
+        public static async Task<HandlingValidator> Run(IContainer container, Func<Task> callback)
         {
             container.Resolve<TestStore>().Present();
             
             try {
                 await callback();
             } catch (Exception error) {
-                return new CommandValidator(
+                return new HandlingValidator(
                     container,
                     error
                 );
             }
             
-            return new CommandValidator(
+            return new HandlingValidator(
                 container
             );
         }

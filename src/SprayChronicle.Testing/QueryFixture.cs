@@ -7,7 +7,7 @@ using SprayChronicle.QueryHandling;
 
 namespace SprayChronicle.Testing
 {
-    public class QueryFixture<TModule,TTarget> : Fixture<TestSource<TTarget>,Task,QueryRouter,Task<object>>
+    public class QueryFixture<TModule,TTarget> : Fixture<TestSource<TTarget>,Task,IQueryDispatcher,Task<object>>
         where TModule : IModule, new()
         where TTarget : class
     {
@@ -31,16 +31,17 @@ namespace SprayChronicle.Testing
             Container.Resolve<IPipelineManager>().Start();
         }
 
-        public override async Task<IExecute<QueryRouter, Task<object>>> Given(Func<TestSource<TTarget>, Task> callback)
+        public override async Task<IExecute<IQueryDispatcher, Task<object>>> Given(Func<TestSource<TTarget>, Task> callback)
         {
-            var stream = Container.Resolve<TestSource<TTarget>>();
-            await callback(stream);
+            var source = Container.Resolve<TestSource<TTarget>>();
+            source.Complete();
+            await callback(source);
             return this;
         }
 
-        public override async Task<IValidate> When(Func<QueryRouter, Task<object>> callback)
+        public override async Task<IValidate> When(Func<IQueryDispatcher, Task<object>> callback)
         {
-            return await QueryValidator.Run(Container, () => callback(Container.Resolve<QueryRouter>()));
+            return await QueryValidator.Run(Container, () => callback(Container.Resolve<IQueryDispatcher>()));
         }
     }
 }

@@ -71,9 +71,8 @@ namespace SprayChronicle.Persistence.Raven
                 message => {
                     try {
                         return _source.Convert(_strategy, message);
-                    }
-                    catch (Exception error) {
-//                        _logger.LogDebug(error);
+                    } catch (Exception error) {
+                        _logger.LogCritical(error);
                         return null;
                     }
                 },
@@ -149,11 +148,13 @@ namespace SprayChronicle.Persistence.Raven
                 PropagateCompletion = true
             });
 
-            _logger.LogDebug($"Starting source...");
             await _source.Start();
-            _logger.LogDebug($"Pipeline running...");
+            await _source.Completion;
+            await converted.Completion;
+            await routed.Completion;
+            await timeout.Completion;
+            await batched.Completion;
             await action.Completion;
-            _logger.LogDebug($"Pipeline shut down");
         }
 
         public Task Stop()
@@ -178,33 +179,22 @@ namespace SprayChronicle.Persistence.Raven
             
                 var documents = await session.LoadAsync<TState>(identities);
                 
-//                _logger.LogDebug($"Working with identities ({string.Join(", ", identities)})");
-//                _logger.LogDebug($"Found {documents.Count} documents...");
-//                _logger.LogDebug($"Processing {processed.Length} items...");
-            
-                for (var i = 0; i < processed.Length; i++) {
-                    if (null == processed[i]) {
+                foreach (var process in processed) {
+                    if (null == process) {
 //                        _logger.LogDebug($"Skipping null at {i}");
                         continue;
                     }
-                
-//                        _logger.LogDebug($" -> Processing {i}...");
-
-                    try {
-                        documents[processed[i].Identity] = (TState) await processed[i].Do(documents[processed[i].Identity]);
-                        if (null == documents[processed[i].Identity]) {
-                            throw new Exception($"Null value has been set");
-                        }
-                    } catch (ArgumentException error) {
-                        _logger.LogCritical(error, $"At {_checkpoint + i}");
-                        throw;
+                    
+                    documents[process.Identity] = (TState) await process.Do(documents[process.Identity]);
+                    if (null == documents[process.Identity]) {
+                        throw new Exception($"Null value has been set");
                     }
 
                     var cancellation = new CancellationTokenSource();
                     
                     await session.StoreAsync(
-                        documents[processed[i].Identity],
-                        processed[i].Identity,
+                        documents[process.Identity],
+                        process.Identity,
                         cancellation.Token
                     );
                 }

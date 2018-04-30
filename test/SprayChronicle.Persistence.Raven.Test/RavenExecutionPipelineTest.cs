@@ -5,9 +5,7 @@ using Raven.Client.Documents;
 using Shouldly;
 using SprayChronicle.Example.Application;
 using SprayChronicle.Example.Application.Service;
-using SprayChronicle.Example.Application.State;
 using SprayChronicle.QueryHandling;
-using SprayChronicle.Testing;
 using Xunit;
 
 namespace SprayChronicle.Persistence.Raven.Test
@@ -22,13 +20,18 @@ namespace SprayChronicle.Persistence.Raven.Test
             var store = Container()
                 .Resolve<IDocumentStore>();
             var pipeline = Container()
-                .Resolve<RavenExecutionPipeline<QueryBasketWithProducts, BasketWithProducts_v7>>();
+                .Resolve<RavenExecutionPipeline<QueryBasketWithProducts, QueryBasketWithProducts.BasketWithProducts_v1>>();
             var router = new QueryRouter();
             var dispatcher = new RouterQueryDispatcher(router);
             router.Subscribe(pipeline);
             
             using (var session = store.OpenAsyncSession()) {
-                await session.StoreAsync(new BasketWithProducts_v7(identity1, DateTime.Now), $"{typeof(BasketWithProducts_v7).Name}/{identity1}");
+                await session.StoreAsync(
+                    new QueryBasketWithProducts.BasketWithProducts_v1(
+                        identity1,
+                        DateTime.Now),
+                    $"{typeof(QueryBasketWithProducts.BasketWithProducts_v1).Name}/{identity1}"
+                );
                 await session.SaveChangesAsync();
             }
 
@@ -36,17 +39,15 @@ namespace SprayChronicle.Persistence.Raven.Test
 
             var result = await dispatcher.Dispatch(new BasketById(identity1));
 
-            await Task.WhenAll(
-//                task,
-                pipeline.Stop()
-            );
+            await pipeline.Stop();
+            await task;
             
-            result.ShouldBeOfType<BasketWithProducts_v7>();
+            result.ShouldBeOfType<QueryBasketWithProducts.BasketWithProducts_v1>();
         }
 
         protected override void Configure(ContainerBuilder builder)
         {
-            builder.RegisterQueryExecutor<QueryBasketWithProducts,BasketWithProducts_v7>("foo");
+            builder.RegisterQueryExecutor<QueryBasketWithProducts,QueryBasketWithProducts.BasketWithProducts_v1>("foo");
         }
     }
 }

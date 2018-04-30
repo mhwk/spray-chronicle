@@ -12,21 +12,23 @@ namespace SprayChronicle.CommandHandling
             _router = router;
         }
 
-        public async Task Dispatch(object command)
+        public async Task Dispatch(params object[] commands)
         {
-            var onComplete = new TaskCompletionSource<object>();
+            foreach (var command in commands) {
+                var completion = new TaskCompletionSource<object>();
             
-            await _router.Route(new CommandEnvelope(
-                Guid.NewGuid().ToString(),
-                null,
-                Guid.NewGuid().ToString(),
-                command,
-                DateTime.Now,
-                result => onComplete.TrySetResult(null),
-                error => onComplete.TrySetException(error)
-            ));
+                await _router.Route(new CommandEnvelope(
+                    Guid.NewGuid().ToString(),
+                    null,
+                    Guid.NewGuid().ToString(),
+                    command,
+                    DateTime.Now,
+                    result => completion.TrySetResult(null),
+                    error => completion.TrySetException(error)
+                ));
 
-            await onComplete.Task;
+                await completion.Task;
+            }
         }
     }
 }

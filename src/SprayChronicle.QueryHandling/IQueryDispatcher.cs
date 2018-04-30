@@ -4,6 +4,6 @@ namespace SprayChronicle.QueryHandling
 {
     public interface IQueryDispatcher
     {
-        Task<object> Dispatch(object query);
+        Task<object> Dispatch(params object[] queries);
     }
 }

@@ -81,15 +81,18 @@ namespace SprayChronicle.QueryHandling
             applied.LinkTo(succeeded, new DataflowLinkOptions {
                 PropagateCompletion = true
             });
-            
+
+            await _queue.Completion;
+            await executed.Completion;
             await applied.Completion;
+            await succeeded.Completion;
         }
 
         public Task Stop()
         {
             _logger.LogDebug("Stopping execution pipeline...");
             _queue.Complete();
-            return Task.CompletedTask;
+            return _queue.Completion;
         }
 
         private async Task<Executor> ExecuteQuery(QueryEnvelope query)

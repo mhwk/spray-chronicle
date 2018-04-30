@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using SprayChronicle.Example.Application;
-using SprayChronicle.Example.Application.State;
+using SprayChronicle.Example.Application.Service;
 using SprayChronicle.Example.Domain;
 using SprayChronicle.Example.Domain.Model;
 using SprayChronicle.QueryHandling;
@@ -10,7 +10,7 @@ using Xunit;
 
 namespace SprayChronicle.Example.Test.Application.Query
 {
-    public class FindAllNumberOfProductsInBaskets : QueryTestCase<Module,Basket>
+    public class FindBasketsById : QueryTestCase<Module,Basket>
     {
         private readonly string _basketId1 = Guid.NewGuid().ToString();
         private readonly string _basketId2 = Guid.NewGuid().ToString();
@@ -23,9 +23,9 @@ namespace SprayChronicle.Example.Test.Application.Query
             );
         }
 
-        protected override Task<object> When(QueryRouter processor)
+        protected override Task<object> When(IQueryDispatcher dispatcher)
         {
-            return processor.Route(
+            return dispatcher.Dispatch(
                 new NumberOfProductsInBaskets()
             );
         }
@@ -33,8 +33,8 @@ namespace SprayChronicle.Example.Test.Application.Query
         protected override void Then(IValidate validator)
         {
             validator.Expect(
-                new BasketWithProducts_v7(_basketId1, DateTime.Now),
-                new BasketWithProducts_v7(_basketId2, DateTime.Now)
+                new QueryBasketWithProducts.BasketWithProducts_v1(_basketId1, DateTime.Now),
+                new QueryBasketWithProducts.BasketWithProducts_v1(_basketId2, DateTime.Now)
             );
         }
 

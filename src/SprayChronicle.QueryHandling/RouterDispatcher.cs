@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace SprayChronicle.QueryHandling
@@ -13,21 +14,27 @@ namespace SprayChronicle.QueryHandling
         }
 
         
-        public async Task<object> Dispatch(object query)
+        public async Task<object> Dispatch(params object[] queries)
         {
-            var completion = new TaskCompletionSource<object>();
-            
-            await _router.Route(new QueryEnvelope(
-                Guid.NewGuid().ToString(),
-                null,
-                Guid.NewGuid().ToString(),
-                query,
-                DateTime.Now,
-                result => completion.TrySetResult(result),
-                error => completion.TrySetException(error)
-            ));
+            var tasks = new List<Task>();
 
-            return await completion.Task;
+            foreach (var query in queries) {
+                var completion = new TaskCompletionSource<object>();
+            
+                await _router.Route(new QueryEnvelope(
+                    Guid.NewGuid().ToString(),
+                    null,
+                    Guid.NewGuid().ToString(),
+                    query,
+                    DateTime.Now,
+                    result => completion.TrySetResult(result),
+                    error => completion.TrySetException(error)
+                ));
+
+                tasks.Add(completion.Task);
+            }
+
+            return Task.WhenAll(tasks);
         }
     }
 }

@@ -115,6 +115,8 @@ namespace SprayChronicle.CommandHandling
             });
 
             await _source.Start();
+            await converted.Completion;
+            await dispatch.Completion;
             await apply.Completion;
         }
         
@@ -127,7 +129,7 @@ namespace SprayChronicle.CommandHandling
             
             _source.Complete();
             
-            return Task.CompletedTask;
+            return _source.Completion;
         }
 
         private async Task<Processed> Process(DomainEnvelope envelope)

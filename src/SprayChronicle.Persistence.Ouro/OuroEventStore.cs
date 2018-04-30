@@ -100,7 +100,7 @@ namespace SprayChronicle.Persistence.Ouro
             );
         }
 
-        private async Task EnsureProjection(StreamOptions streamOptions)
+        public async Task EnsureProjection(StreamOptions streamOptions)
         {
             var query = streamOptions.BuildProjectionQuery();
             if (null == query) {
@@ -129,7 +129,7 @@ namespace SprayChronicle.Persistence.Ouro
             }
         }
 
-        private async Task<ProjectionRef[]> ListProjections()
+        public async Task<ProjectionRef[]> ListProjections()
         {
             var all = await _projections.ListAllAsync(_credentials);
             var projections = new List<ProjectionRef>();

@@ -90,7 +90,9 @@ namespace SprayChronicle.CommandHandling
                 PropagateCompletion = true
             });
 
+            await _queue.Completion;
             await dispatch.Completion;
+            await apply.Completion;
         }
 
         public async Task Stop()
