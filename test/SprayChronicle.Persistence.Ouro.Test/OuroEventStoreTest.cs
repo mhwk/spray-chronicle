@@ -83,15 +83,51 @@ namespace SprayChronicle.Persistence.Ouro.Test
                 PropagateCompletion = true
             });
 
-            await Task.WhenAll(
-                source.Start(),
-                action.Completion
-            );
+            await source.Start();
+            await source.Completion;
+            await convert.Completion;
+            await action.Completion;
 
             result.Count.ShouldBe(1);
             result.First().ShouldBeOfType<BasketPickedUp>();
             ((BasketPickedUp)result.First()).BasketId.ShouldBe(identity);
         }
+
+        [Fact]
+        public async Task ListProjections()
+        {
+            var projections = await Container().Resolve<OuroEventStore>().ListProjections();
+
+            projections.ShouldContain("$by_category");
+            projections.ShouldContain("$by_event_type");
+            projections.ShouldContain("$stream_by_category");
+            projections.ShouldContain("$streams");
+        }
+
+        [Fact]
+        public async Task CreateProjection()
+        {
+            var projectionName = Guid.NewGuid().ToString();
+            var store = Container().Resolve<OuroEventStore>();
+
+            await store.EnsureProject(new StreamOptions(projectionName).From("Foo").BuildProjectionQuery());
+
+            (await store.ListProjections()).ShouldContain(projectionName);
+        }
+
+        [Fact]
+        public async Task RemoveProjection()
+        {
+            var projectionName = Guid.NewGuid().ToString();
+            var store = Container().Resolve<OuroEventStore>();
+
+            await store.EnsureProject(new StreamOptions(projectionName).From("Foo").BuildProjectionQuery());
+            await store.DeleteProjection(new StreamOptions(projectionName).From("Foo").BuildProjectionQuery());
+
+            (await store.ListProjections()).ShouldContain(projectionName);
+        }
+
+
 
         protected override void Configure(ContainerBuilder builder)
         {

@@ -2,20 +2,20 @@
 {
     public sealed class PersistentOptions
     {
-        public string StreamName { get; }
+        public StreamOptions StreamOptions { get; }
         
         public string GroupName { get; }
         
         public string CausationId { get; }
 
         public PersistentOptions(string streamName, string groupName)
-            : this(streamName, groupName, null)
+            : this(new StreamOptions(streamName), groupName, null)
         {
         }
 
-        private PersistentOptions(string streamName, string groupName, string causationId)
+        private PersistentOptions(StreamOptions streamOptions, string groupName, string causationId)
         {
-            StreamName = streamName;
+            StreamOptions = streamOptions;
             GroupName = groupName;
             CausationId = causationId;
         }
@@ -23,7 +23,7 @@
         public PersistentOptions WithCausationId(string causationId)
         {
             return new PersistentOptions(
-                StreamName,
+                StreamOptions,
                 GroupName,
                 causationId
             );

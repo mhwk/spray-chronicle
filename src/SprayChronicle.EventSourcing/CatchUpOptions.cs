@@ -2,33 +2,39 @@
 {
     public sealed class CatchUpOptions
     {
-        public string StreamName { get; }
+        public StreamOptions StreamOptions { get; }
         
         public long Checkpoint { get; }
         
         public string CausationId { get; }
 
         public CatchUpOptions(string streamName)
-            : this(streamName, -1, null)
+            : this(new StreamOptions(streamName), -1, null)
         {
             
         }
 
-        private CatchUpOptions(string streamName, long checkpoint, string causationId)
+        public CatchUpOptions(StreamOptions streamOptions)
+            : this(streamOptions, -1, null)
         {
-            StreamName = streamName;
+            
+        }
+
+        private CatchUpOptions(StreamOptions streamOptions, long checkpoint, string causationId)
+        {
+            StreamOptions = streamOptions;
             Checkpoint = checkpoint;
             CausationId = causationId;
         }
 
         public CatchUpOptions WithCheckpoint(long checkpoint)
         {
-            return new CatchUpOptions(StreamName, checkpoint, CausationId);
+            return new CatchUpOptions(StreamOptions, checkpoint, CausationId);
         }
 
         public CatchUpOptions WithCausationId(string causationId)
         {
-            return new CatchUpOptions(StreamName, Checkpoint, causationId);
+            return new CatchUpOptions(StreamOptions, Checkpoint, causationId);
         }
     }
 }

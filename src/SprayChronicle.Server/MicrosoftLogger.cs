@@ -42,6 +42,11 @@ namespace SprayChronicle.Server
             _logger.LogInformation(message);
         }
 
+        public void LogInformation(Exception error, string message)
+        {
+            _logger.LogInformation(error, message);
+        }
+
         public void LogInformation(string message, params object[] args)
         {
             _logger.LogInformation(message, args);
@@ -65,6 +70,11 @@ namespace SprayChronicle.Server
         public void LogError(Exception error)
         {
             _logger.LogError(error.ToString());
+        }
+
+        public void LogError(string message)
+        {
+            _logger.LogError(message);
         }
 
         public void LogError(Exception error, string message)

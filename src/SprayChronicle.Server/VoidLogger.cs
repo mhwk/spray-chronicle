@@ -20,6 +20,11 @@ namespace SprayChronicle.Server
         {
         }
 
+        public void LogInformation(Exception error, string message)
+        {
+            
+        }
+
         public void LogWarning(Exception error)
         {
         }
@@ -30,6 +35,11 @@ namespace SprayChronicle.Server
 
         public void LogError(Exception error)
         {
+        }
+
+        public void LogError(string message)
+        {
+            
         }
 
         public void LogError(Exception error, string message)

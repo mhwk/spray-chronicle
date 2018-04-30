@@ -1,8 +1,10 @@
 using System;
+using System.Net;
 using System.Threading.Tasks;
 using App.Metrics.Health;
 using Autofac;
 using EventStore.ClientAPI;
+using EventStore.ClientAPI.Projections;
 using EventStore.ClientAPI.SystemData;
 using SprayChronicle.EventSourcing;
 using SprayChronicle.Server;
@@ -27,23 +29,35 @@ namespace SprayChronicle.Persistence.Ouro
             
             builder
                 .Register(c => new OuroEventStore(
-                    c.Resolve<ILoggerFactory>().Create<IEventStore>(),
-                    c.Resolve<OuroSourceFactory>(),
+                    c.Resolve<ILoggerFactory>(),
                     c.Resolve<IEventStoreConnection>(),
+                    c.Resolve<ProjectionsManager>(), 
                     c.Resolve<UserCredentials>()
                 ))
                 .AsSelf()
                 .As<IEventStore>()
+                .As<IEventSourceFactory>()
                 .SingleInstance();
-            
+
             builder
-                .Register(c => new OuroSourceFactory(
-                    c.Resolve<ILoggerFactory>(),
-                    c.Resolve<IEventStoreConnection>(),
-                    c.Resolve<UserCredentials>()
+                .Register(c => new ProjectionsManager(
+                    c.Resolve<OuroLogger>(),
+                    new DnsEndPoint(
+                        ChronicleServer.Env(
+                            "EVENTSTORE_HOST",
+                            ChronicleServer.Env(
+                                "EVENTSTORE_CLUSTER_DNS"
+                            )
+                        ),
+                        2113
+                    ),
+                    TimeSpan.FromSeconds(5)
                 ))
                 .AsSelf()
-                .As<IEventSourceFactory>()
+                .SingleInstance();
+
+            builder
+                .Register(c => new OuroLogger(c.Resolve<ILoggerFactory>().Create<OuroEventStore>()))
                 .SingleInstance();
             
             builder
@@ -74,29 +88,25 @@ namespace SprayChronicle.Persistence.Ouro
                     .WithConnectionTimeoutOf(TimeSpan.FromSeconds(5))
                     .KeepReconnecting()
                     .KeepRetrying()
-                    .UseConsoleLogger()
+                    .UseCustomLogger(container.Resolve<OuroLogger>())
                     .Build(),
 				new Uri (uri)
 			);
 		    
 			connection.ConnectAsync().Wait();
 		    
-            container
-                .Resolve<ILoggerFactory>()
-                .Create<IEventStoreConnection>()
-                .LogInformation($"Connected to eventstore on {uri}!");
-
 			return connection;
 		}
 
         private static IEventStoreConnection InitEventStoreCluster(IComponentContext container)
         {
-            var logger = container.Resolve<ILoggerFactory>().Create<IEventStoreConnection>();
-            
 			var connection = EventStoreConnection.Create (
                 ConnectionSettings.Create()
+                    .WithConnectionTimeoutOf(TimeSpan.FromSeconds(5))
                     .KeepReconnecting()
+                    .KeepRetrying()
                     .PerformOnAnyNode()
+                    .UseCustomLogger(container.Resolve<OuroLogger>())
                     .SetDefaultUserCredentials(new UserCredentials(
                         ChronicleServer.Env("EVENTSTORE_USERNAME", "admin"),
                         ChronicleServer.Env("EVENTSTORE_PASSWORD", "changeit")
@@ -108,10 +118,6 @@ namespace SprayChronicle.Persistence.Ouro
 			);
             
 			connection.ConnectAsync().Wait();
-
-            logger.LogInformation(
-                $"Connected to eventstore cluster dns {ChronicleServer.Env("EVENTSTORE_CLUSTER_DNS")}:{ChronicleServer.Env("EVENTSTORE_GOSSIP_PORT")}!"
-            );
 
 			return connection;
         }

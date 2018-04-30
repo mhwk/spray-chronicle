@@ -36,11 +36,18 @@ namespace SprayChronicle.CommandHandling
             where THandler : class, IHandle, IProcess
             where TSourced : EventSourced<TSourced>
         {
-            private readonly string _streamName;
+            private readonly StreamOptions _streamOptions;
             
             public CommandPipeline(string streamName = null)
             {
-                _streamName = streamName;
+                if (null != streamName) {
+                    _streamOptions = new StreamOptions(streamName);
+                }
+            }
+            
+            public CommandPipeline(StreamOptions streamOptions)
+            {
+                _streamOptions = streamOptions;
             }
 
             protected override void Load(ContainerBuilder builder)
@@ -68,12 +75,12 @@ namespace SprayChronicle.CommandHandling
                     .SingleInstance();
 
                 
-                if (null != _streamName) {
+                if (null != _streamOptions) {
                     builder
                         .Register(c => new ProcessingPipeline<THandler>(
                             c.Resolve<ILoggerFactory>().Create<THandler>(),
                             c.Resolve<IEventSourceFactory>(),
-                            new CatchUpOptions(_streamName), 
+                            new CatchUpOptions(_streamOptions), 
                             c.Resolve<CommandRouter>(),
                             c.Resolve<THandler>()))
                         .AsSelf()

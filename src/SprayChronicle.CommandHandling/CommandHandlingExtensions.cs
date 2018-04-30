@@ -1,3 +1,4 @@
+using System;
 using Autofac;
 using SprayChronicle.EventHandling;
 using SprayChronicle.EventSourcing;
@@ -18,6 +19,22 @@ namespace SprayChronicle.CommandHandling
             where TState : EventSourced<TState>
         {
             builder.RegisterModule(new CommandHandlingModule.CommandPipeline<THandler,TState>(streamName));
+            return builder;
+        }
+
+        public static ContainerBuilder RegisterCommandHandler<THandler,TState>(this ContainerBuilder builder, StreamOptions streamOptions)
+            where THandler : class, IHandle, IProcess
+            where TState : EventSourced<TState>
+        {
+            builder.RegisterModule(new CommandHandlingModule.CommandPipeline<THandler,TState>(streamOptions));
+            return builder;
+        }
+
+        public static ContainerBuilder RegisterCommandHandler<THandler,TState>(this ContainerBuilder builder, Func<StreamOptions,StreamOptions> streamFactory)
+            where THandler : class, IHandle, IProcess
+            where TState : EventSourced<TState>
+        {
+            builder.RegisterModule(new CommandHandlingModule.CommandPipeline<THandler,TState>(streamFactory(new StreamOptions(typeof(THandler).FullName))));
             return builder;
         }
     }

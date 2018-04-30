@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using EventStore.ClientAPI;
@@ -19,7 +18,9 @@ namespace SprayChronicle.Persistence.Ouro
         
         private readonly UserCredentials _credentials;
 
-        private readonly string _streamName;
+        private readonly StreamOptions _streamOptions;
+        
+        private readonly Func<StreamOptions,Task> _initializeStream;
         
         private long _checkpoint;
         
@@ -29,15 +30,15 @@ namespace SprayChronicle.Persistence.Ouro
             ILogger<TTarget> logger,
             IEventStoreConnection eventStore,
             UserCredentials credentials,
-            ReadForwardOptions options) : base(logger, options.CausationId)
+            ReadForwardOptions options,
+            Func<StreamOptions,Task> initializeStream) : base(logger, options.CausationId)
         {
-            Console.WriteLine($"----------------------{typeof(TTarget).Name} - {options.CausationId}");
-            Thread.Sleep(1);
             _logger = logger;
             _eventStore = eventStore;
             _credentials = credentials;
-            _streamName = options.StreamName;
-            _checkpoint = options.Checkpoint;
+            _initializeStream = initializeStream;
+            _streamOptions = options.StreamOptions;
+            _checkpoint = options.Checkpoint < 0 ? default(long) : options.Checkpoint;
         }
 
         protected override async Task StartBuffering()
@@ -46,12 +47,14 @@ namespace SprayChronicle.Persistence.Ouro
 
             var stopwatch = new Stopwatch();
             stopwatch.Start();
+
+            await _initializeStream(_streamOptions);
             
-            _logger.LogDebug($"Reading forward from {_streamName}");
+            _logger.LogDebug($"Reading forward from {_streamOptions}");
 
             var eos = false;
             do {
-                var slice = await _eventStore.ReadStreamEventsForwardAsync(_streamName, _checkpoint, 50, false, _credentials);
+                var slice = await _eventStore.ReadStreamEventsForwardAsync(_streamOptions.TargetStream, _checkpoint, 50, false, _credentials);
                 
                 _logger.LogDebug($"-> Read slice {slice.FromEventNumber} to {slice.LastEventNumber}");
                 

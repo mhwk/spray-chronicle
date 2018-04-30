@@ -17,7 +17,9 @@ namespace SprayChronicle.Persistence.Ouro
 
         private readonly UserCredentials _credentials;
 
-        private readonly string _streamName;
+        private readonly StreamOptions _streamOptions;
+        
+        private readonly Func<StreamOptions, Task> _initializeStream;
 
         private readonly string _groupName;
 
@@ -27,17 +29,20 @@ namespace SprayChronicle.Persistence.Ouro
             ILogger<TTarget> logger,
             IEventStoreConnection eventStore,
             UserCredentials credentials,
-            PersistentOptions options) : base(logger, options.CausationId)
+            PersistentOptions options,
+            Func<StreamOptions,Task> initializeStream) : base(logger, options.CausationId)
         {
             _logger = logger;
             _eventStore = eventStore;
             _credentials = credentials;
-            _streamName = options.StreamName;
+            _streamOptions = options.StreamOptions;
+            _initializeStream = initializeStream;
             _groupName = options.GroupName;
         }
 
         protected override async Task StartBuffering()
         {
+            _initializeStream(_streamOptions);
             _subscription = await Subscribe();
         }
 
@@ -51,7 +56,7 @@ namespace SprayChronicle.Persistence.Ouro
         {
             try {
                 await _eventStore.CreatePersistentSubscriptionAsync(
-                    _streamName,
+                    _streamOptions.TargetStream,
                     _groupName,
                     PersistentSubscriptionSettings.Create()
                         .ResolveLinkTos()
@@ -59,13 +64,13 @@ namespace SprayChronicle.Persistence.Ouro
                         .Build(),
                     _credentials
                 );
-                _logger.LogDebug($"Created subscription {_streamName}_{_groupName}");
+                _logger.LogDebug($"Created subscription {_streamOptions}_{_groupName}");
             } catch (AggregateException) {
-                _logger.LogDebug($"Continuing subscription {_streamName}_{_groupName}");
+                _logger.LogDebug($"Continuing subscription {_streamOptions}_{_groupName}");
             }
 
             return _eventStore.ConnectToPersistentSubscription(
-                _streamName,
+                _streamOptions.TargetStream,
                 _groupName,
                 (subscription, resolvedEvent) => {
                     Queue.Post(resolvedEvent);
@@ -73,7 +78,7 @@ namespace SprayChronicle.Persistence.Ouro
                     // Or do we catch-up all the things?
                 },
                 (subscription, reason, error) => {
-                    _logger.LogCritical(error, $"Errored persistent subscription {_streamName}_{_groupName}: {reason}, {error}");
+                    _logger.LogCritical(error, $"Errored persistent subscription {_streamOptions}_{_groupName}: {reason}, {error}");
                 },
                 _credentials
             );

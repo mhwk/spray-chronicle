@@ -16,8 +16,9 @@ namespace SprayChronicle.Persistence.Ouro
         private readonly IEventStoreConnection _eventStore;
         
         private readonly UserCredentials _credentials;
+        private readonly Func<StreamOptions, Task> _initializeStream;
 
-        private readonly string _streamName;
+        private readonly StreamOptions _streamOptions;
         
         private long _checkpoint;
 
@@ -31,19 +32,21 @@ namespace SprayChronicle.Persistence.Ouro
             ILogger<TTarget> logger,
             IEventStoreConnection eventStore,
             UserCredentials credentials,
-            CatchUpOptions options) : base(logger, options.CausationId)
+            CatchUpOptions options,
+            Func<StreamOptions,Task> initializeStream) : base(logger, options.CausationId)
         {
             _logger = logger;
             _eventStore = eventStore;
             _credentials = credentials;
-            _streamName = options.StreamName;
+            _initializeStream = initializeStream;
+            _streamOptions = options.StreamOptions;
             _checkpoint = options.Checkpoint;
         }
 
-        protected override Task StartBuffering()
+        protected override async Task StartBuffering()
         {
+            await _initializeStream(_streamOptions);
             _subscription = Subscribe();
-            return Task.CompletedTask;
         }
 
         protected override Task StopBuffering()
@@ -54,10 +57,10 @@ namespace SprayChronicle.Persistence.Ouro
 
         private EventStoreCatchUpSubscription Subscribe()
         {
-            _logger.LogDebug($"Start subscription {_streamName} from {_checkpoint}");
+            _logger.LogDebug($"Start subscription {_streamOptions} from {_checkpoint}");
             if (-1 == _checkpoint) {
                 return _eventStore.SubscribeToStreamFrom(
-                    _streamName,
+                    _streamOptions.TargetStream,
                     null,
                     new CatchUpSubscriptionSettings(10000, 500, false, true, Guid.NewGuid().ToString()),
                     EventAppeared,
@@ -67,7 +70,7 @@ namespace SprayChronicle.Persistence.Ouro
                 );
             }
             return _eventStore.SubscribeToStreamFrom(
-                _streamName,
+                _streamOptions.TargetStream,
                 _checkpoint,
                 new CatchUpSubscriptionSettings(10000, 500, false, true, Guid.NewGuid().ToString()),
                 EventAppeared,
@@ -90,7 +93,7 @@ namespace SprayChronicle.Persistence.Ouro
 
         private void LiveProcessingStarted(EventStoreCatchUpSubscription subscription)
         {
-            _logger.LogDebug($"Live subscription {_streamName} after {_checkpoint} messages");
+            _logger.LogDebug($"Live subscription {_streamOptions} after {_checkpoint} messages");
             _liveProcessing = true;
         }
 
@@ -103,10 +106,10 @@ namespace SprayChronicle.Persistence.Ouro
             
             switch (reason) {
                 case SubscriptionDropReason.UserInitiated:
-                    _logger.LogDebug($"Dropped subscription {_streamName}");
+                    _logger.LogDebug($"Dropped subscription {_streamOptions}");
                     break;
                 case SubscriptionDropReason.ProcessingQueueOverflow:
-                    _logger.LogWarning(error, $"Overflow subscription {_streamName}");
+                    _logger.LogWarning(error, $"Overflow subscription {_streamOptions}");
                     break;
                 case SubscriptionDropReason.NotAuthenticated:
                 case SubscriptionDropReason.AccessDenied:
@@ -119,7 +122,7 @@ namespace SprayChronicle.Persistence.Ouro
                 case SubscriptionDropReason.PersistentSubscriptionDeleted:
                 case SubscriptionDropReason.Unknown:
                 case SubscriptionDropReason.NotFound:
-                    _logger.LogCritical(error, $"Errored subscription {_streamName} ({reason}): {_error}");
+                    _logger.LogCritical(error, $"Errored subscription {_streamOptions} ({reason}): {_error}");
                     _error = error;
                     break;
                 default:

@@ -1,4 +1,7 @@
+using System.Collections.Generic;
+using System.Linq;
 using Autofac;
+using SprayChronicle.EventSourcing;
 using SprayChronicle.Server;
 
 namespace SprayChronicle.Persistence.Ouro
@@ -15,6 +18,26 @@ namespace SprayChronicle.Persistence.Ouro
         {
             builder.RegisterModule<OuroModule>();
             return builder;
+        }
+
+        public static string BuildProjectionQuery(this StreamOptions streamOptions)
+        {
+            if (streamOptions.Categories.Length == 0) {
+                return null;
+            }
+            
+            var categoryList = string.Join(", ", streamOptions.Categories.Select(c => $"'{c}'").ToArray());
+            var query = new List<string>
+            {
+                "fromCategories([" + categoryList + "])",
+                "  .when({",
+                "    $any: function(state, event) {",
+                "      emit(\"" + streamOptions.TargetStream + "\", event.eventType, event.data, event.matadata);",
+                "    }",
+                "  });"
+            };
+
+            return string.Join("\n", query);
         }
     }
 }

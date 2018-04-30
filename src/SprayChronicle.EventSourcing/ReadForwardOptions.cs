@@ -2,33 +2,32 @@
 {
     public class ReadForwardOptions
     {
-        public string StreamName { get; }
+        public StreamOptions StreamOptions { get; }
 
         public long Checkpoint { get; }
         
         public string CausationId { get; }
 
         public ReadForwardOptions(string streamName)
+            : this(new StreamOptions(streamName), -1, null)
         {
-            StreamName = streamName;
-            Checkpoint = 0;
         }
 
-        private ReadForwardOptions(string streamName, long checkpoint, string causationId)
+        private ReadForwardOptions(StreamOptions streamOptions, long checkpoint, string causationId)
         {
-            StreamName = streamName;
+            StreamOptions = streamOptions;
             Checkpoint = checkpoint;
             CausationId = causationId;
         }
 
         public ReadForwardOptions WithCheckpoint(long checkpoint)
         {
-            return new ReadForwardOptions(StreamName, checkpoint, CausationId);
+            return new ReadForwardOptions(StreamOptions, checkpoint, CausationId);
         }
 
         public ReadForwardOptions WithCausationId(string causationId)
         {
-            return new ReadForwardOptions(StreamName, Checkpoint, causationId);
+            return new ReadForwardOptions(StreamOptions, Checkpoint, causationId);
         }
     }
 }
