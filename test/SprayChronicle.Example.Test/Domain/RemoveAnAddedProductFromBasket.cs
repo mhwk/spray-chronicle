@@ -7,11 +7,10 @@ namespace SprayChronicle.Example.Test.Domain
 {
     public sealed class RemoveAnAddedProductFromBasket : EventSourcedTestCase<Module,Basket>
     {
-        protected override async Task<Basket> Given(Basket basket)
+        protected override async Task<Basket> Given()
         {
-            basket = await Basket.PickUp(new BasketId("basketId"));
-            basket = await (basket as PickedUpBasket).AddProduct(new ProductId("productId"));
-            
+            var basket = await Basket.PickUp(new BasketId("basketId"));
+            basket = await ((PickedUpBasket) basket).AddProduct(new ProductId("productId"));
             return basket;
         }
 

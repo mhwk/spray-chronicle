@@ -143,21 +143,23 @@ namespace SprayChronicle.CommandHandling
                 throw new ArgumentException($"Processed is expected to be a {typeof(ProcessedDispatch)}, {processed.GetType()} given");
             }
 
-            var completion = new TaskCompletionSource<object>();
+            try {
+                var completion = new TaskCompletionSource<object>();
+                await _router.Route(new CommandEnvelope(
+                    GuidUtility.Create(Guid.Parse(envelope.MessageId), envelope.CorrelationId).ToString(),
+                    envelope.MessageId,
+                    envelope.CorrelationId,
+                    dispatch.Command,
+                    DateTime.Now,
+                    result => completion.TrySetResult(null),
+                    error => completion.TrySetException(error)
+                ));
+                await completion.Task;
+                _logger.LogDebug($"Dispatched {dispatch.Command.GetType()} in response to {envelope.MessageName}");
+            } catch (IdempotencyException) {
+                _logger.LogDebug($"Already dispatched {dispatch.Command.GetType()} in response to {envelope.MessageName}");
+            }
             
-            await _router.Route(new CommandEnvelope(
-                GuidUtility.Create(Guid.Parse(envelope.MessageId), envelope.CorrelationId).ToString(),
-                envelope.MessageId,
-                envelope.CorrelationId,
-                dispatch.Command,
-                DateTime.Now,
-                result => completion.TrySetResult(null),
-                error => completion.TrySetException(error)
-            ));
-            
-            await completion.Task;
-            
-            _logger.LogDebug($"Dispatched {dispatch.Command.GetType()} in response to {envelope.MessageName}");
         }
     }
 }

@@ -1,6 +1,5 @@
 using Autofac;
 using SprayChronicle.CommandHandling;
-using SprayChronicle.EventSourcing;
 using SprayChronicle.Example.Application.Service;
 using SprayChronicle.Example.Domain.Model;
 using SprayChronicle.Persistence.Raven;
@@ -11,8 +10,8 @@ namespace SprayChronicle.Example
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterCommandHandler<HandleBasket,Basket>();
-            builder.RegisterCommandHandler<HandleOrder,Order>(stream => stream.From(typeof(Basket), typeof(Order)));
+//            builder.RegisterCommandHandler<HandleBasket,Basket>();
+//            builder.RegisterCommandHandler<HandleOrder,Order>(stream => stream.From(typeof(Basket), typeof(Order)));
             
 //            builder.RegisterQueryExecutor<QueryBasketsPickedUpPerDay,QueryBasketsPickedUpPerDay.Result>();
 //            builder.RegisterQueryExecutor<QueryBasketsPickedUpPerMinute,QueryBasketsPickedUpPerMinute.Result>();

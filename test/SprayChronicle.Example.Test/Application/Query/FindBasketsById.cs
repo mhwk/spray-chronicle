@@ -26,7 +26,7 @@ namespace SprayChronicle.Example.Test.Application.Query
         protected override Task<object> When(IQueryDispatcher dispatcher)
         {
             return dispatcher.Dispatch(
-                new NumberOfProductsInBaskets()
+                new BasketById("basketId")
             );
         }
 

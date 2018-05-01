@@ -8,7 +8,7 @@ namespace SprayChronicle.CommandHandling
     {
         private readonly Func<Task<TState>> _mutation;
         
-        public HandledCreate(Func<Task<TState>> mutation) : base(null)
+        public HandledCreate(string identity, Func<Task<TState>> mutation) : base(identity)
         {
             _mutation = mutation;
         }

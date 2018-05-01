@@ -31,7 +31,7 @@ namespace SprayChronicle.Persistence.Ouro.Test
                 _logger,
                 ouro,
                 new UserCredentials("admin", "changeit"),
-                new ReadForwardOptions("SprayChronicle-" + streamName),
+                new ReadForwardOptions("Basket-" + streamName),
                 options => Task.CompletedTask
             );
             
@@ -46,17 +46,16 @@ namespace SprayChronicle.Persistence.Ouro.Test
                 PropagateCompletion = true
             });
 
-            await Task.WhenAny(
-                source.Start(),
-                action.Completion
-//                Task.Delay(1000)
-            );
+            await source.Start();
+            await source.Completion;
+            await transform.Completion;
+            await action.Completion;
 
             results.ShouldBeEmpty();
         }
         
         [Fact]
-        public async Task ReadsForwardFromZero()
+        public async Task ReadsForwardFromStart()
         {
             var streamName = Guid.NewGuid().ToString();
             var ouro = Container().Resolve<IEventStoreConnection>();
@@ -65,7 +64,7 @@ namespace SprayChronicle.Persistence.Ouro.Test
                 _logger,
                 ouro,
                 new UserCredentials("admin", "changeit"),
-                new ReadForwardOptions("SprayChronicle-" + streamName),
+                new ReadForwardOptions("Basket-" + streamName),
                 options => Task.CompletedTask
             );
 
@@ -92,11 +91,10 @@ namespace SprayChronicle.Persistence.Ouro.Test
             _strategy.Resolves(Arg.Is("TestMessage")).Returns(true);
             _strategy.ToType("TestMessage").Returns(typeof(TestMessage));
             
-            await Task.WhenAny(
-                source.Start(),
-                action.Completion
-//                Task.Delay(1000)
-            );
+            await source.Start();
+            await source.Completion;
+            await transform.Completion;
+            await action.Completion;
 
             results.First().ShouldBeOfType<DomainEnvelope>();
         }
@@ -111,7 +109,7 @@ namespace SprayChronicle.Persistence.Ouro.Test
                 _logger,
                 ouro,
                 new UserCredentials("admin", "changeit"),
-                new ReadForwardOptions("SprayChronicle-" + streamName).WithCheckpoint(1),
+                new ReadForwardOptions("Basket-" + streamName).WithCheckpoint(1),
                 options => Task.CompletedTask
             );
 
@@ -147,13 +145,12 @@ namespace SprayChronicle.Persistence.Ouro.Test
 
             _strategy.Resolves(Arg.Is("TestMessage")).Returns(true);
             _strategy.ToType("TestMessage").Returns(typeof(TestMessage));
-            
-            await Task.WhenAny(
-                source.Start(),
-                action.Completion
-//                Task.Delay(1000)
-            );
 
+            await source.Start();
+            await source.Completion;
+            await transform.Completion;
+            await action.Completion;
+            
             results.Count.ShouldBe(1);
         }
 

@@ -6,6 +6,8 @@ namespace SprayChronicle.Server.Http
     public class HttpQueryAttribute : HttpAttribute
     {
         public readonly string Template;
+        
+        public string View { set; get; }
 
         public HttpQueryAttribute(string template)
         {

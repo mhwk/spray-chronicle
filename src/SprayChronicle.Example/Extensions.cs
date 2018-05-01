@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using EventStore.ClientAPI.Projections;
 using SprayChronicle.Example.Application.Service;
 using SprayChronicle.Server;
 using Microsoft.Extensions.DependencyInjection;

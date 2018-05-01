@@ -1,4 +1,4 @@
-using System.Reflection;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Routing;
 using SprayChronicle.CommandHandling;
 
@@ -11,6 +11,8 @@ namespace SprayChronicle.Server.Http
         private readonly IValidator _validator;
 
         private readonly ICommandDispatcher _dispatcher;
+        
+        private readonly List<IAttributeProvider<HttpCommandAttribute>> _commandProviders = new List<IAttributeProvider<HttpCommandAttribute>>();
 
         public HttpCommandRouteMapper(
             ILogger<HttpCommandDispatcher> logger,
@@ -22,29 +24,37 @@ namespace SprayChronicle.Server.Http
             _dispatcher = dispatcher;
         }
 
+        public void RegisterAttributeProvider(IAttributeProvider<HttpCommandAttribute> provider)
+        {
+            _commandProviders.Add(provider);
+        }
+
         public void Map(RouteBuilder builder)
         {
-            foreach (var command in Locator.LocateWithAttribute<HttpCommandAttribute>()) {
-                var template = command.GetTypeInfo().GetCustomAttribute<HttpCommandAttribute>()?.Template;
-                
-                _logger.LogDebug($"Mapping {template} to command {command}");
-                switch (command.GetTypeInfo().GetCustomAttribute<HttpCommandAttribute>().Method) {
-                    case "POST":
-                        builder.MapPost(
-                            command.GetTypeInfo().GetCustomAttribute<HttpCommandAttribute>().Template,
-                            new HttpCommandDispatcher(_logger, _validator, _dispatcher, command).Dispatch
-                        );
-                    break;
-                    case "GET":
-                        builder.MapGet(
-                            command.GetTypeInfo().GetCustomAttribute<HttpCommandAttribute>().Template,
-                            new HttpCommandDispatcher(_logger, _validator, _dispatcher, command).Dispatch
-                        );
-                    break;
-                    default: throw new UnsupportedHttpMethodException(string.Format(
-                        "The http method {0} is not supported, must be either POST or GET",
-                        command.GetTypeInfo().GetCustomAttribute<HttpCommandAttribute>().Method
-                    ));
+            foreach (var provider in _commandProviders) {
+                foreach (var kv in provider.Provide()) {
+                    var metadata = kv.Key;
+                    var command = kv.Value;
+
+                    _logger.LogDebug($"Mapping {metadata.Template} to command {command.Name}");
+                    switch (metadata.Method) {
+                        case "POST":
+                            builder.MapPost(
+                                metadata.Template,
+                                new HttpCommandDispatcher(_logger, _validator, _dispatcher, command).Dispatch
+                            );
+                            break;
+                        case "GET":
+                            builder.MapGet(
+                                metadata.Template,
+                                new HttpCommandDispatcher(_logger, _validator, _dispatcher, command).Dispatch
+                            );
+                            break;
+                        default:
+                            throw new UnsupportedHttpMethodException(
+                                $"Unable to map route {metadata.Template} to {command.Name}, expected method GET or POST but was {metadata.Method}"
+                            );
+                    }
                 }
             }
         }

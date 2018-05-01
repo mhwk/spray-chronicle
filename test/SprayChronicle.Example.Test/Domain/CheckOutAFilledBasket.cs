@@ -7,11 +7,10 @@ namespace SprayChronicle.Example.Test.Domain
 {
     public sealed class CheckOutAFilledBasket : EventSourcedTestCase<Module,Basket>
     {
-        protected override async Task<Basket> Given(Basket basket)
+        protected override async Task<Basket> Given()
         {
-            basket = await Basket.PickUp(new BasketId("basketId"));
-            basket = await (basket as PickedUpBasket).AddProduct(new ProductId("productId"));
-            
+            var basket = await Basket.PickUp(new BasketId("basketId"));
+            basket = await ((PickedUpBasket) basket).AddProduct(new ProductId("productId"));
             return basket;
         }
 
@@ -22,9 +21,7 @@ namespace SprayChronicle.Example.Test.Domain
 
         protected override void Then(IValidate validator)
         {
-            validator.Expect(
-                new BasketCheckedOut("basketId", "orderId", new [] {"productId"})
-            );
+            validator.Expect(new BasketCheckedOut("basketId", "orderId", new [] {"productId"}));
         }
     }
 }

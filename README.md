@@ -10,6 +10,20 @@ Examples
 
 Have a look at the [example project](src/SprayChronicle.Example) and [example tests](test/SprayChronicle.Example.Test) for how the framework is used.
 
+Usage
+=====
+
+Testing aggregates / process managers
+-------------------------------------
+
+Integration testing handling
+----------------------------
+
+Integration testing querying
+----------------------------
+
+
+
 Development
 ===========
 

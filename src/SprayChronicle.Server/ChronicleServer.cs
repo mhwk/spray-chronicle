@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Autofac;
-using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.CommandLineUtils;
 
 namespace SprayChronicle.Server

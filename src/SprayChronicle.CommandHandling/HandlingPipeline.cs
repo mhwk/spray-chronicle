@@ -108,19 +108,19 @@ namespace SprayChronicle.CommandHandling
 
         private async Task Apply(CommandEnvelope envelope, Handled handled)
         {
-            TState identity;
+            var identity = await _repository.LoadOrDefault<TState>(handled.Identity, envelope.MessageId);
 
             switch (handled) {
                 case HandledCreate<TState> created:
                     identity = await created.Do();
                     break;
                 case HandledUpdate<TState> updated:
-                    identity = await updated.Do(await _repository.Load<TState>(handled.Identity, envelope.MessageId));
+                    identity = await updated.Do(identity);
                     break;
                 default:
                     throw new Exception($"Unsupported pipeline result {handled.GetType()}");
             }
-            
+        
             await _repository.Save<TState>(identity, envelope);
         }
     }
