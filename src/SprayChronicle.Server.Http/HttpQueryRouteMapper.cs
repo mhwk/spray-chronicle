@@ -1,6 +1,5 @@
-using System.Reflection;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Logging;
 using SprayChronicle.QueryHandling;
 
 namespace SprayChronicle.Server.Http
@@ -8,10 +7,12 @@ namespace SprayChronicle.Server.Http
     public class HttpQueryRouteMapper
     {
         private readonly ILogger<HttpQueryProcessor> _logger;
-
+        
         private readonly IValidator _validator;
 
         private readonly IQueryDispatcher _dispatcher;
+
+        private readonly List<IAttributeProvider<HttpQueryAttribute>> _queryProviders = new List<IAttributeProvider<HttpQueryAttribute>>();
 
         public HttpQueryRouteMapper(
             ILogger<HttpQueryProcessor> logger,
@@ -23,24 +24,37 @@ namespace SprayChronicle.Server.Http
             _dispatcher = dispatcher;
         }
 
+        public void RegisterAttributeProvider(IAttributeProvider<HttpQueryAttribute> provider)
+        {
+            _queryProviders.Add(provider);
+        }
+
         public void Map(RouteBuilder builder)
         {
-            foreach (var query in Locator.LocateWithAttribute<HttpQueryAttribute>()) {
-                var template = query.GetTypeInfo().GetCustomAttribute<HttpQueryAttribute>().Template;
-                _logger.LogDebug($"Mapping {template} to query {query}");
-                switch (query.GetTypeInfo().GetCustomAttribute<HttpQueryAttribute>().Method) {
-                    case "POST":
-                        builder.MapPost(
-                            query.GetTypeInfo().GetCustomAttribute<HttpQueryAttribute>().Template,
-                            new HttpQueryProcessor(_logger, _validator, _dispatcher, query, query.GetTypeInfo().GetCustomAttribute<HttpQueryAttribute>().ContentType).Process
-                        );
-                    break;
-                    case "GET":
-                        builder.MapGet(
-                            query.GetTypeInfo().GetCustomAttribute<HttpQueryAttribute>().Template,
-                            new HttpQueryProcessor(_logger, _validator, _dispatcher, query, query.GetTypeInfo().GetCustomAttribute<HttpQueryAttribute>().ContentType).Process
-                        );
-                    break;
+            foreach (var provider in _queryProviders) {
+                foreach (var kv in provider.Provide()) {
+                    var metadata = kv.Key;
+                    var query = kv.Value;
+                    
+                    _logger.LogDebug($"Mapping {metadata.Template} to query {query}");
+                    switch (metadata.Method) {
+                        case "POST":
+                            builder.MapPost(
+                                metadata.Template,
+                                new HttpQueryProcessor(_logger, _validator, _dispatcher, query, metadata.ContentType).Process
+                            );
+                            break;
+                        case "GET":
+                            builder.MapGet(
+                                metadata.Template,
+                                new HttpQueryProcessor(_logger, _validator, _dispatcher, query, metadata.ContentType).Process
+                            );
+                            break;
+                        default:
+                            throw new UnsupportedHttpMethodException(
+                                $"Unable to map route {metadata.Template} to {query.Name}, expected method GET or POST but was {metadata.Method}"
+                            );
+                    }
                 }
             }
         }
