@@ -1,16 +1,11 @@
 ﻿using System;
-using System.Threading.Tasks;
 using Autofac;
 using Microsoft.Extensions.Logging;
 using SprayChronicle.Server;
 
 namespace SprayChronicle.Testing
 {
-    public abstract class Fixture<TPopulate,TPopulateResult,TExecute,TValidate> : IPopulate<TPopulate,TPopulateResult,TExecute,TValidate>, IExecute<TExecute,TValidate>
-        where TPopulate : class
-        where TPopulateResult : class
-        where TExecute : class
-        where TValidate : class
+    public abstract class Fixture
     {
         protected readonly IContainer Container;
 
@@ -36,9 +31,5 @@ namespace SprayChronicle.Testing
         protected virtual void Boot()
         {
         }
-
-        public abstract Task<IExecute<TExecute, TValidate>> Given(Func<TPopulate, TPopulateResult> callback);
-
-        public abstract Task<IValidate> When(Func<TExecute, TValidate> callback);
     }
 }

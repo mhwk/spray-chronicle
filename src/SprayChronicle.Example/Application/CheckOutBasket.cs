@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SprayChronicle.Example.Application
 {
-    [HttpCommandAttribute("basket/check-out/{basketId}")]
+    [HttpCommand("basket/{basketId}/check-out")]
     public sealed class CheckOutBasket
     {
         [Required]

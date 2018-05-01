@@ -7,7 +7,7 @@ namespace SprayChronicle.Testing.Test
 {
     public class EventSourcedTestCaseTest : EventSourcedTestCase<Module,Basket>
     {
-        protected override Task<Basket> Given(Basket basket)
+        protected override Task<Basket> Given()
         {
             return Basket.PickUp(new BasketId("basketId"));
         }

@@ -6,12 +6,12 @@ using SprayChronicle.EventSourcing;
 
 namespace SprayChronicle.Testing
 {
-    public abstract class EventSourcedTestCase<TModule,TSourced> where TModule : IModule, new() where TSourced : EventSourced<TSourced>
+    public abstract class EventSourcedTestCase<TModule,TSourced>
+        where TModule : IModule, new()
+        where TSourced : EventSourced<TSourced>
     {
         protected virtual void Configure(ContainerBuilder builder)
         {}
-
-        protected abstract Task<TSourced> Given(TSourced sourced);
 
         protected abstract Task<TSourced> When(TSourced sourced);
 
@@ -22,9 +22,22 @@ namespace SprayChronicle.Testing
         {
             var fixture = new EventSourcedFixture<TModule, TSourced>(Configure);
             
-            await fixture.Given(Given);
-
             Then(await fixture.When(When));
+        }
+
+        public abstract class Continued : EventSourcedTestCase<TModule,TSourced>
+        {
+            protected abstract Task<TSourced> Given();
+
+            [Fact]
+            public override async Task Scenario()
+            {
+                var fixture = new EventSourcedFixture<TModule, TSourced>(Configure);
+            
+                await fixture.Given(Given);
+
+                Then(await fixture.When(When));
+            }
         }
     }
 }

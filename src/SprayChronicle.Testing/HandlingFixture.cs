@@ -8,7 +8,10 @@ using SprayChronicle.EventSourcing;
 
 namespace SprayChronicle.Testing
 {
-    public sealed class HandlingFixture<TModule> : Fixture<ICommandDispatcher,Task,ICommandDispatcher,Task> where TModule : IModule, new()
+    public sealed class HandlingFixture<TModule> : Fixture,
+        IPopulate<ICommandDispatcher,Task,ICommandDispatcher,Task>,
+        IExecute<ICommandDispatcher,Task>
+        where TModule : IModule, new()
     {
         public HandlingFixture(): this(builder => {})
         {}
@@ -33,19 +36,17 @@ namespace SprayChronicle.Testing
         
         protected override void Boot()
         {
-            // @todo cancellationtoken
-            
             Container.Resolve<IPipelineManager>().Start();
         }
 
-        public override async Task<IExecute<ICommandDispatcher, Task>> Given(Func<ICommandDispatcher, Task> callback)
+        public async Task<IExecute<ICommandDispatcher, Task>> Given(Func<ICommandDispatcher, Task> callback)
         {
             await callback(Container.Resolve<ICommandDispatcher>());
             
             return this;
         }
 
-        public override async Task<IValidate> When(Func<ICommandDispatcher,Task> callback)
+        public async Task<IValidate> When(Func<ICommandDispatcher,Task> callback)
         {
             return await HandlingValidator.Run(Container, () => callback(Container.Resolve<ICommandDispatcher>()));
         }

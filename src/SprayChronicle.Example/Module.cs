@@ -1,6 +1,5 @@
 using Autofac;
 using SprayChronicle.CommandHandling;
-using SprayChronicle.EventSourcing;
 using SprayChronicle.Example.Application.Service;
 using SprayChronicle.Example.Domain.Model;
 using SprayChronicle.Persistence.Raven;

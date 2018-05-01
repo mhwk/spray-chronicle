@@ -12,7 +12,7 @@ namespace SprayChronicle.Example.Application.Service
     {
         public async Task<Handled> Handle(PickUpBasket command)
         {
-            return await Handle()
+            return await Handle(command.BasketId)
                 .Mutate(() => Basket.PickUp(command.BasketId));
         }
 

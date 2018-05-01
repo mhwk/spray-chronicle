@@ -3,7 +3,7 @@
 namespace SprayChronicle.Example.Application
 {
     [HttpQuery("per-minute")]
-    public class PerMinute
+    public sealed class PerMinute
     {
         
     }

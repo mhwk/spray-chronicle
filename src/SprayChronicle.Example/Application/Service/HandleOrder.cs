@@ -15,7 +15,7 @@ namespace SprayChronicle.Example.Application.Service
     {
         public async Task<Handled> Handle(GenerateOrder command)
         {
-            return await Handle()
+            return await Handle(command.OrderId)
                 .Mutate(async () => await Order.Generate(
                     command.OrderId,
                     command.ProductIds.Select(p => new ProductId(p)).ToArray()

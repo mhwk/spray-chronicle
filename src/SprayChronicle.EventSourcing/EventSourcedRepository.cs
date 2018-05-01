@@ -33,18 +33,15 @@ namespace SprayChronicle.EventSourcing
         public async Task Save<TChild>(T sourced, IEnvelope envelope) where TChild : T
         {
             if (null == sourced) {
-                throw new InvalidStateException(string.Format(
-                    "Expected state {0}, but got null",
-                    typeof(TChild)
-                ));
+                throw new InvalidStateException(
+                    $"Expected state {typeof(TChild)}, but got null"
+                );
             }
             
             if ( ! (sourced is TChild)) {
-                throw new InvalidStateException(string.Format(
-                    "Expected state {0}, but got {1}",
-                    typeof(TChild),
-                    sourced.GetType()
-                ));
+                throw new InvalidStateException(
+                    $"Expected state {typeof(TChild)}, but got {sourced.GetType()}"
+                );
             }
             await Save(sourced, envelope);
         }
@@ -61,11 +58,9 @@ namespace SprayChronicle.EventSourcing
                 return null;
             }
             if ( ! (sourced is TChild)) {
-                throw new InvalidStateException(string.Format(
-                    "Expected state {0}, but got {1}",
-                    typeof(TChild),
-                    sourced.GetType()
-                ));
+                throw new InvalidStateException(
+                    $"Expected state {typeof(TChild)}, but got {sourced.GetType()}"
+                );
             }
             return (TChild) sourced;
         }
@@ -75,10 +70,9 @@ namespace SprayChronicle.EventSourcing
             var sourced = await LoadOrDefault<TChild>(identity, causationId);
             
             if (null == sourced) {
-                throw new InvalidStateException(string.Format(
-                    "Expected state {0}, but got null",
-                    typeof(TChild)
-                ));
+                throw new InvalidStateException(
+                    $"Expected state {typeof(TChild)}, but got null"
+                );
             }
             return sourced;
         }

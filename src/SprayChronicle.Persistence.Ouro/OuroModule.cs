@@ -1,6 +1,5 @@
 using System;
 using System.Net;
-using System.Threading.Tasks;
 using App.Metrics.Health;
 using Autofac;
 using EventStore.ClientAPI;
