@@ -26,7 +26,8 @@ services:
     command: test
 
   example:
-    image: microsoft/dotnet:2.0-sdk
+    build:
+      context: src/SprayChronicle.Example
     volumes:
       - ./:/spray
     depends_on:

@@ -1,7 +1,5 @@
 using Autofac;
 using Autofac.Core;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Logging;
 
 namespace SprayChronicle.Server
 {

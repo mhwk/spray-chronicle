@@ -7,6 +7,7 @@ using SprayChronicle.QueryHandling;
 using SprayChronicle.Server;
 using SprayChronicle.Server.HealthChecks;
 using SprayChronicle.Server.Http;
+using SprayChronicle.UI.Web;
 
 namespace SprayChronicle.Example
 {
@@ -23,6 +24,7 @@ namespace SprayChronicle.Example
                 .WithCommandHandling()
                 .WithQueryHandling()
                 .WithHttp()
+                .WithWebUI()
                 .WithExample()
                 .Run(args);
         }
