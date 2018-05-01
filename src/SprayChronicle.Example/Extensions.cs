@@ -11,7 +11,7 @@ namespace SprayChronicle.Example
         public static ChronicleServer WithExample(this ChronicleServer server)
         {
             server.OnAutofacConfigure += builder => builder.RegisterModule<Module>();
-            server.OnStartup += async services => await services.GetService<Populator>().Populate();
+//            server.OnStartup += async services => await services.GetService<Populator>().Populate();
             return server;
         }
     }

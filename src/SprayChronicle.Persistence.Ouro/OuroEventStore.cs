@@ -92,7 +92,6 @@ namespace SprayChronicle.Persistence.Ouro
                 true,
                 Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(domainEnvelope.Message)),
                 Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(new Metadata(
-                    domainEnvelope.Message.GetType(),
                     domainEnvelope.MessageId,
                     domainEnvelope.CausationId,
                     domainEnvelope.CorrelationId

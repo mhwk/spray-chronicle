@@ -62,7 +62,7 @@ namespace SprayChronicle.Persistence.Ouro
                 return _eventStore.SubscribeToStreamFrom(
                     _streamOptions.TargetStream,
                     null,
-                    new CatchUpSubscriptionSettings(10000, 500, false, true, Guid.NewGuid().ToString()),
+                    new CatchUpSubscriptionSettings(1024 * 4, 1024, false, true, Guid.NewGuid().ToString()),
                     EventAppeared,
                     LiveProcessingStarted,
                     SubscriptionDropped,
@@ -72,7 +72,7 @@ namespace SprayChronicle.Persistence.Ouro
             return _eventStore.SubscribeToStreamFrom(
                 _streamOptions.TargetStream,
                 _checkpoint,
-                new CatchUpSubscriptionSettings(10000, 500, false, true, Guid.NewGuid().ToString()),
+                new CatchUpSubscriptionSettings(1024 * 4, 1024, false, true, Guid.NewGuid().ToString()),
                 EventAppeared,
                 LiveProcessingStarted,
                 SubscriptionDropped,

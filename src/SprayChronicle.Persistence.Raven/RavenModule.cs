@@ -65,12 +65,12 @@ namespace SprayChronicle.Persistence.Raven
             where TProcessor : RavenQueries<TProcessor,TState>
             where TState : class
         {
-            private readonly string _streamName;
+            private readonly StreamOptions _streamOptions;
             private readonly string _checkpointName;
 
-            public QueryPipeline(string streamName = null, string checkpointName = null)
+            public QueryPipeline(StreamOptions streamOptions = null, string checkpointName = null)
             {
-                _streamName = streamName;
+                _streamOptions = streamOptions;
                 _checkpointName = checkpointName;
             }
 
@@ -92,13 +92,13 @@ namespace SprayChronicle.Persistence.Raven
                     .As<IMailStrategyRouterSubscriber<IExecute>>()
                     .SingleInstance();
 
-                if (null != _streamName) {
+                if (null != _streamOptions) {
                     builder
                         .Register(c => new RavenProcessingPipeline<TProcessor,TState>(
                             c.Resolve<ILoggerFactory>().Create<TProcessor>(),
                             c.Resolve<IDocumentStore>(),
                             c.Resolve<IEventSourceFactory>(),
-                            new CatchUpOptions(_streamName),
+                            new CatchUpOptions(_streamOptions),
                             c.Resolve<TProcessor>(),
                             _checkpointName
                         ))

@@ -136,6 +136,6 @@ services:
     environment:
       - RAVEN_ARGS=-n -l --Setup.Mode=None
       - RAVEN_Security_UnsecuredAccessAllowed=PrivateNetwork
-      - RAVEN_RunInMemory=true
+      # - RAVEN_RunInMemory=true
     ports:
       - 8080:8080

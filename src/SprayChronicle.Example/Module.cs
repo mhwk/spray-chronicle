@@ -16,8 +16,8 @@ namespace SprayChronicle.Example
             
 //            builder.RegisterQueryExecutor<QueryBasketsPickedUpPerDay,QueryBasketsPickedUpPerDay.Result>();
 //            builder.RegisterQueryExecutor<QueryBasketsPickedUpPerMinute,QueryBasketsPickedUpPerMinute.Result>();
-//            builder.RegisterQueryExecutor<QueryBasketWithProducts,QueryBasketWithProducts.BasketWithProducts_v1>("$ce-SprayChronicle");
-//            builder.RegisterQueryExecutor<QueryPlacedOrders,QueryPlacedOrders.PlacedOrders_v2>("$ce-SprayChronicle");
+//            builder.RegisterQueryExecutor<QueryBasketWithProducts,QueryBasketWithProducts.BasketWithProducts_v1>(stream => stream.From(typeof(Basket)));
+//            builder.RegisterQueryExecutor<QueryPlacedOrders,QueryPlacedOrders.PlacedOrders_v2>(stream => stream.From(typeof(Basket), typeof(Order)));
 //            builder.RegisterQueryExecutor<QueryPlacedOrdersPerDay,QueryPlacedOrdersPerDay.Result>();
 //            builder.RegisterQueryExecutor<QueryPlacedOrdersPerMinute,QueryPlacedOrdersPerMinute.Result>();
 

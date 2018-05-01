@@ -72,7 +72,7 @@ namespace SprayChronicle.Persistence.Raven
                     try {
                         return _source.Convert(_strategy, message);
                     } catch (Exception error) {
-                        _logger.LogCritical(error);
+//                        _logger.LogCritical(error);
                         return null;
                     }
                 },

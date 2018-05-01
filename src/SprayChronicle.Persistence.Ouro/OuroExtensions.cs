@@ -32,7 +32,7 @@ namespace SprayChronicle.Persistence.Ouro
                 "fromCategories([" + categoryList + "])",
                 "  .when({",
                 "    $any: function(state, event) {",
-                "      emit(\"" + streamOptions.TargetStream + "\", event.eventType, event.data, event.matadata);",
+                "      linkTo(\"" + streamOptions.TargetStream + "\", event);",
                 "    }",
                 "  });"
             };

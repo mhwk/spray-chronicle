@@ -19,15 +19,17 @@ namespace SprayChronicle.EventSourcing
             if (null == subject.Identity() || "" == subject.Identity()) {
                 throw new UnknownStreamException("No identity found after apply of events");
             }
-            
-            await _persistence.Append<T>(subject.Identity(), subject.Diff().Select(m => new DomainEnvelope(
-                Guid.NewGuid().ToString(),
-                envelope.MessageId,
-                envelope.CorrelationId,
-                m.Item1,
-                m.Item2,
-                m.Item3
-            )));
+            // 27d7dfcc-1104-5185-ae1a-57e0bf492734
+            await _persistence.Append<T>(subject.Identity(), subject.Diff().Select(m => {
+                return new DomainEnvelope(
+                    Guid.NewGuid().ToString(),
+                    envelope.MessageId,
+                    envelope.CorrelationId,
+                    m.Item1,
+                    m.Item2,
+                    m.Item3
+                );
+            }));
         }
 
         public async Task Save<TChild>(T sourced, IEnvelope envelope) where TChild : T
