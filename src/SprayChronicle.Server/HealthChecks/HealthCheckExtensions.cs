@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Routing;
 
 namespace SprayChronicle.Server.HealthChecks
 {
-    public static class ChronicleServerExtensions
+    public static class HealthCheckExtensions
     {
         public static ChronicleServer WithHealthChecks(this ChronicleServer server)
         {

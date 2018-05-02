@@ -49,5 +49,6 @@
   </Target>
   <ItemGroup>
     <EmbeddedResource Include="wwwroot\dist\**; UI\dist\**" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" />
+    <EmbeddedResource Include="wwwroot\index.html" />
   </ItemGroup>
 </Project>
