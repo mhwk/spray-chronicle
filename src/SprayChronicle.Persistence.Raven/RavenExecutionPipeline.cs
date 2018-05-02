@@ -22,8 +22,8 @@ namespace SprayChronicle.Persistence.Raven
 
         protected override async Task<object> Apply(Executor executor)
         {
-            if (!(executor is Executed raven)) {
-                throw new Exception($"Executor is expected to be {typeof(Executed)}, {executor.GetType()} given");
+            if (!(executor is RavenExecuted raven)) {
+                throw new Exception($"Executor is expected to be {typeof(RavenExecuted)}, {executor.GetType()} given");
             }
             
             using (var session = _store.OpenAsyncSession()) {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Raven.Client.Documents.Indexes;
 using Raven.Client.Documents.Linq;
@@ -6,12 +7,12 @@ using Raven.Client.Documents.Session;
 
 namespace SprayChronicle.Persistence.Raven
 {
-    public sealed class ExecutedSingle<TState> : Executed
+    public class RavenExecutedMultiple<TState> : RavenExecuted
         where TState : class
     {
-        private readonly Func<IRavenQueryable<TState>,Task<TState>> _query;
+        private readonly Func<IRavenQueryable<TState>,Task<List<TState>>> _query;
 
-        public ExecutedSingle(Func<IRavenQueryable<TState>,Task<TState>> query)
+        public RavenExecutedMultiple(Func<IRavenQueryable<TState>,Task<List<TState>>> query)
         {
             _query = query;
         }
@@ -22,13 +23,13 @@ namespace SprayChronicle.Persistence.Raven
         }
     }
     
-    public sealed class ExecutedSingle<TState,TFilter> : Executed
+    public class RavenExecutedMultiple<TState,TFilter> : RavenExecuted
         where TState : class
         where TFilter : AbstractIndexCreationTask, new()
     {
-        private readonly Func<IRavenQueryable<TState>,Task<TState>> _query;
+        private readonly Func<IRavenQueryable<TState>,Task<List<TState>>> _query;
 
-        public ExecutedSingle(Func<IRavenQueryable<TState>,Task<TState>> query)
+        public RavenExecutedMultiple(Func<IRavenQueryable<TState>,Task<List<TState>>> query)
         {
             _query = query;
         }

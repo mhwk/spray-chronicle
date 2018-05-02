@@ -13,9 +13,9 @@ namespace SprayChronicle.Persistence.Raven
             return new RavenProcessedFactory<TState>(identity);
         }
 
-        protected ExecutedFactory<TState> Execute()
+        protected RavenExecutedFactory<TState> Execute()
         {
-            return new ExecutedFactory<TState>();
+            return new RavenExecutedFactory<TState>();
         }
         
         protected RavenExecutorFactory<TState,TFilter> Execute<TFilter>()

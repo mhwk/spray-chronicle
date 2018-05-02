@@ -4,7 +4,7 @@ using SprayChronicle.QueryHandling;
 
 namespace SprayChronicle.Persistence.Raven
 {
-    public abstract class Executed : Executor
+    public abstract class RavenExecuted : Executor
     {
         internal abstract Task<object> Do(IAsyncDocumentSession session);
     }

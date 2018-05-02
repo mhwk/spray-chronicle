@@ -3,12 +3,12 @@ using System.Threading.Tasks;
 
 namespace SprayChronicle.Persistence.Raven
 {
-    public sealed class ProcessedCreate<TState> : Processed
+    public sealed class RavenProcessedCreate<TState> : RavenProcessed
         where TState : class
     {
         private readonly Func<TState> _mutation;
         
-        public ProcessedCreate(string identity, Func<TState> mutation): base($"{typeof(TState).Name}/{identity}")
+        public RavenProcessedCreate(string identity, Func<TState> mutation): base($"{typeof(TState).Name}/{identity}")
         {
             _mutation = mutation;
         }

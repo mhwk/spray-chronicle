@@ -3,12 +3,12 @@ using Raven.Client.Documents.Session;
 
 namespace SprayChronicle.Persistence.Raven
 {
-    public class ExecutedFind<TState> : Executed
+    public class RavenExecutedFind<TState> : RavenExecuted
         where TState : class
     {
         private readonly string _identity;
 
-        public ExecutedFind(string identity)
+        public RavenExecutedFind(string identity)
         {
             _identity = identity;
         }

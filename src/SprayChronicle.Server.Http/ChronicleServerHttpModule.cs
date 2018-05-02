@@ -28,14 +28,16 @@ namespace SprayChronicle.Server.Http
                 .SingleInstance();
 
             builder
-                .Register(c => new ContextAttributeProvider<HttpCommandAttribute>())
+                .Register(c => new EntryAttributeProvider<HttpCommandAttribute>())
                 .AsSelf()
-                .As<IAttributeProvider<HttpCommandAttribute>>();
+                .As<IAttributeProvider<HttpCommandAttribute>>()
+                .SingleInstance();
             
             builder
-                .Register(c => new ContextAttributeProvider<HttpQueryAttribute>())
+                .Register(c => new EntryAttributeProvider<HttpQueryAttribute>())
                 .AsSelf()
-                .As<IAttributeProvider<HttpQueryAttribute>>();
+                .As<IAttributeProvider<HttpQueryAttribute>>()
+                .SingleInstance();
             
             builder.Register<IValidator>(c => new AnnotationValidator()).SingleInstance();
         }

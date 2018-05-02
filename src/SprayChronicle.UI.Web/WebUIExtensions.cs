@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
+using Autofac;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SpaServices.Webpack;
@@ -14,6 +15,10 @@ namespace SprayChronicle.UI.Web
     {
         public static ChronicleServer WithWebUI(this ChronicleServer server)
         {
+            server.OnAutofacConfigure += builder =>
+            {
+                builder.RegisterModule<Module>();
+            };
             server.OnApplicationBuild += builder =>
             {
                 builder.UseStaticFiles(new StaticFileOptions

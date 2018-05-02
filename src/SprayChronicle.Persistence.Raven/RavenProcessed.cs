@@ -1,13 +1,12 @@
 ﻿using System.Threading.Tasks;
-using SprayChronicle.EventHandling;
 
 namespace SprayChronicle.Persistence.Raven
 {
-    public abstract class Processed : EventHandling.Processed
+    public abstract class RavenProcessed : EventHandling.Processed
     {
         public string Identity { get; }
 
-        protected Processed(string identity)
+        protected RavenProcessed(string identity)
         {
             Identity = identity;
         }

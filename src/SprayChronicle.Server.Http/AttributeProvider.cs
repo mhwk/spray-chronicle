@@ -5,12 +5,12 @@ using System.Reflection;
 
 namespace SprayChronicle.Server.Http
 {
-    public abstract class ContextAttributeProvider<TAttribute> : IAttributeProvider<TAttribute>
+    public abstract class AttributeProvider<TAttribute> : IAttributeProvider<TAttribute>
         where TAttribute : Attribute
     {
         private readonly Assembly _assembly;
 
-        protected ContextAttributeProvider(Assembly assembly)
+        protected AttributeProvider(Assembly assembly)
         {
             _assembly = assembly;
         }
@@ -32,11 +32,4 @@ namespace SprayChronicle.Server.Http
         }
     }
 
-    public sealed class ContextAttributeProvider<TContext, TAttribute> : ContextAttributeProvider<TAttribute>
-        where TAttribute : Attribute
-    {
-        public ContextAttributeProvider() : base(typeof(TContext).Assembly)
-        {
-        }
-    }
 }

@@ -81,12 +81,12 @@ namespace SprayChronicle.Persistence.Raven
                     BoundedCapacity = BatchSize
                 }
             );
-            var routed = new TransformBlock<DomainEnvelope,Processed>(
+            var routed = new TransformBlock<DomainEnvelope,RavenProcessed>(
                 async message => {
                     if (null == message) return null;
                     
                     try {
-                        return await _strategy.Ask<Processed>(_processor, message.Message, message.Epoch);
+                        return await _strategy.Ask<RavenProcessed>(_processor, message.Message, message.Epoch);
                     } catch (Exception error) {
                         _logger.LogCritical(error);
                         throw;
@@ -97,11 +97,11 @@ namespace SprayChronicle.Persistence.Raven
                     BoundedCapacity = BatchSize
                 }
             );
-            var batched = new BatchBlock<Processed>(BatchSize, new GroupingDataflowBlockOptions {
+            var batched = new BatchBlock<RavenProcessed>(BatchSize, new GroupingDataflowBlockOptions {
 //                Greedy = true,
                 BoundedCapacity = BatchSize
             });
-            var action = new ActionBlock<Processed[]>(
+            var action = new ActionBlock<RavenProcessed[]>(
                 async processed => {
                     var measure = new MeasureMilliseconds();
                     try {
@@ -120,7 +120,7 @@ namespace SprayChronicle.Persistence.Raven
                 batched.TriggerBatch();
             });
             
-            var timeout = new TransformBlock<Processed,Processed>(
+            var timeout = new TransformBlock<RavenProcessed,RavenProcessed>(
                 processed => {
                     timer.Change(TimeSpan.FromMilliseconds(BatchTimeout), Timeout.InfiniteTimeSpan);
 //                    _logger.LogDebug($"Pre-{processed.GetType().Name}");
@@ -168,10 +168,10 @@ namespace SprayChronicle.Persistence.Raven
             return _source.Completion;
         }
 
-        private async Task Apply(Processed[] processed)
+        private async Task Apply(RavenProcessed[] ravenProcessed)
         {
             using (var session = _store.OpenAsyncSession()) {
-                var identities = processed
+                var identities = ravenProcessed
                     .Where(p => p != null)
                     .Select(p => p.Identity)
                     .Distinct()
@@ -179,7 +179,7 @@ namespace SprayChronicle.Persistence.Raven
             
                 var documents = await session.LoadAsync<TState>(identities);
                 
-                foreach (var process in processed) {
+                foreach (var process in ravenProcessed) {
                     if (null == process) {
 //                        _logger.LogDebug($"Skipping null at {i}");
                         continue;
@@ -199,7 +199,7 @@ namespace SprayChronicle.Persistence.Raven
                     );
                 }
 
-                await SaveCheckpoint(session, _checkpoint += processed.Length);
+                await SaveCheckpoint(session, _checkpoint += ravenProcessed.Length);
             
                 await session.SaveChangesAsync();
             }
