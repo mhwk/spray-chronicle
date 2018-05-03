@@ -4,13 +4,18 @@ using SprayChronicle.Server;
 
 namespace SprayChronicle.Persistence.Mongo
 {
-    public static class ChronicleServerExtensions
+    public static class MongoExtensions
     {
         public static ChronicleServer WithMongoPersistence(this ChronicleServer server)
         {
             server.OnAutofacConfigure += builder => builder.RegisterMongoPersistence();
-            server.OnShutdown += services => ((DisposableDatabaseFactory)services.GetService(typeof(DisposableDatabaseFactory))).Dispose();
             return server;
+        }
+        
+        public static ContainerBuilder RegisterMongoPersistence(this ContainerBuilder builder)
+        {
+            builder.RegisterModule<MongoModule>();
+            return builder;
         }
     }
 }
