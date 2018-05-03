@@ -23,7 +23,7 @@ namespace SprayChronicle.Persistence.Raven.Test
             var store = Container()
                 .Resolve<IDocumentStore>();
             var pipeline = Container()
-                .Resolve<RavenProcessingPipeline<QueryBasketWithProducts, QueryBasketWithProducts.BasketWithProducts_v1>>();
+                .Resolve<RavenProcessingAdapter<QueryBasketWithProducts, QueryBasketWithProducts.BasketWithProducts_v1>>();
             var source = (TestSource<QueryBasketWithProducts>) Container().Resolve<IEventSourceFactory>().Build<QueryBasketWithProducts,CatchUpOptions>(new CatchUpOptions("foo"));
             var task = pipeline.Start();
             
@@ -48,7 +48,7 @@ namespace SprayChronicle.Persistence.Raven.Test
             var store = Container()
                 .Resolve<IDocumentStore>();
             var pipeline = Container()
-                .Resolve<RavenProcessingPipeline<QueryBasketWithProducts, QueryBasketWithProducts.BasketWithProducts_v1>>();
+                .Resolve<RavenProcessingAdapter<QueryBasketWithProducts, QueryBasketWithProducts.BasketWithProducts_v1>>();
             var source = (TestSource<QueryBasketWithProducts>) Container().Resolve<IEventSourceFactory>().Build<QueryBasketWithProducts,CatchUpOptions>(new CatchUpOptions("foo"));
             var task = pipeline.Start();
             

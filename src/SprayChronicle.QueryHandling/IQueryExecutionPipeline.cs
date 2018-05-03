@@ -3,7 +3,7 @@ using SprayChronicle.MessageHandling;
 
 namespace SprayChronicle.QueryHandling
 {
-    public interface IQueryPipeline : IPipeline, IMailStrategyRouterSubscriber<IExecute>
+    public interface IQueryExecutionPipeline : IPipeline, IMailStrategyRouterSubscriber<IExecute>
     {
         
     }

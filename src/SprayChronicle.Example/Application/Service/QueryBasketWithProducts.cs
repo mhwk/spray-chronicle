@@ -33,7 +33,7 @@ namespace SprayChronicle.Example.Application.Service
                 .Mutate(basket => basket.RemoveProductId(payload.ProductId));
         }
         
-        public async Task<Executor> Execute(BasketById query)
+        public async Task<Executed> Execute(BasketById query)
         {
             return await Execute()
                 .Find(query.BasketId);

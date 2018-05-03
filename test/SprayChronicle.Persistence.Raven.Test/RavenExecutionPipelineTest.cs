@@ -20,7 +20,7 @@ namespace SprayChronicle.Persistence.Raven.Test
             var store = Container()
                 .Resolve<IDocumentStore>();
             var pipeline = Container()
-                .Resolve<RavenExecutionPipeline<QueryBasketWithProducts, QueryBasketWithProducts.BasketWithProducts_v1>>();
+                .Resolve<RavenExecutionAdapter<QueryBasketWithProducts, QueryBasketWithProducts.BasketWithProducts_v1>>();
             var router = new QueryRouter();
             var dispatcher = new RouterQueryDispatcher(router);
             router.Subscribe(pipeline);

@@ -30,7 +30,7 @@ namespace SprayChronicle.EventSourcing
             var sourcable = default(T);
             var sequence = -1L;
 
-            var converted = new TransformBlock<object, DomainEnvelope>(
+            var converted = new TransformBlock<object, EventEnvelope>(
                 message =>
                 {
                     try {
@@ -39,7 +39,7 @@ namespace SprayChronicle.EventSourcing
                         return null;
                     }
                 });
-            var applied = new ActionBlock<DomainEnvelope>(async message => {
+            var applied = new ActionBlock<EventEnvelope>(async message => {
                 sequence++;
                 
                 if (null != message) {

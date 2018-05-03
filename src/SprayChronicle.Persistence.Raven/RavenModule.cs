@@ -83,10 +83,13 @@ namespace SprayChronicle.Persistence.Raven
                     .SingleInstance();
                 
                 builder
-                    .Register(c => new RavenExecutionPipeline<TProcessor,TState>(
+                    .Register(c => new ExecutionPipeline<TProcessor>(
                         c.Resolve<ILoggerFactory>().Create<TProcessor>(),
-                        c.Resolve<IDocumentStore>(),
-                        c.Resolve<TProcessor>()))
+                        c.Resolve<TProcessor>(),
+                        new RavenExecutionAdapter<TProcessor,TState>(
+                                c.Resolve<ILoggerFactory>().Create<TProcessor>(),
+                            c.Resolve<IDocumentStore>()
+                        )))
                     .AsSelf()
                     .As<IPipeline>()
                     .As<IMailStrategyRouterSubscriber<IExecute>>()
@@ -94,13 +97,16 @@ namespace SprayChronicle.Persistence.Raven
 
                 if (null != _streamOptions) {
                     builder
-                        .Register(c => new RavenProcessingPipeline<TProcessor,TState>(
+                        .Register(c => new QueryProcessingPipeline<TProcessor>(
                             c.Resolve<ILoggerFactory>().Create<TProcessor>(),
-                            c.Resolve<IDocumentStore>(),
                             c.Resolve<IEventSourceFactory>(),
                             new CatchUpOptions(_streamOptions),
-                            c.Resolve<TProcessor>(),
-                            _checkpointName
+                            new RavenProcessingAdapter<TProcessor,TState>(
+                                c.Resolve<ILoggerFactory>().Create<TProcessor>(),
+                                c.Resolve<IDocumentStore>(),
+                                _checkpointName
+                            ), 
+                            c.Resolve<TProcessor>()
                         ))
                         .AsSelf()
                         .As<IPipeline>()

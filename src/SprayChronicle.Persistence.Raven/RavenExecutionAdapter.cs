@@ -6,24 +6,26 @@ using SprayChronicle.Server;
 
 namespace SprayChronicle.Persistence.Raven
 {
-    public sealed class RavenExecutionPipeline<TProcessor,TState> : ExecutionPipeline<TProcessor>
+    public sealed class RavenExecutionAdapter<TProcessor,TState> : IQueryExecutionAdapter
         where TProcessor : RavenQueries<TProcessor,TState>
         where TState : class
     {
+        private readonly ILogger<TProcessor> _logger;
+        
         private readonly IDocumentStore _store;
 
-        public RavenExecutionPipeline(
+        public RavenExecutionAdapter(
             ILogger<TProcessor> logger,
-            IDocumentStore store,
-            TProcessor processor) : base(logger, processor)
+            IDocumentStore store)
         {
+            _logger = logger;
             _store = store;
         }
 
-        protected override async Task<object> Apply(Executor executor)
+        public async Task<object> Apply(Executed executed)
         {
-            if (!(executor is RavenExecuted raven)) {
-                throw new Exception($"Executor is expected to be {typeof(RavenExecuted)}, {executor.GetType()} given");
+            if (!(executed is RavenExecuted raven)) {
+                throw new Exception($"Executed is expected to be {typeof(RavenExecuted)}, {executed.GetType()} given");
             }
             
             using (var session = _store.OpenAsyncSession()) {

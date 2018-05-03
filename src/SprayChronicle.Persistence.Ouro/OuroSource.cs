@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using EventStore.ClientAPI;
 using Newtonsoft.Json;
+using SprayChronicle.EventHandling;
 using SprayChronicle.EventSourcing;
 using SprayChronicle.MessageHandling;
 using SprayChronicle.Server;
@@ -38,7 +39,7 @@ namespace SprayChronicle.Persistence.Ouro
             _logger.LogDebug($"{GetType().Name} done streaming messages");
         }
 
-        public DomainEnvelope Convert(IMailStrategy<TTarget> strategy, object message)
+        public EventEnvelope Convert(IMailStrategy<TTarget> strategy, object message)
         {
             if (!(message is ResolvedEvent resolvedEvent)) {
                 throw new ArgumentException($"Message of type {message.GetType()} is expected to be a {typeof(ResolvedEvent)}");
@@ -53,7 +54,7 @@ namespace SprayChronicle.Persistence.Ouro
                 throw new IdempotencyException($"Message {_causationId} has already been handled");
             }
             
-            return new DomainEnvelope(
+            return new EventEnvelope(
                 metadata.MessageId,
                 metadata.CausationId,
                 metadata.CorrelationId,

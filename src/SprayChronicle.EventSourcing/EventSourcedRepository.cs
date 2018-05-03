@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using SprayChronicle.EventHandling;
 using SprayChronicle.MessageHandling;
 
 namespace SprayChronicle.EventSourcing
@@ -21,7 +22,7 @@ namespace SprayChronicle.EventSourcing
             }
             // 27d7dfcc-1104-5185-ae1a-57e0bf492734
             await _persistence.Append<T>(subject.Identity(), subject.Diff().Select(m => {
-                return new DomainEnvelope(
+                return new EventEnvelope(
                     Guid.NewGuid().ToString(),
                     envelope.MessageId,
                     envelope.CorrelationId,

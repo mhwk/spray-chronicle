@@ -51,7 +51,7 @@ namespace SprayChronicle.CommandHandling
             }
             
             _source = _sourceFactory.Build<THandler,CatchUpOptions>(_sourceOptions);
-            var converted = new TransformBlock<object,DomainEnvelope>(
+            var converted = new TransformBlock<object,EventEnvelope>(
                 message => {
                     try {
                         var result = _source.Convert(_strategy, message);
@@ -69,12 +69,12 @@ namespace SprayChronicle.CommandHandling
                     BoundedCapacity = BatchSize * Parallelism
                 }
             );
-            var dispatch = new TransformBlock<DomainEnvelope,Tuple<DomainEnvelope,Processed>>(
+            var dispatch = new TransformBlock<EventEnvelope,Tuple<EventEnvelope,Processed>>(
                 async envelope => {
                     if (null == envelope) return null;
                     
                     try {
-                        return new Tuple<DomainEnvelope, Processed>(
+                        return new Tuple<EventEnvelope, Processed>(
                             envelope,
                             await Process(envelope)
                         );
@@ -88,7 +88,7 @@ namespace SprayChronicle.CommandHandling
                     BoundedCapacity = BatchSize * Parallelism
                 }
             );
-            var apply = new ActionBlock<Tuple<DomainEnvelope,Processed>>(
+            var apply = new ActionBlock<Tuple<EventEnvelope,Processed>>(
                 async tuple => {
                     if (null == tuple) return;
                     
@@ -132,12 +132,12 @@ namespace SprayChronicle.CommandHandling
             return _source.Completion;
         }
 
-        private async Task<Processed> Process(DomainEnvelope envelope)
+        private async Task<Processed> Process(EventEnvelope envelope)
         {
             return await _strategy.Ask<Processed>(_handler, envelope.Message, envelope.Epoch);
         }
         
-        private async Task Apply(DomainEnvelope envelope, Processed processed)
+        private async Task Apply(EventEnvelope envelope, Processed processed)
         {
             if (!(processed is ProcessedDispatch dispatch)) {
                 throw new ArgumentException($"Processed is expected to be a {typeof(ProcessedDispatch)}, {processed.GetType()} given");

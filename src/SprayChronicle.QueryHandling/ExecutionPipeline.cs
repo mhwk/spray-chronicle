@@ -6,7 +6,7 @@ using SprayChronicle.Server;
 
 namespace SprayChronicle.QueryHandling
 {
-    public abstract class ExecutionPipeline<TQueryExecutor> : IQueryPipeline
+    public sealed class ExecutionPipeline<TQueryExecutor> : IQueryExecutionPipeline
         where TQueryExecutor : class, IExecute
     {
         public string Description => $"QueryExecution: {typeof(TQueryExecutor).Name}";
@@ -18,22 +18,26 @@ namespace SprayChronicle.QueryHandling
         private readonly ILogger<TQueryExecutor> _logger;
         
         private readonly TQueryExecutor _processor;
+        
+        private readonly IQueryExecutionAdapter _adapter;
 
-        protected ExecutionPipeline(
+        public ExecutionPipeline(
             ILogger<TQueryExecutor> logger,
-            TQueryExecutor processor)
+            TQueryExecutor processor,
+            IQueryExecutionAdapter adapter)
         {
             _logger = logger;
             _processor = processor;
+            _adapter = adapter;
         }
 
         public async Task Start()
         {
             _logger.LogDebug("Starting execution pipeline...");
-            var executed = new TransformBlock<QueryEnvelope,Tuple<QueryEnvelope,Executor>>(
+            var executed = new TransformBlock<QueryEnvelope,Tuple<QueryEnvelope,Executed>>(
                 async request => {
                     try {
-                        return new Tuple<QueryEnvelope, Executor>(
+                        return new Tuple<QueryEnvelope, Executed>(
                             request,
                             await ExecuteQuery(request)
                         );
@@ -47,10 +51,10 @@ namespace SprayChronicle.QueryHandling
                     MaxDegreeOfParallelism = 4
                 }
             );
-            var applied = new TransformBlock<Tuple<QueryEnvelope,Executor>,Tuple<QueryEnvelope,object>>(
+            var applied = new TransformBlock<Tuple<QueryEnvelope,Executed>,Tuple<QueryEnvelope,object>>(
                 async tuple => {
                     try {
-                        var result = await Apply(tuple.Item2);
+                        var result = await _adapter.Apply(tuple.Item2);
                         return new Tuple<QueryEnvelope, object>(
                             tuple.Item1,
                             result
@@ -95,12 +99,10 @@ namespace SprayChronicle.QueryHandling
             return _queue.Completion;
         }
 
-        private async Task<Executor> ExecuteQuery(QueryEnvelope query)
+        private async Task<Executed> ExecuteQuery(QueryEnvelope query)
         {
-            return await _strategy.Ask<Executor>(_processor, query.Message, query.Epoch);
+            return await _strategy.Ask<Executed>(_processor, query.Message, query.Epoch);
         }
-
-        protected abstract Task<object> Apply(Executor executor);
         
         public void Subscribe(IMailStrategyRouter<IExecute> messageRouter)
         {

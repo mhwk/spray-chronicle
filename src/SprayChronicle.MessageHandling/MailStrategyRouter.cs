@@ -36,7 +36,7 @@ namespace SprayChronicle.MessageHandling
         
         public async Task Route(IEnvelope envelope)
         {
-            var tasks = new List<Task<object>>();
+            var tasks = new List<Task>();
             var results = new List<object>();
             
             foreach (var strategy in _strategies) {

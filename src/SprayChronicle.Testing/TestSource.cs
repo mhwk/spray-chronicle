@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
+using SprayChronicle.EventHandling;
 using SprayChronicle.EventSourcing;
 using SprayChronicle.MessageHandling;
 using SprayChronicle.Server;
@@ -40,7 +41,7 @@ namespace SprayChronicle.Testing
             return Task.CompletedTask;
         }
 
-        public DomainEnvelope Convert(IMailStrategy<TTarget> strategy, object message)
+        public EventEnvelope Convert(IMailStrategy<TTarget> strategy, object message)
         {
             if (null == message) {
                 throw new InvalidDomainMessageException("You must provide a message for conversion");
@@ -50,7 +51,7 @@ namespace SprayChronicle.Testing
                 throw new UnsupportedMessageException($"Message {message.GetType().Name} not resolved");
             }
             
-            return new DomainEnvelope(
+            return new EventEnvelope(
                 Guid.NewGuid().ToString(),
                 null,
                 Guid.NewGuid().ToString(),

@@ -16,12 +16,13 @@ Usage
 Testing aggregates / process managers
 -------------------------------------
 
-Integration testing handling
+
+Integration testing commands
 ----------------------------
 
-Integration testing querying
-----------------------------
 
+Integration testing queries
+---------------------------
 
 
 Development
@@ -42,6 +43,12 @@ Version 0.2.0
  * Implemented TPL pipelines
  * Idempotent processes
  * Support for [RavenDB](https://www.ravendb.net)
+ * Web interface
+
+Todo:
+ * resolve all code issues
+ * resolve all @todos
+ * 
 
 Version 0.1.0
 -------------

@@ -10,7 +10,7 @@ namespace SprayChronicle.Example.Application.Service
     public class QueryPlacedOrdersPerMinute : RavenQueries<QueryPlacedOrdersPerMinute,QueryPlacedOrdersPerMinute.Result>,
         IExecute<PerMinute>
     {
-        public async Task<Executor> Execute(PerMinute query)
+        public async Task<Executed> Execute(PerMinute query)
         {
             return await Execute<PlacedOrdersPerMinute>()
                 .Query<Result>(baskets => baskets

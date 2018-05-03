@@ -8,6 +8,9 @@ namespace SprayChronicle.MessageHandling
     {
         public bool Equals(Type[] x, Type[] y)
         {
+            if (null == x || null == y) {
+                throw new ArgumentException($"X or Y can not be empty");
+            }
             if (x.Length != y.Length) {
                 return false;
             }

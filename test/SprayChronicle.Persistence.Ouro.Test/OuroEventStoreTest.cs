@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using Autofac;
 using Shouldly;
+using SprayChronicle.EventHandling;
 using SprayChronicle.EventSourcing;
 using SprayChronicle.Example.Domain;
 using SprayChronicle.Example.Domain.Model;
@@ -26,7 +27,7 @@ namespace SprayChronicle.Persistence.Ouro.Test
         {
             var store = Container().Resolve<OuroEventStore>();
             Should.Throw<InvalidStreamException>(async () => await store.Append<Basket>("", new[] {
-                new DomainEnvelope(
+                new EventEnvelope(
                     Guid.NewGuid().ToString(),
                     Guid.NewGuid().ToString(),
                     Guid.NewGuid().ToString(),
@@ -42,7 +43,7 @@ namespace SprayChronicle.Persistence.Ouro.Test
         {
             var store = Container().Resolve<OuroEventStore>();
             Should.Throw<InvalidStreamException>(async () => await store.Append<Basket>("@", new[] {
-                new DomainEnvelope(
+                new EventEnvelope(
                     Guid.NewGuid().ToString(),
                     Guid.NewGuid().ToString(),
                     Guid.NewGuid().ToString(),
@@ -62,7 +63,7 @@ namespace SprayChronicle.Persistence.Ouro.Test
             var result = new List<object>();
             
             await store.Append<Basket>(identity, new [] {
-                new DomainEnvelope(
+                new EventEnvelope(
                     Guid.NewGuid().ToString(),
                     Guid.NewGuid().ToString(),
                     Guid.NewGuid().ToString(),
@@ -73,8 +74,8 @@ namespace SprayChronicle.Persistence.Ouro.Test
             });
 
             var source = store.Load<Basket>(identity, "idempotencyId");
-            var convert = new TransformBlock<object,DomainEnvelope>(message => source.Convert(strategy, message));
-            var action = new ActionBlock<DomainEnvelope>(message => result.Add(message.Message));
+            var convert = new TransformBlock<object,EventEnvelope>(message => source.Convert(strategy, message));
+            var action = new ActionBlock<EventEnvelope>(message => result.Add(message.Message));
 
             source.LinkTo(convert, new DataflowLinkOptions{
                 PropagateCompletion = true

@@ -70,7 +70,7 @@ namespace SprayChronicle.Server.Http
                 response.ContentType = "application/json";
                 response.StatusCode = 400;
                 await response.WriteAsync(JsonConvert.SerializeObject(new {
-                    Error = error.InnerException.Message
+                    Error = error.InnerException?.Message
                 }, _serializerSettings));
             } catch (InvalidRequestException error) {
                 _logger.LogInformation(error.ToString());

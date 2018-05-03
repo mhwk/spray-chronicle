@@ -8,6 +8,7 @@ using EventStore.ClientAPI;
 using EventStore.ClientAPI.SystemData;
 using NSubstitute;
 using Shouldly;
+using SprayChronicle.EventHandling;
 using SprayChronicle.EventSourcing;
 using SprayChronicle.Example.Domain.Model;
 using SprayChronicle.MessageHandling;
@@ -35,9 +36,9 @@ namespace SprayChronicle.Persistence.Ouro.Test
                 options => Task.CompletedTask
             );
             
-            var results = new List<DomainEnvelope>();
-            var transform = new TransformBlock<object, DomainEnvelope>(resolved => source.Convert(_strategy, resolved));
-            var action = new ActionBlock<DomainEnvelope>(domain => results.Add(domain));
+            var results = new List<EventEnvelope>();
+            var transform = new TransformBlock<object, EventEnvelope>(resolved => source.Convert(_strategy, resolved));
+            var action = new ActionBlock<EventEnvelope>(domain => results.Add(domain));
 
             source.LinkTo(transform, new DataflowLinkOptions {
                 PropagateCompletion = true
@@ -68,7 +69,7 @@ namespace SprayChronicle.Persistence.Ouro.Test
                 options => Task.CompletedTask
             );
 
-            await store.Append<Basket>(streamName, new [] { new DomainEnvelope(
+            await store.Append<Basket>(streamName, new [] { new EventEnvelope(
                 Guid.NewGuid().ToString(),
                 Guid.NewGuid().ToString(),
                 Guid.NewGuid().ToString(),
@@ -77,9 +78,9 @@ namespace SprayChronicle.Persistence.Ouro.Test
                 DateTime.Now
             )});
 
-            var results = new List<DomainEnvelope>();
-            var transform = new TransformBlock<object, DomainEnvelope>(resolved => source.Convert(_strategy, resolved));
-            var action = new ActionBlock<DomainEnvelope>(domain => results.Add(domain));
+            var results = new List<EventEnvelope>();
+            var transform = new TransformBlock<object, EventEnvelope>(resolved => source.Convert(_strategy, resolved));
+            var action = new ActionBlock<EventEnvelope>(domain => results.Add(domain));
 
             source.LinkTo(transform, new DataflowLinkOptions {
                 PropagateCompletion = true
@@ -96,7 +97,7 @@ namespace SprayChronicle.Persistence.Ouro.Test
             await transform.Completion;
             await action.Completion;
 
-            results.First().ShouldBeOfType<DomainEnvelope>();
+            results.First().ShouldBeOfType<EventEnvelope>();
         }
         
         [Fact]
@@ -114,7 +115,7 @@ namespace SprayChronicle.Persistence.Ouro.Test
             );
 
             await store.Append<Basket>(streamName, new [] {
-                new DomainEnvelope(
+                new EventEnvelope(
                     Guid.NewGuid().ToString(),
                     Guid.NewGuid().ToString(),
                     Guid.NewGuid().ToString(),
@@ -122,7 +123,7 @@ namespace SprayChronicle.Persistence.Ouro.Test
                     new TestMessage(),
                     DateTime.Now
                 ),
-                new DomainEnvelope(
+                new EventEnvelope(
                     Guid.NewGuid().ToString(),
                     Guid.NewGuid().ToString(),
                     Guid.NewGuid().ToString(),
@@ -132,9 +133,9 @@ namespace SprayChronicle.Persistence.Ouro.Test
                 ),
             });
 
-            var results = new List<DomainEnvelope>();
-            var transform = new TransformBlock<object, DomainEnvelope>(resolved => source.Convert(_strategy, resolved));
-            var action = new ActionBlock<DomainEnvelope>(domain => results.Add(domain));
+            var results = new List<EventEnvelope>();
+            var transform = new TransformBlock<object, EventEnvelope>(resolved => source.Convert(_strategy, resolved));
+            var action = new ActionBlock<EventEnvelope>(domain => results.Add(domain));
 
             source.LinkTo(transform, new DataflowLinkOptions {
                 PropagateCompletion = true

@@ -1,9 +1,10 @@
 using System;
+using SprayChronicle.EventSourcing;
 using SprayChronicle.MessageHandling;
 
-namespace SprayChronicle.EventSourcing
+namespace SprayChronicle.EventHandling
 {
-    public sealed class DomainEnvelope : IDomainEnvelope
+    public sealed class EventEnvelope : IEventEnvelope
     {
         public string MessageId { get; }
         
@@ -23,7 +24,7 @@ namespace SprayChronicle.EventSourcing
         
         public Action<Exception> OnError { get; }
 
-        public DomainEnvelope(
+        public EventEnvelope(
             string messageId,
             string causationId,
             string correlationId,
@@ -50,7 +51,7 @@ namespace SprayChronicle.EventSourcing
         
         public IEnvelope WithOnSuccess(Action<object> onSuccess)
         {
-            return new DomainEnvelope(
+            return new EventEnvelope(
                 MessageId,
                 CausationId,
                 CorrelationId,
@@ -64,7 +65,7 @@ namespace SprayChronicle.EventSourcing
 
         public IEnvelope WithOnError(Action<Exception> onError)
         {
-            return new DomainEnvelope(
+            return new EventEnvelope(
                 MessageId,
                 CausationId,
                 CorrelationId,

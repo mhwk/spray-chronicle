@@ -8,6 +8,7 @@ using EventStore.ClientAPI;
 using EventStore.ClientAPI.Projections;
 using EventStore.ClientAPI.SystemData;
 using Newtonsoft.Json;
+using SprayChronicle.EventHandling;
 using SprayChronicle.EventSourcing;
 using SprayChronicle.Server;
 
@@ -35,9 +36,9 @@ namespace SprayChronicle.Persistence.Ouro
             _credentials = credentials;
         }
 
-        public async Task Append<T>(string identity, IEnumerable<IDomainEnvelope> domainMessages)
+        public async Task Append<T>(string identity, IEnumerable<IEventEnvelope> domainMessages)
         {
-            var enumerable = domainMessages as DomainEnvelope[] ?? domainMessages.ToArray();
+            var enumerable = domainMessages as EventEnvelope[] ?? domainMessages.ToArray();
             
             if ( ! enumerable.Any()) {
                 return;
@@ -84,17 +85,17 @@ namespace SprayChronicle.Persistence.Ouro
             return $"{typeof(T).Name}-{identity}";
         }
 
-        private EventData BuildEventData(IDomainEnvelope domainEnvelope)
+        private EventData BuildEventData(IEventEnvelope eventEnvelope)
         {
             return new EventData(
                 Guid.NewGuid(),
-                domainEnvelope.MessageName,
+                eventEnvelope.MessageName,
                 true,
-                Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(domainEnvelope.Message)),
+                Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(eventEnvelope.Message)),
                 Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(new Metadata(
-                    domainEnvelope.MessageId,
-                    domainEnvelope.CausationId,
-                    domainEnvelope.CorrelationId
+                    eventEnvelope.MessageId,
+                    eventEnvelope.CausationId,
+                    eventEnvelope.CorrelationId
                 )))
             );
         }

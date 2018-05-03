@@ -2,7 +2,7 @@
 using System.Threading.Tasks.Dataflow;
 using SprayChronicle.MessageHandling;
 
-namespace SprayChronicle.EventSourcing
+namespace SprayChronicle.EventHandling
 {
     public interface IEventSource
     {
@@ -14,6 +14,6 @@ namespace SprayChronicle.EventSourcing
     {
         Task Start();
         
-        DomainEnvelope Convert(IMailStrategy<TTarget> strategy, object message);
+        EventEnvelope Convert(IMailStrategy<TTarget> strategy, object message);
     }
 }

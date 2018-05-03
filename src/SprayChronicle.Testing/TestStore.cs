@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using SprayChronicle.EventHandling;
 using SprayChronicle.EventSourcing;
 
 namespace SprayChronicle.Testing
@@ -12,9 +13,9 @@ namespace SprayChronicle.Testing
         
         private readonly EpochGenerator _epochs;
 
-        private readonly List<IDomainEnvelope> _past = new List<IDomainEnvelope>();
+        private readonly List<IEventEnvelope> _past = new List<IEventEnvelope>();
 
-        private readonly List<IDomainEnvelope> _future = new List<IDomainEnvelope>();
+        private readonly List<IEventEnvelope> _future = new List<IEventEnvelope>();
 
         private bool _present;
 
@@ -24,9 +25,9 @@ namespace SprayChronicle.Testing
             _epochs = epochs;
         }
 
-        public Task Append<T>(string identity, IEnumerable<IDomainEnvelope> domainMessages)
+        public Task Append<T>(string identity, IEnumerable<IEventEnvelope> domainMessages)
         {
-            var range = PrepareRange(domainMessages);
+            var range = PrepareRange(domainMessages).ToArray();
             
             if ( ! _present) {
                 _past.AddRange(range);
@@ -39,14 +40,14 @@ namespace SprayChronicle.Testing
             return Task.CompletedTask;
         }
 
-        private IEnumerable<IDomainEnvelope> PrepareRange(IEnumerable<IDomainEnvelope> domainMessages)
+        private IEnumerable<IEventEnvelope> PrepareRange(IEnumerable<IEventEnvelope> domainMessages)
         {
             var i = 0;
-            var list = new List<IDomainEnvelope>();
+            var list = new List<IEventEnvelope>();
             
             foreach (var message in domainMessages) {
                 if (_epochs.Count > i) {
-                    list.Add(new DomainEnvelope(
+                    list.Add(new EventEnvelope(
                         Guid.NewGuid().ToString(),
                         null,
                         Guid.NewGuid().ToString(),
@@ -70,17 +71,17 @@ namespace SprayChronicle.Testing
             return _child.Load<T>(identity, causationId);
         }
 
-        public IEnumerable<IDomainEnvelope> Past()
+        public IEnumerable<IEventEnvelope> Past()
         {
             return _past.ToArray();
         }
 
-        public IEnumerable<IDomainEnvelope> Future()
+        public IEnumerable<IEventEnvelope> Future()
         {
             return _future.ToArray();
         }
 
-        public IEnumerable<IDomainEnvelope> Chronicle()
+        public IEnumerable<IEventEnvelope> Chronicle()
         {
             return _past.Union(_future).ToArray();
         }

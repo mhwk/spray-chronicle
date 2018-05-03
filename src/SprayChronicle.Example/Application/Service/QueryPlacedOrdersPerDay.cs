@@ -10,7 +10,7 @@ namespace SprayChronicle.Example.Application.Service
     public sealed class QueryPlacedOrdersPerDay : RavenQueries<QueryPlacedOrdersPerDay,QueryPlacedOrdersPerDay.Result>,
         IExecute<PerDay>
     {
-        public async Task<Executor> Execute(PerDay query)
+        public async Task<Executed> Execute(PerDay query)
         {
             return await Execute<PlacedOrdersPerDay>()
                 .Query<Result>(baskets => baskets

@@ -1,6 +1,6 @@
 ﻿namespace SprayChronicle.QueryHandling
 {
-    public abstract class Executor
+    public abstract class Executed
     {
     }
 }

@@ -122,7 +122,7 @@ namespace SprayChronicle.MessageHandling
             
             var stateMethods = null == subject
                 ? methods.Where(method => method.IsStatic).ToArray()
-                : methods.Where(method => ! method.IsStatic && method.DeclaringType.IsInstanceOfType(subject)).ToArray();
+                : methods.Where(method => ! method.IsStatic && (null == method.DeclaringType || method.DeclaringType.IsInstanceOfType(subject))).ToArray();
 
             if (methods.Any() && ! stateMethods.Any()) {
                 throw new UnexpectedStateException(

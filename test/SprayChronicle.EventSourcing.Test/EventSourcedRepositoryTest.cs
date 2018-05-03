@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using NSubstitute;
 using Shouldly;
+using SprayChronicle.EventHandling;
 using SprayChronicle.Example.Domain;
 using SprayChronicle.Example.Domain.Model;
 using SprayChronicle.Testing;
@@ -21,7 +22,7 @@ namespace SprayChronicle.EventSourcing.Test
             
             await _persistence
                 .Received()
-                .Append<Basket>(Arg.Is("foo"), Arg.Any<IEnumerable<IDomainEnvelope>>());
+                .Append<Basket>(Arg.Is("foo"), Arg.Any<IEnumerable<IEventEnvelope>>());
         }
 
         [Fact]
