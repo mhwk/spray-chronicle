@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using MongoDB.Driver;
 
 namespace SprayChronicle.Persistence.Mongo
 {
@@ -7,14 +8,16 @@ namespace SprayChronicle.Persistence.Mongo
     {
         private readonly string _identity;
 
-        public RavenExecutedFind(string identity)
+        public MongoExecutedFind(string identity)
         {
             _identity = identity;
         }
         
-        internal override async Task<object> Do(IMongoSession session)
+        internal override async Task<object> Do(IMongoDatabase database)
         {
-            return await session.LoadAsync<TState>($"{typeof(TState).Name}/{_identity}");
+            return await database
+                .GetCollection<TState>(typeof(TState).Name)
+                .FindAsync();
         }
     }
 }

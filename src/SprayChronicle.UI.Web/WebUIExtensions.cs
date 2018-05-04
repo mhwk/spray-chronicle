@@ -28,7 +28,7 @@ namespace SprayChronicle.UI.Web
                 {
                     FileProvider = new EmbeddedFileProvider(
                         typeof(WebUIExtensions).GetTypeInfo().Assembly,
-                        "SprayChronicle.UI.Web.wwwroot.dist"
+                        "SprayChronicle.UI.Web.App.dist"
                     ),
                     RequestPath = new PathString("/_ui")
                 });
@@ -44,7 +44,7 @@ namespace SprayChronicle.UI.Web
                 var assembly = typeof(WebUIExtensions).GetTypeInfo().Assembly;
                 
                 builder.MapGet("_ui/{*path}", async context => {
-                    var resource = assembly.GetManifestResourceStream("SprayChronicle.UI.Web.wwwroot.index.html");
+                    var resource = assembly.GetManifestResourceStream("SprayChronicle.UI.Web.App.dist.index.html");
                     context.Response.ContentType = "text/html";
                     context.Response.ContentLength = resource.Length;
 

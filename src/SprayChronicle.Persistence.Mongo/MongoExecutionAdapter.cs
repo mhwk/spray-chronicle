@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using MongoDB.Driver;
 using SprayChronicle.QueryHandling;
 using SprayChronicle.Server;
 
@@ -11,26 +12,24 @@ namespace SprayChronicle.Persistence.Mongo
     {
         private readonly ILogger<TProcessor> _logger;
         
-        private readonly IDocumentStore _store;
+        private readonly IMongoDatabase _database;
 
-        public RavenExecutionAdapter(
+        public MongoExecutionAdapter(
             ILogger<TProcessor> logger,
-            IDocumentStore store)
+            IMongoDatabase database)
         {
             _logger = logger;
-            _store = store;
+            _database = database;
         }
 
         public async Task<object> Apply(Executed executed)
         {
             if (!(executed is MongoExecuted mongo)) {
-                throw new Exception($"Executed is expected to be {typeof(RavenExecuted)}, {executed.GetType()} given");
+                throw new Exception($"Executed is expected to be {typeof(MongoExecuted)}, {executed.GetType()} given");
             }
             
-            using (var session = _store.OpenAsyncSession()) {
-                var result = mongo.Do(session);
-                return await result;
-            }
+            var result = mongo.Do(_database);
+            return await result;
         }
     }
 }

@@ -1,38 +1,23 @@
 ﻿using System;
 using System.Threading.Tasks;
+using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 
 namespace SprayChronicle.Persistence.Mongo
 {
     public sealed class MongoExecutedSingle<TState> : MongoExecuted
         where TState : class
     {
-        private readonly Func<IRavenQueryable<TState>,Task<TState>> _query;
+        private readonly Func<IMongoQueryable<TState>,Task<TState>> _query;
 
-        public RavenExecutedSingle(Func<IRavenQueryable<TState>,Task<TState>> query)
+        public MongoExecutedSingle(Func<IMongoQueryable<TState>,Task<TState>> query)
         {
             _query = query;
         }
         
-        internal override async Task<object> Do(IAsyncDocumentSession session)
+        internal override async Task<object> Do(IMongoDatabase database)
         {
-            return await _query(session.Query<TState>());
-        }
-    }
-    
-    public sealed class RavenExecutedSingle<TState,TFilter> : RavenExecuted
-        where TState : class
-        where TFilter : AbstractIndexCreationTask, new()
-    {
-        private readonly Func<IRavenQueryable<TState>,Task<TState>> _query;
-
-        public RavenExecutedSingle(Func<IRavenQueryable<TState>,Task<TState>> query)
-        {
-            _query = query;
-        }
-        
-        internal override async Task<object> Do(IAsyncDocumentSession session)
-        {
-            return await _query(session.Query<TState,TFilter>());
+            return await _query(database.GetCollection<TState>(typeof(TState).Name).AsQueryable());
         }
     }
 }
