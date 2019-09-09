@@ -7,9 +7,9 @@ env:
   - PACKAGE=SprayChronicle
   - PACKAGE=SprayChronicle.Mongo
 install:
-  - cd $TRAVIS_BUILD_DIR/src/$PACKAGE && dotnet restore
-  - cd $TRAVIS_BUILD_DIR/test/$PACKAGE.Test && dotnet restore
+  - cd $TRAVIS_BUILD_DIR/$PACKAGE && dotnet restore
+  - cd $TRAVIS_BUILD_DIR/$PACKAGE.Test && dotnet restore
 script:
-  - cd $TRAVIS_BUILD_DIR/test/$PACKAGE.Test && dotnet test
+  - cd $TRAVIS_BUILD_DIR/$PACKAGE.Test && dotnet test
 after_script:
-  - cd $TRAVIS_BUILD_DIR/src/$PACKAGE && dotnet pack -c Release --version-suffix build-$TRAVIS_BUILD_NUMBER --include-symbols --output package && dotnet nuget push package/*.nupkg --api-key $NUGET_KEY -s https://www.nuget.org/api/v2/package
+  - cd $TRAVIS_BUILD_DIR/$PACKAGE && dotnet pack -c Release --version-suffix build-$TRAVIS_BUILD_NUMBER --include-symbols --output package && dotnet nuget push package/*.nupkg --api-key $NUGET_KEY -s https://www.nuget.org/api/v2/package
