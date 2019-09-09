@@ -4,17 +4,8 @@ dist: trusty
 mono: none
 dotnet: 2.0.0
 env:
-  - PACKAGE=SprayChronicle.CommandHandling
-  - PACKAGE=SprayChronicle.EventHandling
-  - PACKAGE=SprayChronicle.EventSourcing
-  - PACKAGE=SprayChronicle.MessageHandling
-  - PACKAGE=SprayChronicle.Persistence.Memory
-  - PACKAGE=SprayChronicle.Persistence.Mongo
-  - PACKAGE=SprayChronicle.Persistence.Ouro
-  - PACKAGE=SprayChronicle.QueryHandling
-  - PACKAGE=SprayChronicle.Server
-  - PACKAGE=SprayChronicle.Server.Http
-  - PACKAGE=SprayChronicle.Testing
+  - PACKAGE=SprayChronicle
+  - PACKAGE=SprayChronicle.Mongo
 install:
   - cd $TRAVIS_BUILD_DIR/src/$PACKAGE && dotnet restore
   - cd $TRAVIS_BUILD_DIR/test/$PACKAGE.Test && dotnet restore
