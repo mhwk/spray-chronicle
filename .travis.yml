@@ -1,9 +1,21 @@
+
+env:
+  global:
+    - DOCKER_COMPOSE_VERSION=1.24.0
+
 services:
   - docker
+
+before_install:
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
 
 script:
   - docker-compose run --rm spray_chronicle.test test
   - docker-compose run --rm spray_chronicle.mongo.test test
+
 after_script:
   - docker-compose run --rm spray_chronicle pack -c Release --version-suffix build-$TRAVIS_BUILD_NUMBER --include-symbols --output /app/package
   - docker-compose run --rm spray_chronicle.mongo pack -c Release --version-suffix build-$TRAVIS_BUILD_NUMBER --include-symbols --output /app/package
