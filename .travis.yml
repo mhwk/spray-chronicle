@@ -6,17 +6,26 @@ env:
 services:
   - docker
 
+stages:
+  - name: test
+    if: type = pull_request
+  - name: pack
+    if: type != pull_request AND branch = master
+
 before_install:
   - sudo rm /usr/local/bin/docker-compose
   - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
 
-script:
-  - docker-compose run --rm spray_chronicle.test test
-  - docker-compose run --rm spray_chronicle.mongo.test test
-
-after_script:
-  - docker-compose run --rm spray_chronicle pack -c Release --version-suffix build-$TRAVIS_BUILD_NUMBER --output /app/package
-  - docker-compose run --rm spray_chronicle.mongo pack -c Release --version-suffix build-$TRAVIS_BUILD_NUMBER --output /app/package
-  - docker-compose run --rm spray_chronicle nuget push /app/package/*.nupkg --api-key $NUGET_KEY -s https://www.nuget.org/api/v2/package
+jobs:
+  include:
+    - stage: test
+      script:
+        - docker-compose run --rm spray_chronicle.test test
+        - docker-compose run --rm spray_chronicle.mongo.test test
+    - stage: pack
+      script:
+        - docker-compose run --rm spray_chronicle pack -c Release --version-suffix build-$TRAVIS_BUILD_NUMBER --output /app/package
+        - docker-compose run --rm spray_chronicle.mongo pack -c Release --version-suffix build-$TRAVIS_BUILD_NUMBER --output /app/package
+        - docker-compose run --rm spray_chronicle nuget push /app/package/*.nupkg --api-key $NUGET_KEY -s https://www.nuget.org/api/v2/package
