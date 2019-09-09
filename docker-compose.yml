@@ -1,0 +1,24 @@
+version: '3.7'
+
+x-dotnet: &dotnet
+  image: mcr.microsoft.com/dotnet/core/sdk:3.0-alpine3.9
+  volumes:
+    - ./:/app
+  entrypoint: dotnet
+
+services:
+  spray_chronicle:
+    <<: *dotnet
+    working_dir: /app/SprayChronicle
+
+  spray_chronicle.mongo:
+    <<: *dotnet
+    working_dir: /app/SprayChronicle.Mongo
+
+  spray_chronicle.mongo.test:
+    <<: *dotnet
+    working_dir: /app/SprayChronicle.Mongo.Test
+
+  spray_chronicle.test:
+    <<: *dotnet
+    working_dir: /app/SprayChronicle.Test

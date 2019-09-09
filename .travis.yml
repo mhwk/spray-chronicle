@@ -1,15 +1,10 @@
-language: csharp
-sudo: required
-dist: trusty
-mono: none
-dotnet: 3.0.0
-env:
-  - PACKAGE=SprayChronicle
-  - PACKAGE=SprayChronicle.Mongo
-install:
-  - cd $TRAVIS_BUILD_DIR/$PACKAGE && dotnet restore
-  - cd $TRAVIS_BUILD_DIR/$PACKAGE.Test && dotnet restore
+services:
+  - docker
+
 script:
-  - cd $TRAVIS_BUILD_DIR/$PACKAGE.Test && dotnet test
+  - docker-compose run --rm spray_chronicle.test test
+  - docker-compose run --rm spray_chronicle.mongo.test test
 after_script:
-  - cd $TRAVIS_BUILD_DIR/$PACKAGE && dotnet pack -c Release --version-suffix build-$TRAVIS_BUILD_NUMBER --include-symbols --output package && dotnet nuget push package/*.nupkg --api-key $NUGET_KEY -s https://www.nuget.org/api/v2/package
+  - docker-compose run --rm spray_chronicle pack -c Release --version-suffix build-$TRAVIS_BUILD_NUMBER --include-symbols --output /app/package
+  - docker-compose run --rm spray_chronicle.mongo pack -c Release --version-suffix build-$TRAVIS_BUILD_NUMBER --include-symbols --output /app/package
+  - docker-compose run --rm spray_chronicle nuget push /app/package/*.nupkg --api-key $NUGET_KEY -s https://www.nuget.org/api/v2/package

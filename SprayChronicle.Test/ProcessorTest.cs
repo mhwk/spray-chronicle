@@ -22,7 +22,7 @@ namespace SprayChronicle.Test
             cancellationSource.Token.Register(s => ((TaskCompletionSource<bool>)s).SetResult(true), completionSource);
             
             _events
-                .Watch(Arg.Any<DateTime>(), Arg.Any<CancellationToken>())
+                .Watch(Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
                 .Returns(new [] {
                     new Envelope<object>(
                         "invariantId",
