@@ -5,7 +5,7 @@ up:
 	docker-compose run --rm mongo-init
 .PHONY: up
 
-test: test
+test: up
 	docker-compose run --rm spray_chronicle.test test
 	docker-compose run --rm spray_chronicle.mongo.test test
 .PHONY: test
