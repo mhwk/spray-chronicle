@@ -10,7 +10,7 @@ test: test
 	docker-compose run --rm spray_chronicle.mongo.test test
 .PHONY: test
 
-test: pack
+pack:
 	docker-compose run --rm spray_chronicle pack -c Release --version-suffix build-$TRAVIS_BUILD_NUMBER --output /app/package
 	docker-compose run --rm spray_chronicle.mongo pack -c Release --version-suffix build-$TRAVIS_BUILD_NUMBER --output /app/package
 	docker-compose run --rm spray_chronicle nuget push /app/package/*.nupkg --api-key $NUGET_KEY -s https://www.nuget.org/api/v2/package
