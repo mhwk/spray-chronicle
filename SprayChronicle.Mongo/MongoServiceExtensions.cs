@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -13,8 +14,13 @@ namespace SprayChronicle.Mongo
 {
     public static class MongoServiceExtensions
     {
+        private static bool Initialized = false;
+        
         public static IEventSourcingBuilder AddMongo(this IServiceCollection services)
         {
+            services.AddSingleton<IConfigureOptions<MongoOptions>>(s => new MongoOptionsConfigure(
+                s.GetRequiredService<IConfiguration>()
+            ));
             services.AddSingleton<IMongoClient>(s => {
                 var options = s.GetRequiredService<IOptions<MongoOptions>>().Value;
 
@@ -23,18 +29,21 @@ namespace SprayChronicle.Mongo
                     mapper(new MongoStateMapper(s));
                 }
 
-                BsonSerializer.RegisterDiscriminatorConvention(
-                    typeof(object),
-                    new ScalarDiscriminatorConvention("_t")
-                );
-                BsonClassMap.RegisterClassMap<Envelope<object>>(map => {
-                    map.AutoMap();
-                    map.MapIdProperty(p => p.MessageId);
-                });
-                BsonClassMap.RegisterClassMap<Snapshot>(map => {
-                    map.AutoMap();
-                    map.MapIdProperty(p => p.SnapshotId);
-                });
+                if (!Initialized) {
+                    Initialized = true;
+                    BsonSerializer.RegisterDiscriminatorConvention(
+                        typeof(object),
+                        new ScalarDiscriminatorConvention("_t")
+                    );
+                    BsonClassMap.RegisterClassMap<Envelope<object>>(map => {
+                        map.AutoMap();
+                        map.MapIdProperty(p => p.MessageId);
+                    });
+                    BsonClassMap.RegisterClassMap<Snapshot>(map => {
+                        map.AutoMap();
+                        map.MapIdProperty(p => p.SnapshotId);
+                    });
+                }
 
                 return new MongoClient(options.ConnectionString);
             });

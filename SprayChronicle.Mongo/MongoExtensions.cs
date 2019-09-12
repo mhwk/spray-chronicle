@@ -6,7 +6,6 @@ namespace SprayChronicle.Mongo
 {
     public static class MongoExtensions
     {
-        
         public static async Task<bool> CollectionExistsAsync(this IMongoDatabase database, string collectionName)
         {
             var collections = await database.ListCollectionsAsync(new ListCollectionsOptions

@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Options;
+
 namespace SprayChronicle.Mongo
 {
     public class MongoOptions

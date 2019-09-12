@@ -1,12 +1,56 @@
 version: '3.7'
 
+x-mongo: &mongo
+    image: mongo:4.2-rc-bionic
+    networks:
+      - database
+    tmpfs:
+      - /config/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" ]
+
 x-dotnet: &dotnet
   image: mcr.microsoft.com/dotnet/core/sdk:3.0-alpine3.9
+  networks:
+    - database
   volumes:
     - ./:/app
   entrypoint: dotnet
 
 services:
+
+  mongo1:
+    <<: *mongo
+    hostname: mongo1
+    ports:
+      - 27017:27017
+
+  mongo2:
+    <<: *mongo
+    hostname: mongo2
+    ports:
+      - 27018:27017
+
+  mongo3:
+    <<: *mongo
+    hostname: mongo3
+    ports:
+      - 27019:27017
+
+  mongo-ready:
+    image: jwilder/dockerize:latest
+    networks:
+      - database
+    command: -wait tcp://mongo1:27017 -wait tcp://mongo2:27017 -wait tcp://mongo3:27017
+  
+  mongo-init:
+    <<: *mongo
+    volumes:
+      - ./mongo-init.sh:/mongo-init.sh
+    entrypoint: sh /mongo-init.sh
+
   spray_chronicle:
     <<: *dotnet
     working_dir: /app/SprayChronicle
@@ -17,8 +61,13 @@ services:
 
   spray_chronicle.mongo.test:
     <<: *dotnet
+    environment:
+      - Mongo:ConnectionString=mongodb://mongo1:27017,mongo2:27017,mongo3:27017/?replicaSet=rs0
     working_dir: /app/SprayChronicle.Mongo.Test
 
   spray_chronicle.test:
     <<: *dotnet
     working_dir: /app/SprayChronicle.Test
+
+networks:
+  database:
