@@ -29,7 +29,7 @@ namespace SprayChronicle.Mongo
             return this;
         }
 
-        public IEventSourcingBuilder AddProjector<TProjector>(int batchSize)
+        public IEventSourcingBuilder AddProjector<TProjector>(int batchSize, TimeSpan timeout)
             where TProjector : class, IProject
         {
             _services.AddSingleton<TProjector>();
@@ -38,8 +38,23 @@ namespace SprayChronicle.Mongo
                 s.GetRequiredService<IStoreSnapshots>(),
                 s.GetRequiredService<IMongoDatabase>(),
                 s.GetRequiredService<TProjector>(),
-                batchSize
+                batchSize,
+                timeout
             ));
+            return this;
+        }
+
+        public IEventSourcingBuilder AddProjector<TProjector>(TimeSpan timeout)
+            where TProjector : class, IProject
+        {
+            AddProjector<TProjector>(100, timeout);
+            return this;
+        }
+
+        public IEventSourcingBuilder AddProjector<TProjector>(int batchSize)
+            where TProjector : class, IProject
+        {
+            AddProjector<TProjector>(batchSize, TimeSpan.FromMilliseconds(100));
             return this;
         }
 

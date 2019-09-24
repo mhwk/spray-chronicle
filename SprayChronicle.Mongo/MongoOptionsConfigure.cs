@@ -16,9 +16,7 @@ namespace SprayChronicle.Mongo
         
         public void Configure(MongoOptions options)
         {
-            Console.WriteLine("Binding configuration");
             _configuration.GetSection("Mongo").Bind(options);
-            Console.WriteLine(options.ConnectionString);
         }
     }
 }

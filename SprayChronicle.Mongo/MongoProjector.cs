@@ -19,12 +19,14 @@ namespace SprayChronicle.Mongo
             IStoreSnapshots snapshots,
             IMongoDatabase database,
             TProjector process,
-            int batchSize
+            int batchSize,
+            TimeSpan timeout
         ) : base(
             events,
             snapshots,
             process,
-            batchSize
+            batchSize,
+            timeout
         )
         {
             _database = database;

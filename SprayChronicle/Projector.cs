@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
@@ -9,8 +10,10 @@ namespace SprayChronicle
         where TProject : IProject
     {
         private readonly IStoreEvents _events;
+        private readonly Timer _timer;
         private readonly BufferBlock<Envelope<object>> _queue;
         private readonly TransformBlock<Envelope<object>, Projection> _process;
+        private TransformBlock<Projection, Projection> _trigger;
         private readonly BatchBlock<Projection> _batch;
         private readonly ActionBlock<Projection[]> _commit;
 
@@ -18,17 +21,28 @@ namespace SprayChronicle
             IStoreEvents events,
             IStoreSnapshots snapshots,
             TProject process,
-            int batchSize
+            int batchSize,
+            TimeSpan timeout
         )
         {
             _events = events;
+            _timer = new Timer(time => {
+                _batch.TriggerBatch();
+            });
             _queue = new BufferBlock<Envelope<object>>();
             _process = new TransformBlock<Envelope<object>, Projection>(process.Project);
+            _trigger = new TransformBlock<Projection,Projection>(
+                processed => {
+                    _timer.Change(timeout, Timeout.InfiniteTimeSpan);
+                    return processed;
+                }
+            );
             _batch = new BatchBlock<Projection>(batchSize);
             _commit = new ActionBlock<Projection[]>(Commit);
 
             _queue.LinkTo(_process, new DataflowLinkOptions {PropagateCompletion = true});
-            _process.LinkTo(_batch, new DataflowLinkOptions {PropagateCompletion = true});
+            _process.LinkTo(_trigger, new DataflowLinkOptions {PropagateCompletion = true});
+            _trigger.LinkTo(_batch, new DataflowLinkOptions {PropagateCompletion = true});
             _batch.LinkTo(_commit, new DataflowLinkOptions {PropagateCompletion = true});
         }
 
