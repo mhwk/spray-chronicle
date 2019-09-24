@@ -1,9 +1,12 @@
 using System;
+using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Shouldly;
 using SprayChronicle.Test;
 using SprayChronicle.Test.Example.Domain;
@@ -19,11 +22,14 @@ namespace SprayChronicle.Mongo.Test
         public MongoStoreTest()
         {
             _server = new TestServer(new WebHostBuilder()
-                .ConfigureAppConfiguration(builder => {
-                    builder.AddEnvironmentVariables();
-                })
-                .Configure((builder, configure) => {
-                })
+                .UseConfiguration(new ConfigurationBuilder()
+                    .AddEnvironmentVariables()
+                    .AddInMemoryCollection(new [] {
+                        new KeyValuePair<string, string>("Mongo:EventCollection", "Events-" + Guid.NewGuid()),
+                        new KeyValuePair<string, string>("Mongo:SnapshotCollection", "Snapshots-" + Guid.NewGuid()),
+                    })
+                    .Build())
+                .Configure((host, config) => { })
                 .ConfigureServices(services => {
                     services.AddMongo();
                 }));            
@@ -133,6 +139,90 @@ namespace SprayChronicle.Mongo.Test
             await snapshots
                 .Load<Shopping>(invariantId, causationId)
                 .ShouldThrowAsync<IdempotencyException>();
+        }
+
+        [Fact]
+        public async Task ShouldLoad()
+        {
+            var cancellationSource = new CancellationTokenSource();
+            var invariantId = Guid.NewGuid().ToString();
+            var events = _server.Services.GetRequiredService<IStoreEvents>();
+            
+            await events.Append<Shopping>(new [] {
+                new Envelope<object>(
+                    invariantId,
+                    typeof(Shopping).Name,
+                    0,
+                    new ProductChosen(
+                        "customerId",
+                        "productId"
+                    )
+                ),
+                new Envelope<object>(
+                    invariantId,
+                    typeof(Shopping).Name,
+                    1,
+                    new ProductChosen(
+                        "customerId",
+                        "productId"
+                    )
+                ),
+            });
+
+            var counter = 0;
+            await foreach (var envelope in events.Load(null, cancellationSource.Token)) {
+                counter++;
+            }
+            
+            counter.ShouldBe(2);
+        }
+
+        [Fact]
+        public async Task ShouldWatch()
+        {
+            var cancellationSource = new CancellationTokenSource();
+            var completionSource = new TaskCompletionSource<bool>();
+            cancellationSource.Token.Register(s => ((TaskCompletionSource<bool>)s).SetResult(true), completionSource);
+
+            var invariantId = Guid.NewGuid().ToString();
+            var events = _server.Services.GetRequiredService<IStoreEvents>();
+            
+            await events.Append<Shopping>(new [] {
+                new Envelope<object>(
+                    invariantId,
+                    typeof(Shopping).Name,
+                    0,
+                    new ProductChosen(
+                        "customerId",
+                        "productId"
+                    )
+                ),
+            });
+
+            var counter = 0;
+            var task = Task.Run(async () => {
+                await foreach (var envelope in events.Watch(null, cancellationSource.Token)) {
+                    counter++;
+                }
+            });
+            
+            await events.Append<Shopping>(new [] {
+                new Envelope<object>(
+                    invariantId,
+                    typeof(Shopping).Name,
+                    1,
+                    new ProductChosen(
+                        "customerId",
+                        "productId"
+                    )
+                ),
+            });
+
+            await Task.Delay(100);
+            cancellationSource.Cancel();
+            await task.ShouldThrowAsync<TaskCanceledException>();
+            
+            counter.ShouldBe(2);
         }
     }
 }

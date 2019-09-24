@@ -40,7 +40,7 @@ namespace SprayChronicle.Mongo
         {
             using var cursor = await _events.AsQueryable()
                 .OrderBy(x => x.Epoch)
-                .Where(x => x.Epoch > since)
+                .Where(x => null == since || x.Epoch > since)
                 .ToCursorAsync(cancellation);
 
             while (await cursor.MoveNextAsync(cancellation)) {
