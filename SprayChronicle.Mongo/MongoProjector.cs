@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
@@ -15,6 +16,7 @@ namespace SprayChronicle.Mongo
         private readonly List<WriteModel<BsonDocument>> _operations;
 
         public MongoProjector(
+            ILogger<TProjector> logger,
             IStoreEvents events,
             IStoreSnapshots snapshots,
             IMongoDatabase database,
@@ -22,6 +24,7 @@ namespace SprayChronicle.Mongo
             int batchSize,
             TimeSpan timeout
         ) : base(
+            logger,
             events,
             snapshots,
             process,
@@ -36,6 +39,7 @@ namespace SprayChronicle.Mongo
         protected override async Task Commit(Projection[] projections)
         {
             using var session = await _database.Client.StartSessionAsync();
+            var time = DateTime.Now;
 
             session.StartTransaction();
 

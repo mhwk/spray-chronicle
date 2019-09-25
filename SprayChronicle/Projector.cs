@@ -3,12 +3,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace SprayChronicle
 {
     public abstract class Projector<TProject> : BackgroundService
         where TProject : IProject
     {
+        private readonly ILogger<TProject> _logger;
         private readonly IStoreEvents _events;
         private readonly Timer _timer;
         private readonly BufferBlock<Envelope<object>> _queue;
@@ -18,13 +20,14 @@ namespace SprayChronicle
         private readonly ActionBlock<Projection[]> _commit;
 
         protected Projector(
+            ILogger<TProject> logger,
             IStoreEvents events,
             IStoreSnapshots snapshots,
             TProject process,
             int batchSize,
-            TimeSpan timeout
-        )
+            TimeSpan timeout)
         {
+            _logger = logger;
             _events = events;
             _timer = new Timer(time => {
                 _batch.TriggerBatch();
@@ -38,7 +41,14 @@ namespace SprayChronicle
                 }
             );
             _batch = new BatchBlock<Projection>(batchSize);
-            _commit = new ActionBlock<Projection[]>(Commit);
+            _commit = new ActionBlock<Projection[]>(async batch => {
+                var time = DateTime.Now;
+                try {
+                    await Commit(batch);
+                } finally {
+                    _logger.LogInformation($"Processed {batch.Length} states in {(DateTime.Now - time).TotalMilliseconds}ms");
+                }
+            });
 
             _queue.LinkTo(_process, new DataflowLinkOptions {PropagateCompletion = true});
             _process.LinkTo(_trigger, new DataflowLinkOptions {PropagateCompletion = true});

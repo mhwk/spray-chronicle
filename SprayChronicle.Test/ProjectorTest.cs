@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Shouldly;
 using SprayChronicle.Test.Example.Application;
@@ -11,6 +12,7 @@ namespace SprayChronicle.Test
 {
     public class ProjectorTest
     {
+        private readonly ILogger<TestProject> _logger = Substitute.For<ILogger<TestProject>>();
         private readonly IStoreEvents _events = Substitute.For<IStoreEvents>();
         private readonly IStoreSnapshots _snapshots = Substitute.For<IStoreSnapshots>();
 
@@ -42,6 +44,7 @@ namespace SprayChronicle.Test
             var projections = default(Projection[]);
             
             var processor = new TestProjector(
+                _logger,
                 _events,
                 _snapshots,
                 new TestProject(async e => {
@@ -86,6 +89,7 @@ namespace SprayChronicle.Test
             var projections = default(Projection[]);
             
             var processor = new TestProjector(
+                _logger,
                 _events,
                 _snapshots,
                 new TestProject(async e => {
@@ -114,6 +118,7 @@ namespace SprayChronicle.Test
             private readonly Func<Projection[], Task> _callback;
 
             public TestProjector(
+                ILogger<TestProject> logger,
                 IStoreEvents events,
                 IStoreSnapshots snapshots,
                 TestProject process,
@@ -121,6 +126,7 @@ namespace SprayChronicle.Test
                 TimeSpan timeout,
                 Func<Projection[], Task> callback
             ) : base(
+                logger,
                 events,
                 snapshots,
                 process,

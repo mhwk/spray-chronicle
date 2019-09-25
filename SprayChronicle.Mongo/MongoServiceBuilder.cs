@@ -34,6 +34,7 @@ namespace SprayChronicle.Mongo
         {
             _services.AddSingleton<TProjector>();
             _services.AddTransient<IHostedService, MongoProjector<TProjector>>(s => new MongoProjector<TProjector>(
+                s.GetRequiredService<ILoggerFactory>().CreateLogger<TProjector>(),
                 s.GetRequiredService<IStoreEvents>(),
                 s.GetRequiredService<IStoreSnapshots>(),
                 s.GetRequiredService<IMongoDatabase>(),
