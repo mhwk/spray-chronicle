@@ -16,6 +16,7 @@ namespace SprayChronicle.Mongo
         {
             BsonClassMap.RegisterClassMap<T>(x => {
                 x.AutoMap();
+                x.SetIgnoreExtraElements(true);
                 x.RequirePropertySetters();
             });
             return this;
@@ -25,6 +26,7 @@ namespace SprayChronicle.Mongo
         {
             BsonClassMap.RegisterClassMap<T>(x => {
                 x.AutoMap();
+                x.SetIgnoreExtraElements(true);
                 x.SetDiscriminator(name);
                 x.RequirePropertySetters();
             });
@@ -35,6 +37,7 @@ namespace SprayChronicle.Mongo
         {
             BsonClassMap.RegisterClassMap<T>(x => {
                 x.AutoMap();
+                x.SetIgnoreExtraElements(true);
                 x.SetDiscriminator(name);
                 x.SetCreator(() => creator(_serviceProvider));
                 x.RequirePropertySetters();
@@ -46,6 +49,7 @@ namespace SprayChronicle.Mongo
         {
             BsonClassMap.RegisterClassMap<T>(x => {
                 x.AutoMap();
+                x.SetIgnoreExtraElements(true);
                 x.SetCreator(() => creator(_serviceProvider));
                 x.RequirePropertySetters();
             });
