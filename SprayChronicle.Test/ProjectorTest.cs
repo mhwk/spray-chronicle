@@ -15,7 +15,7 @@ namespace SprayChronicle.Test
         private readonly IStoreSnapshots _snapshots = Substitute.For<IStoreSnapshots>();
 
         [Fact]
-        public async Task ItShouldProjectMessages()
+        public async Task ShouldProjectMessages()
         {
             var cancellationSource = new CancellationTokenSource();
             var completionSource = new TaskCompletionSource<bool>();
@@ -48,15 +48,64 @@ namespace SprayChronicle.Test
                     envelopes.Add(e);
                 }),
                 2,
+                TimeSpan.FromMilliseconds(100), 
                 async p => {
                     projections = p;
                     cancellationSource.Cancel();
                 }
             );
             await processor.StartAsync(cancellationSource.Token);
-            await completionSource.Task;
+            await await Task.WhenAny(
+                completionSource.Task,
+                Task.Delay(10000)
+            );
 
             envelopes.Count.ShouldBe(2);
+            projections.ShouldNotBeNull();
+        }
+        
+        [Fact]
+        public async Task ShouldCommitBatchAfterTimeout()
+        {
+            var cancellationSource = new CancellationTokenSource();
+            var completionSource = new TaskCompletionSource<bool>();
+            cancellationSource.Token.Register(s => ((TaskCompletionSource<bool>)s).SetResult(true), completionSource);
+
+            _events
+                .Watch(Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
+                .Returns(new[] {
+                    new Envelope<object>(
+                        "invariantId1",
+                        "Invariant",
+                        0,
+                        new ChooseProduct("customerId", "productId")
+                    )
+                }.ToAsync());
+
+            var envelopes = new List<Envelope<object>>();
+            var projections = default(Projection[]);
+            
+            var processor = new TestProjector(
+                _events,
+                _snapshots,
+                new TestProject(async e => {
+                    envelopes.Add(e);
+                }),
+                2,
+                TimeSpan.FromMilliseconds(10), 
+                async p => {
+                    projections = p;
+                    cancellationSource.Cancel();
+                }
+            );
+            await processor.StartAsync(cancellationSource.Token);
+            await Task.Delay(TimeSpan.FromMilliseconds(20));
+            await await Task.WhenAny(
+                completionSource.Task,
+                Task.Delay(10000)
+            );
+
+            envelopes.Count.ShouldBe(1);
             projections.ShouldNotBeNull();
         }
 
@@ -69,12 +118,14 @@ namespace SprayChronicle.Test
                 IStoreSnapshots snapshots,
                 TestProject process,
                 int batchSize,
+                TimeSpan timeout,
                 Func<Projection[], Task> callback
             ) : base(
                 events,
                 snapshots,
                 process,
-                batchSize
+                batchSize,
+                timeout
             )
             {
                 _callback = callback;
