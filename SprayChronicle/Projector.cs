@@ -58,11 +58,17 @@ namespace SprayChronicle
 
         protected override async Task ExecuteAsync(CancellationToken cancellation)
         {
-            await await Task.WhenAny(
-                _commit.Completion,
-                Process(cancellation)
-            );
-            
+            try {
+                await await Task.WhenAny(
+                    _commit.Completion,
+                    Process(cancellation)
+                );
+            } catch (Exception error) {
+                _logger.LogCritical(error.ToString());
+                throw;
+            } finally {
+                _logger.LogDebug("Stopped");
+            }
         }
 
         private async Task Process(CancellationToken cancellation)
