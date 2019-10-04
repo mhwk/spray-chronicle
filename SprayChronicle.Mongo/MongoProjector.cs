@@ -39,11 +39,10 @@ namespace SprayChronicle.Mongo
         protected override async Task Commit(Projection[] projections)
         {
             using var session = await _database.Client.StartSessionAsync();
-            var time = DateTime.Now;
-
-            session.StartTransaction();
 
             try {
+                session.StartTransaction();
+
                 var mutations = projections
                     .Where(x => x.GetType().IsGenericType && x.GetType().Name == typeof(Projection.Mutate<>).Name)
                     .Select(x => new {
@@ -58,34 +57,34 @@ namespace SprayChronicle.Mongo
                 foreach (var mutation in mutations) {
                     var collection = _database.GetCollection<BsonDocument>(mutation.Key.Name);
                     var ids = mutation.Select(x => x.Identity).ToArray();
-                    var states = await (await collection.FindAsync(
+                    var states = (await (await collection.FindAsync(
                         Builders<BsonDocument>.Filter.In(x => (string)x["_id"], ids)
-                    )).ToListAsync();
-
-                    if (states.Any(x => !x.Contains("_id"))) {
-                        throw new Exception($"No MongoID configured for state {mutation.Key}");
-                    }
+                    )).ToListAsync()).ToDictionary(
+                        x => (string)x["_id"],
+                        x => BsonSerializer.Deserialize(x, mutation.Key));
 
                     foreach (var x in mutation) {
-                        var current = states.FirstOrDefault(s => (string)s["_id"] == x.Identity);
-                        var next = x.Mutate.Invoke(x.Projection,
-                                new[] {null == current ? null : BsonSerializer.Deserialize(current, x.Type)})
+                        states[x.Identity] = x.Mutate
+                            .Invoke(
+                                x.Projection,
+                                new[] {
+                                    states.ContainsKey(x.Identity)
+                                        ? states[x.Identity]
+                                        : null
+                                })
                             .ToBsonDocument();
 
-                        if (null != next) {
-                            if (null == current) {
-                                states.Add(next);
-                            }
+                    }
 
+                    foreach (var (identity, state) in states) {
+                        if (null != state) {
                             _operations.Add(new ReplaceOneModel<BsonDocument>(
-                                new BsonDocument("_id", x.Identity),
-                                next
+                                new BsonDocument("_id", identity),
+                                state.ToBsonDocument()
                             ) {IsUpsert = true});
-                        } else if (null != current) {
-                            states.Remove(current);
-
+                        } else {
                             _operations.Add(new DeleteOneModel<BsonDocument>(
-                                new BsonDocument("_id", x.Identity)
+                                new BsonDocument("_id", identity)
                             ));
                         }
                     }

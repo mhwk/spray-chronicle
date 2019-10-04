@@ -57,14 +57,14 @@ namespace SprayChronicle.Mongo
         {
             var processed = new HashSet<string>();
             await foreach (var envelope in Load(since, cancellation)) {
-                yield return envelope;
-
                 if (since < envelope.Epoch) {
                     since = envelope.Epoch;
                     processed.Clear();
                 }
 
                 processed.Add(envelope.MessageId);
+                
+                yield return envelope;
             }
             
             var options = new ChangeStreamOptions {
