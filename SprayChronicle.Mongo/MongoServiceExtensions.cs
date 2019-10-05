@@ -35,7 +35,7 @@ namespace SprayChronicle.Mongo
                         typeof(object),
                         new ScalarDiscriminatorConvention("_t")
                     );
-                    BsonClassMap.RegisterClassMap<Envelope<object>>(map => {
+                    BsonClassMap.RegisterClassMap<Envelope>(map => {
                         map.AutoMap();
                         map.MapIdProperty(p => p.MessageId);
                     });
@@ -56,12 +56,12 @@ namespace SprayChronicle.Mongo
             services.AddSingleton(s => new MongoStore(
                 s.GetRequiredService<ILoggerFactory>().CreateLogger<MongoStore>(),
                 s.GetRequiredService<IClientSessionHandle>(),
-                s.GetRequiredService<IMongoCollection<Envelope<object>>>(),
+                s.GetRequiredService<IMongoCollection<Envelope>>(),
                 s.GetRequiredService<IMongoCollection<Snapshot>>()
             ));
             services.AddSingleton(s => s
                 .GetRequiredService<IMongoDatabase>()
-                .GetCollection<Envelope<object>>(
+                .GetCollection<Envelope>(
                     s.GetService<IOptions<MongoOptions>>().Value.EventCollection
                 ));
             services.AddSingleton(s => s
@@ -74,7 +74,7 @@ namespace SprayChronicle.Mongo
             services.AddSingleton<IStoreSnapshots>(s => s.GetRequiredService<MongoStore>());
             services.AddTransient<IClientSessionHandle>(s => s.GetService<IMongoClient>().StartSession());
             services.AddTransient<IHostedService>(s => new MongoInitializationService(
-                s.GetRequiredService<IMongoCollection<Envelope<object>>>(),
+                s.GetRequiredService<IMongoCollection<Envelope>>(),
                 s.GetRequiredService<IMongoCollection<Snapshot>>()
             ));
 

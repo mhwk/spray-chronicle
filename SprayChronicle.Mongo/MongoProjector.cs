@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 
 namespace SprayChronicle.Mongo
 {
@@ -14,11 +15,11 @@ namespace SprayChronicle.Mongo
     {
         private readonly IMongoDatabase _database;
         private readonly List<WriteModel<BsonDocument>> _operations;
+        private long? _checkpoint;
 
         public MongoProjector(
             ILogger<TProjector> logger,
             IStoreEvents events,
-            IStoreSnapshots snapshots,
             IMongoDatabase database,
             TProjector process,
             int batchSize,
@@ -26,7 +27,6 @@ namespace SprayChronicle.Mongo
         ) : base(
             logger,
             events,
-            snapshots,
             process,
             batchSize,
             timeout
@@ -36,20 +36,30 @@ namespace SprayChronicle.Mongo
             _operations = new List<WriteModel<BsonDocument>>();
         }
 
-        protected override async Task Commit(Projection[] projections)
+        protected override async Task<long> Checkpoint()
+        {
+            return (long) (_checkpoint ??= (await _database
+                                       .GetCollection<MongoCheckpoint>(typeof(MongoCheckpoint).Name)
+                                       .AsQueryable()
+                                       .Where(c => c.Id == typeof(TProjector).Name)
+                                       .FirstOrDefaultAsync())?.Value ?? DateTime.MinValue.Ticks);
+        }
+
+        protected override async Task Commit(ProjectionResult[] results)
         {
             using var session = await _database.Client.StartSessionAsync();
 
             try {
                 session.StartTransaction();
 
-                var mutations = projections
-                    .Where(x => x.GetType().IsGenericType && x.GetType().Name == typeof(Projection.Mutate<>).Name)
+                var mutations = results
+                    .Where(x => x.Projection.GetType().IsGenericType && x.Projection.GetType().Name == typeof(Projection.Mutate<>).Name)
                     .Select(x => new {
-                        Type = (Type)x.GetType().GetProperty("Type").GetValue(x),
-                        Identity = (string)x.GetType().GetProperty("Identity").GetValue(x),
-                        Mutate = x.GetType().GetMethod("DoMutate"),
-                        Projection = x
+                        Type = (Type)x.Projection.GetType().GetProperty("Type").GetValue(x.Projection),
+                        Identity = (string)x.Projection.GetType().GetProperty("Identity").GetValue(x.Projection),
+                        Mutate = x.Projection.GetType().GetMethod("DoMutate"),
+                        Envelope = x.Envelope,
+                        Projection = x.Projection
                     })
                     .GroupBy(x => x.Type)
                     .ToArray();
@@ -64,6 +74,7 @@ namespace SprayChronicle.Mongo
                         x => BsonSerializer.Deserialize(x, mutation.Key));
 
                     foreach (var x in mutation) {
+                        _checkpoint = x.Envelope.Epoch.Ticks;
                         states[x.Identity] = x.Mutate
                             .Invoke(
                                 x.Projection,
@@ -71,8 +82,8 @@ namespace SprayChronicle.Mongo
                                     states.ContainsKey(x.Identity)
                                         ? states[x.Identity]
                                         : null
-                                });
-
+                                }
+                            );
                     }
 
                     foreach (var (identity, state) in states) {
@@ -93,6 +104,20 @@ namespace SprayChronicle.Mongo
                         new BulkWriteOptions {IsOrdered = false, BypassDocumentValidation = true}
                     );
                 }
+
+                if (_checkpoint == null) throw new Exception("No checkpoint for some weird reason");
+                
+                await _database
+                    .GetCollection<MongoCheckpoint>(typeof(MongoCheckpoint).Name)
+                    .BulkWriteAsync(
+                        new[] {
+                            new ReplaceOneModel<MongoCheckpoint>(
+                                new BsonDocument("_id", typeof(TProjector).Name),
+                                new MongoCheckpoint {Id = typeof(TProjector).Name, Value = (long)_checkpoint,}
+                            ) {IsUpsert = true}
+                        },
+                        new BulkWriteOptions {IsOrdered = false, BypassDocumentValidation = true}
+                    );
 
                 session.CommitTransaction();
             } catch (Exception) {

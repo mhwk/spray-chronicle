@@ -7,12 +7,12 @@ namespace SprayChronicle
 {
     public interface IStoreEvents
     {
-        IAsyncEnumerable<Envelope<object>> Load(DateTime? since, CancellationToken cancellation);
+        IAsyncEnumerable<Envelope> Load(long? checkpoint, CancellationToken cancellation);
         
-        IAsyncEnumerable<Envelope<object>> Watch(DateTime? since, CancellationToken cancellation);
+        IAsyncEnumerable<Envelope> Watch(long? checkpoint, CancellationToken cancellation);
 
-        IAsyncEnumerable<Envelope<object>> Load<TInvariant>(string invariantId, string causationId, long fromPosition);
+        IAsyncEnumerable<Envelope> Load<TInvariant>(string invariantId, string causationId, long fromPosition);
         
-        Task Append<TInvariant>(IEnumerable<Envelope<object>> envelopes);
+        Task Append<TInvariant>(IEnumerable<Envelope> envelopes);
     }
 }

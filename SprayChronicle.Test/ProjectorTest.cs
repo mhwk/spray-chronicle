@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -14,7 +15,6 @@ namespace SprayChronicle.Test
     {
         private readonly ILogger<TestProject> _logger = Substitute.For<ILogger<TestProject>>();
         private readonly IStoreEvents _events = Substitute.For<IStoreEvents>();
-        private readonly IStoreSnapshots _snapshots = Substitute.For<IStoreSnapshots>();
 
         [Fact]
         public async Task ShouldProjectMessages()
@@ -24,15 +24,15 @@ namespace SprayChronicle.Test
             cancellationSource.Token.Register(s => ((TaskCompletionSource<bool>)s).SetResult(true), completionSource);
 
             _events
-                .Watch(Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
+                .Watch(Arg.Any<long?>(), Arg.Any<CancellationToken>())
                 .Returns(new[] {
-                    new Envelope<object>(
+                    new Envelope(
                         "invariantId1",
                         "Invariant",
                         0,
                         new ChooseProduct("customerId", "productId")
                     ),
-                    new Envelope<object>(
+                    new Envelope(
                         "invariantId2",
                         "Invariant",
                         0,
@@ -40,24 +40,23 @@ namespace SprayChronicle.Test
                     )
                 }.ToAsync());
 
-            var envelopes = new List<Envelope<object>>();
+            var envelopes = new List<Envelope>();
             var projections = default(Projection[]);
             
             var processor = new TestProjector(
                 _logger,
                 _events,
-                _snapshots,
                 new TestProject(async e => {
                     envelopes.Add(e);
                 }),
                 2,
                 TimeSpan.FromMilliseconds(100), 
-                async p => {
-                    projections = p;
+                async results => {
+                    projections = results.Select(r => r.Projection).ToArray();
                     cancellationSource.Cancel();
                 }
             );
-            await processor.StartAsync(cancellationSource.Token);
+            await processor.ExecuteAsync(cancellationSource.Token);
             await await Task.WhenAny(
                 completionSource.Task,
                 Task.Delay(10000)
@@ -75,9 +74,9 @@ namespace SprayChronicle.Test
             cancellationSource.Token.Register(s => ((TaskCompletionSource<bool>)s).SetResult(true), completionSource);
 
             _events
-                .Watch(Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
+                .Watch(Arg.Any<long?>(), Arg.Any<CancellationToken>())
                 .Returns(new[] {
-                    new Envelope<object>(
+                    new Envelope(
                         "invariantId1",
                         "Invariant",
                         0,
@@ -85,24 +84,23 @@ namespace SprayChronicle.Test
                     )
                 }.ToAsync());
 
-            var envelopes = new List<Envelope<object>>();
+            var envelopes = new List<Envelope>();
             var projections = default(Projection[]);
             
             var processor = new TestProjector(
                 _logger,
                 _events,
-                _snapshots,
                 new TestProject(async e => {
                     envelopes.Add(e);
                 }),
                 2,
                 TimeSpan.FromMilliseconds(10), 
-                async p => {
-                    projections = p;
+                async results => {
+                    projections = results.Select(r => r.Projection).ToArray();
                     cancellationSource.Cancel();
                 }
             );
-            await processor.StartAsync(cancellationSource.Token);
+            await processor.ExecuteAsync(cancellationSource.Token);
             await Task.Delay(TimeSpan.FromMilliseconds(20));
             await await Task.WhenAny(
                 completionSource.Task,
@@ -115,20 +113,18 @@ namespace SprayChronicle.Test
 
         public class TestProjector : Projector<TestProject>
         {
-            private readonly Func<Projection[], Task> _callback;
+            private readonly Func<ProjectionResult[], Task> _callback;
 
             public TestProjector(
                 ILogger<TestProject> logger,
                 IStoreEvents events,
-                IStoreSnapshots snapshots,
                 TestProject process,
                 int batchSize,
                 TimeSpan timeout,
-                Func<Projection[], Task> callback
+                Func<ProjectionResult[], Task> callback
             ) : base(
                 logger,
                 events,
-                snapshots,
                 process,
                 batchSize,
                 timeout
@@ -137,22 +133,27 @@ namespace SprayChronicle.Test
                 _callback = callback;
             }
 
-            protected override async Task Commit(Projection[] projections)
+            protected override Task<long> Checkpoint()
             {
-                await _callback(projections);
+                return Task.FromResult(-1L);
+            }
+
+            protected override async Task Commit(ProjectionResult[] results)
+            {
+                await _callback(results);
             }
         }
 
         public class TestProject : IProject
         {
-            private readonly Func<Envelope<object>, Task> _callback;
+            private readonly Func<Envelope, Task> _callback;
 
-            public TestProject(Func<Envelope<object>, Task> callback)
+            public TestProject(Func<Envelope, Task> callback)
             {
                 _callback = callback;
             }
 
-            public async Task<Projection> Project(Envelope<object> envelope)
+            public async Task<Projection> Project(Envelope envelope)
             {
                 await _callback(envelope);
                 return new Projection.None();

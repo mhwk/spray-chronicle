@@ -7,11 +7,11 @@ namespace SprayChronicle.Mongo
 {
     public class MongoInitializationService : BackgroundService
     {
-        private readonly IMongoCollection<Envelope<object>> _events;
+        private readonly IMongoCollection<Envelope> _events;
         private readonly IMongoCollection<Snapshot> _snapshots;
 
         public MongoInitializationService(
-            IMongoCollection<Envelope<object>> events,
+            IMongoCollection<Envelope> events,
             IMongoCollection<Snapshot> snapshots
         )
         {
@@ -23,18 +23,18 @@ namespace SprayChronicle.Mongo
         {
             await _events.Indexes.CreateManyAsync(
                 new[] {
-                    new CreateIndexModel<Envelope<object>>(
-                        Builders<Envelope<object>>.IndexKeys
+                    new CreateIndexModel<Envelope>(
+                        Builders<Envelope>.IndexKeys
                             .Ascending(e => e.Epoch)
                     ),
-                    new CreateIndexModel<Envelope<object>>(
-                        Builders<Envelope<object>>.IndexKeys
+                    new CreateIndexModel<Envelope>(
+                        Builders<Envelope>.IndexKeys
                             .Ascending(e => e.InvariantType)
                             .Ascending(e => e.InvariantId)
                             .Ascending(e => e.CausationId)
                     ),
-                    new CreateIndexModel<Envelope<object>>(
-                        Builders<Envelope<object>>.IndexKeys
+                    new CreateIndexModel<Envelope>(
+                        Builders<Envelope>.IndexKeys
                             .Ascending(e => e.InvariantType)
                             .Ascending(e => e.InvariantId)
                             .Ascending(e => e.Sequence),

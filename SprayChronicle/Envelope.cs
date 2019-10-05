@@ -2,8 +2,7 @@ using System;
 
 namespace SprayChronicle
 {
-    public sealed class Envelope<T>
-        where T : class
+    public sealed class Envelope
     {
         public string MessageId { get; private set; }
         public string CausationId { get; private set; }
@@ -11,14 +10,14 @@ namespace SprayChronicle
         public string InvariantId { get; private set; }
         public string InvariantType { get; private set; }
         public long Sequence { get; private set; }
-        public T Message { get; private set; }
+        public object Message { get; private set; }
         public DateTime Epoch { get; private set; }
 
         public Envelope(
             string invariantId,
             string invariant,
             long sequence,
-            T message
+            object message
         ) : this(
             Guid.NewGuid().ToString(),
             Guid.NewGuid().ToString(),
@@ -39,7 +38,7 @@ namespace SprayChronicle
             string invariantId,
             string invariantType,
             long sequence,
-            T message,
+            object message,
             DateTime epoch)
         {
             MessageId = messageId;
@@ -52,9 +51,9 @@ namespace SprayChronicle
             Epoch = epoch;
         }
 
-        public Envelope<T> CausedBy(string causationId)
+        public Envelope CausedBy(string causationId)
         {
-            return new Envelope<T>(
+            return new Envelope(
                 MessageId,
                 causationId,
                 CorrelationId,
@@ -66,9 +65,9 @@ namespace SprayChronicle
             );
         }
 
-        public Envelope<T> CorrelatesTo(string correlationId)
+        public Envelope CorrelatesTo(string correlationId)
         {
-            return new Envelope<T>(
+            return new Envelope(
                 MessageId,
                 CausationId,
                 correlationId,

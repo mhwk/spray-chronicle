@@ -22,9 +22,9 @@ namespace SprayChronicle.Test
             cancellationSource.Token.Register(s => ((TaskCompletionSource<bool>)s).SetResult(true), completionSource);
             
             _events
-                .Watch(Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
+                .Watch(Arg.Any<long?>(), Arg.Any<CancellationToken>())
                 .Returns(new [] {
-                    new Envelope<object>(
+                    new Envelope(
                         "invariantId",
                         "Invariant",
                         0,
@@ -32,12 +32,12 @@ namespace SprayChronicle.Test
                     )
                 }.ToAsync());
             
-            var envelope = default(Envelope<object>);
+            var envelope = default(Envelope);
             var processor = new Processor<TestProcess>(_logger, _events, new TestProcess(async e => {
                 envelope = e;
                 cancellationSource.Cancel();
             }));
-            await processor.StartAsync(cancellationSource.Token);
+            await processor.ExecuteAsync(cancellationSource.Token);
             await completionSource.Task;
             
             envelope.ShouldNotBeNull();
@@ -45,14 +45,14 @@ namespace SprayChronicle.Test
 
         public class TestProcess : IProcess
         {
-            private readonly Func<Envelope<object>, Task> _callback;
+            private readonly Func<Envelope, Task> _callback;
 
-            public TestProcess(Func<Envelope<object>, Task> callback)
+            public TestProcess(Func<Envelope, Task> callback)
             {
                 _callback = callback;
             }
             
-            public async Task Process(Envelope<object> envelope)
+            public async Task Process(Envelope envelope)
             {
                 await _callback(envelope);
             }

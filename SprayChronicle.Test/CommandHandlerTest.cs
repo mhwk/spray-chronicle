@@ -27,10 +27,10 @@ namespace SprayChronicle.Test
                 )));
             _events
                 .Load<Shopping>("customerId", "messageId", -1)
-                .Returns(new Envelope<object>[0].ToAsync());
+                .Returns(new Envelope[0].ToAsync());
 
             await _events
-                .Append<Shopping>(Arg.Do<IEnumerable<Envelope<object>>>(envelopes => {
+                .Append<Shopping>(Arg.Do<IEnumerable<Envelope>>(envelopes => {
                     var first = envelopes.First();
                     first.Sequence.ShouldBe(0);
                     ((ProductChosen) first.Message).ShouldNotBeNull();
@@ -62,7 +62,7 @@ namespace SprayChronicle.Test
             _events
                 .Load<Shopping>("customerId", "messageId", -1)
                 .Returns(new [] {
-                    new Envelope<object>(
+                    new Envelope(
                         "customerId",
                         "Shopping",
                         0,
@@ -76,7 +76,7 @@ namespace SprayChronicle.Test
             
             await _events
                 .DidNotReceive()
-                .Append<Shopping>(Arg.Any<IEnumerable<Envelope<object>>>());
+                .Append<Shopping>(Arg.Any<IEnumerable<Envelope>>());
             await _snapshots
                 .DidNotReceive()
                 .Save<Shopping>(Arg.Any<Snapshot>());

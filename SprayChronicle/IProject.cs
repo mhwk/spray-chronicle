@@ -4,6 +4,6 @@ namespace SprayChronicle
 {
     public interface IProject
     {
-        Task<Projection> Project(Envelope<object> envelope);
+        Task<Projection> Project(Envelope envelope);
     }
 }

@@ -15,14 +15,14 @@ namespace SprayChronicle.Mongo
     {
         private readonly ILogger<MongoStore> _logger;
         private readonly IClientSessionHandle _session;
-        private readonly IMongoCollection<Envelope<object>> _events;
+        private readonly IMongoCollection<Envelope> _events;
         private readonly IMongoCollection<Snapshot> _snapshots;
         private readonly IDiscriminatorConvention _discriminatorConvention;
 
         public MongoStore(
             ILogger<MongoStore> logger,
             IClientSessionHandle session,
-            IMongoCollection<Envelope<object>> events,
+            IMongoCollection<Envelope> events,
             IMongoCollection<Snapshot> snapshots
         )
         {
@@ -33,64 +33,53 @@ namespace SprayChronicle.Mongo
             _discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(object));
         }
 
-        public async IAsyncEnumerable<Envelope<object>> Load(
-            DateTime? since,
+        public async IAsyncEnumerable<Envelope> Load(
+            long? checkpoint,
             CancellationToken cancellation
         )
         {
-            using var cursor = await _events.AsQueryable()
+            var from = new DateTime(checkpoint ?? 0);
+            using var cursor = await _events
+                .AsQueryable()
                 .OrderBy(x => x.Epoch)
-                .Where(x => null == since || x.Epoch > since)
+                .Where(x => null == checkpoint || x.Epoch > from)
                 .ToCursorAsync(cancellation);
 
             while (await cursor.MoveNextAsync(cancellation)) {
-                foreach (var evt in cursor.Current) {
-                    yield return evt;
+                foreach (var envelope in cursor.Current) {
+                    yield return envelope;
                 }
             }
         }
 
-        public async IAsyncEnumerable<Envelope<object>> Watch(
-            DateTime? since,
+        public async IAsyncEnumerable<Envelope> Watch(
+            long? checkpoint,
             CancellationToken cancellation
         )
         {
-            var processed = new HashSet<string>();
-            await foreach (var envelope in Load(since, cancellation)) {
-                if (since < envelope.Epoch) {
-                    since = envelope.Epoch;
-                    processed.Clear();
-                }
-
-                processed.Add(envelope.MessageId);
-                
+            await foreach (var envelope in Load(checkpoint, cancellation)) {
+                checkpoint = envelope.Epoch.Ticks;
                 yield return envelope;
             }
-            
+
             var options = new ChangeStreamOptions {
                 FullDocument = ChangeStreamFullDocumentOption.UpdateLookup,
-                StartAtOperationTime = null == since ? null : new BsonTimestamp((int)((DateTimeOffset)since).ToUnixTimeSeconds(), 1),
+                StartAtOperationTime = null == checkpoint ? null : new BsonTimestamp((int) ((DateTimeOffset)new DateTime((long) checkpoint)).ToUnixTimeMilliseconds(), 1),
             };
 
-            var pipeline = new EmptyPipelineDefinition<ChangeStreamDocument<Envelope<object>>>()
+            var pipeline = new EmptyPipelineDefinition<ChangeStreamDocument<Envelope>>()
                 .Match(x => x.OperationType == ChangeStreamOperationType.Insert);
 
             using var cursor = await _events.WatchAsync(pipeline, options, cancellation);
 
             while (await cursor.MoveNextAsync(cancellation)) {
                 foreach (var change in cursor.Current) {
-                    if (processed.Contains(change.FullDocument.MessageId)) {
-                        _logger.LogDebug(
-                            $"Deduplicated {change.FullDocument.Message.GetType()} with id {change.FullDocument.MessageId}");
-                        continue;
-                    }
-
                     yield return change.FullDocument;
                 }
             }
         }
 
-        public async IAsyncEnumerable<Envelope<object>> Load<TInvariant>(
+        public async IAsyncEnumerable<Envelope> Load<TInvariant>(
             string invariantId,
             string causationId,
             long fromPosition
@@ -115,7 +104,7 @@ namespace SprayChronicle.Mongo
             }
         }
 
-        public async Task Append<TInvariant>(IEnumerable<Envelope<object>> envelopes)
+        public async Task Append<TInvariant>(IEnumerable<Envelope> envelopes)
         {
             if (!_session.IsInTransaction) {
                 _session.StartTransaction();

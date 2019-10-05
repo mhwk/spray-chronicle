@@ -46,10 +46,10 @@ namespace SprayChronicle.Mongo.Test
             
             var events = server.Services.GetRequiredService<IStoreEvents>();
             await events.Append<Counter>(new[] {
-                new Envelope<object>("1", "Counter", 0, new Increment {Id = "1"}),
-                new Envelope<object>("1", "Counter", 1, new Increment {Id = "1"}),
-                new Envelope<object>("2", "Counter", 1, new Increment {Id = "2"}),
-                new Envelope<object>("2", "Counter", 2, new Increment {Id = "2"}),
+                new Envelope("1", "Counter", 0, new Increment {Id = "1"}),
+                new Envelope("1", "Counter", 1, new Increment {Id = "1"}),
+                new Envelope("2", "Counter", 1, new Increment {Id = "2"}),
+                new Envelope("2", "Counter", 2, new Increment {Id = "2"}),
             });
 
 
@@ -63,8 +63,10 @@ namespace SprayChronicle.Mongo.Test
             );
 
             var projector = server.Services.GetRequiredService<MongoProjector<TestProjector>>();
-            await projector.StartAsync(cancellationTokenSource.Token);
-            await Task.Delay(500);
+            await await Task.WhenAny(
+                projector.ExecuteAsync(cancellationTokenSource.Token),
+                Task.Delay(500)
+            );
 
             collection.AsQueryable().Where(c => c.Id == "1").First().Value.ShouldBe(2);
             collection.AsQueryable().Where(c => c.Id == "2").First().Value.ShouldBe(3);
@@ -72,7 +74,7 @@ namespace SprayChronicle.Mongo.Test
 
         public class TestProjector : IProject
         {
-            public async Task<Projection> Project(Envelope<object> envelope)
+            public async Task<Projection> Project(Envelope envelope)
             {
                 switch (envelope.Message) {
                     default: return new Projection.None();

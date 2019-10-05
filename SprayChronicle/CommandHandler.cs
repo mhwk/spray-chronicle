@@ -37,7 +37,7 @@ namespace SprayChronicle
             
             var envelopes = ((IAct<TInvariant>) _snapshot.Snap)
                 .Commit()
-                .Select((evt, i) => new Envelope<object>(
+                .Select((evt, i) => new Envelope(
                     _identity,
                     typeof(TInvariant).Name,
                     ++_snapshot.Sequence,

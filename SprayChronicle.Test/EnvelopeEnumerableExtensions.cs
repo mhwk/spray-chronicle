@@ -5,16 +5,16 @@ namespace SprayChronicle.Test
 {
     public static class EnvelopeEnumerableExtensions
     {
-        public static async IAsyncEnumerable<Envelope<object>> ToAsync(this IEnumerable<Envelope<object>> envelopes)
+        public static async IAsyncEnumerable<Envelope> ToAsync(this IEnumerable<Envelope> envelopes)
         {
             foreach (var envelope in envelopes) {
                 yield return envelope;
             }
         }
         
-        public static async Task<Envelope<object>[]> ToSync(this IAsyncEnumerable<Envelope<object>> envelopes)
+        public static async Task<Envelope[]> ToSync(this IAsyncEnumerable<Envelope> envelopes)
         {
-            var list = new List<Envelope<object>>();
+            var list = new List<Envelope>();
             
             await foreach (var envelope in envelopes) {
                 list.Add(envelope);

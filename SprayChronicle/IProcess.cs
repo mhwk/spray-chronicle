@@ -4,6 +4,6 @@ namespace SprayChronicle
 {
     public interface IProcess
     {
-        Task Process(Envelope<object> envelope);
+        Task Process(Envelope envelope);
     }
 }

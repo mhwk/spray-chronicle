@@ -7,13 +7,13 @@ using Microsoft.Extensions.Logging;
 
 namespace SprayChronicle
 {
-    public sealed class Processor<TProcess> : BackgroundService
+    public sealed class Processor<TProcess> : IBackgroundTask
         where TProcess : IProcess
     {
         private readonly ILogger<TProcess> _logger;
         private readonly IStoreEvents _events;
-        private readonly BufferBlock<Envelope<object>> _queue;
-        private readonly ActionBlock<Envelope<object>> _process;
+        private readonly BufferBlock<Envelope> _queue;
+        private readonly ActionBlock<Envelope> _process;
 
         public Processor(
             ILogger<TProcess> logger,
@@ -23,8 +23,8 @@ namespace SprayChronicle
         {
             _logger = logger;
             _events = events;
-            _queue = new BufferBlock<Envelope<object>>();
-            _process = new ActionBlock<Envelope<object>>(async e => {
+            _queue = new BufferBlock<Envelope>();
+            _process = new ActionBlock<Envelope>(async e => {
                 try {
                     await process.Process(e);
                 } catch (IdempotencyException error) {
@@ -35,7 +35,7 @@ namespace SprayChronicle
             _queue.LinkTo(_process, new DataflowLinkOptions {PropagateCompletion = true});
         }
 
-        protected override async Task ExecuteAsync(CancellationToken cancellation)
+        public async Task ExecuteAsync(CancellationToken cancellation)
         {
             try {
                 await await Task.WhenAny(
@@ -56,7 +56,7 @@ namespace SprayChronicle
             }
         }
 
-        private async Task Process(Envelope<object> envelope)
+        private async Task Process(Envelope envelope)
         {
             await _queue.SendAsync(envelope);
         }

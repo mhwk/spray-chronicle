@@ -40,7 +40,7 @@ namespace SprayChronicle.Mongo.Test
             var events = _server.Services.GetRequiredService<IStoreEvents>();
             
             await events.Append<Shopping>(new [] {
-                new Envelope<object>(
+                new Envelope(
                     invariantId,
                     typeof(Shopping).Name,
                     0,
@@ -69,7 +69,7 @@ namespace SprayChronicle.Mongo.Test
             var events = _server.Services.GetRequiredService<IStoreEvents>();
             
             await events.Append<Shopping>(new [] {
-                new Envelope<object>(
+                new Envelope(
                     invariantId,
                     typeof(Shopping).Name,
                     0,
@@ -123,7 +123,7 @@ namespace SprayChronicle.Mongo.Test
             var snapshots = _server.Services.GetRequiredService<IStoreSnapshots>();
             
             await events.Append<Shopping>(new [] {
-                new Envelope<object>(
+                new Envelope(
                     invariantId,
                     typeof(Shopping).Name,
                     0,
@@ -147,7 +147,7 @@ namespace SprayChronicle.Mongo.Test
             var events = _server.Services.GetRequiredService<IStoreEvents>();
             
             await events.Append<Shopping>(new [] {
-                new Envelope<object>(
+                new Envelope(
                     invariantId,
                     typeof(Shopping).Name,
                     0,
@@ -156,7 +156,7 @@ namespace SprayChronicle.Mongo.Test
                         "productId"
                     )
                 ),
-                new Envelope<object>(
+                new Envelope(
                     invariantId,
                     typeof(Shopping).Name,
                     1,
@@ -186,7 +186,7 @@ namespace SprayChronicle.Mongo.Test
             var events = _server.Services.GetRequiredService<IStoreEvents>();
             
             await events.Append<Shopping>(new [] {
-                new Envelope<object>(
+                new Envelope(
                     invariantId,
                     typeof(Shopping).Name,
                     0,
@@ -201,11 +201,15 @@ namespace SprayChronicle.Mongo.Test
             var task = Task.Run(async () => {
                 await foreach (var envelope in events.Watch(null, cancellationSource.Token)) {
                     counter++;
+
+                    if (counter >= 2) {
+                        break;
+                    }
                 }
             });
             
             await events.Append<Shopping>(new [] {
-                new Envelope<object>(
+                new Envelope(
                     invariantId,
                     typeof(Shopping).Name,
                     1,
@@ -216,9 +220,10 @@ namespace SprayChronicle.Mongo.Test
                 ),
             });
 
-            await Task.Delay(100);
-            cancellationSource.Cancel();
-            await task.ShouldThrowAsync<TaskCanceledException>();
+            await await Task.WhenAny(
+                task,
+                Task.Delay(500)
+            );
             
             counter.ShouldBe(2);
         }
