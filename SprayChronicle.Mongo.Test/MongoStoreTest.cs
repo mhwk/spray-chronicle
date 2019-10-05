@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Shouldly;
 using SprayChronicle.Test;
 using SprayChronicle.Test.Example.Domain;
@@ -25,8 +24,7 @@ namespace SprayChronicle.Mongo.Test
                 .UseConfiguration(new ConfigurationBuilder()
                     .AddEnvironmentVariables()
                     .AddInMemoryCollection(new [] {
-                        new KeyValuePair<string, string>("Mongo:EventCollection", "Events-" + Guid.NewGuid()),
-                        new KeyValuePair<string, string>("Mongo:SnapshotCollection", "Snapshots-" + Guid.NewGuid()),
+                        new KeyValuePair<string, string>("Mongo:Database", "Test-" + DateTime.Now.ToString("yyyyMMdd-hhmmss-ffffff")),
                     })
                     .Build())
                 .Configure((host, config) => { })

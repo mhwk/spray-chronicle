@@ -9,10 +9,17 @@ namespace SprayChronicle.Mongo
     public class MongoServiceBuilder : IEventSourcingBuilder
     {
         private readonly IServiceCollection _services;
+        private bool _hostedServices = true;
 
         public MongoServiceBuilder(IServiceCollection services)
         {
             _services = services;
+        }
+
+        public MongoServiceBuilder DisableHostedServices()
+        {
+            _hostedServices = false;
+            return this;
         }
 
         public IEventSourcingBuilder MapState(Action<IMapState> map)
@@ -33,16 +40,26 @@ namespace SprayChronicle.Mongo
             where TProjector : class, IProject
         {
             _services.AddSingleton<TProjector>();
-            _services.AddTransient<IHostedService, MongoProjector<TProjector>>(s => new MongoProjector<TProjector>(
-                s.GetRequiredService<ILoggerFactory>().CreateLogger<TProjector>(),
-                s.GetRequiredService<IStoreEvents>(),
-                s.GetRequiredService<IStoreSnapshots>(),
-                s.GetRequiredService<IMongoDatabase>(),
-                s.GetRequiredService<TProjector>(),
+            if (_hostedServices) {
+                _services.AddSingleton<IHostedService, MongoProjector<TProjector>>(s => CreateProjector<TProjector>(s, batchSize, timeout));
+            } else {
+                _services.AddSingleton(s => CreateProjector<TProjector>(s, batchSize, timeout));
+            }
+            return this;
+        }
+
+        private static MongoProjector<TProjector> CreateProjector<TProjector>(IServiceProvider services, int batchSize, TimeSpan timeout)
+            where TProjector : class, IProject
+        {
+            return new MongoProjector<TProjector>(
+                services.GetRequiredService<ILoggerFactory>().CreateLogger<TProjector>(),
+                services.GetRequiredService<IStoreEvents>(),
+                services.GetRequiredService<IStoreSnapshots>(),
+                services.GetRequiredService<IMongoDatabase>(),
+                services.GetRequiredService<TProjector>(),
                 batchSize,
                 timeout
-            ));
-            return this;
+            );
         }
 
         public IEventSourcingBuilder AddProjector<TProjector>(TimeSpan timeout)
@@ -63,12 +80,22 @@ namespace SprayChronicle.Mongo
             where TProcess : class, IProcess
         {
             _services.AddSingleton<TProcess>();
-            _services.AddTransient<IHostedService, Processor<TProcess>>(s => new Processor<TProcess>(
-                s.GetRequiredService<ILoggerFactory>().CreateLogger<TProcess>(),
-                s.GetRequiredService<IStoreEvents>(),
-                s.GetRequiredService<TProcess>()
-            ));
+            if (_hostedServices) {
+                _services.AddSingleton<IHostedService, Processor<TProcess>>(CreateProcessor<TProcess>);
+            } else {
+                _services.AddSingleton(CreateProcessor<TProcess>);
+            }
             return this;
+        }
+
+        private static Processor<TProcess> CreateProcessor<TProcess>(IServiceProvider services)
+            where TProcess : class, IProcess
+        {
+            return new Processor<TProcess>(
+                services.GetRequiredService<ILoggerFactory>().CreateLogger<TProcess>(),
+                services.GetRequiredService<IStoreEvents>(),
+                services.GetRequiredService<TProcess>()
+            );
         }
     }
 }

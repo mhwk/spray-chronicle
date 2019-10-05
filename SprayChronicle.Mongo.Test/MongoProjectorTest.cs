@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
@@ -18,48 +17,57 @@ namespace SprayChronicle.Mongo.Test
 {
     public class MongoProjectorTest
     {
-        private readonly TestServer _server;
+//        private readonly TestServer _server;
 
-        public MongoProjectorTest()
+        private TestServer CreateServer()
         {
-            _server = new TestServer(new WebHostBuilder()
+            return new TestServer(new WebHostBuilder()
                 .UseConfiguration(new ConfigurationBuilder()
                     .AddEnvironmentVariables()
-                    .AddInMemoryCollection(new [] {
-                        new KeyValuePair<string, string>("Mongo:Database", "Test-" + DateTime.Now.ToString("yyyyMMdd-hhmmss-ffffff")),
+                    .AddInMemoryCollection(new[] {
+                        new KeyValuePair<string, string>("Mongo:Database",
+                            "Test-" + DateTime.Now.ToString("yyyyMMdd-hhmmss-ffffff")),
                     })
                     .Build())
-                .Configure((host, config) => { })
+                .Configure((host, config) => {})
                 .ConfigureServices(services => {
-                    services.AddMongo()
+                    ((MongoServiceBuilder) services.AddMongo())
+                        .DisableHostedServices()
                         .AddProjector<TestProjector>(1);
-                }));            
+                }));
         }
 
         [Fact]
         public async Task ShouldIncrement()
         {
             var cancellationTokenSource = new CancellationTokenSource();
+
+            using var server = CreateServer();
             
-            var events = _server.Services.GetRequiredService<IStoreEvents>();
+            var events = server.Services.GetRequiredService<IStoreEvents>();
             await events.Append<Counter>(new[] {
-                new Envelope<object>("1", "Counter", 0, new Increment()),
-                new Envelope<object>("1", "Counter", 1, new Increment()),
+                new Envelope<object>("1", "Counter", 0, new Increment {Id = "1"}),
+                new Envelope<object>("1", "Counter", 1, new Increment {Id = "1"}),
+                new Envelope<object>("2", "Counter", 1, new Increment {Id = "2"}),
+                new Envelope<object>("2", "Counter", 2, new Increment {Id = "2"}),
             });
 
-            var projector = _server.Services
-                .GetServices<IHostedService>()
-                .First(p => p is MongoProjector<TestProjector>);
-            
-            await projector.StartAsync(cancellationTokenSource.Token);
-            await Task.Delay(500);
-            await projector.StopAsync(cancellationTokenSource.Token);
 
-            var collection = _server.Services
+            var collection = server.Services
                 .GetRequiredService<IMongoDatabase>()
                 .GetCollection<Counter>(typeof(Counter).Name);
-            
+            await collection.InsertOneAsync(
+                new Counter {Id = "2", Value = 1},
+                new InsertOneOptions(),
+                cancellationTokenSource.Token
+            );
+
+            var projector = server.Services.GetRequiredService<MongoProjector<TestProjector>>();
+            await projector.StartAsync(cancellationTokenSource.Token);
+            await Task.Delay(500);
+
             collection.AsQueryable().Where(c => c.Id == "1").First().Value.ShouldBe(2);
+            collection.AsQueryable().Where(c => c.Id == "2").First().Value.ShouldBe(3);
         }
 
         public class TestProjector : IProject
@@ -68,26 +76,23 @@ namespace SprayChronicle.Mongo.Test
             {
                 switch (envelope.Message) {
                     default: return new Projection.None();
-                    case Increment e: return new Projection.Mutate<Counter>(
-                        "1",
-                        s => new Counter {
-                            Id = "1",
-                            Value = (s?.Value ?? 0) + 1
-                        }
-                    );
+                    case Increment e:
+                        return new Projection.Mutate<Counter>(
+                            e.Id,
+                            s => new Counter {Id = e.Id, Value = (s?.Value ?? 0) + 1}
+                        );
                 }
             }
         }
 
         public class Increment
         {
-            
+            public string Id { get; set; }
         }
 
         public class Counter
         {
-            [BsonId]
-            public string Id { get; set; }
+            [BsonId] public string Id { get; set; }
             public int Value { get; set; }
         }
     }
