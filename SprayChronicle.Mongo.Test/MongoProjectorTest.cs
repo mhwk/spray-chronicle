@@ -33,7 +33,7 @@ namespace SprayChronicle.Mongo.Test
                 .ConfigureServices(services => {
                     ((MongoServiceBuilder) services.AddMongo())
                         .DisableHostedServices()
-                        .AddProjector<TestProjector>(1);
+                        .AddProjector<TestProjector>(2);
                 }));
         }
 

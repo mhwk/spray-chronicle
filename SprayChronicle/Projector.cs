@@ -42,11 +42,13 @@ namespace SprayChronicle
             );
             _batch = new BatchBlock<Projection>(batchSize);
             _commit = new ActionBlock<Projection[]>(async batch => {
+                _timer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+                
                 var time = DateTime.Now;
                 try {
                     await Commit(batch);
                 } finally {
-                    _logger.LogInformation($"Processed {batch.Length} states in {(DateTime.Now - time).TotalMilliseconds}ms");
+                    _logger.LogInformation($"Processed {batch.Length} events in {(DateTime.Now - time).TotalMilliseconds}ms");
                 }
             });
 
@@ -63,11 +65,11 @@ namespace SprayChronicle
                     _commit.Completion,
                     Process(cancellation)
                 );
+            } catch (TaskCanceledException) {
+                _logger.LogDebug("Canceled");
             } catch (Exception error) {
                 _logger.LogCritical(error.ToString());
                 throw;
-            } finally {
-                _logger.LogDebug("Stopped");
             }
         }
 

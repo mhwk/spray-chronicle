@@ -71,8 +71,7 @@ namespace SprayChronicle.Mongo
                                     states.ContainsKey(x.Identity)
                                         ? states[x.Identity]
                                         : null
-                                })
-                            .ToBsonDocument();
+                                });
 
                     }
 
