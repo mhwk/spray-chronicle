@@ -15,16 +15,16 @@ namespace SprayChronicle
 
         public Envelope(
             string invariantId,
-            string invariant,
-            long sequence,
+            string invariantType,
+            long invariantSequence,
             object message
         ) : this(
             Guid.NewGuid().ToString(),
             Guid.NewGuid().ToString(),
             Guid.NewGuid().ToString(),
             invariantId,
-            invariant,
-            sequence,
+            invariantType,
+            invariantSequence,
             message,
             DateTime.Now
         )
@@ -49,6 +49,20 @@ namespace SprayChronicle
             Sequence = sequence;
             Message = message;
             Epoch = epoch;
+        }
+
+        public Envelope IdentifiedBy(string messageId)
+        {
+            return new Envelope(
+                messageId,
+                CausationId,
+                CorrelationId,
+                InvariantId,
+                InvariantType,
+                Sequence,
+                Message,
+                Epoch
+            );
         }
 
         public Envelope CausedBy(string causationId)

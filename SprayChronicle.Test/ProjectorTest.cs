@@ -24,7 +24,7 @@ namespace SprayChronicle.Test
             cancellationSource.Token.Register(s => ((TaskCompletionSource<bool>)s).SetResult(true), completionSource);
 
             _events
-                .Watch(Arg.Any<long?>(), Arg.Any<CancellationToken>())
+                .Watch(Arg.Any<Checkpoint?>(), Arg.Any<CancellationToken>())
                 .Returns(new[] {
                     new Envelope(
                         "invariantId1",
@@ -74,7 +74,7 @@ namespace SprayChronicle.Test
             cancellationSource.Token.Register(s => ((TaskCompletionSource<bool>)s).SetResult(true), completionSource);
 
             _events
-                .Watch(Arg.Any<long?>(), Arg.Any<CancellationToken>())
+                .Watch(Arg.Any<Checkpoint?>(), Arg.Any<CancellationToken>())
                 .Returns(new[] {
                     new Envelope(
                         "invariantId1",
@@ -133,9 +133,9 @@ namespace SprayChronicle.Test
                 _callback = callback;
             }
 
-            protected override Task<long> Checkpoint()
+            protected override Task<Checkpoint?> Checkpoint()
             {
-                return Task.FromResult(-1L);
+                return Task.FromResult(new Checkpoint());
             }
 
             protected override async Task Commit(ProjectionResult[] results)

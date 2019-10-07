@@ -88,7 +88,7 @@ namespace SprayChronicle
             }
         }
 
-        protected abstract Task<long> Checkpoint();
+        protected abstract Task<Checkpoint> Checkpoint();
 
         private async Task Process(Envelope evt)
         {

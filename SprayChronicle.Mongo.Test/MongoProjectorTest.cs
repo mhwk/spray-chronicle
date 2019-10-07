@@ -70,6 +70,17 @@ namespace SprayChronicle.Mongo.Test
 
             collection.AsQueryable().Where(c => c.Id == "1").First().Value.ShouldBe(2);
             collection.AsQueryable().Where(c => c.Id == "2").First().Value.ShouldBe(3);
+            
+            // Ensure load from checkpoint
+            await events.Append<Counter>(new[] {
+                new Envelope("1", "Counter", 2, new Increment {Id = "1"}),
+            });
+            await await Task.WhenAny(
+                projector.ExecuteAsync(cancellationTokenSource.Token),
+                Task.Delay(500)
+            );
+
+            collection.AsQueryable().Where(c => c.Id == "1").First().Value.ShouldBe(3);
         }
 
         public class TestProjector : IProject

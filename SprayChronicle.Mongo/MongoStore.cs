@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -34,15 +35,16 @@ namespace SprayChronicle.Mongo
         }
 
         public async IAsyncEnumerable<Envelope> Load(
-            long? checkpoint,
+            Checkpoint? checkpoint,
             CancellationToken cancellation
         )
         {
-            var from = new DateTime(checkpoint ?? 0);
+            var from = CheckpointToFilter(checkpoint);
+
             using var cursor = await _events
                 .AsQueryable()
-                .OrderBy(x => x.Epoch)
-                .Where(x => null == checkpoint || x.Epoch > from)
+                .OrderBy(x => x.MessageId)
+                .Where(x => from.Inject())
                 .ToCursorAsync(cancellation);
 
             while (await cursor.MoveNextAsync(cancellation)) {
@@ -53,22 +55,25 @@ namespace SprayChronicle.Mongo
         }
 
         public async IAsyncEnumerable<Envelope> Watch(
-            long? checkpoint,
+            Checkpoint? checkpoint,
             CancellationToken cancellation
         )
         {
-            await foreach (var envelope in Load(checkpoint, cancellation)) {
-                checkpoint = envelope.Epoch.Ticks;
+            var envelopes = Load(checkpoint, cancellation);
+            checkpoint ??= new Checkpoint();
+            await foreach (var envelope in envelopes) {
+                checkpoint.Value = envelope.MessageId;
                 yield return envelope;
             }
-
+            
             var options = new ChangeStreamOptions {
                 FullDocument = ChangeStreamFullDocumentOption.UpdateLookup,
-                StartAtOperationTime = null == checkpoint ? null : new BsonTimestamp((int) ((DateTimeOffset)new DateTime((long) checkpoint)).ToUnixTimeMilliseconds(), 1),
             };
+            var from = CheckpointToFilter(checkpoint);
 
             var pipeline = new EmptyPipelineDefinition<ChangeStreamDocument<Envelope>>()
-                .Match(x => x.OperationType == ChangeStreamOperationType.Insert);
+                .Match(x => x.OperationType == ChangeStreamOperationType.Insert)
+                .Match(x => from.Inject());
 
             using var cursor = await _events.WatchAsync(pipeline, options, cancellation);
 
@@ -111,9 +116,12 @@ namespace SprayChronicle.Mongo
             }
 
             try {
-                await _events.InsertManyAsync(envelopes, new InsertManyOptions {
-                    IsOrdered = true,
-                });
+                await _events.InsertManyAsync(
+                    envelopes.Select(e => e.IdentifiedBy(ObjectId.GenerateNewId().ToString())),
+                    new InsertManyOptions {
+                        IsOrdered = true,
+                    }
+                );
                 await _session.CommitTransactionAsync();
             } catch (Exception error) {
                 await _session.AbortTransactionAsync();
@@ -154,6 +162,19 @@ namespace SprayChronicle.Mongo
                 s => s.SnapshotId == snapshot.SnapshotId,
                 snapshot,
                 new UpdateOptions {IsUpsert = true}
+            );
+        }
+
+        private static FilterDefinition<BsonDocument> CheckpointToFilter(Checkpoint? checkpoint)
+        {
+            if (checkpoint?.Value == null)
+            {
+                return Builders<BsonDocument>.Filter.Empty;
+            }
+
+            return Builders<BsonDocument>.Filter.Gt(
+                x => x["_id"],
+                checkpoint.Value
             );
         }
 
