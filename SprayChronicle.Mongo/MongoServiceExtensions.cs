@@ -42,7 +42,7 @@ namespace SprayChronicle.Mongo
                         map.AutoMap();
                         map.MapIdProperty(x => x.MessageId)
                             .SetIdGenerator(StringObjectIdGenerator.Instance)
-                            .SetSerializer(new StringSerializer(BsonType.ObjectId));
+                            .SetSerializer(new StringSerializer(BsonType.String));
                     });
                     BsonClassMap.RegisterClassMap<Snapshot>(map => {
                         map.AutoMap();
