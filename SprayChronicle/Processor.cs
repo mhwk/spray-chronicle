@@ -52,7 +52,11 @@ namespace SprayChronicle
         private async Task Process(CancellationToken cancellation)
         {
             await foreach (var envelope in _events.Watch(null, cancellation)) {
-                await Process(envelope);
+                try {
+                    await Process(envelope);
+                } catch (Exception error) {
+                    _logger.LogError(error.ToString());
+                }
             }
         }
 

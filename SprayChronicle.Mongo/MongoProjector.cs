@@ -108,8 +108,6 @@ namespace SprayChronicle.Mongo
                     );
                 }
 
-                if (_checkpoint == null) throw new Exception("No checkpoint for some weird reason");
-                
                 await _database
                     .GetCollection<Checkpoint>(typeof(Checkpoint).Name)
                     .BulkWriteAsync(
