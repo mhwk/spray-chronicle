@@ -6,7 +6,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.IdGenerators;
@@ -79,6 +78,15 @@ namespace SprayChronicle.Mongo
             services.AddTransient<IHostedService>(s => new MongoInitializationService(
                 s.GetRequiredService<IMongoCollection<Envelope>>(),
                 s.GetRequiredService<IMongoCollection<Snapshot>>()
+            ));
+            services.AddSingleton<IHostedService, BackgroundService<MongoMigration>>(s => new BackgroundService<MongoMigration>(
+                s.GetRequiredService<ILoggerFactory>().CreateLogger<MongoMigration>(),
+                new MongoMigration(
+                    s.GetRequiredService<ILoggerFactory>().CreateLogger<MongoMigration>(),
+                    s.GetRequiredService<IMongoDatabase>(),
+                    s.GetService<IOptions<MongoOptions>>().Value.EventCollectionOld,
+                    s.GetService<IOptions<MongoOptions>>().Value.EventCollection
+                )
             ));
 
             return new MongoServiceBuilder(services);
