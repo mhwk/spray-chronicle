@@ -222,7 +222,7 @@ namespace SprayChronicle.Mongo.Test
 
             await await Task.WhenAny(
                 task,
-                Task.Delay(500)
+                Task.Delay(10000)
             );
             
             counter.ShouldBe(2);
