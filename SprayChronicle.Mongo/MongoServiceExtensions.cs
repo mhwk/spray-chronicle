@@ -82,15 +82,6 @@ namespace SprayChronicle.Mongo
                 s.GetRequiredService<IMongoCollection<Envelope>>(),
                 s.GetRequiredService<IMongoCollection<Snapshot>>()
             ));
-            services.AddSingleton<IHostedService, BackgroundService<MongoMigration>>(s => new BackgroundService<MongoMigration>(
-                s.GetRequiredService<ILoggerFactory>().CreateLogger<MongoMigration>(),
-                new MongoMigration(
-                    s.GetRequiredService<ILoggerFactory>().CreateLogger<MongoMigration>(),
-                    s.GetRequiredService<IMongoDatabase>(),
-                    s.GetService<IOptions<MongoOptions>>().Value.EventCollectionOld,
-                    s.GetService<IOptions<MongoOptions>>().Value.EventCollection
-                )
-            ));
 
             return new MongoServiceBuilder(services);
         }
