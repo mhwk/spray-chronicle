@@ -6,9 +6,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.IdGenerators;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
 
 namespace SprayChronicle.Mongo
@@ -39,7 +41,8 @@ namespace SprayChronicle.Mongo
                     BsonClassMap.RegisterClassMap<Envelope>(map => {
                         map.AutoMap();
                         map.MapIdProperty(x => x.MessageId)
-                            .SetIdGenerator(StringObjectIdGenerator.Instance);
+                            .SetIdGenerator(StringObjectIdGenerator.Instance)
+                            .SetSerializer(new StringSerializer(BsonType.ObjectId));
                     });
                     BsonClassMap.RegisterClassMap<Snapshot>(map => {
                         map.AutoMap();
