@@ -18,7 +18,7 @@ namespace SprayChronicle
         IEventSourcingBuilder AddProjector<TProjector>(int batchSize)
             where TProjector : class, IProject;
 
-        IEventSourcingBuilder AddProcessor<TProcessor>()
+        IEventSourcingBuilder AddProcessor<TProcessor>(bool failOnError)
             where TProcessor : class, IProcess;
     }
 }

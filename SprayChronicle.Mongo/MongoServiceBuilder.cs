@@ -73,14 +73,15 @@ namespace SprayChronicle.Mongo
             return this;
         }
 
-        public IEventSourcingBuilder AddProcessor<TProcess>()
+        public IEventSourcingBuilder AddProcessor<TProcess>(bool failOnError)
             where TProcess : class, IProcess
         {
             _services.AddSingleton<TProcess>();
             _services.AddSingleton(s => new Processor<TProcess>(
                 s.GetRequiredService<ILoggerFactory>().CreateLogger<TProcess>(),
                 s.GetRequiredService<IStoreEvents>(),
-                s.GetRequiredService<TProcess>()
+                s.GetRequiredService<TProcess>(),
+                failOnError
             ));
             
             if (_hostedServices) {

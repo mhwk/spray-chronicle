@@ -18,7 +18,8 @@ namespace SprayChronicle
         public Processor(
             ILogger<TProcess> logger,
             IStoreEvents events,
-            TProcess process
+            TProcess process,
+            bool failOnError
         )
         {
             _logger = logger;
@@ -29,6 +30,12 @@ namespace SprayChronicle
                     await process.Process(e);
                 } catch (IdempotencyException error) {
                     _logger.LogDebug($"{error}");
+                } catch (Exception error) {
+                    if (!failOnError) {
+                        _logger.LogError(error.ToString());
+                    } else {
+                        throw;
+                    }
                 }
             });
 
@@ -52,11 +59,7 @@ namespace SprayChronicle
         private async Task Process(CancellationToken cancellation)
         {
             await foreach (var envelope in _events.Watch(null, cancellation)) {
-                try {
-                    await Process(envelope);
-                } catch (Exception error) {
-                    _logger.LogError(error.ToString());
-                }
+                await Process(envelope);
             }
         }
 

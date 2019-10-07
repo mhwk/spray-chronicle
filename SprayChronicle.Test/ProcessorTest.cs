@@ -36,7 +36,7 @@ namespace SprayChronicle.Test
             var processor = new Processor<TestProcess>(_logger, _events, new TestProcess(async e => {
                 envelope = e;
                 cancellationSource.Cancel();
-            }));
+            }), true);
             await processor.ExecuteAsync(cancellationSource.Token);
             await completionSource.Task;
             
