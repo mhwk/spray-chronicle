@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -39,7 +40,7 @@ namespace SprayChronicle.Mongo
             CancellationToken cancellation
         )
         {
-            var from = CheckpointToFilter(checkpoint);
+            var from = CheckpointToFilter(d => d["_id"], checkpoint);
 
             using var cursor = await _events
                 .AsQueryable()
@@ -69,7 +70,7 @@ namespace SprayChronicle.Mongo
             var options = new ChangeStreamOptions {
                 FullDocument = ChangeStreamFullDocumentOption.UpdateLookup,
             };
-            var from = CheckpointToFilter(checkpoint);
+            var from = CheckpointToFilter(d => d["FullDocument"]["_id"], checkpoint);
 
             var pipeline = new EmptyPipelineDefinition<ChangeStreamDocument<Envelope>>()
                 .Match(x => x.OperationType == ChangeStreamOperationType.Insert)
@@ -165,7 +166,9 @@ namespace SprayChronicle.Mongo
             );
         }
 
-        private static FilterDefinition<BsonDocument> CheckpointToFilter(Checkpoint? checkpoint)
+        private static FilterDefinition<BsonDocument> CheckpointToFilter(
+            Expression<Func<BsonDocument, BsonValue>> field,
+            Checkpoint? checkpoint)
         {
             if (checkpoint?.Value == null)
             {
@@ -173,8 +176,8 @@ namespace SprayChronicle.Mongo
             }
 
             return Builders<BsonDocument>.Filter.Gt(
-                x => x["_id"],
-                checkpoint.Value
+                field,
+                (string) checkpoint.Value
             );
         }
 
