@@ -60,6 +60,11 @@ namespace SprayChronicle.Mongo
             CancellationToken cancellation
         )
         {
+            while (!await EventsCollectionExists()) {
+                _logger.LogDebug("Waiting for events collection to appear...");
+                await Task.Delay(100, cancellation);
+            }
+            
             var envelopes = Load(checkpoint, cancellation);
             checkpoint ??= new Checkpoint();
             await foreach (var envelope in envelopes) {
@@ -162,7 +167,7 @@ namespace SprayChronicle.Mongo
             await _snapshots.ReplaceOneAsync(
                 s => s.SnapshotId == snapshot.SnapshotId,
                 snapshot,
-                new UpdateOptions {IsUpsert = true}
+                new ReplaceOptions {IsUpsert = true}
             );
         }
 
@@ -170,8 +175,7 @@ namespace SprayChronicle.Mongo
             Expression<Func<BsonDocument, BsonValue>> field,
             Checkpoint? checkpoint)
         {
-            if (checkpoint?.Value == null)
-            {
+            if (checkpoint?.Value == null) {
                 return Builders<BsonDocument>.Filter.Empty;
             }
 
@@ -179,6 +183,13 @@ namespace SprayChronicle.Mongo
                 field,
                 (string) checkpoint.Value
             );
+        }
+        
+        private async Task<bool> EventsCollectionExists()
+        {
+            var filter = new BsonDocument("name", _events.CollectionNamespace.CollectionName);
+            var collections = await _events.Database.ListCollectionsAsync(new ListCollectionsOptions { Filter = filter });
+            return await collections.AnyAsync();
         }
 
         public void Dispose()

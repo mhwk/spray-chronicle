@@ -227,5 +227,57 @@ namespace SprayChronicle.Mongo.Test
             
             counter.ShouldBe(2);
         }
+
+        [Fact]
+        public async Task ShouldWatchNonExistentCollection()
+        {
+            var cancellationSource = new CancellationTokenSource();
+            var completionSource = new TaskCompletionSource<bool>();
+            cancellationSource.Token.Register(s => ((TaskCompletionSource<bool>)s).SetResult(true), completionSource);
+
+            var invariantId = Guid.NewGuid().ToString();
+            var events = _server.Services.GetRequiredService<IStoreEvents>();
+
+            var counter = 0;
+            var task = Task.Run(async () => {
+                await foreach (var envelope in events.Watch(null, cancellationSource.Token)) {
+                    counter++;
+
+                    if (counter >= 2) {
+                        break;
+                    }
+                }
+            });
+            
+            await events.Append<Shopping>(new [] {
+                new Envelope(
+                    invariantId,
+                    typeof(Shopping).Name,
+                    0,
+                    new ProductChosen(
+                        "customerId",
+                        "productId"
+                    )
+                ),
+            });
+            await events.Append<Shopping>(new [] {
+                new Envelope(
+                    invariantId,
+                    typeof(Shopping).Name,
+                    1,
+                    new ProductChosen(
+                        "customerId",
+                        "productId"
+                    )
+                ),
+            });
+
+            await await Task.WhenAny(
+                task,
+                Task.Delay(10000)
+            );
+            
+            counter.ShouldBe(2);
+        }
     }
 }
