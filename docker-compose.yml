@@ -12,7 +12,7 @@ x-mongo: &mongo
     entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" ]
 
 x-dotnet: &dotnet
-  image: mcr.microsoft.com/dotnet/core/sdk:3.0-alpine3.9
+  image: mcr.microsoft.com/dotnet/core/sdk:3.1-alpine
   networks:
     - database
   volumes:
